@@ -1,7 +1,7 @@
 import { Meta, StoryFn } from '@storybook/react';
 import React from 'react';
 
-import InfoCard from '../infocard';
+import InfoCard from '.';
 
 export default {
   component: InfoCard,

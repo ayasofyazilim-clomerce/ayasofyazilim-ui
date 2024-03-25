@@ -1,7 +1,6 @@
 import { Meta, StoryFn } from '@storybook/react';
 import React from 'react';
-
-import Dashboard from '../dashboard';
+import Dashboard from '.';
 
 export default {
   component: Dashboard,

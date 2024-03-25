@@ -1,7 +1,7 @@
 import { Meta, StoryFn } from '@storybook/react';
 import React from 'react';
 
-import { CountrySelector as CS } from '../country-selector';
+import { CountrySelector as CS } from '.';
 
 export default {
   component: CS,

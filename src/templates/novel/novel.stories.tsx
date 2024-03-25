@@ -1,7 +1,7 @@
 import { Meta, StoryFn } from '@storybook/react';
 import React from 'react';
 
-import CustomNovelEditor from '../custom-novel-editor';
+import CustomNovelEditor from '.';
 
 export default {
   component: CustomNovelEditor,

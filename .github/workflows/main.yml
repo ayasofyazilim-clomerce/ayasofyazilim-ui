@@ -26,19 +26,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-                
+
       - name: Check types
         run: pnpm type-check
 
-      - name : Fix linting
-        run: |
-            pnpm lint:fix
-            git config user.name github-actions
-            git config user.email github-actions@github.com
-            git add .
-            git commit -m "fix:linting"
-            git push
-        
+      - name: Fix linting
+        run: pnpm lint:fix
+
       - name: Check linting
         run: pnpm lint
 

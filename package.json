@@ -28,10 +28,10 @@
   "types": "./dist/index.d.ts",
   "exports": {
     "./atoms/*": "./@/components/ui/*.tsx",
-    "./molecules/*": "./src/molecules/*.tsx",
-    "./organisms/*": "./src/organisms/*.tsx",
-    "./templates/*": "./src/templates/*.tsx",
-    "./pages/*": "./src/pages/*.tsx"
+    "./molecules/*": "./src/molecules/*/index.tsx",
+    "./organisms/*": "./src/organisms/*/index.tsx",
+    "./templates/*": "./src/templates/*/index.tsx",
+    "./pages/*": "./src/pages/*/index.tsx"
   },
   "files": [
     "dist"

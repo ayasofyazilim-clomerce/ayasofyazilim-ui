@@ -1,6 +1,6 @@
 import React from 'react';
 
-import InfoCard, { infoCardProps } from '../molecules/infocard';
+import InfoCard, { infoCardProps } from '../../molecules/infocard';
 
 export type CardListPorps = {
   cards: Array<infoCardProps>;

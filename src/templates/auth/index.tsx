@@ -3,9 +3,9 @@
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { cva } from 'class-variance-authority';
 import React from 'react';
-import { Button } from '../../@/components/ui/button';
+import { Button } from '../../../@/components/ui/button';
 
-import { cn } from '../../@/lib/utils';
+import { cn } from '../../../@/lib/utils';
 
 const themeVariants = cva(
   'flex md:flex-1 justify-center items-center px-5 py-5',

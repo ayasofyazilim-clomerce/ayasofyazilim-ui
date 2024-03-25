@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { Button } from '../../@/components/ui/button';
+import { Button } from '../../../@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -10,18 +10,18 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '../../@/components/ui/command';
+} from '../../../@/components/ui/command';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '../../@/components/ui/popover';
+} from '../../../@/components/ui/popover';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../../@/components/ui/tooltip';
+} from '../../../@/components/ui/tooltip';
 
 type CountrySelectItem = {
   label?: string;
@@ -115,7 +115,7 @@ type SelectedCountryProps = CountrySelectItem & {
 const SelectedCountry = ({
   value = '',
   label,
-  rtl = false,
+  rtl,
   showLabel = true,
 }: SelectedCountryProps) => (
   <div

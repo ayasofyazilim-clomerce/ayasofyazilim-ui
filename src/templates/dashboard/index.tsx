@@ -10,8 +10,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import CardList from '../organisms/card-list';
-import DashboardHeader from '../organisms/header';
+import CardList from '../../organisms/card-list';
+import DashboardHeader from '../../organisms/header';
 
 export type DashboardProps = {
   logo: string;

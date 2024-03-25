@@ -12,15 +12,15 @@ import {
 import { ImageResizer, handleCommandNavigation } from 'novel/extensions';
 import { handleImageDrop, handleImagePaste } from 'novel/plugins';
 
-import './novel/prosemirror.css';
+import './prosemirror.css';
 
 import React from 'react';
-import { extensions, suggestionItems } from '../organisms/novel/extensions';
-import { uploadFn } from '../organisms/novel/image-upload';
-import { ColorSelector } from '../organisms/novel/selectors/color-selector';
-import { LinkSelector } from '../organisms/novel/selectors/link-selector';
-import { NodeSelector } from '../organisms/novel/selectors/node-selector';
-import { TextButtons } from '../organisms/novel/selectors/text-buttons';
+import { extensions, suggestionItems } from '../../organisms/novel/extensions';
+import { uploadFn } from '../../organisms/novel/image-upload';
+import { ColorSelector } from '../../organisms/novel/selectors/color-selector';
+import { LinkSelector } from '../../organisms/novel/selectors/link-selector';
+import { NodeSelector } from '../../organisms/novel/selectors/node-selector';
+import { TextButtons } from '../../organisms/novel/selectors/text-buttons';
 
 export default function CustomNovelEditor() {
   const [content, setContent] = React.useState<JSONContent>();
