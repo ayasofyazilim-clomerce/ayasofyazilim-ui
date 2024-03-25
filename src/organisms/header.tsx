@@ -1,10 +1,10 @@
+import React from 'react';
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
 } from '@/components/ui/navigation-menu';
-import React from 'react';
 import AvatarWrapper from '../molecules/avatar';
 
 interface DashboardHeaderProps {
@@ -16,8 +16,10 @@ interface DashboardHeaderProps {
 export default function DashboardHeader({ children }: DashboardHeaderProps) {
   return (
     <div className="flex items-center justify-between px-2 w-100">
-      <AvatarWrapper text="UR" url="" />
-      <span className="ml-2"> Unirefund </span>
+      <div className="flex justify-center align-center items-center">
+        <AvatarWrapper text="UR" url="" />
+        <span className="ml-2"> Unirefund </span>
+      </div>
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
