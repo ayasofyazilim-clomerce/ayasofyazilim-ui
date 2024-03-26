@@ -13,6 +13,7 @@ export type infoCardProps = {
   content: string;
   description: string;
   footer: string;
+  loading?: boolean;
   title: string;
 };
 

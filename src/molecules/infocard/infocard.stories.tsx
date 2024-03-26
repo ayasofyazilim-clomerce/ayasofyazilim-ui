@@ -1,23 +1,24 @@
-import { Meta, StoryFn } from '@storybook/react';
+import { StoryFn, Meta } from '@storybook/react';
 import React from 'react';
 
-import InfoCard from '.';
+import Infocard, { infoCardProps } from '.';
 
 export default {
-  component: InfoCard,
-  argTypes: {},
+  component: Infocard,
   parameters: {
     layout: 'centered',
   },
-} as Meta<typeof InfoCard>;
+  args: {
+    content: '15000',
+    description: 'your target',
+    footer: 'You are doing well!',
+    title: 'People',
+    loading: 'boolean' as unknown as any,
+  },
+} as Meta<typeof Infocard>;
 
-const Template: StoryFn<typeof InfoCard> = (args) => <InfoCard {...args} />;
+const Template: StoryFn<typeof Infocard> = (args: infoCardProps) => (
+  <Infocard {...args} />
+);
 
-export const InfoCardStory = Template.bind({});
-
-InfoCardStory.args = {
-  title: 'People',
-  content: '15k',
-  description: 'Number of people in the system',
-  footer: 'Your target is 20K',
-};
+export const Default = Template.bind({});

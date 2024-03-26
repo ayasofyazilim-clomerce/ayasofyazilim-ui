@@ -27,6 +27,7 @@ module.exports = {
     'prefer-arrow',
     'sort-class-members',
   ],
+
   rules: {
     '@typescript-eslint/no-unused-vars': 'error',
     'import/extensions': 'off',
@@ -39,6 +40,7 @@ module.exports = {
     'no-use-before-define': 'off',
     'prettier/prettier': 'error',
     'react/destructuring-assignment': 'off',
+    'react/prop-types': 'off',
     'react/function-component-definition': 'off',
     'react/jsx-filename-extension': 'off',
     'react/jsx-props-no-spreading': 'off',
