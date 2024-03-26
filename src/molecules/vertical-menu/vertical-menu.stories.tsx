@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
 
-import { VerticalMenu, VerticalMenuProps } from '../vertical-menu/index';
+import VerticalMenu, { VerticalMenuProps } from './index';
 
 const testData: VerticalMenuProps = {
   items: [

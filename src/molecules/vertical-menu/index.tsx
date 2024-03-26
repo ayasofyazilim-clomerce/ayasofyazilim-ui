@@ -20,7 +20,11 @@ export interface VerticalMenuProps {
   setOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
-export function VerticalMenu({ items, setOpen, path }: VerticalMenuProps) {
+export default function VerticalMenu({
+  items,
+  setOpen,
+  path,
+}: VerticalMenuProps) {
   if (!items?.length) {
     return null;
   }

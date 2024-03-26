@@ -11,9 +11,7 @@ export default {
   },
 } as Meta<typeof SidebarMenu>;
 
-const Template: StoryFn<typeof SidebarMenu> = (args) => (
-  <SidebarMenu {...args} />
-);
+const Template: StoryFn<typeof SidebarMenu> = () => <SidebarMenu />;
 
 export const SidebarMenuStory = Template.bind({});
 
