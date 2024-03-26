@@ -1,7 +1,7 @@
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
 
-import { SidebarMenu } from '../side-bar/index';
+import SidebarMenu from './index';
 
 export default {
   component: SidebarMenu,
@@ -15,6 +15,6 @@ const Template: StoryFn<typeof SidebarMenu> = (args) => (
   <SidebarMenu {...args} />
 );
 
-export const VerticalMenuStory = Template.bind({});
+export const SidebarMenuStory = Template.bind({});
 
-VerticalMenuStory.args = {};
+SidebarMenuStory.args = {};
