@@ -15,7 +15,7 @@ export default function Mainlayout({ logo, title, children }: mainLayoutProps) {
       <DashboardHeader />
       <div className="flex">
         <Sidebar />
-        <div className="flex-col w-full">
+        <div className="flex-col w-100 h-100">
           {`${logo} ${title}`}
           {children}
         </div>

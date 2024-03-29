@@ -52,7 +52,7 @@ export default function Dashboard() {
   return (
     <>
       <DashboardHeader />
-      <div className="flex flex-col items-center justify-start h-screen w-11/12">
+      <div className="flex flex-col items-center justify-start h-100 w-11/12">
         <div className="flex-row p-4">
           <CardList {...cards} />
         </div>
