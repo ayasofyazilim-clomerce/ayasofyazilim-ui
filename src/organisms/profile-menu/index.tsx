@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Link from 'next/link';
 import {
   Avatar,
   AvatarFallback,
@@ -17,16 +17,44 @@ import {
   DropdownMenuTrigger,
 } from '../../../@/components/ui/dropdown-menu';
 
+type menuLinkTypes = {
+  href: string;
+  shortcut?: string;
+  text: string;
+};
+
 export type userNavTypes = {
   email?: string;
   imageURL?: string;
   initials?: string;
+  logoutFunction?: () => void;
+  menuLinks?: menuLinkTypes[];
   username?: string;
 };
 
 export const UserNav = (props: userNavTypes) => {
   const initials =
     props.initials || props.username?.substring(0, 2).toUpperCase() || 'TR';
+
+  function menuLinks(links: menuLinkTypes[] | undefined) {
+    if (links) {
+      const menu = links.map((link) => (
+        <Link
+          key={`usernavmenu-${link.href}`}
+          href={link.href}
+          className="hover:cursor cursor-pointer hover:bg-gray-100"
+        >
+          <DropdownMenuItem className="hover:cursor cursor-pointer hover:bg-gray-100">
+            {link.text}
+            <DropdownMenuShortcut>{link.shortcut}</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        </Link>
+      ));
+      return <DropdownMenuGroup> {menu} </DropdownMenuGroup>;
+    }
+
+    return null;
+  }
 
   return (
     <DropdownMenu>
@@ -50,23 +78,16 @@ export const UserNav = (props: userNavTypes) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Billing
-            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Settings
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>New Team</DropdownMenuItem>
-        </DropdownMenuGroup>
+        {menuLinks(props.menuLinks)}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => {}}>
+        <DropdownMenuItem
+          className="hover:cursor cursor-pointer hover:bg-gray-100"
+          onClick={() => {
+            if (props.logoutFunction) {
+              props.logoutFunction();
+            }
+          }}
+        >
           Log out
           <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
