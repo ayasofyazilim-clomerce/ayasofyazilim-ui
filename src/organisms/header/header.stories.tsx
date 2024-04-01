@@ -23,6 +23,6 @@ const Template: StoryFn<typeof DashboardHeader> = (args) => (
 export const HeaderStory = Template.bind({});
 
 HeaderStory.args = {
-  // heading: 'header',
-  // text: 'test',
+  title: 'ayasofya',
+  logo: '',
 };

@@ -9,31 +9,9 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
-// const exampleMenus: MenuProps[] = [
-//   {
-//     label: 'Discover',
-//     name: 'Radio',
-//     icon: <RadioIcon size={15} className="mr-2" />,
-//     href: '/home/',
-//   },
-//   {
-//     label: 'Library',
-//     name: 'Playlist',
-//     icon: <Play size={15} className="mr-2" />,
-//     href: '/home/playlist',
-//     submenu: [
-//       {
-//         name: 'Playlist 1',
-//         icon: <ListVideo size={15} className="mr-2" />,
-//         href: '/home/',
-//       },
-//     ],
-//   },
-// ];
-
 export type MenuProps = {
   href: string;
-  icon: React.ReactNode;
+  icon: React.ReactNode | React.ReactElement;
   label: string;
   name: string;
   submenu?: Submenu[];
