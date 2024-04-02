@@ -28,16 +28,16 @@ export type navigationLinkTypes = {
 };
 
 export type NavigationProps = {
+  className?: string;
   navigationLinks?: navigationLinkTypes[];
 };
 
 export default function Navigation({
   navigationLinks,
-}: {
-  navigationLinks: navigationLinkTypes[];
-}) {
+  className,
+}: NavigationProps) {
   return (
-    <NavigationMenu>
+    <NavigationMenu className={className}>
       <NavigationMenuList>
         {navigationLinks?.map((link) => {
           if (link.submenu) {
