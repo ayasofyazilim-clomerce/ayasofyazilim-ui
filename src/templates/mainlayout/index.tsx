@@ -13,9 +13,6 @@ export type mainLayoutProps = {
   userNav?: userNavTypes;
 };
 
-// display: grid;
-// grid-template-rows: max-content 1fr;
-// height: 100dvh;
 export default function Mainlayout({
   logo,
   title,
@@ -26,7 +23,7 @@ export default function Mainlayout({
 }: mainLayoutProps) {
   // porps: DashboardProps
   return (
-    <>
+    <div className="h-dvh grid grid-rows-[max-content_1fr]">
       <DashboardHeader
         logo={logo}
         title={title}
@@ -34,9 +31,9 @@ export default function Mainlayout({
         navMenu={navMenu}
       />
       <div className="flex">
-        <Sidebar menus={menus} />
+        <Sidebar className="hidden md:flex" menus={menus} />
         <div className="flex-col w-full h-full">{children}</div>
       </div>
-    </>
+    </div>
   );
 }
