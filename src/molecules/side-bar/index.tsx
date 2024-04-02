@@ -9,6 +9,11 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
+type sidebarProps = {
+  className?: string;
+  menus?: MenuProps[];
+};
+
 export type MenuProps = {
   href: string;
   icon: React.ReactNode | React.ReactElement;
@@ -23,15 +28,11 @@ type Submenu = {
   name: string;
 };
 
-export default function SidebarMenu({
-  menus,
-}: {
-  menus: MenuProps[] | undefined;
-}) {
+export default function SidebarMenu({ menus, className }: sidebarProps) {
   const uniqueLabels = Array.from(new Set(menus?.map((menu) => menu.label)));
 
   return (
-    <ScrollArea className="h-100 lg:w-48 sm:w-max rounded-md">
+    <ScrollArea className={`h-100 lg:w-48 sm:w-max rounded-md ${className}`}>
       <div className="md:px-4 sm:p-0 mt-5 ">
         {uniqueLabels.map((label, index) => (
           <React.Fragment key={label}>
