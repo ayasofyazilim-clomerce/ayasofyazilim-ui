@@ -12,17 +12,18 @@ import {
 
 export type sheetProps = {
   children?: React.ReactNode;
+  className?: string;
   description?: string;
   position: 'top' | 'right' | 'bottom' | 'left';
   title?: string;
-  triggerText: string;
+  trigger: string | React.ReactNode;
 };
 
 export default function SheetSide(props: sheetProps) {
   return (
     <Sheet>
-      <SheetTrigger>{props.triggerText}</SheetTrigger>
-      <SheetContent side={props.position}>
+      <SheetTrigger className={props.className}>{props.trigger}</SheetTrigger>
+      <SheetContent side={props.position} className="h-full">
         <SheetHeader>
           <SheetTitle>{props.title}</SheetTitle>
           <SheetDescription>{props.description}</SheetDescription>
