@@ -7,7 +7,7 @@ import LoginForm, { LoginFormDataType } from '../../molecules/forms/login-form';
 import { CountrySelector } from '../../organisms/country-selector';
 import { TwoColumnLayout } from '../../templates/two-column-layout';
 
-const lang = {
+export const lang = {
   searchText: 'Find',
   searchEmptyValue: 'No country found.',
   defaultValue: {

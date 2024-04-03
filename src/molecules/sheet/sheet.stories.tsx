@@ -7,7 +7,7 @@ export default { component: Sheet } as Meta<typeof Sheet>;
 export const Default: StoryObj<typeof Sheet> = {
   args: {
     position: 'top',
-    triggerText: 'Open sheet',
+    trigger: 'Open sheet',
     title: 'Sheet title',
     description: 'Sheet description',
   },

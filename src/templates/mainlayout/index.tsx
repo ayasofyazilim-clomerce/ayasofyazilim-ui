@@ -5,7 +5,8 @@ import Sidebar, { MenuProps } from '../../molecules/side-bar/index';
 import { navigationLinkTypes } from '../../molecules/navigation-menu';
 
 export type mainLayoutProps = {
-  children?: ReactElement<any, string | JSXElementConstructor<any>>;
+  children?: ReactElement<any, string | JSXElementConstructor<any>> | String;
+  extraMenu?: ReactElement | ReactElement;
   logo?: string;
   menus?: MenuProps[];
   navMenu: navigationLinkTypes[];
@@ -20,6 +21,7 @@ export default function Mainlayout({
   menus,
   userNav,
   navMenu,
+  extraMenu,
 }: mainLayoutProps) {
   // porps: DashboardProps
   return (
@@ -29,6 +31,7 @@ export default function Mainlayout({
         title={title}
         userNav={userNav}
         navMenu={navMenu}
+        extraMenu={extraMenu}
       />
       <div className="flex">
         <Sidebar className="hidden md:flex" menus={menus} />

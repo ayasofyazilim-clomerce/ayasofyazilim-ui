@@ -9,6 +9,7 @@ import BurgerMenu from '../burger-menu';
 
 interface DashboardHeaderProps {
   children?: React.ReactNode;
+  extraMenu?: React.ReactNode;
   logo?: string;
   navMenu: navigationLinkTypes[];
   title?: string;
@@ -21,6 +22,7 @@ export default function DashboardHeader({
   logo,
   userNav,
   navMenu,
+  extraMenu,
 }: DashboardHeaderProps) {
   return (
     <div className="flex items-center justify-between px-2 w-100">
@@ -28,7 +30,10 @@ export default function DashboardHeader({
       <AvatarWrapper text="UR" url={logo} sideText={title} />
       <Navigation className="hidden md:flex" navigationLinks={navMenu} />
       {children && <div className="flex items-center gap-2">{children}</div>}
-      <UserNav {...userNav} />
+      <div className="flex items-center gap-2">
+        {extraMenu && <div>{extraMenu}</div>}
+        <UserNav {...userNav} />
+      </div>
     </div>
   );
 }
