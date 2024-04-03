@@ -223,6 +223,7 @@ export default function LoginForm({
               holder: '{0}',
               replacement: (
                 <a
+                  key="cookie-policy"
                   href="/cookies"
                   className="underline underline-offset-4 hover:text-primary"
                 >
@@ -234,6 +235,7 @@ export default function LoginForm({
               holder: '{1}',
               replacement: (
                 <a
+                  key="privacy-policy"
                   href="/privacy"
                   className="underline underline-offset-4 hover:text-primary"
                 >
