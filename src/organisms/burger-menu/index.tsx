@@ -42,7 +42,7 @@ export default function BurgerMenu({
           {navigationLinks?.map((link) => {
             if (link.submenu) {
               return (
-                <ul className="grid gap-3 p-4">
+                <ul className="grid gap-3 p-4" key={link.title || link.text}>
                   {link.submenu.map((submenu) => (
                     <ListItem
                       key={submenu.title}
