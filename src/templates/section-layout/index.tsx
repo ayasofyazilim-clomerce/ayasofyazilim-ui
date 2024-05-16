@@ -292,7 +292,7 @@ export function SectionContent({
   );
 }
 
-export default function SectionLayout({
+export function SectionLayout({
   className,
   sections,
   content,
