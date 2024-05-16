@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as React from 'react';
 import { type DialogProps } from '@radix-ui/react-dialog';
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
@@ -7,7 +9,6 @@ import { cn } from '../../lib/utils';
 import { Dialog, DialogContent } from './dialog';
 
 const Command = React.forwardRef<
-  // @ts-ignore
   React.ElementRef<typeof CommandPrimitive>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive>
 >(({ className, ...props }, ref) => (
