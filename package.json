@@ -11,7 +11,8 @@
   },
   "scripts": {
     "dev": "concurrently \"pnpm build --watch\" \"pnpm storybook\" \"pnpm test\" ",
-    "build": "tsup --onSuccess \"pnpm link:self\"",
+    "_build": "tsup --onSuccess \"pnpm link:self\"",
+    "build": "pnpm link:self",
     "type-check": "tsc",
     "lint": "eslint --ignore-path .gitignore \"{src,tests}/**/*.+(ts|js|tsx|jsx)\"",
     "lint:fix": "pnpm lint --fix && prettier --write .",
