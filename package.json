@@ -32,7 +32,7 @@
     "./organisms/*": "./src/organisms/*/index.tsx",
     "./templates/*": "./src/templates/*/index.tsx",
     "./pages/*": "./src/pages/*/index.tsx",
-    "./lib/*": "./src/lib/*/index.tsx"
+    "./lib/*": "./src/lib/*/index.*(js|jsx|ts|tsx)"
   },
   "files": [
     "dist"
