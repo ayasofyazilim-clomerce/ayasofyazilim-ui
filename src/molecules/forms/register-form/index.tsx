@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import localeTr from '../../../locale_tr.json';
-import { replacePlaceholders } from '../../../lib';
+import { replacePlaceholders } from '../../../lib/replace-placeholders';
 
 export const defaultRegisterFormSchema = z.object({
   userName: z.string().min(5),

@@ -27,7 +27,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import { replacePlaceholders } from '../../../lib';
+import { replacePlaceholders } from '../../../lib/replace-placeholders';
 import localeTr from '../../../locale_tr.json';
 import { PasswordInput } from '../../password-input';
 

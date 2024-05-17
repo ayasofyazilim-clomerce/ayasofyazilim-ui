@@ -28,7 +28,7 @@ import {
   FormLabel,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { replacePlaceholders } from '../../../lib';
+import { replacePlaceholders } from '../../../lib/replace-placeholders';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export const defaultForgotPasswordFormSchema = z.object({

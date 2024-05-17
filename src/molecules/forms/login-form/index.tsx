@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-import { replacePlaceholders } from '../../../lib';
+import { replacePlaceholders } from '../../../lib/replace-placeholders';
 import localeTr from '../../../locale_tr.json';
 import { PasswordInput } from '../../password-input';
 import ForgotPasswordForm, {
