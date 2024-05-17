@@ -31,7 +31,8 @@
     "./molecules/*": "./src/molecules/*/index.tsx",
     "./organisms/*": "./src/organisms/*/index.tsx",
     "./templates/*": "./src/templates/*/index.tsx",
-    "./pages/*": "./src/pages/*/index.tsx"
+    "./pages/*": "./src/pages/*/index.tsx",
+    "./lib/*": "./src/lib/*/index.tsx"
   },
   "files": [
     "dist"
