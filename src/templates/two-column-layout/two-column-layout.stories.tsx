@@ -28,6 +28,6 @@ const RightNode = (
   </div>
 );
 TwoColumnLayoutTemplate.args = {
-  LeftNode: LeftNode,
-  RightNode: RightNode,
+  LeftNode,
+  RightNode,
 };

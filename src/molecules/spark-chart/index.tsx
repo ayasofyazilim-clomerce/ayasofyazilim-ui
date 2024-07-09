@@ -25,19 +25,19 @@ import {
 import { cn } from '@/lib/utils';
 import { getYAxisDomain } from '../../lib/utils/getYAxisDomain';
 
-//#region SparkAreaChart
+// #region SparkAreaChart
 
 interface SparkAreaChartProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: Record<string, any>[];
-  categories: string[];
-  index: string;
-  colors?: AvailableChartColorsKeys[];
   autoMinValue?: boolean;
-  minValue?: number;
-  maxValue?: number;
+  categories: string[];
+  colors?: AvailableChartColorsKeys[];
   connectNulls?: boolean;
-  type?: 'default' | 'stacked' | 'percent';
+  data: Record<string, any>[];
   fill?: 'gradient' | 'solid' | 'none';
+  index: string;
+  maxValue?: number;
+  minValue?: number;
+  type?: 'default' | 'stacked' | 'percent';
 }
 const SparkAreaChart = React.forwardRef<HTMLDivElement, SparkAreaChartProps>(
   (props, forwardedRef) => {
@@ -93,7 +93,7 @@ const SparkAreaChart = React.forwardRef<HTMLDivElement, SparkAreaChartProps>(
             stackOffset={type === 'percent' ? 'expand' : undefined}
           >
             <XAxis hide dataKey={index} />
-            <YAxis hide={true} domain={yAxisDomain as AxisDomain} />
+            <YAxis hide domain={yAxisDomain as AxisDomain} />
 
             {categories.map((category) => {
               const categoryId = `${areaId}-${category.replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -154,17 +154,17 @@ const SparkAreaChart = React.forwardRef<HTMLDivElement, SparkAreaChartProps>(
 
 SparkAreaChart.displayName = 'SparkAreaChart';
 
-//#region SparkLineChart
+// #region SparkLineChart
 
 interface SparkLineChartProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: Record<string, any>[];
-  categories: string[];
-  index: string;
-  colors?: AvailableChartColorsKeys[];
   autoMinValue?: boolean;
-  minValue?: number;
-  maxValue?: number;
+  categories: string[];
+  colors?: AvailableChartColorsKeys[];
   connectNulls?: boolean;
+  data: Record<string, any>[];
+  index: string;
+  maxValue?: number;
+  minValue?: number;
 }
 
 const SparkLineChart = React.forwardRef<HTMLDivElement, SparkLineChartProps>(
@@ -198,7 +198,7 @@ const SparkLineChart = React.forwardRef<HTMLDivElement, SparkLineChartProps>(
             }}
           >
             <XAxis hide dataKey={index} />
-            <YAxis hide={true} domain={yAxisDomain as AxisDomain} />
+            <YAxis hide domain={yAxisDomain as AxisDomain} />
             {categories.map((category) => (
               <Line
                 className={cn(
@@ -230,17 +230,17 @@ const SparkLineChart = React.forwardRef<HTMLDivElement, SparkLineChartProps>(
 
 SparkLineChart.displayName = 'SparkLineChart';
 
-//#region SparkBarChart
+// #region SparkBarChart
 
 interface BarChartProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: Record<string, any>[];
-  index: string;
+  autoMinValue?: boolean;
+  barCategoryGap?: string | number;
   categories: string[];
   colors?: AvailableChartColorsKeys[];
-  autoMinValue?: boolean;
-  minValue?: number;
+  data: Record<string, any>[];
+  index: string;
   maxValue?: number;
-  barCategoryGap?: string | number;
+  minValue?: number;
   type?: 'default' | 'stacked' | 'percent';
 }
 
@@ -280,7 +280,7 @@ const SparkBarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
             barCategoryGap={barCategoryGap}
           >
             <XAxis hide dataKey={index} />
-            <YAxis hide={true} domain={yAxisDomain as AxisDomain} />
+            <YAxis hide domain={yAxisDomain as AxisDomain} />
 
             {categories.map((category) => (
               <Bar

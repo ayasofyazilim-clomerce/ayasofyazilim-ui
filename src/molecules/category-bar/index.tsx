@@ -106,10 +106,10 @@ const BarLabels = ({ values }: { values: number[] }) => {
 };
 
 interface CategoryBarProps extends React.HTMLAttributes<HTMLDivElement> {
-  values: number[];
   colors?: AvailableChartColorsKeys[];
-  marker?: { value: number; tooltip?: string; showAnimation?: boolean };
+  marker?: { showAnimation?: boolean; tooltip?: string; value: number };
   showLabels?: boolean;
+  values: number[];
 }
 
 const CategoryBar = React.forwardRef<HTMLDivElement, CategoryBarProps>(
@@ -199,7 +199,7 @@ const CategoryBar = React.forwardRef<HTMLDivElement, CategoryBarProps>(
                       <div
                         aria-hidden
                         className="absolute size-7 -translate-x-[45%] -translate-y-[15%]"
-                      ></div>
+                      />
                     </div>
                   </TooltipTrigger>
                   <TooltipContent className={markerBgColor}>

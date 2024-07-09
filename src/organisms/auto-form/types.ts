@@ -1,16 +1,17 @@
 import { ControllerRenderProps, FieldValues } from 'react-hook-form';
 import * as z from 'zod';
+import React from 'react';
 import { INPUT_COMPONENTS } from './config';
 
 export type FieldConfigItem = {
-  displayName?: string;
   description?: React.ReactNode;
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement> & {
-    showLabel?: boolean;
-  };
+  displayName?: string;
   fieldType?:
     | keyof typeof INPUT_COMPONENTS
     | React.FC<AutoFormInputComponentProps>;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement> & {
+    showLabel?: boolean;
+  };
 
   renderParent?: (props: {
     children: React.ReactNode;
@@ -26,16 +27,16 @@ export type FieldConfig<SchemaType extends z.infer<z.ZodObject<any, any>>> = {
 
 export enum DependencyType {
   DISABLES = 'DISABLES',
-  REQUIRES = 'REQUIRES',
   HIDES = 'HIDES',
+  REQUIRES = 'REQUIRES',
   SETS_OPTIONS = 'SETS_OPTIONS',
 }
 export type BaseDependency<SchemaType extends z.infer<z.ZodObject<any, any>>> =
   {
-    sourceField: keyof SchemaType;
-    type: DependencyType;
-    targetField: keyof SchemaType;
     hasParentField?: boolean;
+    sourceField: keyof SchemaType;
+    targetField: keyof SchemaType;
+    type: DependencyType;
     when: (sourceFieldValue: any, targetFieldValue: any) => boolean;
   };
 
@@ -52,10 +53,10 @@ export type EnumValues = readonly [string, ...string[]];
 export type OptionsDependency<
   SchemaType extends z.infer<z.ZodObject<any, any>>,
 > = BaseDependency<SchemaType> & {
-  type: DependencyType.SETS_OPTIONS;
-
   // Partial array of values from sourceField that will trigger the dependency
   options: EnumValues;
+
+  type: DependencyType.SETS_OPTIONS;
 };
 
 export type Dependency<SchemaType extends z.infer<z.ZodObject<any, any>>> =
@@ -66,12 +67,12 @@ export type Dependency<SchemaType extends z.infer<z.ZodObject<any, any>>> =
  * A FormInput component can handle a specific Zod type (e.g. "ZodBoolean")
  */
 export type AutoFormInputComponentProps = {
-  zodInputProps: React.InputHTMLAttributes<HTMLInputElement>;
+  className?: string;
   field: ControllerRenderProps<FieldValues, any>;
   fieldConfigItem: FieldConfigItem;
-  label: string;
-  isRequired: boolean;
   fieldProps: any;
+  isRequired: boolean;
+  label: string;
+  zodInputProps: React.InputHTMLAttributes<HTMLInputElement>;
   zodItem: z.ZodAny;
-  className?: string;
 };

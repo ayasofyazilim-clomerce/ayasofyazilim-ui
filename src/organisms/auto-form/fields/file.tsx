@@ -1,10 +1,11 @@
-import { FormControl, FormItem, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Trash2 } from "lucide-react";
-import { ChangeEvent, useState } from "react";
-import AutoFormLabel from "../common/label";
-import AutoFormTooltip from "../common/tooltip";
-import { AutoFormInputComponentProps } from "../types";
+import { Trash2 } from 'lucide-react';
+import { ChangeEvent, useState } from 'react';
+import { FormControl, FormItem, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import AutoFormLabel from '../common/label';
+import AutoFormTooltip from '../common/tooltip';
+import { AutoFormInputComponentProps } from '../types';
+
 export default function AutoFormFile({
   label,
   isRequired,
@@ -43,7 +44,7 @@ export default function AutoFormFile({
             type="file"
             {...fieldPropsWithoutShowLabel}
             onChange={handleFileChange}
-            value={""}
+            value=""
           />
         </FormControl>
       )}

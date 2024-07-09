@@ -23,7 +23,7 @@ export type AuthPropsType = {
   authType: authTypes;
   children: JSX.Element;
   cultureName: string;
-  onLangChange?: (cultureName: string) => void;
+  onLangChange: (cultureName: string) => void;
   resources: { [key: string]: any };
 };
 function formSwitch(

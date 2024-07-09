@@ -47,12 +47,11 @@ export function createZodObject(
     const props = schema.properties[element];
     const isRequired = schema.required.includes(element);
     if (isSchemaType(props)) {
-      Object.keys(props.properties).map(() => {
+      Object.keys(props.properties).map((key) => {
         zodSchema[element] = createZodObject(
           props,
           Object.keys(props.properties)
         );
-        return null;
       });
     } else if (isJsonSchema(props)) {
       let zodType;
@@ -104,7 +103,7 @@ function createZodType(
       break;
     case 'boolean':
       zodType = z.boolean();
-      if (schema.default) zodType = zodType.default(schema.default === 'true');
+      if (schema.default) zodType = zodType.default(schema.default == 'true');
       break;
     case 'integer':
       if (schema.enum) {
@@ -114,7 +113,14 @@ function createZodType(
       }
       zodType = z.number().int();
       break;
-
+    case 'integer':
+      if (schema.enum) {
+        const stringEnums = schema.enum.map((e: any) => e.toString());
+        zodType = z.enum(stringEnums as [string, ...string[]]);
+        break;
+      }
+      zodType = z.number().int();
+      break;
     default:
       zodType = z.unknown({ description: schema.displayName });
   }

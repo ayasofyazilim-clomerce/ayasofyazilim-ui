@@ -1,16 +1,16 @@
-import { FormControl, FormItem, FormMessage } from "@/components/ui/form";
+import * as z from 'zod';
+import { FormControl, FormItem, FormMessage } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import * as z from "zod";
-import AutoFormLabel from "../common/label";
-import AutoFormTooltip from "../common/tooltip";
-import { AutoFormInputComponentProps } from "../types";
-import { getBaseSchema } from "../utils";
+} from '@/components/ui/select';
+import AutoFormLabel from '../common/label';
+import AutoFormTooltip from '../common/tooltip';
+import { AutoFormInputComponentProps } from '../types';
+import { getBaseSchema } from '../utils';
 
 export default function AutoFormEnum({
   label,
@@ -30,9 +30,7 @@ export default function AutoFormEnum({
     values = baseValues.map((value) => [value, value]);
   }
 
-  function findItem(value: any) {
-    return values.find((item) => item[0] === value);
-  }
+  const findItem = (value: any) => values.find((item) => item[0] === value);
 
   return (
     <FormItem>
@@ -45,7 +43,7 @@ export default function AutoFormEnum({
         >
           <SelectTrigger className={fieldProps.className}>
             <SelectValue placeholder={fieldConfigItem.inputProps?.placeholder}>
-              {field.value ? findItem(field.value)?.[1] : "Select an option"}
+              {field.value ? findItem(field.value)?.[1] : 'Select an option'}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>

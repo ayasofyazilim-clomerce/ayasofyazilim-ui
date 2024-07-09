@@ -1,6 +1,6 @@
-import { FormField } from '@/components/ui/form';
 import { useForm, useFormContext } from 'react-hook-form';
 import * as z from 'zod';
+import { FormField } from '@/components/ui/form';
 import { DEFAULT_ZOD_HANDLERS, INPUT_COMPONENTS } from '../config';
 import resolveDependencies from '../dependencies';
 import { Dependency, FieldConfig, FieldConfigItem } from '../types';
@@ -11,11 +11,10 @@ import {
   zodToHtmlInputProps,
 } from '../utils';
 import AutoFormArray from './array';
-import test from 'node:test';
 
-function DefaultParent({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
-}
+const DefaultParent = ({ children }: { children: React.ReactNode }) => (
+  <>{children}</>
+);
 
 export default function AutoFormObject<
   SchemaType extends z.ZodObject<any, any>,
@@ -27,12 +26,12 @@ export default function AutoFormObject<
   dependencies = [],
   isDisabled = false,
 }: {
-  schema: SchemaType | z.ZodEffects<SchemaType>;
-  form: ReturnType<typeof useForm>;
-  fieldConfig?: FieldConfig<z.infer<SchemaType>>;
-  path?: string[];
   dependencies?: Dependency<z.infer<SchemaType>>[];
+  fieldConfig?: FieldConfig<z.infer<SchemaType>>;
+  form: ReturnType<typeof useForm>;
   isDisabled?: boolean;
+  path?: string[];
+  schema: SchemaType | z.ZodEffects<SchemaType>;
 }) {
   const { watch } = useFormContext(); // Use useFormContext to access the watch function
 
@@ -68,8 +67,8 @@ export default function AutoFormObject<
   }
   return (
     <div className="space-y-5">
-      {Object.keys(shape).map((name: string) => {
-        return CreateFormObject(
+      {Object.keys(shape).map((name: string) =>
+        CreateFormObject(
           name,
           shape,
           fieldConfig,
@@ -80,8 +79,8 @@ export default function AutoFormObject<
           createItemName,
           handleIfZodNumber,
           name.includes('IsApplicable') ? false : isDisabled
-        );
-      })}
+        )
+      )}
     </div>
   );
 }
@@ -116,11 +115,9 @@ function CreateFormObject<SchemaType extends z.ZodObject<any, any>>(
   if (zodBaseType === 'ZodObject') {
     return (
       <div key={key} className="flex flex-col border p-4 rounded-md">
-        <div className="text-sm font-bold">
-          <>{itemName}</>
-        </div>
+        <div className="text-sm font-bold">{itemName}</div>
         <div className="text-muted-foreground text-sm">
-          <>{fieldConfig?.[name]?.description}</>
+          {fieldConfig?.[name]?.description}
         </div>
         <div className="p-2">
           <AutoFormObject
@@ -194,7 +191,7 @@ function CreateFormObject<SchemaType extends z.ZodObject<any, any>>(
             isDisabled ||
             isInputDisabled,
           ref: undefined,
-          value: value,
+          value,
         };
         if (InputComponent === undefined) {
           return <></>;

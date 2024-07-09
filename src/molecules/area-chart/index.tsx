@@ -30,13 +30,13 @@ import { cn } from '@/lib/utils';
 import { getYAxisDomain } from '../../lib/utils/getYAxisDomain';
 import { hasOnlyOneValueForKey } from '../../lib/utils/hasOnlyOneValueForKey';
 
-//#region Legend
+// #region Legend
 
 interface LegendItemProps {
-  name: string;
-  color: AvailableChartColorsKeys;
-  onClick?: (name: string, color: AvailableChartColorsKeys) => void;
   activeLegend?: string;
+  color: AvailableChartColorsKeys;
+  name: string;
+  onClick?: (name: string, color: AvailableChartColorsKeys) => void;
 }
 
 const LegendItem = ({
@@ -64,7 +64,7 @@ const LegendItem = ({
           getColorClassName(color, 'bg'),
           activeLegend && activeLegend !== name ? 'opacity-40' : 'opacity-100'
         )}
-        aria-hidden={true}
+        aria-hidden
       />
       <p
         className={cn(
@@ -83,9 +83,9 @@ const LegendItem = ({
 };
 
 interface ScrollButtonProps {
+  disabled?: boolean;
   icon: React.ElementType;
   onClick?: () => void;
-  disabled?: boolean;
 }
 
 const ScrollButton = ({ icon, onClick, disabled }: ScrollButtonProps) => {
@@ -141,11 +141,11 @@ const ScrollButton = ({ icon, onClick, disabled }: ScrollButtonProps) => {
 };
 
 interface LegendProps extends React.OlHTMLAttributes<HTMLOListElement> {
+  activeLegend?: string;
   categories: string[];
   colors?: AvailableChartColorsKeys[];
-  onClickLegendItem?: (category: string, color: string) => void;
-  activeLegend?: string;
   enableLegendSlider?: boolean;
+  onClickLegendItem?: (category: string, color: string) => void;
 }
 
 type HasScrollProps = {
@@ -277,33 +277,31 @@ const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, ref) => {
         ))}
       </div>
       {enableLegendSlider && (hasScroll?.right || hasScroll?.left) ? (
-        <>
-          <div
-            className={cn(
-              // base
-              'absolute bottom-0 right-0 top-0 flex h-full items-center justify-center pr-1',
-              // background color
-              'bg-white '
-            )}
-          >
-            <ScrollButton
-              icon={ArrowLeft}
-              onClick={() => {
-                setIsKeyDowned(null);
-                scrollToTest('left');
-              }}
-              disabled={!hasScroll?.left}
-            />
-            <ScrollButton
-              icon={ArrowRight}
-              onClick={() => {
-                setIsKeyDowned(null);
-                scrollToTest('right');
-              }}
-              disabled={!hasScroll?.right}
-            />
-          </div>
-        </>
+        <div
+          className={cn(
+            // base
+            'absolute bottom-0 right-0 top-0 flex h-full items-center justify-center pr-1',
+            // background color
+            'bg-white '
+          )}
+        >
+          <ScrollButton
+            icon={ArrowLeft}
+            onClick={() => {
+              setIsKeyDowned(null);
+              scrollToTest('left');
+            }}
+            disabled={!hasScroll?.left}
+          />
+          <ScrollButton
+            icon={ArrowRight}
+            onClick={() => {
+              setIsKeyDowned(null);
+              scrollToTest('right');
+            }}
+            disabled={!hasScroll?.right}
+          />
+        </div>
       ) : null}
     </ol>
   );
@@ -337,7 +335,7 @@ const ChartLegend = (
   return (
     <div
       ref={legendRef}
-      style={{ paddingLeft: paddingLeft }}
+      style={{ paddingLeft }}
       className={cn(
         'flex items-center',
         { 'justify-center': legendPosition === 'center' },
@@ -358,12 +356,12 @@ const ChartLegend = (
   );
 };
 
-//#region Tooltip
+// #region Tooltip
 
 interface ChartTooltipRowProps {
-  value: string;
-  name: string;
   color: string;
+  name: string;
+  value: string;
 }
 
 const ChartTooltipRow = ({ value, name, color }: ChartTooltipRowProps) => (
@@ -404,9 +402,9 @@ type TooltipCallbackProps = Pick<
 
 interface ChartTooltipProps {
   active: boolean | undefined;
-  payload: any;
-  label: string;
   categoryColors: Map<string, string>;
+  label: string;
+  payload: any;
   valueFormatter: (value: number) => string;
 }
 
@@ -452,7 +450,7 @@ const ChartTooltip = ({
         <div className={cn('space-y-1 px-4 py-2')}>
           {filteredPayload.map(
             (
-              { value, name }: { value: number; name: string },
+              { value, name }: { name: string; value: number },
               index: number
             ) => (
               <ChartTooltipRow
@@ -473,49 +471,49 @@ const ChartTooltip = ({
   return null;
 };
 
-//#region AreaChart
+// #region AreaChart
 
 interface ActiveDot {
-  index?: number;
   dataKey?: string;
+  index?: number;
 }
 
 type BaseEventProps = {
-  eventType: 'dot' | 'category';
-  categoryClicked: string;
   [key: string]: number | string;
+  categoryClicked: string;
+  eventType: 'dot' | 'category';
 };
 
 type AreaChartEventProps = BaseEventProps | null | undefined;
 
 interface AreaChartProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: Record<string, any>[];
-  index: string;
+  allowDecimals?: boolean;
+  autoMinValue?: boolean;
   categories: string[];
   colors?: AvailableChartColorsKeys[];
-  valueFormatter?: (value: number) => string;
-  startEndOnly?: boolean;
+  connectNulls?: boolean;
+  data: Record<string, any>[];
+  enableLegendSlider?: boolean;
+  fill?: 'gradient' | 'solid' | 'none';
+  index: string;
+  intervalType?: 'preserveStartEnd' | 'equidistantPreserveStart';
+  legendPosition?: 'left' | 'center' | 'right';
+  maxValue?: number;
+  minValue?: number;
+  onValueChange?: (value: AreaChartEventProps) => void;
+  showGridLines?: boolean;
+  showLegend?: boolean;
+  showTooltip?: boolean;
   showXAxis?: boolean;
   showYAxis?: boolean;
-  showGridLines?: boolean;
-  yAxisWidth?: number;
-  intervalType?: 'preserveStartEnd' | 'equidistantPreserveStart';
-  showTooltip?: boolean;
-  showLegend?: boolean;
-  autoMinValue?: boolean;
-  minValue?: number;
-  maxValue?: number;
-  allowDecimals?: boolean;
-  onValueChange?: (value: AreaChartEventProps) => void;
-  enableLegendSlider?: boolean;
+  startEndOnly?: boolean;
   tickGap?: number;
-  connectNulls?: boolean;
+  tooltipCallback?: (tooltipCallbackContent: TooltipCallbackProps) => void;
+  type?: 'default' | 'stacked' | 'percent';
+  valueFormatter?: (value: number) => string;
   xAxisLabel?: string;
   yAxisLabel?: string;
-  type?: 'default' | 'stacked' | 'percent';
-  legendPosition?: 'left' | 'center' | 'right';
-  tooltipCallback?: (tooltipCallbackContent: TooltipCallbackProps) => void;
-  fill?: 'gradient' | 'solid' | 'none';
+  yAxisWidth?: number;
 }
 
 const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
@@ -572,10 +570,10 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
       activeLegend,
       category,
     }: {
-      fillType: AreaChartProps['fill'];
       activeDot: ActiveDot | undefined;
       activeLegend: string | undefined;
       category: string;
+      fillType: AreaChartProps['fill'];
     }) => {
       const stopOpacity =
         activeDot || (activeLegend && activeLegend !== category) ? 0.15 : 0.4;
@@ -600,9 +598,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
       }
     };
 
-    function valueToPercent(value: number) {
-      return `${(value * 100).toFixed(0)}%`;
-    }
+    const valueToPercent = (value: number) => `${(value * 100).toFixed(0)}%`;
 
     function onDotClick(itemData: any, event: React.MouseEvent) {
       event.stopPropagation();
@@ -677,7 +673,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
             {showGridLines ? (
               <CartesianGrid
                 className={cn('stroke-gray-200 stroke-1 ')}
-                horizontal={true}
+                horizontal
                 vertical={false}
               />
             ) : null}
@@ -749,7 +745,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
             </YAxis>
             <Tooltip
               wrapperStyle={{ outline: 'none' }}
-              isAnimationActive={true}
+              isAnimationActive
               animationDuration={100}
               cursor={{ stroke: '#d1d5db', strokeWidth: 1 }}
               offset={20}
@@ -829,9 +825,9 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                     >
                       {getFillContent({
                         fillType: fill,
-                        activeDot: activeDot,
-                        activeLegend: activeLegend,
-                        category: category,
+                        activeDot,
+                        activeLegend,
+                        category,
                       })}
                     </linearGradient>
                   </defs>
@@ -930,7 +926,7 @@ const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                           />
                         );
                       }
-                      return <React.Fragment key={index}></React.Fragment>;
+                      return <React.Fragment key={index} />;
                     }}
                     key={category}
                     name={category}

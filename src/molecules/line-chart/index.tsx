@@ -29,13 +29,13 @@ import { cn } from '@/lib/utils';
 import { getYAxisDomain } from '../../lib/utils/getYAxisDomain';
 import { hasOnlyOneValueForKey } from '../../lib/utils/hasOnlyOneValueForKey';
 
-//#region Legend
+// #region Legend
 
 interface LegendItemProps {
-  name: string;
-  color: AvailableChartColorsKeys;
-  onClick?: (name: string, color: AvailableChartColorsKeys) => void;
   activeLegend?: string;
+  color: AvailableChartColorsKeys;
+  name: string;
+  onClick?: (name: string, color: AvailableChartColorsKeys) => void;
 }
 
 const LegendItem = ({
@@ -63,7 +63,7 @@ const LegendItem = ({
           getColorClassName(color, 'bg'),
           activeLegend && activeLegend !== name ? 'opacity-40' : 'opacity-100'
         )}
-        aria-hidden={true}
+        aria-hidden
       />
       <p
         className={cn(
@@ -82,9 +82,9 @@ const LegendItem = ({
 };
 
 interface ScrollButtonProps {
+  disabled?: boolean;
   icon: React.ElementType;
   onClick?: () => void;
-  disabled?: boolean;
 }
 
 const ScrollButton = ({ icon, onClick, disabled }: ScrollButtonProps) => {
@@ -140,11 +140,11 @@ const ScrollButton = ({ icon, onClick, disabled }: ScrollButtonProps) => {
 };
 
 interface LegendProps extends React.OlHTMLAttributes<HTMLOListElement> {
+  activeLegend?: string;
   categories: string[];
   colors?: AvailableChartColorsKeys[];
-  onClickLegendItem?: (category: string, color: string) => void;
-  activeLegend?: string;
   enableLegendSlider?: boolean;
+  onClickLegendItem?: (category: string, color: string) => void;
 }
 
 type HasScrollProps = {
@@ -276,33 +276,31 @@ const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, ref) => {
         ))}
       </div>
       {enableLegendSlider && (hasScroll?.right || hasScroll?.left) ? (
-        <>
-          <div
-            className={cn(
-              // base
-              'absolute bottom-0 right-0 top-0 flex h-full items-center justify-center pr-1',
-              // background color
-              'bg-white'
-            )}
-          >
-            <ScrollButton
-              icon={ArrowLeft}
-              onClick={() => {
-                setIsKeyDowned(null);
-                scrollToTest('left');
-              }}
-              disabled={!hasScroll?.left}
-            />
-            <ScrollButton
-              icon={ArrowRight}
-              onClick={() => {
-                setIsKeyDowned(null);
-                scrollToTest('right');
-              }}
-              disabled={!hasScroll?.right}
-            />
-          </div>
-        </>
+        <div
+          className={cn(
+            // base
+            'absolute bottom-0 right-0 top-0 flex h-full items-center justify-center pr-1',
+            // background color
+            'bg-white'
+          )}
+        >
+          <ScrollButton
+            icon={ArrowLeft}
+            onClick={() => {
+              setIsKeyDowned(null);
+              scrollToTest('left');
+            }}
+            disabled={!hasScroll?.left}
+          />
+          <ScrollButton
+            icon={ArrowRight}
+            onClick={() => {
+              setIsKeyDowned(null);
+              scrollToTest('right');
+            }}
+            disabled={!hasScroll?.right}
+          />
+        </div>
       ) : null}
     </ol>
   );
@@ -336,7 +334,7 @@ const ChartLegend = (
   return (
     <div
       ref={legendRef}
-      style={{ paddingLeft: paddingLeft }}
+      style={{ paddingLeft }}
       className={cn(
         'flex items-center',
         { 'justify-center': legendPosition === 'center' },
@@ -357,12 +355,12 @@ const ChartLegend = (
   );
 };
 
-//#region Tooltip
+// #region Tooltip
 
 interface ChartTooltipRowProps {
-  value: string;
-  name: string;
   color: string;
+  name: string;
+  value: string;
 }
 
 const ChartTooltipRow = ({ value, name, color }: ChartTooltipRowProps) => (
@@ -403,9 +401,9 @@ type TooltipCallbackProps = Pick<
 
 interface ChartTooltipProps {
   active: boolean | undefined;
-  payload: any;
-  label: string;
   categoryColors: Map<string, string>;
+  label: string;
+  payload: any;
   valueFormatter: (value: number) => string;
 }
 
@@ -451,7 +449,7 @@ const ChartTooltip = ({
         <div className={cn('space-y-1 px-4 py-2')}>
           {filteredPayload.map(
             (
-              { value, name }: { value: number; name: string },
+              { value, name }: { name: string; value: number },
               index: number
             ) => (
               <ChartTooltipRow
@@ -472,47 +470,47 @@ const ChartTooltip = ({
   return null;
 };
 
-//#region LineChart
+// #region LineChart
 
 interface ActiveDot {
-  index?: number;
   dataKey?: string;
+  index?: number;
 }
 
 type BaseEventProps = {
-  eventType: 'dot' | 'category';
-  categoryClicked: string;
   [key: string]: number | string;
+  categoryClicked: string;
+  eventType: 'dot' | 'category';
 };
 
 type LineChartEventProps = BaseEventProps | null | undefined;
 
 interface LineChartProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: Record<string, any>[];
-  index: string;
+  allowDecimals?: boolean;
+  autoMinValue?: boolean;
   categories: string[];
   colors?: AvailableChartColorsKeys[];
-  valueFormatter?: (value: number) => string;
-  startEndOnly?: boolean;
+  connectNulls?: boolean;
+  data: Record<string, any>[];
+  enableLegendSlider?: boolean;
+  index: string;
+  intervalType?: 'preserveStartEnd' | 'equidistantPreserveStart';
+  legendPosition?: 'left' | 'center' | 'right';
+  maxValue?: number;
+  minValue?: number;
+  onValueChange?: (value: LineChartEventProps) => void;
+  showGridLines?: boolean;
+  showLegend?: boolean;
+  showTooltip?: boolean;
   showXAxis?: boolean;
   showYAxis?: boolean;
-  showGridLines?: boolean;
-  yAxisWidth?: number;
-  intervalType?: 'preserveStartEnd' | 'equidistantPreserveStart';
-  showTooltip?: boolean;
-  showLegend?: boolean;
-  autoMinValue?: boolean;
-  minValue?: number;
-  maxValue?: number;
-  allowDecimals?: boolean;
-  onValueChange?: (value: LineChartEventProps) => void;
-  enableLegendSlider?: boolean;
+  startEndOnly?: boolean;
   tickGap?: number;
-  connectNulls?: boolean;
+  tooltipCallback?: (tooltipCallbackContent: TooltipCallbackProps) => void;
+  valueFormatter?: (value: number) => string;
   xAxisLabel?: string;
   yAxisLabel?: string;
-  legendPosition?: 'left' | 'center' | 'right';
-  tooltipCallback?: (tooltipCallbackContent: TooltipCallbackProps) => void;
+  yAxisWidth?: number;
 }
 
 const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
@@ -631,7 +629,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
             {showGridLines ? (
               <CartesianGrid
                 className={cn('stroke-gray-200 stroke-1')}
-                horizontal={true}
+                horizontal
                 vertical={false}
               />
             ) : null}
@@ -701,7 +699,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
             </YAxis>
             <Tooltip
               wrapperStyle={{ outline: 'none' }}
-              isAnimationActive={true}
+              isAnimationActive
               animationDuration={100}
               cursor={{ stroke: '#d1d5db', strokeWidth: 1 }}
               offset={20}
@@ -850,7 +848,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                       />
                     );
                   }
-                  return <React.Fragment key={index}></React.Fragment>;
+                  return <React.Fragment key={index} />;
                 }}
                 key={category}
                 name={category}

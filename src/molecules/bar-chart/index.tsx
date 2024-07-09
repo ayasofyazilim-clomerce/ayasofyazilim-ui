@@ -27,7 +27,7 @@ import {
 import { cn } from '@/lib/utils';
 import { getYAxisDomain } from '../../lib/utils/getYAxisDomain';
 
-//#region Shape
+// #region Shape
 export function deepEqual(obj1: any, obj2: any) {
   if (obj1 === obj2) return true;
 
@@ -85,13 +85,13 @@ const renderShape = (
   );
 };
 
-//#region Legend
+// #region Legend
 
 interface LegendItemProps {
-  name: string;
-  color: AvailableChartColorsKeys;
-  onClick?: (name: string, color: AvailableChartColorsKeys) => void;
   activeLegend?: string;
+  color: AvailableChartColorsKeys;
+  name: string;
+  onClick?: (name: string, color: AvailableChartColorsKeys) => void;
 }
 
 const LegendItem = ({
@@ -119,7 +119,7 @@ const LegendItem = ({
           getColorClassName(color, 'bg'),
           activeLegend && activeLegend !== name ? 'opacity-40' : 'opacity-100'
         )}
-        aria-hidden={true}
+        aria-hidden
       />
       <p
         className={cn(
@@ -138,9 +138,9 @@ const LegendItem = ({
 };
 
 interface ScrollButtonProps {
+  disabled?: boolean;
   icon: React.ElementType;
   onClick?: () => void;
-  disabled?: boolean;
 }
 
 const ScrollButton = ({ icon, onClick, disabled }: ScrollButtonProps) => {
@@ -196,11 +196,11 @@ const ScrollButton = ({ icon, onClick, disabled }: ScrollButtonProps) => {
 };
 
 interface LegendProps extends React.OlHTMLAttributes<HTMLOListElement> {
+  activeLegend?: string;
   categories: string[];
   colors?: AvailableChartColorsKeys[];
-  onClickLegendItem?: (category: string, color: string) => void;
-  activeLegend?: string;
   enableLegendSlider?: boolean;
+  onClickLegendItem?: (category: string, color: string) => void;
 }
 
 type HasScrollProps = {
@@ -332,33 +332,31 @@ const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, ref) => {
         ))}
       </div>
       {enableLegendSlider && (hasScroll?.right || hasScroll?.left) ? (
-        <>
-          <div
-            className={cn(
-              // base
-              'absolute bottom-0 right-0 top-0 flex h-full items-center justify-center pr-1',
-              // background color
-              'bg-white'
-            )}
-          >
-            <ScrollButton
-              icon={ArrowLeft}
-              onClick={() => {
-                setIsKeyDowned(null);
-                scrollToTest('left');
-              }}
-              disabled={!hasScroll?.left}
-            />
-            <ScrollButton
-              icon={ArrowRight}
-              onClick={() => {
-                setIsKeyDowned(null);
-                scrollToTest('right');
-              }}
-              disabled={!hasScroll?.right}
-            />
-          </div>
-        </>
+        <div
+          className={cn(
+            // base
+            'absolute bottom-0 right-0 top-0 flex h-full items-center justify-center pr-1',
+            // background color
+            'bg-white'
+          )}
+        >
+          <ScrollButton
+            icon={ArrowLeft}
+            onClick={() => {
+              setIsKeyDowned(null);
+              scrollToTest('left');
+            }}
+            disabled={!hasScroll?.left}
+          />
+          <ScrollButton
+            icon={ArrowRight}
+            onClick={() => {
+              setIsKeyDowned(null);
+              scrollToTest('right');
+            }}
+            disabled={!hasScroll?.right}
+          />
+        </div>
       ) : null}
     </ol>
   );
@@ -391,7 +389,7 @@ const ChartLegend = (
 
   return (
     <div
-      style={{ paddingLeft: paddingLeft }}
+      style={{ paddingLeft }}
       ref={legendRef}
       className={cn(
         'flex items-center',
@@ -415,12 +413,12 @@ const ChartLegend = (
   );
 };
 
-//#region Tooltip
+// #region Tooltip
 
 interface ChartTooltipRowProps {
-  value: string;
-  name: string;
   color: string;
+  name: string;
+  value: string;
 }
 
 const ChartTooltipRow = ({ value, name, color }: ChartTooltipRowProps) => (
@@ -461,9 +459,9 @@ type TooltipCallbackProps = Pick<
 
 interface ChartTooltipProps {
   active: boolean | undefined;
-  payload: any;
-  label: string;
   categoryColors: Map<string, string>;
+  label: string;
+  payload: any;
   valueFormatter: (value: number) => string;
 }
 
@@ -509,7 +507,7 @@ const ChartTooltip = ({
         <div className={cn('space-y-1 px-4 py-2')}>
           {filteredPayload.map(
             (
-              { value, name }: { value: number; name: string },
+              { value, name }: { name: string; value: number },
               index: number
             ) => (
               <ChartTooltipRow
@@ -530,44 +528,44 @@ const ChartTooltip = ({
   return null;
 };
 
-//#region BarChart
+// #region BarChart
 
 type BaseEventProps = {
-  eventType: 'category' | 'bar';
-  categoryClicked: string;
   [key: string]: number | string;
+  categoryClicked: string;
+  eventType: 'category' | 'bar';
 };
 
 type BarChartEventProps = BaseEventProps | null | undefined;
 
 interface BarChartProps extends React.HTMLAttributes<HTMLDivElement> {
-  data: Record<string, any>[];
-  index: string;
+  allowDecimals?: boolean;
+  autoMinValue?: boolean;
+  barCategoryGap?: string | number;
   categories: string[];
   colors?: AvailableChartColorsKeys[];
-  valueFormatter?: (value: number) => string;
-  startEndOnly?: boolean;
+  data: Record<string, any>[];
+  enableLegendSlider?: boolean;
+  index: string;
+  intervalType?: 'preserveStartEnd' | 'equidistantPreserveStart';
+  layout?: 'vertical' | 'horizontal';
+  legendPosition?: 'left' | 'center' | 'right';
+  maxValue?: number;
+  minValue?: number;
+  onValueChange?: (value: BarChartEventProps) => void;
+  showGridLines?: boolean;
+  showLegend?: boolean;
+  showTooltip?: boolean;
   showXAxis?: boolean;
   showYAxis?: boolean;
-  showGridLines?: boolean;
-  yAxisWidth?: number;
-  intervalType?: 'preserveStartEnd' | 'equidistantPreserveStart';
-  showTooltip?: boolean;
-  showLegend?: boolean;
-  autoMinValue?: boolean;
-  minValue?: number;
-  maxValue?: number;
-  allowDecimals?: boolean;
-  onValueChange?: (value: BarChartEventProps) => void;
-  enableLegendSlider?: boolean;
+  startEndOnly?: boolean;
   tickGap?: number;
-  barCategoryGap?: string | number;
-  xAxisLabel?: string;
-  yAxisLabel?: string;
-  layout?: 'vertical' | 'horizontal';
-  type?: 'default' | 'stacked' | 'percent';
-  legendPosition?: 'left' | 'center' | 'right';
   tooltipCallback?: (tooltipCallbackContent: TooltipCallbackProps) => void;
+  type?: 'default' | 'stacked' | 'percent';
+  valueFormatter?: (value: number) => string;
+  yAxisWidth?: number;
+  yAxisLabel?: string;
+  xAxisLabel?: string;
 }
 
 const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
@@ -615,9 +613,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
     const yAxisDomain = getYAxisDomain(autoMinValue, minValue, maxValue);
     const hasOnValueChange = !!onValueChange;
     const stacked = type === 'stacked' || type === 'percent';
-    function valueToPercent(value: number) {
-      return `${(value * 100).toFixed(0)}%`;
-    }
+    const valueToPercent = (value: number) => `${(value * 100).toFixed(0)}%`;
 
     function onBarClick(data: any, _: any, event: React.MouseEvent) {
       event.stopPropagation();
@@ -725,7 +721,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
                     domain: yAxisDomain as AxisDomain,
                     tickFormatter:
                       type === 'percent' ? valueToPercent : valueFormatter,
-                    allowDecimals: allowDecimals,
+                    allowDecimals,
                   })}
             >
               {xAxisLabel && (
@@ -763,7 +759,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
                     domain: yAxisDomain as AxisDomain,
                     tickFormatter:
                       type === 'percent' ? valueToPercent : valueFormatter,
-                    allowDecimals: allowDecimals,
+                    allowDecimals,
                   }
                 : {
                     dataKey: index,
@@ -788,7 +784,7 @@ const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
             </YAxis>
             <Tooltip
               wrapperStyle={{ outline: 'none' }}
-              isAnimationActive={true}
+              isAnimationActive
               animationDuration={100}
               cursor={{ fill: '#d1d5db', opacity: '0.15' }}
               offset={20}

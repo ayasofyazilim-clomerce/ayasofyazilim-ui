@@ -6,11 +6,11 @@ import * as HoverCardPrimitives from '@radix-ui/react-hover-card';
 import { cn } from '@/lib/utils';
 
 interface TrackerBlockProps {
-  key?: string | number;
   color?: string;
-  tooltip?: string;
-  hoverEffect?: boolean;
   defaultBackgroundColor?: string;
+  hoverEffect?: boolean;
+  key?: string | number;
+  tooltip?: string;
 }
 
 const Block = ({
@@ -76,24 +76,22 @@ const Tracker = React.forwardRef<HTMLDivElement, TrackerProps>(
       ...props
     },
     forwardedRef
-  ) => {
-    return (
-      <div
-        ref={forwardedRef}
-        className={cn('items-cente group flex h-8 w-full', className)}
-        {...props}
-      >
-        {data.map((props, index) => (
-          <Block
-            key={props.key ?? index}
-            defaultBackgroundColor={defaultBackgroundColor}
-            hoverEffect={hoverEffect}
-            {...props}
-          />
-        ))}
-      </div>
-    );
-  }
+  ) => (
+    <div
+      ref={forwardedRef}
+      className={cn('items-cente group flex h-8 w-full', className)}
+      {...props}
+    >
+      {data.map((props, index) => (
+        <Block
+          key={props.key ?? index}
+          defaultBackgroundColor={defaultBackgroundColor}
+          hoverEffect={hoverEffect}
+          {...props}
+        />
+      ))}
+    </div>
+  )
 );
 
 Tracker.displayName = 'Tracker';

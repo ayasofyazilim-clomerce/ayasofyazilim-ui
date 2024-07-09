@@ -12,20 +12,20 @@ export const focusRing = [
 ];
 
 type Bar<T> = T & {
-  key?: string;
-  href?: string;
-  value: number;
-  name: string;
   className?: string;
+  href?: string;
+  key?: string;
+  name: string;
+  value: number;
 };
 
 interface BarListProps<T = unknown>
   extends React.HTMLAttributes<HTMLDivElement> {
   data: Bar<T>[];
-  valueFormatter?: (value: number) => string;
-  showAnimation?: boolean;
   onValueChange?: (payload: Bar<T>) => void;
+  showAnimation?: boolean;
   sortOrder?: 'ascending' | 'descending' | 'none';
+  valueFormatter?: (value: number) => string;
 }
 
 function BarListInner<T>(
@@ -45,9 +45,9 @@ function BarListInner<T>(
     if (sortOrder === 'none') {
       return data;
     }
-    return [...data].sort((a, b) => {
-      return sortOrder === 'ascending' ? a.value - b.value : b.value - a.value;
-    });
+    return [...data].sort((a, b) =>
+      sortOrder === 'ascending' ? a.value - b.value : b.value - a.value
+    );
   }, [data, sortOrder]);
 
   const widths = React.useMemo(() => {
