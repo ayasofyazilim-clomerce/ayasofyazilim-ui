@@ -33,6 +33,8 @@ To read more about using these font, please visit the Next.js documentation:
 }
 * */
 import React from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Row } from '@tanstack/react-table';
 import { beautifyObjectName } from '../../organisms/auto-form/utils';
 import { Card } from '@/components/ui/card';
 import { TabsTrigger, TabsList, TabsContent, Tabs } from '@/components/ui/tabs';
@@ -45,12 +47,84 @@ import {
   Table,
 } from '@/components/ui/table';
 import { issueFormProps, Tag } from './type';
-import { Label } from '@/components/ui/label';
 import Cards from './cards';
+import DataTable from '../tables';
 
 export type { issueFormProps } from './type';
 
+const subTable = ({ row }: { row: Row<Tag['Invoices'][0]> }) => (
+  <DataTable
+    showView={false}
+    data={row.original.InvoiceLines}
+    columnsData={{
+      type: 'Custom',
+      data: {
+        columns: [
+          {
+            header: 'ID',
+            accessorKey: 'Id',
+          },
+          {
+            header: 'Product Group',
+            accessorKey: 'ProductGroup.Description',
+          },
+          {
+            header: 'Vat Base',
+            accessorKey: 'Vat.VatBase',
+          },
+          {
+            header: 'Vat Rate',
+            accessorKey: 'Vat.Rate',
+          },
+          {
+            header: 'Amount',
+            accessorKey: 'Amount',
+          },
+        ],
+      },
+    }}
+  />
+);
+
+const expandComponent = ({ row }: { row: Row<unknown> }) =>
+  row.getCanExpand() ? (
+    <button
+      className="flex cursor-pointer"
+      {...{
+        onClick: row.getToggleExpandedHandler(),
+      }}
+      type="button"
+    >
+      {row.getIsExpanded() ? (
+        <ChevronUp className="text-muted-foreground" />
+      ) : (
+        <ChevronDown className="text-muted-foreground" />
+      )}
+    </button>
+  ) : (
+    ''
+  );
+
 export default function Issueform({ tag }: issueFormProps) {
+  const tagInvoiceColumns = [
+    {
+      id: 'expander',
+      header: () => null,
+      cell: expandComponent,
+    },
+    {
+      header: 'Invoice ID',
+      accessorKey: 'Id',
+    },
+    {
+      header: 'Invoice Amount',
+      accessorKey: 'TotalAmount',
+    },
+    {
+      header: 'Currency',
+      accessorKey: 'Currency.Currency',
+    },
+  ];
   return (
     <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6 p-6 w-full">
       <div className="grid gap-6">
@@ -154,66 +228,19 @@ export default function Issueform({ tag }: issueFormProps) {
               </div>
             </TabsContent>
             <TabsContent value="travelers">
-              {tag.Invoices.map((invoice) => (
-                <Card className="m-2 p-1">
-                  <div className="grid gap-4 m-2 p-1">
-                    <div className="flex justify-around">
-                      <div className="grid gap-1">
-                        <Label>Invoice ID</Label>
-                        <div className="font-medium">{invoice.Id}</div>
-                      </div>
-                      <div className="grid gap-1">
-                        <Label>Invoice Amount</Label>
-                        <div className="font-medium">{invoice.TotalAmount}</div>
-                      </div>
-                      <div className="grid gap-1">
-                        <Label>Currency</Label>
-                        <div className="font-medium">
-                          {invoice.Currency.Currency}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Product</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead className="text-right">Vat ID</TableHead>
-                        <TableHead className="text-right">Vat Rate</TableHead>
-                        <TableHead className="text-right">Vat Amount</TableHead>
-                        <TableHead className="text-right">Vat Base</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {invoice.InvoiceLines.map((invoiceLine) => (
-                        <TableRow key={invoiceLine.Id}>
-                          <TableCell>{invoiceLine.Id}</TableCell>
-                          <TableCell>
-                            {invoiceLine.ProductGroup.Description}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {invoiceLine.Amount}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {invoiceLine.Vat.Id}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {invoiceLine.Vat.Rate}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {invoiceLine.Vat.Amount}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {invoiceLine.Vat.VatBase}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Card>
-              ))}
+              <div className="m-2 p-1">
+                <DataTable
+                  data={tag.Invoices}
+                  columnsData={{
+                    type: 'Custom',
+                    data: {
+                      columns: tagInvoiceColumns,
+                    },
+                  }}
+                  showView={false}
+                  renderSubComponent={subTable}
+                />
+              </div>
             </TabsContent>
             <TabsContent value="trips">
               <Table>

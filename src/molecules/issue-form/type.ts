@@ -103,3 +103,49 @@ export type Tag = {
 export type issueFormProps = {
   tag: Tag;
 };
+
+export const InvoicesJsonSchema = {
+  type: 'object',
+  properties: {
+    Currency: {
+      type: 'object',
+      properties: {
+        Currency: { type: 'string' },
+        CurrencySymbol: { type: 'string' },
+        Id: { type: 'string' },
+      },
+      required: ['Currency', 'CurrencySymbol', 'Id'],
+    },
+    Id: { type: 'string' },
+    InvoiceLines: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          Amount: { type: 'number' },
+          Id: { type: 'string' },
+          ProductGroup: {
+            type: 'object',
+            properties: {
+              Description: { type: 'string' },
+              Id: { type: 'string' },
+            },
+            required: ['Description', 'Id'],
+          },
+          Vat: {
+            type: 'object',
+            properties: {
+              Amount: { type: 'number' },
+              Id: { type: 'string' },
+              Rate: { type: 'number' },
+              VatBase: { type: 'number' },
+            },
+            required: ['Amount', 'Id', 'Rate', 'VatBase'],
+          },
+        },
+        required: ['Amount', 'Id', 'ProductGroup', 'Vat'],
+      },
+    },
+  },
+  required: ['Currency', 'Id', 'InvoiceLines'],
+};
