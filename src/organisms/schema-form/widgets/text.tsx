@@ -2,16 +2,8 @@ import { WidgetProps } from '@rjsf/utils';
 import { Input } from '@/components/ui/input';
 
 export const CustomTextInput = (props: WidgetProps) => {
-  const {
-    uiSchema,
-    required,
-    className,
-    id,
-    readOnly,
-    disabled,
-    onChange,
-    value,
-  } = props;
+  const { uiSchema, required, className, id, disabled, onChange, value } =
+    props;
   const uiOptions = uiSchema?.['ui:options'];
   return (
     <Input
@@ -22,7 +14,7 @@ export const CustomTextInput = (props: WidgetProps) => {
       onChange={(event) => onChange(event.target.value)}
       defaultValue={value || props.defaultValue}
       readOnly={props.readOnly}
-      disabled={disabled || readOnly}
+      disabled={disabled}
     />
   );
 };

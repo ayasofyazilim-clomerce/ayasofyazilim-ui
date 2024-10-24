@@ -9,6 +9,6 @@ export const PasswordInputWidget = (props: WidgetProps) => (
     onChange={(event) => props.onChange(event.target.value)}
     defaultValue={props.value || props.defaultValue}
     readOnly={props.readOnly}
-    disabled={props.disabled || props.readOnly}
+    disabled={props.disabled}
   />
 );

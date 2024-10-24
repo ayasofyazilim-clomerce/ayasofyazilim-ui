@@ -13,6 +13,7 @@ export const CustomSwitch = (props: WidgetProps) => (
       checked={props.value}
       defaultValue={props.value || props.defaultValue}
       name={props.name}
+      disabled={props.disabled}
     />
     <Label htmlFor={props.id}>{props.label}</Label>
   </div>

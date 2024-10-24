@@ -11,13 +11,15 @@ import {
 import { cn } from '@/lib/utils';
 
 export const CustomDate = (props: WidgetProps) => {
-  const { value, uiSchema, onChange } = props;
+  const { value, uiSchema, onChange, disabled } = props;
   const placeholder = uiSchema?.['ui:placeholder'] || 'Pick a date';
   const [date, setDate] = useState<Date | undefined>(value);
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
+          type="button"
           variant="outline"
           className={cn(
             'w-full justify-start text-left font-normal flex',

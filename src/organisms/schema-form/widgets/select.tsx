@@ -17,7 +17,10 @@ export const CustomSelect = (props: WidgetProps) => {
         props.onChange(value);
       }}
     >
-      <SelectTrigger className={hasValue ? '' : 'text-muted-foreground'}>
+      <SelectTrigger
+        className={hasValue ? '' : 'text-muted-foreground'}
+        disabled={props.disabled}
+      >
         <SelectValue
           placeholder={
             props?.uiSchema?.['ui:placeholder'] ||

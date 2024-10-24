@@ -39,6 +39,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
     list,
     selectIdentifier,
     selectLabel,
+    disabled,
   } = props;
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [open, setOpen] = useState(false);
@@ -50,23 +51,31 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
   const uiOptions = uiSchema?.['ui:options'];
   const DesktopContent = (
     <Popover open={open} onOpenChange={setOpen} modal>
-      <PopoverTrigger asChild>
+      <PopoverTrigger
+        asChild
+        disabled={disabled}
+        className={cn(disabled && 'cursor-not-allowed')}
+      >
         <Button
           type="button"
           variant="outline"
           role="combobox"
           className={cn(
             'text-muted-foreground w-full justify-between font-normal',
-            fieldValue && 'text-black'
+            fieldValue && 'text-black',
+            disabled &&
+              'disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground'
           )}
         >
-          {fieldValueDisplayName ||
-            fieldValue ||
-            uiSchema?.['ui:placeholder'] ||
-            uiOptions?.['ui:placeholder'] ||
-            uiOptions?.emptyValue ||
-            `Please select an ${label.toLocaleLowerCase()}` ||
-            'Please select'}
+          <span className=" overflow-hidden text-ellipsis">
+            {fieldValueDisplayName ||
+              fieldValue ||
+              uiSchema?.['ui:placeholder'] ||
+              uiOptions?.['ui:placeholder'] ||
+              uiOptions?.emptyValue ||
+              `Please select an ${label.toLocaleLowerCase()}` ||
+              'Please select'}
+          </span>
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -81,6 +90,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
       <DrawerTrigger asChild>
         <Button
           type="button"
+          disabled={disabled}
           variant="outline"
           className={cn(
             'text-muted-foreground w-full justify-between font-normal',
