@@ -8,9 +8,20 @@ export interface SchemaFormProps extends Omit<FormProps, 'validator'> {
   usePhoneField?: boolean;
   withScrollArea?: boolean;
 }
-export type FilterType = {
+
+export type FilterType = CommonFilterType &
+  (
+    | SortableFilterType
+    | {
+        type: 'fullExclude';
+      }
+  );
+type CommonFilterType = {
   keys: string[];
-  type: 'exclude' | 'include' | 'fullExclude';
+};
+type SortableFilterType = {
+  sort?: boolean;
+  type: 'include' | 'exclude';
 };
 
 export type FilteredObject<T> = {

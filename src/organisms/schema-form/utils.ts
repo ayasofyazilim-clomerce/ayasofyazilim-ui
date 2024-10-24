@@ -382,11 +382,21 @@ export function createSchemaWithFilters({
           }
         }
       });
-    }
-
-    // Filtering for array items
-    if (currentObj.items && currentObj.items.properties) {
-      filterProperties(currentObj.items, `${parentKey}.items`);
+      if (filter.type !== 'fullExclude' && filter.sort) {
+        const sortedProperties = Object.entries(currentObj.properties).sort(
+          ([keyA], [keyB]) => {
+            const indexA = keys.indexOf(
+              parentKey ? `${parentKey}.${keyA}` : keyA
+            );
+            const indexB = keys.indexOf(
+              parentKey ? `${parentKey}.${keyB}` : keyB
+            );
+            return indexA - indexB;
+          }
+        );
+        // Update currentObj.properties with sorted properties
+        currentObj.properties = Object.fromEntries(sortedProperties);
+      }
     }
 
     // Update the required fields
@@ -397,6 +407,7 @@ export function createSchemaWithFilters({
 
   // Start filtering from the root schema
   filterProperties(modifiedSchema);
+
   return modifiedSchema;
 }
 

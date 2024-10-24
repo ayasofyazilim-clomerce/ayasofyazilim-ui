@@ -2,9 +2,17 @@ import Form, { ThemeProps } from '@rjsf/core';
 import { RJSFSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
 import { Fragment, useState } from 'react';
-import { SchemaFormProps } from './types';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import ScrollArea from '../../molecules/scroll-area';
+import { AsyncSelect, CustomPhoneField, FieldErrorTemplate } from './fields';
+import {
+  AccordionArrayFieldTemplate,
+  ErrorListTemplate,
+  FieldTemplate,
+  ObjectFieldTemplate,
+} from './templates';
+import { SchemaFormProps } from './types';
 import {
   createSchemaWithFilters,
   flattenGenericData,
@@ -15,28 +23,20 @@ import {
   transformGenericSchema,
 } from './utils';
 import {
-  CustomCheckbox,
   Combobox,
+  CustomCheckbox,
   CustomDate,
   CustomSelect,
-  CustomTextInput,
   CustomSwitch,
+  CustomTextInput,
   PasswordInputWidget,
 } from './widgets';
-import { AsyncSelect, CustomPhoneField, FieldErrorTemplate } from './fields';
-import {
-  AccordionArrayFieldTemplate,
-  ErrorListTemplate,
-  FieldTemplate,
-  ObjectFieldTemplate,
-} from './templates';
-import ScrollArea from '../../molecules/scroll-area';
 
-export * from './utils';
-export * from './types';
-export * from './widgets';
-export * from './templates';
 export * from './fields';
+export * from './templates';
+export * from './types';
+export * from './utils';
+export * from './widgets';
 
 const ShadcnTheme: ThemeProps = {
   fields: {
