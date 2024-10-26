@@ -255,7 +255,7 @@ export default config;
   }
 }
 ```
-
+.
 ## Component usage example
 
 ```tsx
