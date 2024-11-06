@@ -342,7 +342,7 @@ export default function FilterColumn({
         }}
       >
         {column.value !== '' ? (
-          <Badge variant="outline" className="rounded-full px-3 py-1 mr-2">
+          <Badge variant="outline" className="rounded-full px-3 py-1 mr-2 ">
             <DropdownMenuTrigger>
               <DropDownCTA
                 column={column}

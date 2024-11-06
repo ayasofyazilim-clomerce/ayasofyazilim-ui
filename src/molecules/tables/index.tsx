@@ -463,7 +463,7 @@ export default function DataTable<TData, TValue>({
     ) || [];
 
   return (
-    <div className={cn('flex flex-col p-4', classNames?.container)}>
+    <div className={cn('flex flex-col p-4 ', classNames?.container)}>
       {activeAction && isOpen && activeAction.type === 'Dialog' && (
         <CustomTableActionDialog
           open={isOpen}
@@ -476,7 +476,7 @@ export default function DataTable<TData, TValue>({
       {(showView || defaultAction) && (
         <div
           className={cn(
-            'flex items-center gap-2',
+            'flex items-center mr-auto  ',
             classNames?.actions?.container
           )}
         >
@@ -538,7 +538,7 @@ export default function DataTable<TData, TValue>({
                     <Button
                       disabled={isLoading}
                       variant="outline"
-                      className="rounded-l-none border-l-0 px-2"
+                      className="rounded-l-none border-l-0 px-2 "
                     >
                       <ChevronDownIcon className="" />
                     </Button>

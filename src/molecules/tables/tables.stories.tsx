@@ -39,7 +39,8 @@ const autoFormArgs: AutoFormProps = {
     password: {
       inputProps: {
         type: 'password',
-        placeholder: '••••••••',
+        placeholder: '••••',
+        className: 'w-[10px]',
       },
     },
   },
