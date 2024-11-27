@@ -1,11 +1,11 @@
 import { DataTableProps } from '../../molecules/tables/types';
-import { CardListPorps } from '../../organisms/card-list';
+import { CardListProps } from '../../organisms/card-list';
 
 type DashboardExtraProps = {
-  withCards: boolean;
-  withTable: boolean;
+  showCards: boolean;
+  showTable: boolean;
 };
 
 export type DashboardProps = DashboardExtraProps &
-  CardListPorps &
+  CardListProps &
   DataTableProps<any>;
