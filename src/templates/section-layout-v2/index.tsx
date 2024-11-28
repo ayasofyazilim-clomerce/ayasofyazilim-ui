@@ -51,7 +51,7 @@ export function SectionLayoutNavbar({
       className={cn(
         'flex gap-4 text-sm text-center md:text-left p-3 ',
         vertical
-          ? 'flex-col border-b md:border-b-0 md:border-r min-w-full md:min-w-[240px] items-center md:items-start'
+          ? 'flex-col border-b md:border-b-0 md:border-r overflow-auto min-w-full md:min-w-[240px] items-center md:items-start'
           : 'flex-col md:flex-row border-b'
       )}
     >

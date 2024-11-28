@@ -36,14 +36,16 @@ export function tanstackTableCreateColumnsByRowData<T>(
       row.getValue(accessorKey.toString())?.toString() || '';
     if (format) {
       if (format === 'date' || format === 'date-time')
-        content = new Date(content).toLocaleDateString(
-          config?.locale,
-          config?.dateOptions || {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          }
-        );
+        content = content
+          ? new Date(content).toLocaleDateString(
+              config?.locale,
+              config?.dateOptions || {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              }
+            )
+          : '';
     }
 
     if (icon) {

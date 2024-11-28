@@ -28,6 +28,7 @@ export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
   const { items, title, required, canAdd, onAddClick, uiSchema, disabled } =
     props;
   const displayName = uiSchema?.['ui:title'] || title;
+  const addable = uiSchema?.['ui:options']?.addable || canAdd;
   return (
     <Accordion
       type="single"
@@ -42,7 +43,7 @@ export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
         <AccordionTrigger
           onClick={(ev) => items.length === 0 && ev.preventDefault()}
           className={cn(
-            'flex gap-4 overflow-hidden items-center bg-white py-2 px-4 rounded-md border relative group-has-[div>div>div>*]:rounded-b-none hover:no-underline hover:[&>span]:underline hover:bg-zinc-50',
+            'flex gap-4 min-h-[54px] overflow-hidden items-center bg-white py-2 px-4 rounded-md border relative group-has-[div>div>div>*]:rounded-b-none hover:no-underline hover:[&>span]:underline hover:bg-zinc-50',
             items.length === 0 && '[&>svg]:hidden pr-2',
             disabled &&
               'cursor-default pointer-events-none hover:[&>span]:no-underline text-muted-foreground opacity-50'
@@ -54,7 +55,7 @@ export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
               {required && <span className="text-destructive">*</span>}
             </span>
           )}
-          {canAdd && (
+          {addable && (
             <Button
               disabled={disabled}
               type="button"

@@ -11,6 +11,7 @@ export type TanstackTableProps<TData, TValue> = {
   };
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  editable?: boolean;
   excludeColumns?: (keyof TData)[];
   expandedRowComponent?: (
     row: TData,
@@ -18,10 +19,12 @@ export type TanstackTableProps<TData, TValue> = {
   ) => JSX.Element;
   fillerColumn: keyof TData;
   filters?: TanstackTableFiltersType;
+  onTableDataChange?: (data: TData[]) => void;
   pinColumns?: (keyof TData)[];
   rowActions?: TanstackTableRowActionsType<TData>[];
   rowCount?: number;
   selectedRowAction?: TanstackTableSelectedRowActionType<TData>;
+  showPagination?: boolean;
   tableActions?: TanstackTableTableActionsType[];
 };
 export type TanstackTableConfig = {
@@ -55,6 +58,7 @@ export type TanstackTableFiltersType = {
     string,
     {
       options: TanstackTableFacetedFilterType[];
+      title: string;
     }
   >;
   textFilters?: string[];
@@ -84,6 +88,9 @@ export type TanstackTableColumCell<TData> = {
   conditions?: TanstackTableCellCondition[];
   content: (row: TData) => JSX.Element;
   showHeader?: boolean;
+};
+export type TanstackTableRowActionsDeleteRow = {
+  type: 'delete-row';
 };
 export type TanstackTableRowActionsSimple<TData> = {
   onClick: (row: TData) => void;
@@ -131,6 +138,7 @@ export type TanstackTableRowActionsType<TData> = {
 } & (
   | TanstackTableRowActionsConfirmationDialog<TData>
   | TanstackTableRowActionsSimple<TData>
+  | TanstackTableRowActionsDeleteRow
   | TanstackTableRowActionsCustomDialog<TData>
   | TanstackTableRowActionsAutoformDialog<TData>
 );

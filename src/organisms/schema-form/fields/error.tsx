@@ -1,4 +1,4 @@
-import { FieldErrorProps } from '@rjsf/utils';
+import { ErrorSchema, FieldErrorProps } from '@rjsf/utils';
 
 export const FieldErrorTemplate = (props: FieldErrorProps) =>
   props.errors && (
@@ -13,3 +13,24 @@ export const FieldErrorTemplate = (props: FieldErrorProps) =>
       ))}
     </ul>
   );
+export const ErrorSchemaTemplate = ({ errorSchema }: ErrorSchema) => {
+  if (errorSchema) {
+    const errorList = Object.keys(errorSchema).map((index) => {
+      const fields = errorSchema[index];
+      if (fields) {
+        return Object.keys(fields).map((fieldKey) => {
+          const errors = fields[fieldKey]?.__errors;
+          if (errors) {
+            return errors.map((error) => (
+              <span className="text-destructive text-xs">{error}</span>
+            ));
+          }
+          return null;
+        });
+      }
+      return null;
+    });
+    return <div className="flex flex-col">{errorList}</div>;
+  }
+  return null;
+};
