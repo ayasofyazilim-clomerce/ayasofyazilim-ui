@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  ColumnFiltersState,
   getCoreRowModel,
   getExpandedRowModel,
   getPaginationRowModel,
@@ -21,11 +20,16 @@ import {
 } from './fields';
 
 import {
-  TanstackTableProps,
+  TanstackBaseProps,
+  TanstackTablePropsType,
   TanstackTableRowActionsType,
   TanstackTableTableActionsType,
 } from './types';
-import { CellWithActions } from './utils/cell-with-actions';
+import {
+  CellWithActions,
+  EditableTanstackTable,
+  NonEditableTanstackTable,
+} from './utils';
 
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,11 +41,10 @@ declare module '@tanstack/react-table' {
 }
 
 export default function TanstackTable<TData, TValue>({
+  data,
+  rowCount,
   columns,
   columnOrder,
-  data,
-  rowCount = 0,
-  filters,
   columnVisibility,
   pinColumns,
   rowActions,
@@ -49,9 +52,61 @@ export default function TanstackTable<TData, TValue>({
   selectedRowAction,
   expandedRowComponent,
   fillerColumn,
-  editable = false,
-  showPagination = true,
-}: TanstackTableProps<TData, TValue>) {
+  editable,
+  onTableDataChange,
+}: TanstackTablePropsType<TData, TValue>) {
+  const commonProps = {
+    pinColumns,
+    columnOrder,
+    columnVisibility,
+    rowActions,
+    tableActions,
+    selectedRowAction,
+    expandedRowComponent,
+  };
+  if (editable) {
+    return (
+      <TanstackBase<TData, TValue>
+        {...commonProps}
+        {...EditableTanstackTable({ initialData: data, onTableDataChange })}
+        columns={columns}
+        editable
+        fillerColumn={fillerColumn}
+      />
+    );
+  }
+  return (
+    <TanstackBase<TData, TValue>
+      {...commonProps}
+      {...NonEditableTanstackTable(data, rowCount || 0)}
+      columns={columns}
+      editable={false}
+      fillerColumn={fillerColumn}
+    />
+  );
+}
+
+function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
+  const {
+    data,
+    columns,
+    columnOrder,
+    rowCount,
+    columnVisibility,
+    pinColumns,
+    rowActions,
+    tableActions,
+    selectedRowAction,
+    expandedRowComponent,
+    fillerColumn,
+    editable,
+    onPaginationChange,
+    onColumnFiltersChange,
+    columnFilters,
+    pagination,
+    filters,
+    meta,
+  } = props;
   const [sorting, setSorting] = useState<SortingState>([]);
   const [colVisibility, setColumnVisibility] = useState<VisibilityState>(
     columnVisibility
@@ -66,7 +121,6 @@ export default function TanstackTable<TData, TValue>({
         )
       : {}
   );
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowAction, setRowAction] = useState<
     (TanstackTableRowActionsType<TData> & { row: TData }) | null
   >(null);
@@ -86,13 +140,9 @@ export default function TanstackTable<TData, TValue>({
     return _columns;
   }, [columns, rowActions]);
 
-  const [pagination, setPagination] = useState<{
-    pageIndex: number;
-    pageSize: number;
-  }>({ pageIndex: 0, pageSize: 10 });
-
   const getRowId = useCallback(
-    (row: TData) => (row as TData & { id: string }).id,
+    (row: TData, index: number) =>
+      editable ? index.toString() : (row as TData & { id: string }).id,
     []
   );
 
@@ -127,9 +177,10 @@ export default function TanstackTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     getPaginationRowModel: getPaginationRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
-    onPaginationChange: setPagination,
-    onColumnFiltersChange: setColumnFilters,
+    onPaginationChange,
+    onColumnFiltersChange,
     rowCount,
+    meta,
   });
 
   return (
@@ -151,7 +202,7 @@ export default function TanstackTable<TData, TValue>({
           expandedRowComponent={expandedRowComponent}
         />
       </div>
-      {showPagination && (
+      {pagination && (
         <TanstackTablePagination table={table} pagination={pagination} />
       )}
       <TanstackTableActionDialogs

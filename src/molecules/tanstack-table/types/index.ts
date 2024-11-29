@@ -1,32 +1,87 @@
-import { ColumnDef } from '@tanstack/react-table';
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  OnChangeFn,
+  PaginationState,
+  TableMeta,
+} from '@tanstack/react-table';
 import { ComponentType } from 'react';
 import { z } from 'zod';
 import { ZodObjectOrWrapped } from '../../../organisms/auto-form/utils';
 
-export type TanstackTableProps<TData, TValue> = {
-  columnOrder?: (keyof TData)[];
-  columnVisibility?: {
-    columns: (keyof TData | 'select')[];
-    type: 'show' | 'hide';
-  };
-  columns: ColumnDef<TData, TValue>[];
+export type NonEditableTanstackTableProps<TData> = {
+  rowCount: number;
   data: TData[];
-  editable?: boolean;
-  excludeColumns?: (keyof TData)[];
+  columnFilters: ColumnFiltersState;
+  pagination: PaginationState;
+  onPaginationChange?: OnChangeFn<PaginationState>;
+  onColumnFiltersChange?: OnChangeFn<ColumnFiltersState>;
+};
+export type EditableTanstackTableProps<TData> = {
+  data: TData[];
+  meta?: TableMeta<TData>;
+};
+export type TanstackBaseProps<TData, TValue> = {
+  columns: ColumnDef<TData, TValue>[];
+  columnOrder?: (keyof TData)[];
+  data: TData[];
+  columnVisibility?:
+    | {
+        columns: ('select' | keyof TData)[];
+        type: 'show' | 'hide';
+      }
+    | undefined;
+  pinColumns?: (keyof TData)[];
+  rowActions?: TanstackTableRowActionsType<TData>[];
+  rowCount?: number;
+  selectedRowAction?: TanstackTableSelectedRowActionType<TData>;
+  tableActions?: TanstackTableTableActionsType[];
   expandedRowComponent?: (
     row: TData,
     toggleExpanded: () => void
   ) => JSX.Element;
   fillerColumn: keyof TData;
+  editable: boolean;
+  onPaginationChange?: OnChangeFn<PaginationState>;
+  onColumnFiltersChange?: OnChangeFn<ColumnFiltersState>;
+  columnFilters?: ColumnFiltersState;
+  pagination?: PaginationState;
   filters?: TanstackTableFiltersType;
-  onTableDataChange?: (data: TData[]) => void;
-  pinColumns?: (keyof TData)[];
-  rowActions?: TanstackTableRowActionsType<TData>[];
-  rowCount?: number;
-  selectedRowAction?: TanstackTableSelectedRowActionType<TData>;
-  showPagination?: boolean;
-  tableActions?: TanstackTableTableActionsType[];
+  meta?: TableMeta<TData>;
 };
+export type TanstackTablePropsType<TData, TValue> = {
+  data: TData[];
+  columns: ColumnDef<TData, TValue>[];
+  fillerColumn: keyof TData;
+  pinColumns?: (keyof TData)[] | undefined;
+  columnOrder?: (keyof TData)[] | undefined;
+  columnVisibility?:
+    | {
+        columns: (keyof TData | 'select')[];
+        type: 'show' | 'hide';
+      }
+    | undefined;
+  excludeColumns?: (keyof TData)[];
+  rowActions?: TanstackTableRowActionsType<TData>[] | undefined;
+  selectedRowAction?: TanstackTableSelectedRowActionType<TData> | undefined;
+  tableActions?: TanstackTableTableActionsType[] | undefined;
+  filters?: TanstackTableFiltersType | undefined;
+  expandedRowComponent?:
+    | ((row: TData, toggleExpanded: () => void) => JSX.Element)
+    | undefined;
+} & (
+  | {
+      rowCount?: number;
+      editable?: undefined;
+      onTableDataChange?: undefined;
+    }
+  | {
+      editable: true;
+      rowCount?: undefined;
+      onTableDataChange?: (data: TData[]) => void;
+    }
+);
+
 export type TanstackTableConfig = {
   dateOptions?: Intl.LocaleOptions;
   locale?: Intl.LocalesArgument;
@@ -237,6 +292,6 @@ export type TanstacktableEditableColumnsByRowId<T> = {
 };
 
 export type TanstackTableCreationProps<T> = Omit<
-  TanstackTableProps<T, string>,
-  'columns' | 'data' | 'rowCount'
+  TanstackTablePropsType<T, string>,
+  'columns' | 'data' | 'rowCount' | 'editable' | 'onTableDataChange'
 >;
