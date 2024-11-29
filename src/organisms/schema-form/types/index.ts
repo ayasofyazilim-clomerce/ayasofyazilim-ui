@@ -20,7 +20,7 @@ export type FilterType<T> = CommonFilterType<T> &
       }
   );
 export type CommonFilterType<T> = {
-  keys: Partial<Array<keyof T | string>>;
+  keys: Partial<Array<keyof T>>;
 };
 type SortableFilterType = {
   sort?: boolean;
