@@ -247,12 +247,7 @@ export default function DataTable<TData, TValue>(
           />
         )}
         <div className={cn('overflow-auto', classNames?.table?.wrapper)}>
-          <Table
-            wrapperClassName={cn(
-              'flex-1 border rounded-md',
-              classNames?.table?.container
-            )}
-          >
+          <Table>
             <TableHeader
               className={cn(
                 'sticky top-0 bg-slate-100 z-10',
