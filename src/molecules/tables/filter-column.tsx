@@ -263,7 +263,7 @@ export default function FilterColumn({
                         }}
                       />
                     );
-                  return 'not found';
+                  return <>not found</>;
                 })}
                 <DataTable
                   columnsData={{

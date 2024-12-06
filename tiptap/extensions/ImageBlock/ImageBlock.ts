@@ -109,7 +109,9 @@ export const ImageBlock = Image.extend({
     };
   },
 
-  addNodeView() {
-    return ReactNodeViewRenderer(ImageBlockView);
-  },
+  // addNodeView() {
+  //   // dont know what im doing but i have to
+  //   return <div></div>;
+  //   // return ReactNodeViewRenderer(ImageBlockView);
+  // },
 });
