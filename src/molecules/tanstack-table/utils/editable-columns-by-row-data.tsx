@@ -11,14 +11,14 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import { tanstackTableCreateTitleWithLanguageData } from '.';
+import { createCell, tanstackTableCreateTitleWithLanguageData } from '.';
 import { TanstackTableColumnHeader } from '../fields';
 import { TanstacktableEditableColumnsByRowId } from '../types';
 
 export function tanstackTableEditableColumnsByRowData<T>(
   params: TanstacktableEditableColumnsByRowId<T>
 ) {
-  const { rows, excludeColumns, languageData } = params;
+  const { rows, excludeColumns, languageData, editableColumns } = params;
   const columns: ColumnDef<T>[] = [];
 
   Object.keys(rows)
@@ -35,10 +35,16 @@ export function tanstackTableEditableColumnsByRowData<T>(
         header: ({ column }) => (
           <TanstackTableColumnHeader column={column} title={title} />
         ),
-        cell: ({ getValue, row: { index }, column: { id }, table }) => {
+        cell: ({ getValue, row, column: { id }, table }) => {
+          if (
+            editableColumns &&
+            !editableColumns.includes(accessorKey as keyof T)
+          ) {
+            return createCell<T>({ accessorKey: accessorKey as keyof T, row });
+          }
           const initialValue = (getValue() as string)?.toString() || '';
           const [value, setValue] = useState(initialValue);
-          const rowId = index.toString();
+          const rowId = row.index.toString();
           const isRowSelected = table.getRow(rowId)?.getIsSelected();
 
           // When the input is blurred, we'll call our table meta's updateData function
@@ -54,7 +60,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
               default:
                 $value = value;
             }
-            table.options.meta?.updateData(index, id, $value);
+            table.options.meta?.updateData(row.index, id, $value);
           };
 
           function handleValueChange(newValue: string) {
@@ -89,7 +95,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
                     rows[accessorKey].type === 'number'
                       ? Number(_value)
                       : _value;
-                  table.options.meta?.updateData(index, id, $value);
+                  table.options.meta?.updateData(row.index, id, $value);
                 }}
               >
                 <SelectTrigger

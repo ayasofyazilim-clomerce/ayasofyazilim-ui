@@ -202,6 +202,7 @@ export type DataTableProps<TData> = {
   renderSubComponent?: (row: Row<TData>) => JSX.Element;
   rowCount?: number;
   showView?: boolean;
+  filterType?: 'Badge' | 'Column';
 };
 
 export type fetchRequestProps = {

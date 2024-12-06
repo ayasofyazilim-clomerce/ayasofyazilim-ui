@@ -319,13 +319,17 @@ export const DetailedFilter: StoryObj<typeof Table> = {
 
       return localData;
     },
+
     editable: false,
     data,
+
     columnsData: {
       type: 'Auto',
       data: autoColumnData,
     },
+
     showView: false,
+
     detailedFilter: [
       {
         name: 'email',
@@ -399,6 +403,8 @@ export const DetailedFilter: StoryObj<typeof Table> = {
         },
       },
     ],
+
+    filterType: 'Column',
   },
   parameters: {
     layout: 'centered',

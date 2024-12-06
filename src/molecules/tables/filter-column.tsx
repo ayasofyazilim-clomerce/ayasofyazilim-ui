@@ -79,6 +79,7 @@ export type valueType<T> = {
 export interface IFilterColumnProps {
   column: ColumnFilter;
   setFilteredColumns: Dispatch<React.SetStateAction<ColumnFilter[]>>;
+  filterType: DataTableProps<unknown>['filterType'];
 }
 const BadgeWithDelete = ({
   badgeText,
@@ -142,6 +143,7 @@ function DropDownCTA({
 export default function FilterColumn({
   column,
   setFilteredColumns,
+  filterType,
 }: IFilterColumnProps) {
   const [filteredValue, setFilteredValue] = useState<string>(column.value);
   const [isDropdownOpen, setIsDropdownOpen] = useState(!column.value);
@@ -150,6 +152,8 @@ export default function FilterColumn({
     items: [],
     totalCount: 0,
   });
+  const isColumn = filterType === 'Column';
+
   useEffect(() => {
     if (column.type === 'select-async') {
       setData({
@@ -383,59 +387,58 @@ export default function FilterColumn({
           }}
         />
       ) : null}
-      <DropdownMenu
-        open={isDropdownOpen}
-        onOpenChange={(open) => {
-          handleOpenChange(open);
-        }}
-      >
-        {column.value !== '' ? (
-          <Badge variant="outline" className="rounded-full px-3 py-1 mr-2">
-            <DropdownMenuTrigger>
-              <DropDownCTA
-                column={column}
-                selectedRows={selectedRows as Record<string, unknown>[]}
-              />
-            </DropdownMenuTrigger>
-            <Button
-              variant="ghost"
-              className="p-0 ml-2 h-auto"
-              onClick={() => handleDelete()}
-            >
-              <Cross1Icon className="size-3" />
-            </Button>
-          </Badge>
-        ) : (
-          <DropdownMenuTrigger />
-        )}
+      {isColumn ? (
+        <FilterDropDownContent
+          column={column}
+          setFilteredValue={setFilteredValue}
+          filteredValue={filteredValue}
+          handleDelete={() => handleDelete()}
+          handleSave={() => handleSave()}
+          setIsDropdownOpen={setIsDropdownOpen}
+          setIsDialogOpen={setIsDialogOpen}
+          filterType={filterType}
+        />
+      ) : (
+        <DropdownMenu
+          open={isDropdownOpen}
+          onOpenChange={(open) => {
+            handleOpenChange(open);
+          }}
+        >
+          {column.value !== '' ? (
+            <Badge variant="outline" className="rounded-full px-3 py-1 mr-2">
+              <DropdownMenuTrigger>
+                <DropDownCTA
+                  column={column}
+                  selectedRows={selectedRows as Record<string, unknown>[]}
+                />
+              </DropdownMenuTrigger>
+              <Button
+                variant="ghost"
+                className="p-0 ml-2 h-auto"
+                onClick={() => handleDelete()}
+              >
+                <Cross1Icon className="size-3" />
+              </Button>
+            </Badge>
+          ) : (
+            <DropdownMenuTrigger />
+          )}
 
-        <DropdownMenuContent className="sm:max-w-md p-2">
-          <div className="flex flex-row justify-between items-center mb-2">
-            <Label htmlFor="name">{column.displayName}</Label>
-            <Button variant="ghost" onClick={() => handleDelete()}>
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="flex flex-row items-center gap-2 justify-center mb-2">
-            <GenerateFilterByType
+          <DropdownMenuContent className="sm:max-w-md p-2">
+            <FilterDropDownContent
               column={column}
               setFilteredValue={setFilteredValue}
               filteredValue={filteredValue}
-              openDialog={(open) => {
-                setIsDropdownOpen(open);
-                setIsDialogOpen(!open);
-              }}
+              handleDelete={() => handleDelete()}
+              handleSave={() => handleSave()}
+              setIsDropdownOpen={setIsDropdownOpen}
+              setIsDialogOpen={setIsDialogOpen}
+              filterType={filterType}
             />
-          </div>
-          <Button
-            variant="secondary"
-            onClick={() => handleSave()}
-            className="w-full"
-          >
-            Filtrele
-          </Button>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </>
   );
 }
@@ -445,11 +448,13 @@ function GenerateFilterByType({
   setFilteredValue,
   filteredValue,
   openDialog,
+  filterType,
 }: {
   column: ColumnFilter;
   filteredValue: string;
   openDialog: (open: boolean) => void;
   setFilteredValue: Dispatch<React.SetStateAction<string>>;
+  filterType?: DataTableProps<unknown>['filterType'];
 }) {
   const columnType = column.type;
   switch (columnType) {
@@ -529,6 +534,17 @@ function GenerateFilterByType({
       );
     }
     case 'select-async': {
+      if (filterType === 'Column') {
+        return (
+          <Button
+            onClick={() => {
+              openDialog(false);
+            }}
+          >
+            Seç
+          </Button>
+        );
+      }
       openDialog(false);
       break;
     }
@@ -537,4 +553,56 @@ function GenerateFilterByType({
       throw new Error(`Unhandled filter case: ${exhaustiveCheck}`);
     }
   }
+}
+
+export function FilterDropDownContent({
+  column,
+  setFilteredValue,
+  filteredValue,
+  handleDelete,
+  handleSave,
+  setIsDropdownOpen,
+  setIsDialogOpen,
+  filterType,
+}: {
+  column: ColumnFilter;
+  setFilteredValue: Dispatch<React.SetStateAction<string>>;
+  filteredValue: string;
+  handleDelete: () => void;
+  handleSave: () => void;
+  setIsDropdownOpen: Dispatch<React.SetStateAction<boolean>>;
+  setIsDialogOpen: Dispatch<React.SetStateAction<boolean>>;
+  filterType?: DataTableProps<unknown>['filterType'];
+}) {
+  return (
+    <>
+      <div className="flex flex-row justify-between items-center mb-2">
+        <Label htmlFor="name">{column.displayName}</Label>
+        <Button variant="ghost" onClick={() => handleDelete()}>
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
+      <div className="flex flex-row items-center gap-2 justify-center mb-2">
+        <GenerateFilterByType
+          column={column}
+          setFilteredValue={setFilteredValue}
+          filteredValue={filteredValue}
+          filterType={filterType}
+          openDialog={(open) => {
+            setIsDropdownOpen(open);
+            setIsDialogOpen(!open);
+          }}
+        />
+      </div>
+      {/* {filterType === 'Column' ? <> </> : */}
+      <Button
+        variant="secondary"
+        onClick={() => handleSave()}
+        className="w-full"
+      >
+        Filtrele
+      </Button>
+      {/* } */}
+    </>
+  );
 }

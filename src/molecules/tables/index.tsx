@@ -210,103 +210,129 @@ export default function DataTable<TData, TValue>(
   ]);
 
   return (
-    <div className={cn('flex flex-col p-4', classNames?.container)}>
-      <TableToolbar<TData>
-        inputProps={inputProps}
-        activeAction={activeAction}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        triggerData={triggerData}
-        defaultAction={defaultAction}
-        table={table}
-        isMultipleActionProvided={isMultipleActionProvided}
-        filteredColumns={filteredColumns}
-        setTriggerData={setTriggerData}
-        setActiveAction={setActiveAction}
-        detailedFilter={detailedFilter}
-        setFilteredColumns={setFilteredColumns}
-      />
-      <div className={cn('overflow-auto', classNames?.table?.wrapper)}>
-        <Table>
-          <TableHeader
-            className={cn(
-              'sticky top-0 bg-slate-100 z-10',
-              classNames?.table?.header
+    <div className="flex flex-row">
+      {inputProps.filterType === 'Column' && (
+        <TableToolbar<TData>
+          inputProps={inputProps}
+          activeAction={activeAction}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          triggerData={triggerData}
+          defaultAction={defaultAction}
+          table={table}
+          isMultipleActionProvided={isMultipleActionProvided}
+          filteredColumns={filteredColumns}
+          setTriggerData={setTriggerData}
+          setActiveAction={setActiveAction}
+          detailedFilter={detailedFilter}
+          setFilteredColumns={setFilteredColumns}
+        />
+      )}
+      <div className={cn('flex flex-col p-4', classNames?.container)}>
+        {inputProps.filterType !== 'Column' && (
+          <TableToolbar<TData>
+            inputProps={inputProps}
+            activeAction={activeAction}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            triggerData={triggerData}
+            defaultAction={defaultAction}
+            table={table}
+            isMultipleActionProvided={isMultipleActionProvided}
+            filteredColumns={filteredColumns}
+            setTriggerData={setTriggerData}
+            setActiveAction={setActiveAction}
+            detailedFilter={detailedFilter}
+            setFilteredColumns={setFilteredColumns}
+          />
+        )}
+        <div className={cn('overflow-auto', classNames?.table?.wrapper)}>
+          <Table
+            wrapperClassName={cn(
+              'flex-1 border rounded-md',
+              classNames?.table?.container
             )}
           >
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="whitespace-nowrap">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    <div>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody className={cn(classNames?.table?.body)}>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <Fragment key={row.id}>
-                  <TableRow
-                    data-state={row.getIsSelected() ? 'selected' : undefined}
-                    className="whitespace-nowrap"
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const className = cell.id.includes('actions')
-                        ? 'p-0'
-                        : 'p-2';
-                      return (
-                        <TableCell key={cell.id} className={className}>
-                          {
-                            flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            ) as JSX.Element
-                          }
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                  {row.getIsExpanded() && renderSubComponent && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={row.getVisibleCells().length}
-                        className="p-0"
-                      >
-                        {renderSubComponent(row)}
-                      </TableCell>
+            <TableHeader
+              className={cn(
+                'sticky top-0 bg-slate-100 z-10',
+                classNames?.table?.header
+              )}
+            >
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="whitespace-nowrap">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      <div>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </div>
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody className={cn(classNames?.table?.body)}>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <Fragment key={row.id}>
+                    <TableRow
+                      data-state={row.getIsSelected() ? 'selected' : undefined}
+                      className="whitespace-nowrap"
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const className = cell.id.includes('actions')
+                          ? 'p-0'
+                          : 'p-2';
+                        return (
+                          <TableCell key={cell.id} className={className}>
+                            {
+                              flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              ) as JSX.Element
+                            }
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
-                  )}
-                </Fragment>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length + 1}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                    {row.getIsExpanded() && renderSubComponent && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={row.getVisibleCells().length}
+                          className="p-0"
+                        >
+                          {renderSubComponent(row)}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </Fragment>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + 1}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <TableFooter
+          inputProps={inputProps}
+          table={table}
+          selectedRows={selectedRows}
+          setTableData={setTableData}
+          tableData={tableData}
+        />
       </div>
-      <TableFooter
-        inputProps={inputProps}
-        table={table}
-        selectedRows={selectedRows}
-        setTableData={setTableData}
-        tableData={tableData}
-      />
     </div>
   );
 }
