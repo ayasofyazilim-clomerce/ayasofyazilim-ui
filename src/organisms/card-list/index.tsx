@@ -2,12 +2,13 @@ import React from 'react';
 
 import InfoCard, { infoCardProps } from '../../molecules/infocard';
 
-export type CardListPorps = {
+export type CardListProps = {
   cards: Array<infoCardProps>;
   isLoading?: boolean;
 };
 
-export default function CardList(porps: CardListPorps) {
+export default function CardList(porps: CardListProps) {
+  // Fixed typo CardListPorps->CardListProps
   let listCards = porps.cards;
   if (porps.isLoading) {
     // create 4 cards data

@@ -8,16 +8,16 @@ export default function Dashboard({
   columnsData,
   action,
   isLoading,
-  withCards,
-  withTable,
+  showCards, // changed withCards to showCards
+  showTable, // changed withTable to showTable
   rowCount,
   fetchRequest,
   detailedFilter,
 }: DashboardProps) {
   return (
     <>
-      {withCards && <CardList isLoading={isLoading} cards={cards} />}
-      {withTable && (
+      {showCards && <CardList isLoading={isLoading} cards={cards} />}
+      {showTable && (
         <DataTable
           columnsData={columnsData}
           data={data}
