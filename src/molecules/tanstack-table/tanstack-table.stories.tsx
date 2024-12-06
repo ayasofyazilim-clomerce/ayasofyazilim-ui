@@ -281,7 +281,25 @@ const editableRowStory: StoryFn<typeof TanstackTable> = (args) => (
   </div>
 );
 const editableRowCol = tanstackTableEditableColumnsByRowData<Merchant>({
-  rows: $merchantSchema.properties,
+  rows: {
+    ...$merchantSchema.properties,
+    typeCode: {
+      ...$merchantSchema.properties.typeCode,
+      enum: $merchantSchema.properties.typeCode.enum.map((item) => ({
+        value: item,
+        label: item,
+      })),
+    },
+    entityInformationTypeCode: {
+      ...$merchantSchema.properties.entityInformationTypeCode,
+      enum: $merchantSchema.properties.entityInformationTypeCode.enum.map(
+        (item) => ({
+          value: item,
+          label: item,
+        })
+      ),
+    },
+  },
   languageData: {
     name: 'Ad',
     entityInformationTypeCode: 'Tip',

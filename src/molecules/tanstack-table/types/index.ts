@@ -93,7 +93,7 @@ export type TanstackTableCellCondition = {
 };
 export type TanstackTableColumnClassNames = {
   className?: string;
-  conditions: TanstackTableCellCondition[];
+  conditions?: TanstackTableCellCondition[];
 };
 export type TanstackTableFacetedFilterType = {
   className?: string;
@@ -286,7 +286,10 @@ export type TanstacktableEditableColumnsByRowId<T> = {
   rows: Record<
     string,
     {
-      enum?: readonly string[];
+      enum?: Array<{
+        label: string;
+        value: string;
+      }>;
       format?: string;
       type: string;
     }
