@@ -35,11 +35,116 @@ export default {
   },
 } as Meta<typeof AdvancedCalendar>;
 
-export const Template: StoryObj<typeof AdvancedCalendar> = {
+export const Default: StoryObj<typeof AdvancedCalendar> = {
+  args: {
+    presets: true,
+    view: 'single',
+    toYear: 2025,
+  },
+  render: (args) => {
+    const [filteredValue, setFilteredValue] = useState<string>('');
+    return (
+      <AdvancedCalendar
+        {...args}
+        initialFocus
+        mode="single"
+        onSelect={(value) => {
+          setFilteredValue(value?.toISOString() || '');
+        }}
+        selected={filteredValue ? new Date(filteredValue) : undefined}
+      />
+    );
+  },
+};
+
+export const MultipleView: StoryObj<typeof AdvancedCalendar> = {
   args: {
     presets: true,
     view: 'multiple',
+    className: 'w-full',
+    fromYear: 2019,
+    toYear: 2025,
+    type: 'buttons',
   },
+
+  render: (args) => {
+    const [filteredValue, setFilteredValue] = useState<string>('');
+    return (
+      <AdvancedCalendar
+        {...args}
+        initialFocus
+        mode="single"
+        onSelect={(value) => {
+          setFilteredValue(value?.toISOString() || '');
+        }}
+        selected={filteredValue ? new Date(filteredValue) : undefined}
+      />
+    );
+  },
+};
+
+export const NoPresets: StoryObj<typeof AdvancedCalendar> = {
+  args: {
+    presets: false,
+    view: 'single',
+    className: 'w-full',
+    fromYear: 2019,
+    toYear: 2025,
+    type: 'buttons',
+  },
+
+  render: (args) => {
+    const [filteredValue, setFilteredValue] = useState<string>('');
+    return (
+      <AdvancedCalendar
+        {...args}
+        initialFocus
+        mode="single"
+        onSelect={(value) => {
+          setFilteredValue(value?.toISOString() || '');
+        }}
+        selected={filteredValue ? new Date(filteredValue) : undefined}
+      />
+    );
+  },
+};
+
+export const Dropdown: StoryObj<typeof AdvancedCalendar> = {
+  args: {
+    presets: false,
+    view: 'single',
+    className: 'w-full',
+    fromYear: 2019,
+    toYear: 2025,
+    type: 'dropdown',
+  },
+
+  render: (args) => {
+    const [filteredValue, setFilteredValue] = useState<string>('');
+    return (
+      <AdvancedCalendar
+        {...args}
+        initialFocus
+        mode="single"
+        onSelect={(value) => {
+          setFilteredValue(value?.toISOString() || '');
+        }}
+        selected={filteredValue ? new Date(filteredValue) : undefined}
+      />
+    );
+  },
+};
+
+export const DropdownButtons: StoryObj<typeof AdvancedCalendar> = {
+  args: {
+    presets: false,
+    view: 'single',
+    className: 'w-full',
+    fromYear: 2019,
+    toYear: 2025,
+    type: 'dropdown-buttons',
+  },
+
   render: (args) => {
     const [filteredValue, setFilteredValue] = useState<string>('');
     return (
