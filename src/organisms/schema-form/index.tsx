@@ -29,6 +29,7 @@ import {
   CustomTextInput,
   PasswordInputWidget,
 } from './widgets';
+import { ScrollBar } from '@/components/ui/scroll-area';
 
 /**
  * SchemaForm component that renders a form based on the provided schema and options.
@@ -124,6 +125,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
           />
         )}
       </Form>
+      <ScrollBar orientation="horizontal" />
     </Wrapper>
   );
 }

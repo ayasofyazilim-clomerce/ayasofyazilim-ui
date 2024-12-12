@@ -13,8 +13,11 @@ import AdvancedCalendar from '../../../molecules/advanced-calendar';
 export const CustomDate = (props: WidgetProps) => {
   const { value, uiSchema, onChange, disabled } = props;
   const uiOptions = uiSchema?.['ui:options'];
-  const placeholder = uiSchema?.['ui:placeholder'] || 'Pick a date';
-  const [date, setDate] = useState<Date>(value || new Date());
+  const placeholder =
+    uiSchema?.['ui:placeholder']?.toString() ||
+    uiOptions?.['ui:placeholder']?.toString() ||
+    'Pick a date';
+  const [date, setDate] = useState<Date>(value);
   return (
     <Popover>
       <PopoverTrigger asChild>

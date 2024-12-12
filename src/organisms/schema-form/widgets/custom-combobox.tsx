@@ -62,17 +62,16 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           role="combobox"
           className={cn(
             'text-muted-foreground w-full justify-between font-normal',
-            fieldValue && 'text-black',
+            fieldValueDisplayName && 'text-black',
             disabled &&
               'disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground'
           )}
         >
-          <span className=" overflow-hidden text-ellipsis">
-            {fieldValueDisplayName ||
-              fieldValue ||
+          <span className=" overflow-hidden text-ellipsis has-[role=dialog]:max-w-xs">
+            {(fieldValueDisplayName && fieldValueDisplayName.toString()) ||
               emptyValue ||
-              uiSchema?.['ui:placeholder'] ||
-              uiOptions?.['ui:placeholder'] ||
+              uiSchema?.['ui:placeholder']?.toString() ||
+              uiOptions?.['ui:placeholder']?.toString() ||
               emptyValue ||
               `Please select an ${label?.toLocaleLowerCase()}` ||
               'Please select'}
@@ -95,13 +94,15 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           variant="outline"
           className={cn(
             'text-muted-foreground w-full justify-between font-normal',
-            fieldValue && 'text-black'
+            fieldValueDisplayName && 'text-black'
           )}
         >
-          {fieldValue ||
+          {(fieldValueDisplayName && fieldValueDisplayName.toString()) ||
             emptyValue ||
-            uiSchema?.['ui:placeholder'] ||
-            `Please select an ${label.toLocaleLowerCase()}` ||
+            uiSchema?.['ui:placeholder']?.toString() ||
+            uiOptions?.['ui:placeholder']?.toString() ||
+            emptyValue ||
+            `Please select an ${label?.toLocaleLowerCase()}` ||
             'Please select'}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
