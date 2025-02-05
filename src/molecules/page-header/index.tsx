@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -36,10 +36,13 @@ export default function PageHeader({
     ]
   );
   const router = useRouter();
+  const pathname = usePathname();
   if (isLoading) {
     return (
       <div className="mb-4 flex items-center gap-4 px-2">
-        {LinkElement && <Skeleton className="h-12 w-12 " />}
+        {LinkElement && pathname !== href && (
+          <Skeleton className="h-12 w-12 " />
+        )}
         <div>
           <Skeleton className="h-6 w-80 " />
           <Skeleton className="h-6 w-120  mt-1" />
@@ -59,7 +62,7 @@ export default function PageHeader({
         >
           <ArrowLeft />
         </Button>
-      ) : LinkElement ? (
+      ) : LinkElement && pathname !== href ? (
         <LinkElement
           className="size-12 rounded-xl cursor-pointer border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground items-center justify-center flex"
           href={href}
