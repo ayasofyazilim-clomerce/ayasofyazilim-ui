@@ -1,44 +1,43 @@
-import { ErrorSchema, FieldErrors, FieldProps } from '@rjsf/utils';
-import 'react-international-phone/style.css';
+'use client';
 
+import { WidgetProps } from '@rjsf/utils';
+import { PhoneNumberUtil } from 'google-libphonenumber';
+import { useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import { cn } from '@/lib/utils';
-import { isPhoneValid, splitPhone } from '../utils';
+import 'react-international-phone/style.css';
 
-export const CustomPhoneField = function (props: FieldProps) {
-  const value =
-    props.formData.ituCountryCode +
-    props.formData.areaCode +
-    props.formData.localNumber;
+const phoneUtil = PhoneNumberUtil.getInstance();
+export const CustomPhoneField = (props: WidgetProps) => {
+  const { value = '', onChange, name, className } = props;
+  const [inputValue, setInputValue] = useState(value);
+  const [error, setError] = useState<string | null>(null);
+  const handlePhoneChange = (val: string) => {
+    setInputValue(val);
+    try {
+      const parsedNumber = phoneUtil.parseAndKeepRawInput(val);
+      if (!phoneUtil.isValidNumber(parsedNumber)) {
+        setError('Please enter a valid phone number.');
+      } else {
+        setError(null);
+      }
+    } catch (error) {
+      setError('Please enter a valid phone number.');
+    }
+    onChange(val);
+  };
+
   return (
-    <PhoneInput
-      name={props.name}
-      defaultCountry="tr"
-      value={value}
-      onChange={(val) => {
-        const isValid = isPhoneValid(val);
-
-        let raiseError: FieldErrors | undefined;
-        if (isValid) {
-          const splitVal = splitPhone(val);
-          props.onChange(splitVal);
-        } else {
-          raiseError = {
-            __errors: ['Value must be "test"'],
-          };
-          props.onChange(val, raiseError as ErrorSchema, props.id);
-        }
-        // const x = splitPhone(val);
-        // if (!isValid.isValid) {
-        //   raiseError = {
-        //     __errors: ['Value must be "test"'],
-        //   };
-        // } else {
-        //   props.onChange(splitPhone(val));
-        // }
-      }}
-      inputClassName={cn('flex-1', props.className)}
-      countrySelectorStyleProps={{ flagClassName: 'rounded-md pl-0.5' }}
-    />
+    <div>
+      <PhoneInput
+        name={name}
+        defaultCountry="tr"
+        value={inputValue}
+        onChange={handlePhoneChange}
+        inputClassName={cn('flex-1', className)}
+        countrySelectorStyleProps={{ flagClassName: 'rounded-md pl-0.5' }}
+      />
+      {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+    </div>
   );
 };
