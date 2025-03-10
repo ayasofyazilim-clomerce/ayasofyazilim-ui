@@ -20,7 +20,7 @@ import { toast } from '@/components/ui/sonner';
 import { cn, formatBytes } from '@/lib/utils';
 import { useControllableState } from './hooks/use-controllable-state';
 
-type BaseFileUploaderProps = React.HTMLAttributes<HTMLDivElement> & {
+export type BaseFileUploaderProps = React.HTMLAttributes<HTMLDivElement> & {
   /**
    * Value of the uploader.
    * @type File[]
@@ -111,11 +111,14 @@ type BaseFileUploaderProps = React.HTMLAttributes<HTMLDivElement> & {
     dropzone?: string;
     children?: string;
   };
+  showFileList?: boolean;
+  fileCardRenderer?: (props: FileCardProps) => React.ReactNode;
 } & (ButtonFileUploaderProps | DropzoneFileUploaderProps);
 
 type ButtonFileUploaderProps = {
   variant: 'button';
   children?: React.ReactNode;
+  headerChildren?: React.ReactNode;
 };
 type DropzoneFileUploaderProps = {
   variant: 'dropzone';
@@ -134,9 +137,11 @@ export function FileUploader(props: BaseFileUploaderProps) {
     multiple = false,
     disabled = false,
     classNames,
+    showFileList = true,
     noDrag = false,
     label,
     description,
+    fileCardRenderer,
   } = props;
 
   const [files, setFiles] = useControllableState({
@@ -228,7 +233,14 @@ export function FileUploader(props: BaseFileUploaderProps) {
       <div
         className={cn('flex flex-col w-full border rounded-lg [&>h3]:w-full')}
       >
-        <div className="flex flex-col sm:flex-row gap-4 p-4">
+        <div
+          className={cn(
+            ' gap-4 p-4',
+            props.variant === 'button'
+              ? 'flex flex-col sm:flex-row'
+              : 'grid grid-cols-12'
+          )}
+        >
           <CollapsibleTrigger
             className={cn(
               'gap-4 group/trigger hover:no-underline',
@@ -236,7 +248,11 @@ export function FileUploader(props: BaseFileUploaderProps) {
             )}
             asChild
           >
-            <Button variant="outline" className="gap-2" disabled={!files}>
+            <Button
+              variant="outline"
+              className="gap-2"
+              disabled={isDisabled || !files?.length}
+            >
               <FolderOpen className="w-4 group-data-[state=open]/trigger:hidden" />
               <Folder className="w-4 group-data-[state=closed]/trigger:hidden" />
               Files
@@ -259,17 +275,22 @@ export function FileUploader(props: BaseFileUploaderProps) {
               />
             )}
           </Dropzone>
-          <div className="flex flex-col text-nowrap justify-center">
-            {label && (
-              <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                {label}
-              </span>
-            )}
-            {description && (
-              <span className="text-muted-foreground text-sm">
-                {description}
-              </span>
-            )}
+          <div className="flex w-full">
+            <div className="flex flex-col w-full text-nowrap justify-center">
+              {label && (
+                <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  {label}
+                </span>
+              )}
+              {description && (
+                <span className="text-muted-foreground text-sm">
+                  {description}
+                </span>
+              )}
+            </div>
+            {props.variant === 'button' &&
+              props.headerChildren &&
+              props.headerChildren}
           </div>
         </div>
         {props.children && (
@@ -277,7 +298,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
             {props.children}
           </div>
         )}
-        <CollapsibleContent className="w-full p-0">
+        <CollapsibleContent className="w-full p-0 h-max">
           <div
             className={cn(
               'group relative flex flex-col gap-4 overflow-hidden p-4 border-t',
@@ -285,7 +306,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
               classNames?.container
             )}
           >
-            {files?.length ? (
+            {files?.length && showFileList !== false ? (
               <ScrollArea className="h-fit w-full">
                 <div
                   className={cn(
@@ -297,14 +318,26 @@ export function FileUploader(props: BaseFileUploaderProps) {
                   )}
                 >
                   {files?.map((file, index) => (
-                    <FileCard
+                    <React.Fragment
                       key={
                         file.name + file.lastModified + file.webkitRelativePath
                       }
-                      file={file}
-                      onRemove={() => onRemove(index)}
-                      progress={progresses?.[file.name]}
-                    />
+                    >
+                      {fileCardRenderer ? (
+                        fileCardRenderer({
+                          file,
+                          index,
+                          onRemove: () => onRemove(index),
+                          progress: progresses?.[file.name],
+                        })
+                      ) : (
+                        <FileCard
+                          file={file}
+                          onRemove={() => onRemove(index)}
+                          progress={progresses?.[file.name]}
+                        />
+                      )}
+                    </React.Fragment>
                   ))}
                 </div>
               </ScrollArea>
@@ -316,13 +349,18 @@ export function FileUploader(props: BaseFileUploaderProps) {
   );
 }
 
-interface FileCardProps {
+export interface FileCardProps {
+  index?: number;
   file: File;
   onRemove: () => void;
   progress?: number;
 }
 
-function FileCard({ file, progress, onRemove }: FileCardProps) {
+export function FileCard({
+  file,
+  progress,
+  onRemove,
+}: Omit<FileCardProps, 'index'>) {
   return (
     <div className="bg-muted relative flex items-center gap-2.5 overflow-hidden rounded-md p-2">
       <div className="flex flex-1 gap-2.5">
@@ -355,15 +393,17 @@ function FileCard({ file, progress, onRemove }: FileCardProps) {
   );
 }
 
-function isFileWithPreview(file: File): file is File & { preview: string } {
+export function isFileWithPreview(
+  file: File
+): file is File & { preview: string } {
   return 'preview' in file && typeof file.preview === 'string';
 }
 
-interface FilePreviewProps {
+export interface FilePreviewProps {
   file: File & { preview: string };
 }
 
-function FilePreview({ file }: FilePreviewProps) {
+export function FilePreview({ file }: FilePreviewProps) {
   if (file.type.startsWith('image/')) {
     return (
       <Image
@@ -437,6 +477,7 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
         'ring-offset-background focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         isDragActive && 'border-muted-foreground/50',
         isDisabled && 'pointer-events-none opacity-60',
+        variant === 'dropzone' && 'col-span-full row-start-2',
         classNames?.dropzone
       )}
       {...dropzoneProps}
