@@ -243,6 +243,7 @@
     "react-pdf": "^9.2.1",
     "react-resizable-panels": "^2.0.13",
     "react-stately": "^3.35.0",
+    "react-webcam": "^7.2.0",
     "recharts": "^2.15.1",
     "sonner": "^1.4.32",
     "tailwind-merge": "^2.2.2",
