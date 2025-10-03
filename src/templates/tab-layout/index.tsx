@@ -14,9 +14,9 @@ type DeepPartial<T> = T extends object
   : T;
 const defaultClassNames = {
   vertical: {
-    tabs: 'flex h-full',
+    tabs: 'flex h-full ',
     tabList: 'flex flex-col h-full justify-start max-w-sm overflow-hidden',
-    tabTrigger: 'justify-start max-w-lg overflow-hidden w-full',
+    tabTrigger: 'justify-start md:max-w-lg overflow-hidden w-full',
     tabContent: 'mx-2 my-0 w-full h-full overflow-auto flex-1',
   },
   horizontal: {
@@ -34,8 +34,8 @@ const tabsVariants = cva('', {
       simple: '',
     },
     orientation: {
-      horizontal: 'flex h-full overflow-hidden flex-col',
-      vertical: 'flex h-full',
+      horizontal: 'md:flex md:h-full md:overflow-hidden flex-col',
+      vertical: 'md:flex md:h-full',
     },
   },
   defaultVariants: {
@@ -54,7 +54,7 @@ const tabListVariants = cva('', {
     orientation: {
       horizontal: 'w-max mx:w-max overflow-x-auto overflow-y-hidden min-h-max',
       vertical:
-        'flex flex-col h-full justify-start max-w-[220px] w-full overflow-hidden pr-3 border-r border-muted',
+        'flex flex-col md:h-full justify-start md:max-w-[220px] w-full md:overflow-hidden md:pr-3 md:border-r border-muted',
     },
   },
   defaultVariants: {
@@ -75,7 +75,7 @@ const tabTriggerVariants = cva(
       },
       orientation: {
         horizontal: '',
-        vertical: 'justify-start max-w-lg overflow-hidden w-full',
+        vertical: 'justify-start md:max-w-lg overflow-hidden w-full',
       },
     },
     defaultVariants: {
@@ -158,12 +158,20 @@ export function TabLayout({
 
   return (
     <div
-      className={cn(tabsClassNames, classNames?.[orientation]?.tabs)}
+      className={cn(
+        tabsClassNames,
+        classNames?.[orientation]?.tabs,
+        'overflow-clip md:overflow-hidden block'
+      )}
       role="tabpanel"
     >
       <div
         role="tablist"
-        className={cn(tabListClassNames, classNames?.[orientation]?.tabList)}
+        className={cn(
+          tabListClassNames,
+          classNames?.[orientation]?.tabList,
+          'border-b-2 pb-2 md:pb-0 mb-2 md:mb-0 mb:border-b-0'
+        )}
         style={{
           scrollbarWidth: 'thin',
         }}

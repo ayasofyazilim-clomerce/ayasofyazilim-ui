@@ -28,7 +28,11 @@
   },
   "types": "./dist/index.d.ts",
   "exports": {
-    "./atoms/*":[ "./@/components/ui/*.tsx","./@/components/aria/*.tsx","./@/components/aria/*/index.tsx"],
+    "./atoms/*": [
+      "./@/components/ui/*.tsx",
+      "./@/components/aria/*.tsx",
+      "./@/components/aria/*/index.tsx"
+    ],
     "./hooks/*": "./src/hooks/*.ts",
     "./molecules/*/types": "./src/molecules/*/types/index.ts",
     "./molecules/*": "./src/molecules/*/index.tsx",
@@ -234,7 +238,7 @@
     "google-libphonenumber": "^3.2.37",
     "input-otp": "^1.2.4",
     "lowlight": "^2.9.0",
-    "lucide-react": "^0.445.0",
+    "lucide-react": "0.544.0",
     "next": "^14.2.5",
     "next-themes": "^0.2.1",
     "radix-ui": "^1.4.2",
