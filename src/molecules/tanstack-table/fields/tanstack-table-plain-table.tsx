@@ -33,7 +33,7 @@ export function TanstackTablePlainTable<TData, TValue>({
   resizeable?: boolean;
 }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto w-full flex flex-1">
       <Table
         style={{
           width: table.getCenterTotalSize(),
@@ -88,7 +88,7 @@ export function TanstackTablePlainTable<TData, TValue>({
                         role="button"
                         tabIndex={0}
                         aria-label="Resize column"
-                        className={`resizer absolute -right-2 w-4 top-0 h-10 flex items-center cursor-pointer select-none touch-none'
+                        className={`resizer absolute -right-2 w-4 top-0 h-10 z-10 flex items-center cursor-pointer select-none touch-none'
                         }`}
                       >
                         <UnfoldHorizontal
