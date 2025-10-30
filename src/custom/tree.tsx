@@ -7,10 +7,11 @@ import { Slot } from "radix-ui"
 export * from "@headless-tree/core";
 export * from "@headless-tree/react";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils"
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface TreeContextValue<T = any> {
   indent: number
   currentItem?: ItemInstance<T>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tree?: any
 }
 
@@ -19,13 +20,14 @@ const TreeContext = React.createContext<TreeContextValue>({
   currentItem: undefined,
   tree: undefined,
 })
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function useTreeContext<T = any>() {
   return React.useContext(TreeContext) as TreeContextValue<T>
 }
 
 interface TreeProps extends React.HTMLAttributes<HTMLDivElement> {
   indent?: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tree?: any
 }
 
@@ -57,13 +59,14 @@ function Tree({ indent = 20, tree, className, ...props }: TreeProps) {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface TreeItemProps<T = any>
   extends React.HTMLAttributes<HTMLButtonElement> {
   item: ItemInstance<T>
   indent?: number
   asChild?: boolean
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TreeItem<T = any>({
   item,
   className,
@@ -129,12 +132,12 @@ function TreeItem<T = any>({
     </TreeContext.Provider>
   )
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface TreeItemLabelProps<T = any>
   extends React.HTMLAttributes<HTMLSpanElement> {
   item?: ItemInstance<T>
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TreeItemLabel<T = any>({
   item: propItem,
   children,

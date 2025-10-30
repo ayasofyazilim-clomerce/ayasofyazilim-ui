@@ -113,7 +113,7 @@ export interface IStepperHeaderProps {
   containerClassName?: string;
   inactiveItemClassName?: string;
   keysWithSeparator:
-  | (string | { icon: any; index: number; title: any })[]
+  | (string | { icon: React.ReactNode; index: number; title: string })[]
   | undefined;
   vertical?: boolean;
 }

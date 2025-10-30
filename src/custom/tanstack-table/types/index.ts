@@ -1,3 +1,4 @@
+import { SchemaFormProps } from '@repo/ayasofyazilim-ui/custom/schema-form/types';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -6,10 +7,6 @@ import {
   TableMeta,
 } from '@tanstack/react-table';
 import { ComponentType, JSX } from 'react';
-import { z } from 'zod';
-import { FieldConfig } from '@repo/ayasofyazilim-ui/custom/auto-form';
-import { ZodObjectOrWrapped } from '@repo/ayasofyazilim-ui/custom/auto-form/utils';
-import { SchemaFormProps } from '@repo/ayasofyazilim-ui/custom/schema-form/types';
 
 export type NonEditableTanstackTableProps<TData> = {
   rowCount: number;
@@ -201,18 +198,7 @@ export type TanstackTableRowActionsConfirmationDialog<TData> =
     onConfirm: (row: TData) => void;
     type: 'confirmation-dialog';
   };
-export type TanstackTableRowActionsAutoformDialog<TData> = Omit<
-  TanstackTableRowDialog<TData>,
-  'cancelText' | 'onCancel' | 'confirmationText' | 'onConfirm'
-> & {
-  className?: { autoform: string; submit: string };
-  onSubmit: (row: TData, values: Partial<z.infer<ZodObjectOrWrapped>>) => void;
-  schema: ZodObjectOrWrapped;
-  fieldConfig?: FieldConfigType;
-  submitText: string;
-  type: 'autoform-dialog';
-  values?: (row: TData) => Partial<z.infer<ZodObjectOrWrapped>>;
-};
+
 export type TanstackTableRowActionsType<TData> = {
   actionLocation: 'row';
   cta: string;
@@ -226,7 +212,6 @@ export type TanstackTableRowActionsType<TData> = {
     | TanstackTableRowActionsMoveRowUp
     | TanstackTableRowActionsMoveRowDown
     | TanstackTableRowActionsCustomDialog<TData>
-    | TanstackTableRowActionsAutoformDialog<TData>
   );
 
 export type TanstackTableActionsSimple = {
@@ -246,23 +231,8 @@ export type TanstackTableActionsDialog = {
   onConfirm?: () => void;
   title: string;
 };
-export type FieldConfigType =
-  | FieldConfig<{
-    [x: string]: any;
-  }>
-  | undefined;
-export type TanstackTableActionsAutoformDialog = Omit<
-  TanstackTableActionsDialog,
-  'cancelText' | 'onCancel' | 'confirmationText' | 'onConfirm'
-> & {
-  className?: { autoform: string; submit: string };
-  onSubmit: (values: Partial<z.infer<ZodObjectOrWrapped>>) => void;
-  schema: ZodObjectOrWrapped;
-  fieldConfig?: FieldConfigType;
-  submitText: string;
-  type: 'autoform-dialog';
-  values?: Partial<z.infer<ZodObjectOrWrapped>>;
-};
+
+
 export type TanstackTableActionsSchemaFormDialog<TData> = Omit<
   TanstackTableActionsDialog,
   'cancelText' | 'onCancel' | 'confirmationText' | 'onConfirm'
@@ -283,7 +253,7 @@ export type TanstackTableActionsCustomDialog = TanstackTableActionsDialog & {
   };
 };
 
-export type TanstackTableTableActionsType<TData = any> = {
+export type TanstackTableTableActionsType<TData> = {
   actionLocation: 'table';
   cta: string;
   icon?: ComponentType<{ className?: string }>;
@@ -291,7 +261,6 @@ export type TanstackTableTableActionsType<TData = any> = {
 } & (
     | TanstackTableActionsSimple
     | TanstackTableActionsCustomDialog
-    | TanstackTableActionsAutoformDialog
     | TanstackTableCreateRowAction
     | TanstackTableActionsSchemaFormDialog<TData>
   );

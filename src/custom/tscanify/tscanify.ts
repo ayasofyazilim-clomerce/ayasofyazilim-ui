@@ -1,9 +1,9 @@
 /*! tscanify v1.0.0 | Based on jscanify v1.4.0 | (c) ColonelParrot and other contributors | MIT License */
 
-import {Canvas, createCanvas, Image, ImageData} from "canvas";
-import {JSDOM} from "jsdom";
-import cv, {Mat} from "opencv-ts";
-import {CornerPoints, HighlightOptions, Point} from "./types";
+import { Canvas, createCanvas, Image, ImageData } from "canvas";
+import { JSDOM } from "jsdom";
+import cv, { Mat } from "opencv-ts";
+import { CornerPoints, HighlightOptions, Point } from "./types";
 
 // Custom type to handle the difference between Node's Canvas and HTMLCanvasElement
 type CanvasResult = Canvas | HTMLCanvasElement;
@@ -14,10 +14,15 @@ type CanvasResult = Canvas | HTMLCanvasElement;
 function installDOM(): void {
   const dom = new JSDOM();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global as any).document = dom.window.document;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global as any).Image = Image;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global as any).HTMLCanvasElement = Canvas;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global as any).ImageData = ImageData;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (global as any).HTMLImageElement = Image;
 }
 
@@ -52,7 +57,7 @@ export class TScanify {
    * @param img image to process (Mat)
    * @returns the biggest contour inside the image
    */
-  findPaperContour(img: Mat): any {
+  findPaperContour(img: Mat) {
     const imgGray = new cv.Mat();
     cv.Canny(img, imgGray, 50, 200);
 
@@ -62,15 +67,15 @@ export class TScanify {
     const imgThresh = new cv.Mat();
     cv.threshold(imgBlur, imgThresh, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU);
 
-    let contours = new cv.MatVector();
-    let hierarchy = new cv.Mat();
+    const contours = new cv.MatVector();
+    const hierarchy = new cv.Mat();
 
     cv.findContours(imgThresh, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
 
     let maxArea = 0;
     let maxContourIndex = -1;
     for (let i = 0; i < contours.size(); ++i) {
-      let contourArea = cv.contourArea(contours.get(i));
+      const contourArea = cv.contourArea(contours.get(i));
       if (contourArea > maxArea) {
         maxArea = contourArea;
         maxContourIndex = i;
@@ -93,7 +98,7 @@ export class TScanify {
    * @param options options for highlighting. Accepts `color` and `thickness` parameter
    * @returns Canvas with original image and paper highlighted
    */
-  highlightPaper(image: any, options?: HighlightOptions): CanvasResult {
+  highlightPaper(image: HTMLImageElement, options?: HighlightOptions): CanvasResult {
     options = options || {};
     options.color = options.color || "orange";
     options.thickness = options.thickness || 10;
@@ -109,13 +114,12 @@ export class TScanify {
     const maxContour = this.findPaperContour(img);
     // Convert the canvas to an HTML canvas id string for opencv-ts
     const canvasId = "outputCanvas";
-    (canvas as any).id = canvasId;
+    (canvas as unknown as HTMLCanvasElement).id = canvasId;
 
     // Use the canvas id instead of the canvas object
     cv.imshow(canvasId, img);
     if (maxContour) {
-      const {topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner} = this.getCornerPoints(
-        maxContour,
+      const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } = this.getCornerPoints(
         img,
       );
 
@@ -140,17 +144,16 @@ export class TScanify {
    * @param originalImage original image (for size reference)
    * @returns object with corner points
    */
-  getCornerPoints(contour: any, originalImage: Mat): CornerPoints {
-    const rect = cv.minAreaRect(contour);
-    const center = {x: rect.center.x, y: rect.center.y};
+  getCornerPoints(originalImage: Mat): CornerPoints {
+
 
     // Implementation will depend on actual CV.js structure
     // This is a placeholder that would need to be updated
     return {
-      topLeftCorner: {x: 0, y: 0},
-      topRightCorner: {x: originalImage.cols, y: 0},
-      bottomLeftCorner: {x: 0, y: originalImage.rows},
-      bottomRightCorner: {x: originalImage.cols, y: originalImage.rows},
+      topLeftCorner: { x: 0, y: 0 },
+      topRightCorner: { x: originalImage.cols, y: 0 },
+      bottomLeftCorner: { x: 0, y: originalImage.rows },
+      bottomRightCorner: { x: originalImage.cols, y: originalImage.rows },
     };
   }
 
@@ -159,7 +162,7 @@ export class TScanify {
    * @param image image containing document
    * @returns Canvas with the document in a top-down perspective
    */
-  getPerspective(image: any): CanvasResult {
+  getPerspective(image: HTMLImageElement): CanvasResult {
     // Get image dimensions (assuming image has width and height properties)
     const width = image.width || 800;
     const height = image.height || 600;
@@ -169,8 +172,7 @@ export class TScanify {
 
     const maxContour = this.findPaperContour(img);
     if (maxContour) {
-      const {topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner} = this.getCornerPoints(
-        maxContour,
+      const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } = this.getCornerPoints(
         img,
       );
 
@@ -204,7 +206,7 @@ export class TScanify {
       cv.warpPerspective(img, dst, M, new cv.Size(width, height));
       // Use the canvas id instead of the canvas object
       const canvasId = "outputCanvas";
-      (canvas as any).id = canvasId;
+      (canvas as unknown as HTMLCanvasElement).id = canvasId;
       cv.imshow(canvasId, dst);
 
       dst.delete();
@@ -212,7 +214,7 @@ export class TScanify {
     } else {
       // Use the canvas id instead of the canvas object
       const canvasId = "outputCanvas";
-      (canvas as any).id = canvasId;
+      (canvas as unknown as HTMLCanvasElement).id = canvasId;
       cv.imshow(canvasId, img);
     }
 

@@ -195,7 +195,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
     };
 
     if (propsUiSchema) {
-      // @ts-expect-error
+      // @ts-expect-error --its not falsy
       uiSchema = mergeUISchemaObjects(uiSchema, propsUiSchema);
     }
 

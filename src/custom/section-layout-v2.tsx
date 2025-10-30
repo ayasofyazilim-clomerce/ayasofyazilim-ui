@@ -2,6 +2,7 @@
 
 import React, {
   createContext,
+  ElementType,
   useContext,
   useEffect,
   useMemo,
@@ -22,7 +23,7 @@ export interface ISection {
 
 export interface ISectionLayoutNavbarProps {
   activeSectionId: string;
-  linkElement?: any;
+  linkElement?: ElementType;
   onSectionChange?: (sectionId: string) => void;
   sections: Array<ISection>;
   vertical?: boolean;
@@ -124,7 +125,7 @@ const SectionLayoutContext = createContext({
 export interface ISectionLayoutProps {
   children: React.ReactNode;
   defaultActiveSectionId?: string;
-  linkElement?: any;
+  linkElement?: ElementType;
   sections: Array<ISection>;
   vertical?: boolean;
 }
@@ -135,7 +136,7 @@ export interface ISectionLayoutProps {
  * @param {React.ReactNode} children - The content to be rendered inside the section layout.
  * @param {Array<ISection>} sections - The sections to be rendered in the navigation bar.
  * @param {string} [defaultActiveSectionId] - The ID of the section to be active by default.
- * @param {any} [linkElement] - The element to be used for the section links. (default: Button)
+ * @param {ElementType} [linkElement] - The element to be used for the section links. (default: Button)
  * @param {boolean} [vertical] - Whether the layout should be rendered vertically.
  * @return {JSX.Element} The rendered section layout component.
  */

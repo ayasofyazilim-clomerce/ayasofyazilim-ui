@@ -1,7 +1,7 @@
 /*! tscanify-browser v1.0.0 | Based on jscanify v1.4.0 | (c) ColonelParrot and other contributors | MIT License */
 
 import cv, { Mat } from 'opencv-ts';
-import { CornerPoints, HighlightOptions, Point } from './types';
+import { CornerPoints, HighlightOptions, Point, WindowWithCV } from './types';
 
 /**
  * Calculates distance between two points.
@@ -22,13 +22,13 @@ export class TScanifyBrowser {
    */
   loadOpenCV(callback: (opencv: typeof cv) => void): void {
     // First check if global cv is available (browser-loaded version)
-    if ((window as any).cv && (window as any).cv.Mat) {
-      callback((window as any).cv);
+    if ((window as unknown as WindowWithCV).cv && (window as unknown as WindowWithCV).cv.Mat) {
+      callback((window as unknown as WindowWithCV).cv);
       return;
     }
 
     // Next, check if the imported cv is available
-    if (cv && (cv as any).Mat) {
+    if (cv && (cv as typeof cv).Mat) {
       callback(cv);
       return;
     }
@@ -36,14 +36,14 @@ export class TScanifyBrowser {
     // Wait for opencv to be ready (check both global and imported)
     const checkInterval = setInterval(() => {
       // First priority: global cv
-      if ((window as any).cv && (window as any).cv.Mat) {
+      if ((window as unknown as WindowWithCV).cv && (window as unknown as WindowWithCV).cv.Mat) {
         clearInterval(checkInterval);
-        callback((window as any).cv);
+        callback((window as unknown as WindowWithCV).cv);
         return;
       }
 
       // Second priority: imported cv
-      if (cv && (cv as any).Mat) {
+      if (cv && (cv as typeof cv).Mat) {
         clearInterval(checkInterval);
         callback(cv);
         return;
@@ -58,7 +58,6 @@ export class TScanifyBrowser {
         .then((loadedCv) => {
           callback(loadedCv);
         })
-        .catch((err) => { });
     }, 8000); // 8 seconds timeout
   }
 
@@ -66,10 +65,10 @@ export class TScanifyBrowser {
    * Dynamically loads OpenCV.js as a last resort
    * @returns Promise that resolves with the OpenCV object
    */
-  private loadOpenCVDynamically(): Promise<any> {
+  private loadOpenCVDynamically(): Promise<typeof cv> {
     return new Promise((resolve, reject) => {
-      if ((window as any).cv && (window as any).cv.Mat) {
-        resolve((window as any).cv);
+      if ((window as unknown as WindowWithCV).cv && (window as unknown as WindowWithCV).cv.Mat) {
+        resolve((window as unknown as WindowWithCV).cv);
         return;
       }
 
@@ -82,9 +81,9 @@ export class TScanifyBrowser {
       script.onload = () => {
         // Check if OpenCV is available
         const checkInterval = setInterval(() => {
-          if ((window as any).cv && (window as any).cv.Mat) {
+          if ((window as unknown as WindowWithCV).cv && (window as unknown as WindowWithCV).cv.Mat) {
             clearInterval(checkInterval);
-            resolve((window as any).cv);
+            resolve((window as unknown as WindowWithCV).cv);
           }
         }, 100);
 
@@ -290,7 +289,7 @@ export class TScanifyBrowser {
       largestContour.delete();
 
       return corners;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -309,54 +308,51 @@ export class TScanifyBrowser {
     width: number,
     height: number
   ): Mat {
-    try {
-      // Create matrices for source and destination points
-      const srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
-        corners.topLeftCorner.x,
-        corners.topLeftCorner.y,
-        corners.topRightCorner.x,
-        corners.topRightCorner.y,
-        corners.bottomRightCorner.x,
-        corners.bottomRightCorner.y,
-        corners.bottomLeftCorner.x,
-        corners.bottomLeftCorner.y,
-      ]);
+    // Create matrices for source and destination points
+    const srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
+      corners.topLeftCorner.x,
+      corners.topLeftCorner.y,
+      corners.topRightCorner.x,
+      corners.topRightCorner.y,
+      corners.bottomRightCorner.x,
+      corners.bottomRightCorner.y,
+      corners.bottomLeftCorner.x,
+      corners.bottomLeftCorner.y,
+    ]);
 
-      const dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
-        0,
-        0,
-        width,
-        0,
-        width,
-        height,
-        0,
-        height,
-      ]);
+    const dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
+      0,
+      0,
+      width,
+      0,
+      width,
+      height,
+      0,
+      height,
+    ]);
 
-      // Get perspective transform matrix
-      const M = cv.getPerspectiveTransform(srcPoints, dstPoints);
+    // Get perspective transform matrix
+    const M = cv.getPerspectiveTransform(srcPoints, dstPoints);
 
-      // Apply perspective transform
-      const dst = new cv.Mat();
-      cv.warpPerspective(
-        src,
-        dst,
-        M,
-        new cv.Size(width, height),
-        cv.INTER_LINEAR,
-        cv.BORDER_CONSTANT,
-        new cv.Scalar()
-      );
+    // Apply perspective transform
+    const dst = new cv.Mat();
+    cv.warpPerspective(
+      src,
+      dst,
+      M,
+      new cv.Size(width, height),
+      cv.INTER_LINEAR,
+      cv.BORDER_CONSTANT,
+      new cv.Scalar()
+    );
 
-      // Clean up
-      srcPoints.delete();
-      dstPoints.delete();
-      M.delete();
+    // Clean up
+    srcPoints.delete();
+    dstPoints.delete();
+    M.delete();
 
-      return dst;
-    } catch (error) {
-      throw error;
-    }
+    return dst;
+
   }
 
   /**
@@ -425,67 +421,63 @@ export class TScanifyBrowser {
     highlighted: HTMLCanvasElement | null;
     processed: HTMLCanvasElement | null;
   }> {
-    try {
-      // Resize the image for processing
-      const resized = this.resizeImage(image);
+    // Resize the image for processing
+    const resized = this.resizeImage(image);
 
-      // Convert to Mat
-      const src = this.imageToMat(resized);
+    // Convert to Mat
+    const src = this.imageToMat(resized);
 
-      // Find document corners
-      const corners = this.findDocumentCorners(src);
+    // Find document corners
+    const corners = this.findDocumentCorners(src);
 
-      if (!corners) {
-        // No document found
-        src.delete();
-        return {
-          original: resized,
-          highlighted: null,
-          processed: null,
-        };
-      }
-
-      // Highlight corners
-      const highlighted = this.highlightCorners(resized, corners);
-
-      // Calculate output dimensions
-      const width = Math.max(
-        distance(corners.topRightCorner, corners.topLeftCorner),
-        distance(corners.bottomRightCorner, corners.bottomLeftCorner)
-      );
-
-      const height = Math.max(
-        distance(corners.topLeftCorner, corners.bottomLeftCorner),
-        distance(corners.topRightCorner, corners.bottomRightCorner)
-      );
-
-      // Apply perspective transform
-      const warped = this.warpPerspective(src, corners, width, height);
-
-      // Convert Mat to Canvas
-      const processed = this.createCanvas(width, height);
-      const ctx = processed.getContext('2d')!;
-
-      const imgData = new ImageData(
-        new Uint8ClampedArray(warped.data),
-        warped.cols,
-        warped.rows
-      );
-
-      ctx.putImageData(imgData, 0, 0);
-
-      // Clean up
+    if (!corners) {
+      // No document found
       src.delete();
-      warped.delete();
-
       return {
         original: resized,
-        highlighted,
-        processed,
+        highlighted: null,
+        processed: null,
       };
-    } catch (error) {
-      throw error;
     }
+
+    // Highlight corners
+    const highlighted = this.highlightCorners(resized, corners);
+
+    // Calculate output dimensions
+    const width = Math.max(
+      distance(corners.topRightCorner, corners.topLeftCorner),
+      distance(corners.bottomRightCorner, corners.bottomLeftCorner)
+    );
+
+    const height = Math.max(
+      distance(corners.topLeftCorner, corners.bottomLeftCorner),
+      distance(corners.topRightCorner, corners.bottomRightCorner)
+    );
+
+    // Apply perspective transform
+    const warped = this.warpPerspective(src, corners, width, height);
+
+    // Convert Mat to Canvas
+    const processed = this.createCanvas(width, height);
+    const ctx = processed.getContext('2d')!;
+
+    const imgData = new ImageData(
+      new Uint8ClampedArray(warped.data),
+      warped.cols,
+      warped.rows
+    );
+
+    ctx.putImageData(imgData, 0, 0);
+
+    // Clean up
+    src.delete();
+    warped.delete();
+
+    return {
+      original: resized,
+      highlighted,
+      processed,
+    };
   }
 
   /**

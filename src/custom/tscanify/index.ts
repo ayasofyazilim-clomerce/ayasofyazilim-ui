@@ -8,8 +8,11 @@ import type { Mat, MatVector, Size, Rect } from 'opencv-ts';
 export type { Mat, MatVector, Size, Rect };
 
 // Dynamic imports based on environment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let TScanify: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let TScanifyNode: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let TScanifyBrowser: any;
 
 // Detect browser environment

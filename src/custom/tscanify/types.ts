@@ -1,5 +1,7 @@
 // Types for tscanify
 
+import cv from "opencv-ts";
+
 export interface Point {
   x: number;
   y: number;
@@ -16,3 +18,6 @@ export interface CornerPoints {
   bottomLeftCorner: Point;
   bottomRightCorner: Point;
 }
+
+export type WindowWithCV = Window & { cv: typeof cv };
+
