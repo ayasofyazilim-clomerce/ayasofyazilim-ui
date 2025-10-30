@@ -12,6 +12,7 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@repo/ayasofyazilim-ui/components",
+    "custom": "@repo/ayasofyazilim-ui/custom",
     "utils": "@repo/ayasofyazilim-ui/lib/utils",
     "hooks": "@repo/ayasofyazilim-ui/hooks",
     "lib": "@repo/ayasofyazilim-ui/lib",

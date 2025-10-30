@@ -19,6 +19,7 @@ import {
 } from '@repo/ayasofyazilim-ui/components/chart';
 import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
 import { CardClassNames, ChartCard } from './chart-card';
+import { BaseAxisProps } from 'recharts/types/util/types';
 
 export const description = 'An area chart with a legend';
 
@@ -44,7 +45,7 @@ export type AreaChartProps = {
   trendText?: ReactNode;
   trendIcon?: ReactNode;
   showLegend?: boolean;
-  xAxisTickFormatter?: (value: any) => string;
+  xAxisTickFormatter?: BaseAxisProps["tickFormatter"]
   classNames?: {
     chart?: {
       container?: string;

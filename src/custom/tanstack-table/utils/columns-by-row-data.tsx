@@ -165,7 +165,7 @@ export function createCell<T>(props: {
   }
   let url = link.prefix;
   if (link.targetAccessorKey) {
-    url += `/${row._getAllCellsByColumnId()?.[link.targetAccessorKey || '']?.getValue()?.toString()}` || '';
+    url += `/${row._getAllCellsByColumnId()?.[link.targetAccessorKey || '']?.getValue()?.toString()}`;
   }
   if (link.suffix) {
     url += `/${link.suffix}`;

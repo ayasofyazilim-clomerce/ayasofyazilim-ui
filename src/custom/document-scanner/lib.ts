@@ -1,6 +1,7 @@
 import { createScanner } from '../tscanify/browser';
 import { DEFAULT_MAX_DOCUMENT_SIZE, DEFAULT_MIN_DOCUMENT_SIZE } from './consts';
 import { DocumentCorners } from './types';
+import cv, { Mat } from "opencv-ts";
 
 export async function scanDocument(
   imageBase64: string,
@@ -15,15 +16,8 @@ export async function scanDocument(
   }
 ) {
   try {
-    if (!(window as any).cv) {
-      throw new Error(
-        'OpenCV is not loaded. Make sure to use this function within an OpenCVProvider.'
-      );
-    }
-
     const scanner = createScanner();
     const inputCanvas = document.createElement('canvas');
-    const { cv } = window as any;
     const img = new Image();
 
     await new Promise<void>((resolve, reject) => {
@@ -136,12 +130,10 @@ export async function scanDocument(
 
 // Simple document detection fallback
 export function findDocumentSimple(
-  src: any,
+  src: Mat,
   width: number,
   height: number
 ): DocumentCorners | null {
-  const { cv } = window as any;
-
   try {
     const gray = new cv.Mat();
     const binary = new cv.Mat();
@@ -171,10 +163,10 @@ export function findDocumentSimple(
         cv.approxPolyDP(contour, approx, 0.02 * peri, true);
 
         if (approx.rows === 4) {
-          const points = [];
+          const points: Array<{ x: number, y: number }> = [];
           for (let j = 0; j < 4; j++) {
             const point = approx.data32S;
-            points.push({ x: point[j * 2], y: point[j * 2 + 1] });
+            points.push({ x: point[j * 2] || 0, y: point[j * 2 + 1] || 0 });
           }
 
           // Sort points to match expected corners
@@ -217,11 +209,10 @@ export function findDocumentSimple(
 
 // Advanced document detection
 export function findDocumentCornersAdvanced(
-  src: any,
+  src: Mat,
   width: number,
   height: number
 ): DocumentCorners | null {
-  const { cv } = window as any;
 
   try {
     const gray = new cv.Mat();
@@ -233,7 +224,7 @@ export function findDocumentCornersAdvanced(
         process: (input: any) => {
           const blurred = new cv.Mat();
           const binary = new cv.Mat();
-          cv.GaussianBlur(input, blurred, new cv.Size(9, 9), 0);
+          cv.GaussianBlur(input, blurred, new cv.Size(9, 9), 0, 0, 0);
           cv.threshold(
             blurred,
             binary,
@@ -247,7 +238,7 @@ export function findDocumentCornersAdvanced(
       },
       {
         name: 'Adaptive Threshold',
-        process: (input: any) => {
+        process: (input: Mat) => {
           const binary = new cv.Mat();
           cv.adaptiveThreshold(
             input,
@@ -289,12 +280,10 @@ export function findDocumentCornersAdvanced(
 }
 
 export function findCornersFromBinary(
-  binary: any,
+  binary: Mat,
   width: number,
   height: number
 ): DocumentCorners | null {
-  const { cv } = window as any;
-
   try {
     const contours = new cv.MatVector();
     const hierarchy = new cv.Mat();
@@ -320,10 +309,10 @@ export function findCornersFromBinary(
         cv.approxPolyDP(contour, approx, 0.02 * peri, true);
 
         if (approx.rows === 4) {
-          const points = [];
+          const points: Array<{ x: number; y: number }> = [];
           for (let j = 0; j < 4; j++) {
             const point = approx.data32S;
-            points.push({ x: point[j * 2], y: point[j * 2 + 1] });
+            points.push({ x: point[j * 2] || 0, y: point[j * 2 + 1] || 0 });
           }
 
           points.sort((a, b) => a.y - b.y);

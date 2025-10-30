@@ -224,7 +224,6 @@ export function DocumentScanner({
     showMagnifier,
     magnifierSize,
     zoomLevel,
-    onStatusChange,
   ]);
 
   const isInCornerAdjustmentMode =

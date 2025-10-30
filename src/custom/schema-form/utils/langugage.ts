@@ -101,7 +101,7 @@ export function AJV_TR(errors: null | ErrorObject[] = []) {
       default:
         outMessage = error.message || '';
     }
-    // eslint-disable-next-line no-param-reassign
+     
     error.message = outMessage;
   });
 }

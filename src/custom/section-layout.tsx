@@ -1,7 +1,6 @@
 'use client';
 
 import React, { JSX, useEffect, useRef, useState } from 'react';
-// @ts-ignore
 import Link from 'next/link';
 import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
 import { Button } from '@repo/ayasofyazilim-ui/components/button';
@@ -110,6 +109,7 @@ export const SectionNavbarBase = ({
   navContainerClassName,
   showScrollArea = true,
 }: ISectionNavbarBase) => {
+  const windowSize = useWindowSize()
   function onClick(e: string) {
     if (onSectionChange) onSectionChange(e);
   }
@@ -123,7 +123,7 @@ export const SectionNavbarBase = ({
       >
         <ScrollBar
           orientation={
-            vertical && useWindowSize().width > 768 ? 'vertical' : 'horizontal'
+            vertical && windowSize.width > 768 ? 'vertical' : 'horizontal'
           }
           className="z-10"
         />

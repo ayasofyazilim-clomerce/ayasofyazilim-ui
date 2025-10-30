@@ -27,7 +27,6 @@ export function TableField<TData>({ ...tableProps }: TableFieldProps<TData>) {
       required,
       ...dependencyOptions,
     };
-    if (fieldOptions.hidden) return null;
     const memory = useMemo(
       () => (
         <div
@@ -51,6 +50,7 @@ export function TableField<TData>({ ...tableProps }: TableFieldProps<TData>) {
       ),
       [props.errorSchema, props.disabled]
     );
+    if (fieldOptions.hidden) return null;
     return memory;
   };
   return Field;

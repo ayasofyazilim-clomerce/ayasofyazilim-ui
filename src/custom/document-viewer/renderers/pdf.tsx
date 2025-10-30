@@ -12,13 +12,13 @@ type CustomDocRendererProps = {} & DocRendererProps;
 const CustomPDFRenderer = (props: CustomDocRendererProps) => {
   const { mainState } = props;
   const { currentDocument } = mainState;
-  if (!currentDocument) return null;
   const [zoom, setZoom] = useState(1);
   const [showThumbnail, setShowThumbnail] = useState(false);
   const [pageCount, setPageCount] = useState(0);
   const [activePage, setActivePage] = useState(1);
   const [searchValue, setSearchValue] = useState<string>();
 
+  if (!currentDocument) return null;
   return (
     <Document
       className={cn('p-4 w-full flex')}
@@ -43,6 +43,7 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
           <div className="flex flex-col gap-2 left-4 absolute top-4 z-10 w-full max-w-[110px]">
             {Array.from(new Array(pageCount), (el, index) => (
               <Thumbnail
+                key={"page_" + index}
                 onClick={() => {
                   setActivePage(index + 1);
                 }}

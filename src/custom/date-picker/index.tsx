@@ -73,7 +73,7 @@ export function DatePicker({
         onChange(dateValue.toDate(timeZone));
       }
     }
-  }, [dateValue, timeValue]);
+  }, [dateValue, timeValue, onChange, useTime]);
 
   const [isOpen, setIsOpen] = useState(false);
   return (

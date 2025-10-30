@@ -20,7 +20,7 @@ export const isPhoneValid = (phoneNumber: string): boolean => {
     const parsedNumber = phoneUtil.parseAndKeepRawInput(phoneNumber); // Parse the phone number
 
     return phoneUtil.isValidNumber(parsedNumber); // Check if the parsed number is valid
-  } catch (error) {
+  } catch {
     return false; // Return false in case of any error during parsing
   }
 };
@@ -252,17 +252,17 @@ export function flattenGenericData(
  *
  * @param {T} schema - The input schema of a generic type T, which contains the structure to traverse.
  * @param {string} targetKey - The specific key within the schema that will be modified.
- * @param {Record<string, any>} properties - An object containing the properties to be assigned to the target key.
- * @returns {Record<string, any>} - Returns a new object representing the UI schema with modifications applied.
+ * @param {GenericObjectType} properties - An object containing the properties to be assigned to the target key.
+ * @returns {GenericObjectType} - Returns a new object representing the UI schema with modifications applied.
  */
 export function generateUiSchema<T extends GenericObjectType>(
   schema: T,
   key: string,
-  prop: Record<string, any>
-): Record<string, any> {
-  const result: Record<string, any> = {};
+  prop: GenericObjectType
+): GenericObjectType {
+  const result: GenericObjectType = {};
 
-  const traverse = (obj: T, res: Record<string, any>) => {
+  const traverse = (obj: T, res: GenericObjectType) => {
     for (const k in obj) {
       if (k === key) {
         res[k] = { ...prop };
@@ -472,14 +472,14 @@ export function createSchemaWithFilters<T = string>({
 export type CreateFieldConfigWithResourceProps = {
   extend?: GenericObjectType;
   name?: string;
-  resources: Record<string, any>;
+  resources: GenericObjectType;
   schema: GenericObjectType;
 };
 /**
  * Creates a field configuration with resource management.
  *
  * @param {CreateFieldConfigWithResourceProps} params - The parameters for creating the field configuration.
- * @param {Record<string, any>} params.resources - A record of resources to be used within the field configuration.
+ * @param {GenericObjectType} params.resources - A record of resources to be used within the field configuration.
  * @param {GenericObjectType} params.schema - The schema defining the structure and validation of the field.
  * @param {UISchemaType} [params.extend] - An optional field configuration to merge with result of this function.
  * @param {string} [params.name='Form'] - An optional name for the field; defaults to 'Form'.

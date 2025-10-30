@@ -1,9 +1,7 @@
 import React, { Dispatch, useEffect } from 'react';
 import {
-  TanstackTableAutoformDialog,
   TanstackTableConfirmationDialog,
   TanstackTableCustomDialog,
-  TanstackTableTableAutoformDialog,
   TanstackTableTableCustomDialog,
 } from '.';
 import {
@@ -22,8 +20,8 @@ export function TanstackTableActionDialogs<TData>({
   setRowAction: Dispatch<
     React.SetStateAction<
       | (TanstackTableRowActionsType<TData> & {
-          row: TData;
-        })
+        row: TData;
+      })
       | null
     >
   >;
@@ -65,31 +63,6 @@ export function TanstackTableActionDialogs<TData>({
           onConfirm={rowAction.onConfirm}
           onCancel={rowAction.onCancel}
           type="custom-dialog"
-        />
-      )}
-      {rowAction?.type === 'autoform-dialog' && (
-        <TanstackTableAutoformDialog<TData>
-          setDialogOpen={() => setRowAction(null)}
-          row={rowAction.row}
-          title={rowAction.title}
-          schema={rowAction.schema}
-          fieldConfig={rowAction.fieldConfig}
-          submitText={rowAction.submitText}
-          onSubmit={rowAction.onSubmit}
-          values={rowAction.values}
-          type="autoform-dialog"
-        />
-      )}
-      {tableAction?.type === 'autoform-dialog' && (
-        <TanstackTableTableAutoformDialog
-          setDialogOpen={() => setTableAction(null)}
-          title={tableAction.title}
-          schema={tableAction.schema}
-          fieldConfig={tableAction.fieldConfig}
-          submitText={tableAction.submitText}
-          onSubmit={tableAction.onSubmit}
-          values={tableAction.values}
-          type="autoform-dialog"
         />
       )}
       {tableAction?.type === 'custom-dialog' && (

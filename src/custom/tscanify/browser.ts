@@ -21,16 +21,14 @@ export type { Mat, MatVector, Size, Rect };
 // Initialize OpenCV if needed (browser environment only)
 if (typeof window !== 'undefined') {
   // Check if OpenCV is already available globally
-  if (!(window as any).cv || !(window as any).cv.Mat) {
-    try {
-      // Make opencv-ts available globally
-      (window as any).cv = cv;
-    } catch (err) {}
+  if (!(window as unknown as WindowWithCV).cv || !(window as unknown as WindowWithCV).cv.Mat) {
+    (window as unknown as WindowWithCV).cv = cv;
   }
 }
 
 // Export the browser implementation as the default for convenience
 import { TScanifyBrowser } from './tscanify-browser';
+import { WindowWithCV } from './types';
 export default TScanifyBrowser;
 
 // Helper function to create a new instance and ensure OpenCV is ready
@@ -40,9 +38,9 @@ export function createScanner(): TScanifyBrowser {
   // If in browser, ensure OpenCV is available
   if (typeof window !== 'undefined') {
     // Try to make cv from opencv-ts available globally if not already
-    if (!(window as any).cv || !(window as any).cv.Mat) {
-      if (cv && (cv as any).Mat) {
-        (window as any).cv = cv;
+    if (!(window as unknown as WindowWithCV).cv || !(window as unknown as WindowWithCV).cv.Mat) {
+      if (cv && (cv as typeof cv).Mat) {
+        (window as unknown as WindowWithCV).cv = cv;
       }
     }
   }
@@ -53,7 +51,7 @@ export function createScanner(): TScanifyBrowser {
 // Helper function to check if OpenCV is loaded
 export function isOpenCVReady(): boolean {
   if (typeof window !== 'undefined') {
-    return !!(window as any).cv && !!(window as any).cv.Mat;
+    return !!(window as unknown as WindowWithCV).cv && !!(window as unknown as WindowWithCV).cv.Mat;
   }
-  return !!cv && !!(cv as any).Mat;
+  return !!cv && !!(cv as typeof cv).Mat;
 }

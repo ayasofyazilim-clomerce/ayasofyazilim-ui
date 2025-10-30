@@ -19,6 +19,7 @@ import {
 import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
 import { CardClassNames, ChartCard } from './chart-card';
 import { ChartData } from '.';
+import { BaseAxisProps } from 'recharts/types/util/types';
 
 export type BarChartProps = {
   data: ChartData;
@@ -32,8 +33,8 @@ export type BarChartProps = {
   trendText?: React.ReactNode;
   showLegend?: boolean;
   trendIcon?: React.ReactNode;
-  xAxisTickFormatter?: (value: any) => string;
-  yAxisTickFormatter?: (value: any) => string;
+  xAxisTickFormatter?: BaseAxisProps["tickFormatter"];
+  yAxisTickFormatter?: BaseAxisProps["tickFormatter"];
   valuePrefix?: string;
   valueSuffix?: string;
   classNames?: {
