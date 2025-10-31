@@ -8,8 +8,6 @@ import {
   YAxis,
 } from 'recharts';
 
-import { ReactNode } from 'react';
-import { CurveType } from 'recharts/types/shape/Curve';
 import {
   ChartContainer,
   ChartLegend,
@@ -18,8 +16,10 @@ import {
   ChartTooltipContent,
 } from '@repo/ayasofyazilim-ui/components/chart';
 import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { CardClassNames, ChartCard } from './chart-card';
+import { ReactNode } from 'react';
+import { CurveType } from 'recharts/types/shape/Curve';
 import { BaseAxisProps } from 'recharts/types/util/types';
+import { CardClassNames, ChartCard } from './chart-card';
 
 export const description = 'An area chart with a legend';
 
@@ -94,15 +94,13 @@ export function AreaChart({
           margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
         >
           <CartesianGrid vertical={false} />
-          <>
-            <XAxis
-              dataKey="label"
-              tickMargin={2}
-              minTickGap={2}
-              tickFormatter={xAxisTickFormatter}
-            />
-            <YAxis />
-          </>
+          <XAxis
+            dataKey="label"
+            tickMargin={2}
+            minTickGap={2}
+            tickFormatter={xAxisTickFormatter}
+          />
+          <YAxis />
           <ChartTooltip
             cursor={false}
             content={

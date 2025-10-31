@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 import {
   Card,
   CardContent,
@@ -8,6 +7,7 @@ import {
   CardTitle,
 } from '@repo/ayasofyazilim-ui/components/card';
 import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+import { ReactNode } from 'react';
 
 export type CardClassNames = {
   container?: string;
@@ -41,9 +41,9 @@ export function ChartCard({
 }) {
   return (
     <Card className={cn(classNames?.container)}>
-      <CardHeader className={cn('items-center pb-4', classNames?.header)}>
+      <CardHeader className={cn('items-center pb-4! grid-rows-1', classNames?.header)}>
         {title && (
-          <CardTitle className={cn(classNames?.title)}>{title}</CardTitle>
+          <CardTitle className={cn("my-auto", classNames?.title)}>{title}</CardTitle>
         )}
         {period && (
           <CardDescription className={cn(classNames?.description)}>
