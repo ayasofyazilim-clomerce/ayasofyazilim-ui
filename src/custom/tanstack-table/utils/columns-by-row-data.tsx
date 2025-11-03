@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { ColumnDef, Row } from '@tanstack/react-table';
-import Link from 'next/link';
-import { Badge } from '@repo/ayasofyazilim-ui/components/badge';
-import { Checkbox } from '@repo/ayasofyazilim-ui/components/checkbox';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { tanstackTableCreateTitleWithLanguageData, testConditions } from '.';
-import DateTooltip, { Localization } from '../../date-tooltip';
-import { TanstackTableColumnHeader } from '../fields';
+import { ColumnDef, Row } from "@tanstack/react-table";
+import Link from "next/link";
+import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+import { Checkbox } from "@repo/ayasofyazilim-ui/components/checkbox";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { tanstackTableCreateTitleWithLanguageData, testConditions } from ".";
+import DateTooltip, { Localization } from "../../date-tooltip";
+import { TanstackTableColumnHeader } from "../fields";
 import {
   TanstackTableColumCell,
   TanstackTableColumnBadge,
@@ -17,8 +17,8 @@ import {
   TanstackTableConfig,
   TanstackTableCreateColumnsByRowId,
   TanstackTableFacetedFilterType,
-} from '../types';
-import { JSX } from 'react';
+} from "../types";
+import { JSX } from "react";
 
 export function createCell<T>(props: {
   accessorKey: keyof T;
@@ -50,9 +50,9 @@ export function createCell<T>(props: {
   } = props;
 
   let content: JSX.Element | string | null =
-    row.getValue(accessorKey.toString())?.toString() || '';
+    row.getValue(accessorKey.toString())?.toString() || "";
   if (format) {
-    if (format === 'date' || format === 'date-time') {
+    if (format === "date" || format === "date-time") {
       content = content ? (
         <DateTooltip
           date={content}
@@ -60,21 +60,21 @@ export function createCell<T>(props: {
           localization={localization}
         />
       ) : (
-        ''
+        ""
       );
     }
   }
 
   if (icon) {
-    const position = icon.position || 'before';
+    const position = icon.position || "before";
     content = (
       <div className="inline-flex">
-        {icon.icon && position === 'before' && (
-          <icon.icon className={cn('w-4 h-4 mr-2', icon.iconClassName)} />
+        {icon.icon && position === "before" && (
+          <icon.icon className={cn("w-4 h-4 mr-2", icon.iconClassName)} />
         )}
         {row.getValue(accessorKey.toString())}
-        {icon.icon && position === 'after' && (
-          <icon.icon className={cn('w-4 h-4 ml-2', icon.iconClassName)} />
+        {icon.icon && position === "after" && (
+          <icon.icon className={cn("w-4 h-4 ml-2", icon.iconClassName)} />
         )}
       </div>
     );
@@ -85,7 +85,7 @@ export function createCell<T>(props: {
       after: [],
     };
     badge.values.forEach((item) => {
-      const itemPosition = item.position || 'before';
+      const itemPosition = item.position || "before";
       item.conditions?.forEach((condition) => {
         if (condition.when(row.getValue(condition.conditionAccessorKey))) {
           position[itemPosition].push(
@@ -95,7 +95,7 @@ export function createCell<T>(props: {
               key={item.label}
             >
               {item.label}
-            </Badge>
+            </Badge>,
           );
         }
         return null;
@@ -113,20 +113,20 @@ export function createCell<T>(props: {
     const facetedItem = faceted.find(
       (item) =>
         item.when?.(row.getValue(accessorKey.toString())) ||
-        row.getValue(accessorKey.toString()) === item.value
+        row.getValue(accessorKey.toString()) === item.value,
     );
     if (facetedItem) {
       content = (
-        <div className={cn('flex items-center', facetedItem.className)}>
+        <div className={cn("flex items-center", facetedItem.className)}>
           {facetedItem.icon && (
             <facetedItem.icon
               className={cn(
-                'text-muted-foreground mr-2 h-4 w-4',
-                facetedItem.iconClassName
+                "text-muted-foreground mr-2 h-4 w-4",
+                facetedItem.iconClassName,
               )}
             />
           )}
-          {facetedItem.hideColumnValue ? '' : <span>{facetedItem.label}</span>}
+          {facetedItem.hideColumnValue ? "" : <span>{facetedItem.label}</span>}
         </div>
       );
     }
@@ -138,7 +138,7 @@ export function createCell<T>(props: {
       }
       return null;
     })
-    .join(' ');
+    .join(" ");
 
   if (custom) content = custom.content(row.original);
   if (!link || !testConditions(link.conditions, row)) {
@@ -149,8 +149,8 @@ export function createCell<T>(props: {
           onClick={row.getToggleExpandedHandler()}
           data-testid={`expand-row-${accessorKey.toString()}`}
           className={cn(
-            'font-medium text-blue-700 flex items-center gap-2 cursor-pointer',
-            containerClassName
+            "font-medium text-blue-700 flex items-center gap-2 cursor-pointer",
+            containerClassName,
           )}
         >
           {content}
@@ -158,14 +158,14 @@ export function createCell<T>(props: {
       );
     }
     return (
-      <div className={cn(' flex items-center gap-2', containerClassName)}>
+      <div className={cn(" flex items-center gap-2", containerClassName)}>
         {content}
       </div>
     );
   }
   let url = link.prefix;
   if (link.targetAccessorKey) {
-    url += `/${row._getAllCellsByColumnId()?.[link.targetAccessorKey || '']?.getValue()?.toString()}`;
+    url += `/${row._getAllCellsByColumnId()?.[link.targetAccessorKey || ""]?.getValue()?.toString()}`;
   }
   if (link.suffix) {
     url += `/${link.suffix}`;
@@ -174,8 +174,8 @@ export function createCell<T>(props: {
     <Link
       href={url}
       className={cn(
-        'font-medium text-blue-700 flex items-center gap-2',
-        containerClassName
+        "font-medium text-blue-700 flex items-center gap-2",
+        containerClassName,
       )}
     >
       {content}
@@ -183,7 +183,7 @@ export function createCell<T>(props: {
   );
 }
 export function tanstackTableCreateColumnsByRowData<T>(
-  params: TanstackTableCreateColumnsByRowId<T>
+  params: TanstackTableCreateColumnsByRowId<T>,
 ) {
   const { rows, config } = params;
 
@@ -204,7 +204,7 @@ export function tanstackTableCreateColumnsByRowData<T>(
   if (params.selectableRows) {
     columns.push({
       size: 64,
-      id: 'select',
+      id: "select",
       header: ({ table }) => (
         <div className="w-full h-9 flex items-center justify-center">
           <Checkbox
@@ -218,7 +218,7 @@ export function tanstackTableCreateColumnsByRowData<T>(
                 .rows.some(
                   (row) =>
                     !params.disabledRowIds?.includes(row.id) &&
-                    row.getIsSelected()
+                    row.getIsSelected(),
                 )
             }
             onCheckedChange={(value) => {
@@ -283,8 +283,8 @@ export function tanstackTableCreateColumnsByRowData<T>(
         header:
           !custom?.[accessorKey] || custom?.[accessorKey]?.showHeader
             ? ({ column }) => (
-              <TanstackTableColumnHeader column={column} title={title} />
-            )
+                <TanstackTableColumnHeader column={column} title={title} />
+              )
             : undefined,
         cell: ({ row }) =>
           createCell<T>({

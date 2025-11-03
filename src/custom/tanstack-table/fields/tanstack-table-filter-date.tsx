@@ -1,17 +1,20 @@
-import { CirclePlusIcon } from 'lucide-react';
-import { Column } from '@tanstack/react-table';
+import { CirclePlusIcon } from "lucide-react";
+import { Column } from "@tanstack/react-table";
 
-import { useEffect, useState } from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { useEffect, useState } from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@repo/ayasofyazilim-ui/components/popover';
-import { Separator } from '@repo/ayasofyazilim-ui/components/separator';
-import { TanstackTableDateFilterType } from '../types';
-import { DatePicker, DateRangePicker } from '@repo/ayasofyazilim-ui/custom/date-picker';
-import { DateRange } from '@repo/ayasofyazilim-ui/custom/date-picker/types';
+} from "@repo/ayasofyazilim-ui/components/popover";
+import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
+import { TanstackTableDateFilterType } from "../types";
+import {
+  DatePicker,
+  DateRangePicker,
+} from "@repo/ayasofyazilim-ui/custom/date-picker";
+import { DateRange } from "@repo/ayasofyazilim-ui/custom/date-picker/types";
 
 interface TanstackTableDateFilterProps<TData, TValue> {
   accessorKey: string;
@@ -22,7 +25,7 @@ interface TanstackTableDateFilterProps<TData, TValue> {
     filter: {
       accessorKey: string;
       selectedValues: string;
-    }[]
+    }[],
   ) => void;
   params: URLSearchParams;
 }
@@ -41,16 +44,16 @@ export function TanstackTableDateFilter<TData, TValue>({
   const [date, setDate] = useState<Date | DateRange | undefined>(
     dateItem?.endAccessorKey
       ? {
-        start: params?.get(dateItem.startAccessorKey)
-          ? new Date(params?.get(dateItem.startAccessorKey) as string)
-          : undefined,
-        end: params?.get(dateItem?.endAccessorKey)
-          ? new Date(params?.get(dateItem.endAccessorKey) as string)
-          : undefined,
-      }
+          start: params?.get(dateItem.startAccessorKey)
+            ? new Date(params?.get(dateItem.startAccessorKey) as string)
+            : undefined,
+          end: params?.get(dateItem?.endAccessorKey)
+            ? new Date(params?.get(dateItem.endAccessorKey) as string)
+            : undefined,
+        }
       : params?.get(dateItem.startAccessorKey)
         ? new Date(params?.get(dateItem.startAccessorKey) as string)
-        : undefined
+        : undefined,
   );
 
   useEffect(() => {
@@ -72,13 +75,13 @@ export function TanstackTableDateFilter<TData, TValue>({
       if (isFiltered(dateItem.startAccessorKey)) {
         filter.push({
           accessorKey: dateItem.startAccessorKey,
-          selectedValues: '',
+          selectedValues: "",
         });
       }
       if (dateItem?.endAccessorKey && isFiltered(dateItem.endAccessorKey)) {
         filter.push({
           accessorKey: dateItem.endAccessorKey,
-          selectedValues: '',
+          selectedValues: "",
         });
       }
 
@@ -101,7 +104,7 @@ export function TanstackTableDateFilter<TData, TValue>({
     if (isFilterChanged(dateItem.startAccessorKey, date.start)) {
       filter.push({
         accessorKey: dateItem.startAccessorKey,
-        selectedValues: date.start?.toISOString() || '',
+        selectedValues: date.start?.toISOString() || "",
       });
     }
 
@@ -111,7 +114,7 @@ export function TanstackTableDateFilter<TData, TValue>({
     ) {
       filter.push({
         accessorKey: dateItem.endAccessorKey,
-        selectedValues: date.end?.toISOString() || '',
+        selectedValues: date.end?.toISOString() || "",
       });
     }
 
@@ -126,7 +129,7 @@ export function TanstackTableDateFilter<TData, TValue>({
         <Button variant="outline" size="sm" className="h-8 border-dashed">
           <CirclePlusIcon className="mr-2 h-4 w-4" />
           {title}
-          {date && 'start' in date && 'to' in date && date.start && (
+          {date && "start" in date && "to" in date && date.start && (
             <div className="hidden space-x-1 md:flex">
               <Separator orientation="vertical" className="mx-2 h-4" />
               {new Date(date.start).toLocaleDateString()} -
@@ -146,7 +149,7 @@ export function TanstackTableDateFilter<TData, TValue>({
           <DateRangePicker
             id={dateItem.startAccessorKey}
             classNames={{
-              dateInput: 'border-0 border-b rounded-none',
+              dateInput: "border-0 border-b rounded-none",
             }}
             onChange={(_date) => {
               setDate(_date);
@@ -155,7 +158,7 @@ export function TanstackTableDateFilter<TData, TValue>({
           />
         ) : (
           <DatePicker
-            id={dateItem.endAccessorKey || ''}
+            id={dateItem.endAccessorKey || ""}
             onChange={(_date) => {
               setDate(_date);
             }}

@@ -1,8 +1,8 @@
-import { ChevronsUpDown } from 'lucide-react';
-import { WidgetProps } from '@rjsf/utils';
-import { CheckIcon } from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { ChevronsUpDown } from "lucide-react";
+import { WidgetProps } from "@rjsf/utils";
+import { CheckIcon } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -10,34 +10,38 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@repo/ayasofyazilim-ui/components/command';
-import { Drawer, DrawerContent, DrawerTrigger } from '@repo/ayasofyazilim-ui/components/drawer';
+} from "@repo/ayasofyazilim-ui/components/command";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@repo/ayasofyazilim-ui/components/drawer";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@repo/ayasofyazilim-ui/components/popover';
-import { useMediaQuery } from '@repo/ayasofyazilim-ui/hooks/use-media-query';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { fieldOptionsByDependency } from '../utils/dependency';
+} from "@repo/ayasofyazilim-ui/components/popover";
+import { useMediaQuery } from "@repo/ayasofyazilim-ui/hooks/use-media-query";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { fieldOptionsByDependency } from "../utils/dependency";
 
 export const Combobox = (props: WidgetProps) => {
   const { label, value, defaultValue, disabled, uiSchema, options, onChange } =
     props;
-  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const [open, setOpen] = useState(false);
 
   const fieldValue = value || defaultValue;
   const fieldValueDisplayName = options.enumOptions?.find(
-    (x) => x.value === fieldValue
+    (x) => x.value === fieldValue,
   )?.label;
-  const uiOptions = uiSchema?.['ui:options'];
+  const uiOptions = uiSchema?.["ui:options"];
 
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,
@@ -57,17 +61,17 @@ export const Combobox = (props: WidgetProps) => {
           variant="outline"
           role="combobox"
           className={cn(
-            'text-muted-foreground w-full justify-between font-normal',
-            fieldValue && 'text-black'
+            "text-muted-foreground w-full justify-between font-normal",
+            fieldValue && "text-black",
           )}
         >
           {fieldValueDisplayName ||
-            fieldValue ||
-            uiSchema?.['ui:placeholder'] ||
-            uiOptions?.['ui:placeholder'] ||
-            label
+          fieldValue ||
+          uiSchema?.["ui:placeholder"] ||
+          uiOptions?.["ui:placeholder"] ||
+          label
             ? `Please select an ${label.toLocaleLowerCase()}`
-            : 'Please select'}
+            : "Please select"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -86,13 +90,13 @@ export const Combobox = (props: WidgetProps) => {
           type="button"
           variant="outline"
           className={cn(
-            'text-muted-foreground w-full justify-between font-normal',
-            fieldValue && 'text-black'
+            "text-muted-foreground w-full justify-between font-normal",
+            fieldValue && "text-black",
           )}
         >
-          {fieldValue || props?.uiSchema?.['ui:placeholder'] || label
+          {fieldValue || props?.uiSchema?.["ui:placeholder"] || label
             ? `Please select an ${label.toLocaleLowerCase()}`
-            : 'Please select'}
+            : "Please select"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DrawerTrigger>
@@ -114,13 +118,13 @@ function List<T>({
   setOpen: (open: boolean) => void;
 }) {
   const { uiSchema, options } = props;
-  const uiOptions = uiSchema?.['ui:options'];
+  const uiOptions = uiSchema?.["ui:options"];
 
   return (
     <Command
       filter={(value, search) => {
         const filterResult = options.enumOptions?.find(
-          (i) => i.value.toLocaleLowerCase() === value.toLocaleLowerCase()
+          (i) => i.value.toLocaleLowerCase() === value.toLocaleLowerCase(),
         )?.label;
         if (
           value.includes(search) ||
@@ -132,12 +136,12 @@ function List<T>({
     >
       <CommandInput
         data-testid={`${props.id}_search`}
-        placeholder={(uiOptions?.searchPlaceholder as string) || 'Search...'}
+        placeholder={(uiOptions?.searchPlaceholder as string) || "Search..."}
         className="h-9"
       />
       <CommandList className="w-full min-w-full max-w-full">
         <CommandEmpty>
-          {(uiOptions?.searchResultLabel as string) || '0 search result.'}
+          {(uiOptions?.searchResultLabel as string) || "0 search result."}
         </CommandEmpty>
         <CommandGroup>
           {options.enumOptions?.map((enumOption, index) => (
@@ -149,7 +153,7 @@ function List<T>({
                     ? enumOption.value === props.value
                       ? undefined
                       : enumOption.value
-                    : enumOption.value
+                    : enumOption.value,
                 );
                 setOpen(false);
               }}
@@ -158,7 +162,7 @@ function List<T>({
             >
               {enumOption.label}
               {enumOption.value === props.value && (
-                <CheckIcon className={cn('ml-auto h-4 w-4')} />
+                <CheckIcon className={cn("ml-auto h-4 w-4")} />
               )}
             </CommandItem>
           ))}

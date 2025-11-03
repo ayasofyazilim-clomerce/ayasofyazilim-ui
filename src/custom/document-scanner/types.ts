@@ -1,5 +1,5 @@
-import { ReactNode, PointerEvent } from 'react';
-import { WebcamProps } from '../webcam';
+import { ReactNode, PointerEvent } from "react";
+import { WebcamProps } from "../webcam";
 
 // Core types
 export interface DocumentCorners {
@@ -24,7 +24,7 @@ export interface DocumentScannerCallbacks {
   onDocumentCropped?: (croppedImage: string) => void;
   onDocumentDetected?: (
     corners: DocumentCorners,
-    capturedImage: string
+    capturedImage: string,
   ) => void;
   onCornersChanged?: (corners: DocumentCorners) => void;
   onError?: (error: string) => void;
@@ -35,11 +35,11 @@ export interface DocumentScannerCallbacks {
 }
 
 export type ScannerStatus =
-  | 'scanning'
-  | 'detected'
-  | 'cropped'
-  | 'error'
-  | 'processing';
+  | "scanning"
+  | "detected"
+  | "cropped"
+  | "error"
+  | "processing";
 
 export interface DetectionSettings {
   minDocumentSize: number;
@@ -53,7 +53,7 @@ export interface DocumentScannerProps {
   onDocumentCropped?: (croppedImage: string) => void;
   onDocumentDetected?: (
     corners: DocumentCorners,
-    capturedImage: string
+    capturedImage: string,
   ) => void;
   onCornersChanged?: (corners: DocumentCorners) => void;
   onError?: (error: string) => void;
@@ -97,7 +97,7 @@ export interface DocumentScannerProps {
   // Advanced settings
   customDetectionAlgorithm?: (
     image: string,
-    dimensions: Dimensions
+    dimensions: Dimensions,
   ) => Promise<DocumentCorners | null>;
 
   // Custom components
@@ -105,8 +105,8 @@ export interface DocumentScannerProps {
   customOverlay?: ReactNode;
 
   // Webcam interface
-  interfaceLocation?: WebcamProps['interfaceLocation'];
-  showBorder?: WebcamProps['showBorder'];
+  interfaceLocation?: WebcamProps["interfaceLocation"];
+  showBorder?: WebcamProps["showBorder"];
 }
 
 // Corner adjustment types
@@ -189,7 +189,7 @@ export interface UseDocumentCaptureProps {
   callbacks: DocumentScannerCallbacks;
   customDetectionAlgorithm?: (
     image: string,
-    dimensions: Dimensions
+    dimensions: Dimensions,
   ) => Promise<DocumentCorners | null>;
   detectionSettings: DetectionSettings;
   setCapturedImage: (image: string | null) => void;

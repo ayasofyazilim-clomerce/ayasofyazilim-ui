@@ -1,12 +1,12 @@
-import { Asterisk, InfoIcon } from 'lucide-react';
-import { Label } from '@repo/ayasofyazilim-ui/components/label';
+import { Asterisk, InfoIcon } from "lucide-react";
+import { Label } from "@repo/ayasofyazilim-ui/components/label";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@repo/ayasofyazilim-ui/components/tooltip';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "@repo/ayasofyazilim-ui/components/tooltip";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 export function FieldLabel({
   id,
@@ -26,7 +26,7 @@ export function FieldLabel({
     <Label
       data-testid={`${id}_label`}
       htmlFor={id}
-      className={cn('flex items-center text-slate-600', className)}
+      className={cn("flex items-center text-slate-600", className)}
     >
       {label}
       {required ? <Asterisk className="size-3 text-destructive" /> : null}

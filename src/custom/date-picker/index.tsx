@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { CalendarIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { CalendarIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   Button,
   DatePicker as DefaultDatePicker,
@@ -10,18 +10,18 @@ import {
   Group,
   Label,
   // Popover,
-} from 'react-aria-components';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { Separator } from '@repo/ayasofyazilim-ui/components/separator';
-import { Calendar, RangeCalendar } from './calendar-rac';
-import { DateInput, TimeField } from './datefield-rac';
-import { DateRange } from './types';
-import { createDate, createTime } from './utils';
+} from "react-aria-components";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
+import { Calendar, RangeCalendar } from "./calendar-rac";
+import { DateInput, TimeField } from "./datefield-rac";
+import { DateRange } from "./types";
+import { createDate, createTime } from "./utils";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@repo/ayasofyazilim-ui/components/popover';
+} from "@repo/ayasofyazilim-ui/components/popover";
 
 // const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; DO NOT DELETE
 const offset = new Date().getTimezoneOffset() * 60 * 1000;
@@ -48,10 +48,10 @@ export function DatePicker({
   onChange?: (date: Date) => void;
 }) {
   const [dateValue, setDateValue] = useState(
-    createDate({ date: defaultValue, offset })
+    createDate({ date: defaultValue, offset }),
   );
   const [timeValue, setTimeValue] = useState(
-    createTime({ date: defaultValue, offset })
+    createTime({ date: defaultValue, offset }),
   );
   useEffect(() => {
     if (!dateValue) return;
@@ -64,11 +64,11 @@ export function DatePicker({
             dateValue.day,
             timeValue.hour,
             timeValue.minute,
-            timeValue.second
-          )
+            timeValue.second,
+          ),
         );
       } else {
-        const timeZone = localStorage.getItem('tenantTimeZone') || 'UTC';
+        const timeZone = localStorage.getItem("tenantTimeZone") || "UTC";
 
         onChange(dateValue.toDate(timeZone));
       }
@@ -95,9 +95,9 @@ export function DatePicker({
       <div className="flex">
         <Group
           className={cn(
-            'w-full flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer',
-            showIcon ? 'pr-9' : 'pr-3',
-            classNames?.dateInput
+            "w-full flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer",
+            showIcon ? "pr-9" : "pr-3",
+            classNames?.dateInput,
           )}
         >
           <DateInput
@@ -129,7 +129,7 @@ export function DatePicker({
         <Popover
           open={isOpen}
           onOpenChange={setIsOpen}
-        // placement="bottom end"
+          // placement="bottom end"
         >
           <PopoverTrigger asChild>
             {showIcon && (
@@ -227,9 +227,9 @@ export function DateRangePicker({
       <div className="flex">
         <Group
           className={cn(
-            'w-full min-w-fit flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer',
-            showIcon ? 'pr-9' : 'pr-3',
-            classNames?.dateInput
+            "w-full min-w-fit flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer",
+            showIcon ? "pr-9" : "pr-3",
+            classNames?.dateInput,
           )}
         >
           <DateInput

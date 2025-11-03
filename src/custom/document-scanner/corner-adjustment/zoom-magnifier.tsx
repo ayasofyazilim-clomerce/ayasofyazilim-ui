@@ -1,5 +1,5 @@
-import { memo, useMemo } from 'react';
-import { DocumentCorners } from '../types';
+import { memo, useMemo } from "react";
+import { DocumentCorners } from "../types";
 
 interface ZoomMagnifierProps {
   capturedImage: string;
@@ -30,19 +30,19 @@ export const ZoomMagnifier = memo<ZoomMagnifierProps>(
 
       // Position opposite to the corner being dragged
       switch (draggedCorner) {
-        case 'topLeftCorner':
+        case "topLeftCorner":
           left = containerDimensions.width - magnifierSize - margin;
           top = margin;
           break;
-        case 'topRightCorner':
+        case "topRightCorner":
           left = margin;
           top = margin;
           break;
-        case 'bottomLeftCorner':
+        case "bottomLeftCorner":
           left = containerDimensions.width - magnifierSize - margin;
           top = containerDimensions.height - magnifierSize - margin;
           break;
-        case 'bottomRightCorner':
+        case "bottomRightCorner":
           left = margin;
           top = containerDimensions.height - magnifierSize - margin;
           break;
@@ -75,7 +75,7 @@ export const ZoomMagnifier = memo<ZoomMagnifierProps>(
         backgroundImage: `url(${capturedImage})`,
         backgroundSize: `${containerDimensions.width * zoomLevel}px ${containerDimensions.height * zoomLevel}px`,
         backgroundPosition: `${bgX}px ${bgY}px`,
-        backgroundRepeat: 'no-repeat',
+        backgroundRepeat: "no-repeat",
       };
     }, [
       capturedImage,
@@ -109,7 +109,7 @@ export const ZoomMagnifier = memo<ZoomMagnifierProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
-ZoomMagnifier.displayName = 'ZoomMagnifier';
+ZoomMagnifier.displayName = "ZoomMagnifier";

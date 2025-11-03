@@ -1,38 +1,38 @@
 import {
   ArrayFieldTemplateItemType,
   ArrayFieldTemplateProps,
-} from '@rjsf/utils';
+} from "@rjsf/utils";
 import {
   ChevronDown,
   ChevronUp,
   MoreHorizontal,
   Plus,
   Trash,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@repo/ayasofyazilim-ui/components/accordion';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "@repo/ayasofyazilim-ui/components/accordion";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@repo/ayasofyazilim-ui/components/dropdown-menu';
-import { fieldOptionsByDependency } from '../utils/dependency';
+} from "@repo/ayasofyazilim-ui/components/dropdown-menu";
+import { fieldOptionsByDependency } from "../utils/dependency";
 
 export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
   const { items, title, required, canAdd, onAddClick, uiSchema, disabled } =
     props;
-  const displayName = uiSchema?.['ui:title'] || title;
-  const addable = uiSchema?.['ui:options']?.addable || canAdd;
+  const displayName = uiSchema?.["ui:title"] || title;
+  const addable = uiSchema?.["ui:options"]?.addable || canAdd;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
   const fieldOptions = {
     disabled,
@@ -44,7 +44,7 @@ export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
     <Accordion
       type="single"
       collapsible
-      className={cn('w-full group', uiSchema?.className?.accordion)}
+      className={cn("w-full group", uiSchema?.className?.accordion)}
       defaultValue={title}
     >
       <AccordionItem
@@ -54,11 +54,11 @@ export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
         <AccordionTrigger
           onClick={(ev) => items.length === 0 && ev.preventDefault()}
           className={cn(
-            'flex gap-4 min-h-[54px] overflow-hidden items-center bg-white py-2 px-4 rounded-md border relative group-has-[div>div>div>*]:rounded-b-none hover:no-underline hover:[&>span]:underline hover:bg-zinc-50',
-            items.length === 0 && '[&>svg]:hidden pr-2',
+            "flex gap-4 min-h-[54px] overflow-hidden items-center bg-white py-2 px-4 rounded-md border relative group-has-[div>div>div>*]:rounded-b-none hover:no-underline hover:[&>span]:underline hover:bg-zinc-50",
+            items.length === 0 && "[&>svg]:hidden pr-2",
             disabled &&
-            'cursor-default pointer-events-none hover:[&>span]:no-underline text-muted-foreground opacity-50',
-            uiSchema?.className?.accordionTrigger
+              "cursor-default pointer-events-none hover:[&>span]:no-underline text-muted-foreground opacity-50",
+            uiSchema?.className?.accordionTrigger,
           )}
         >
           {displayName && (
@@ -73,9 +73,9 @@ export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
               type="button"
               variant="secondary"
               className={cn(
-                'ml-2 z-10 no-underline!',
-                disabled && 'pointer-events-none',
-                uiSchema?.className?.accordionAddButton
+                "ml-2 z-10 no-underline!",
+                disabled && "pointer-events-none",
+                uiSchema?.className?.accordionAddButton,
               )}
               onClick={(ev) => {
                 if (disabled) return;
@@ -94,8 +94,8 @@ export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
         </AccordionTrigger>
         <AccordionContent
           className={cn(
-            'flex flex-col gap-4 has-[*]:border p-0 has-[*]:p-4 has-[*]:border-t-0 rounded-b-md',
-            uiSchema?.className?.accordionContent
+            "flex flex-col gap-4 has-[*]:border p-0 has-[*]:p-4 has-[*]:border-t-0 rounded-b-md",
+            uiSchema?.className?.accordionContent,
           )}
         >
           {items &&
@@ -104,9 +104,9 @@ export const AccordionArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
               return (
                 <div
                   className={cn(
-                    'flex relative rounded-md border [&>div]:border-none',
+                    "flex relative rounded-md border [&>div]:border-none",
                     itemClassName,
-                    itemUiSchema?.['ui:className']
+                    itemUiSchema?.["ui:className"],
                   )}
                   key={item.key}
                 >

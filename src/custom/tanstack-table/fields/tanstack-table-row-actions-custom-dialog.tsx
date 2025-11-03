@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Loader } from 'lucide-react';
-import * as React from 'react';
+import { Loader } from "lucide-react";
+import * as React from "react";
 
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Dialog,
   DialogClose,
@@ -11,8 +11,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@repo/ayasofyazilim-ui/components/dialog';
-import { TanstackTableRowActionsCustomDialog } from '../types';
+} from "@repo/ayasofyazilim-ui/components/dialog";
+import { TanstackTableRowActionsCustomDialog } from "../types";
 
 type TanstackTableCustomDialogProps<TData> = {
   row: TData;
@@ -28,9 +28,9 @@ export function TanstackTableCustomDialog<TData>({
   content,
   setDialogOpen,
 }: TanstackTableCustomDialogProps<TData>) {
-  const dialogTitle = typeof title === 'function' ? title(row) : title;
+  const dialogTitle = typeof title === "function" ? title(row) : title;
   const jsxContent =
-    typeof content === 'function' ? content(row, setDialogOpen) : content;
+    typeof content === "function" ? content(row, setDialogOpen) : content;
 
   const [isDeletePending, startDeleteTransition] = React.useTransition();
 

@@ -1,16 +1,19 @@
-import { CirclePlusIcon } from 'lucide-react';
-import { Column } from '@tanstack/react-table';
+import { CirclePlusIcon } from "lucide-react";
+import { Column } from "@tanstack/react-table";
 
-import { useEffect, useState } from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { Command, CommandInput } from '@repo/ayasofyazilim-ui/components/command';
+import { useEffect, useState } from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import {
+  Command,
+  CommandInput,
+} from "@repo/ayasofyazilim-ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@repo/ayasofyazilim-ui/components/popover';
-import { Separator } from '@repo/ayasofyazilim-ui/components/separator';
-import { useDebounce } from '@repo/ayasofyazilim-ui/hooks/use-debounce';
+} from "@repo/ayasofyazilim-ui/components/popover";
+import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
+import { useDebounce } from "@repo/ayasofyazilim-ui/hooks/use-debounce";
 
 interface TanstackTableTextFilterProps<TData, TValue> {
   accessorKey: string;
@@ -28,8 +31,8 @@ export function TanstackTableTextFilter<TData, TValue>({
   onFilter,
 }: TanstackTableTextFilterProps<TData, TValue>) {
   const title = _title || column?.columnDef?.meta?.toString() || accessorKey;
-  const [searchInput, setSearchInput] = useState('');
-  const filterValue = useDebounce(searchInput || '', 500);
+  const [searchInput, setSearchInput] = useState("");
+  const filterValue = useDebounce(searchInput || "", 500);
 
   useEffect(() => {
     if (params?.get(accessorKey) !== filterValue) {
@@ -60,7 +63,7 @@ export function TanstackTableTextFilter<TData, TValue>({
         </Command>
         <div className="p-1">
           <Button
-            onClick={() => setSearchInput('')}
+            onClick={() => setSearchInput("")}
             variant="ghost"
             className="justify-center text-center w-full hover:bg-accent text-accent-foreground"
           >

@@ -1,118 +1,118 @@
-'use client';
+"use client";
 
-import { cva, VariantProps } from 'class-variance-authority';
-import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { ComponentType, ReactNode, Suspense } from 'react';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { Skeleton } from '@repo/ayasofyazilim-ui/components/skeleton';
+import { cva, VariantProps } from "class-variance-authority";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { ComponentType, ReactNode, Suspense } from "react";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
 
 type DeepPartial<T> = T extends object
   ? {
-    [P in keyof T]?: DeepPartial<T[P]>;
-  }
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
   : T;
 const defaultClassNames = {
   vertical: {
-    tabs: 'flex h-full overflow-clip md:overflow-hidden block gap-2',
+    tabs: "flex h-full overflow-clip md:overflow-hidden block gap-2",
     tabList:
-      'flex flex-col h-full justify-start max-w-sm overflow-hidden border-b-2 pb-2 mb-2 md:mb-0 mb:border-b-0',
-    tabTrigger: 'justify-start md:max-w-lg overflow-hidden w-full',
-    tabContent: 'mx-2 my-0 w-full h-full overflow-auto flex-1',
+      "flex flex-col h-full justify-start max-w-sm overflow-hidden border-b-2 pb-2 mb-2 md:mb-0 mb:border-b-0",
+    tabTrigger: "justify-start md:max-w-lg overflow-hidden w-full",
+    tabContent: "mx-2 my-0 w-full h-full overflow-auto flex-1",
   },
   horizontal: {
-    tabs: 'flex h-full overflow-hidden flex-col',
-    tabList: 'w-full mx:w-max overflow-x-auto overflow-y-hidden min-h-max',
-    tabTrigger: 'min-w-max',
-    tabContent: 'h-full my-2 overflow-auto',
+    tabs: "flex h-full overflow-hidden flex-col",
+    tabList: "w-full mx:w-max overflow-x-auto overflow-y-hidden min-h-max",
+    tabTrigger: "min-w-max",
+    tabContent: "h-full my-2 overflow-auto",
   },
 };
 
-const tabsVariants = cva('', {
+const tabsVariants = cva("", {
   variants: {
     variant: {
-      default: '',
-      simple: '',
+      default: "",
+      simple: "",
     },
     orientation: {
-      horizontal: 'md:flex md:h-full md:overflow-hidden flex-col',
-      vertical: 'md:flex md:h-full',
+      horizontal: "md:flex md:h-full md:overflow-hidden flex-col",
+      vertical: "md:flex md:h-full",
     },
   },
   defaultVariants: {
-    orientation: 'horizontal',
-    variant: 'default',
+    orientation: "horizontal",
+    variant: "default",
   },
 });
 
-const tabListVariants = cva('', {
+const tabListVariants = cva("", {
   variants: {
     variant: {
       default:
-        'inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground',
-      simple: '',
+        "inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
+      simple: "",
     },
     orientation: {
-      horizontal: 'w-max mx:w-max overflow-x-auto overflow-y-hidden min-h-max',
+      horizontal: "w-max mx:w-max overflow-x-auto overflow-y-hidden min-h-max",
       vertical:
-        'flex flex-col md:h-full justify-start md:max-w-[220px] w-full md:overflow-hidden md:pr-3 md:border-r border-muted',
+        "flex flex-col md:h-full justify-start md:max-w-[220px] w-full md:overflow-hidden md:pr-3 md:border-r border-muted",
     },
   },
   defaultVariants: {
-    orientation: 'horizontal',
-    variant: 'default',
+    orientation: "horizontal",
+    variant: "default",
   },
 });
 
 const tabTriggerVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          'px-3 py-1 ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-offset-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow',
+          "px-3 py-1 ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-offset-2 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow",
         simple:
-          'px-3 py-2 ring-offset-background transition-all rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 data-[state=active]:bg-muted data-[state=active]:text-foreground',
+          "px-3 py-2 ring-offset-background transition-all rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2 data-[state=active]:bg-muted data-[state=active]:text-foreground",
       },
       orientation: {
-        horizontal: '',
-        vertical: 'justify-start md:max-w-lg overflow-hidden w-full',
+        horizontal: "",
+        vertical: "justify-start md:max-w-lg overflow-hidden w-full",
       },
     },
     defaultVariants: {
-      orientation: 'horizontal',
-      variant: 'default',
+      orientation: "horizontal",
+      variant: "default",
     },
-  }
+  },
 );
 
-const tabContentVariants = cva('', {
+const tabContentVariants = cva("", {
   variants: {
     variant: {
       default:
-        'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-      simple: '',
+        "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      simple: "",
     },
     orientation: {
-      horizontal: 'h-full my-2 overflow-auto',
-      vertical: 'my-0 w-full h-full overflow-auto flex-1',
+      horizontal: "h-full my-2 overflow-auto",
+      vertical: "my-0 w-full h-full overflow-auto flex-1",
     },
   },
   defaultVariants: {
-    orientation: 'horizontal',
-    variant: 'default',
+    orientation: "horizontal",
+    variant: "default",
   },
 });
 
 function findActiveTab(tabList: { href: string }[], path: string) {
   const indexOfActiveTab = path
-    .split('/')
+    .split("/")
     .reverse()
     .findIndex((_, index) => {
       if (index === 0) {
         return tabList.find((i) => i.href === path);
       }
-      const link = path.split('/').slice(0, -index).join('/');
+      const link = path.split("/").slice(0, -index).join("/");
       return tabList.find((i) => i.href === link);
     });
   if (indexOfActiveTab === -1) {
@@ -122,16 +122,16 @@ function findActiveTab(tabList: { href: string }[], path: string) {
     return tabList.find((i) => i.href === path)?.href;
   }
   return tabList.find(
-    (i) => i.href === path.split('/').slice(0, -indexOfActiveTab).join('/')
+    (i) => i.href === path.split("/").slice(0, -indexOfActiveTab).join("/"),
   )?.href;
 }
 
 export function TabLayout({
   tabList,
   children,
-  orientation = 'horizontal',
+  orientation = "horizontal",
   classNames,
-  variant = 'default',
+  variant = "default",
 }: {
   tabList: {
     label: string;
@@ -141,9 +141,9 @@ export function TabLayout({
     disabled?: boolean;
   }[];
   children: ReactNode;
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: "horizontal" | "vertical";
   classNames?: DeepPartial<typeof defaultClassNames>;
-  variant?: VariantProps<typeof tabsVariants>['variant'];
+  variant?: VariantProps<typeof tabsVariants>["variant"];
 }) {
   const tabsClassNames = tabsVariants({ orientation, variant });
   const tabListClassNames = tabListVariants({ orientation, variant });
@@ -155,7 +155,8 @@ export function TabLayout({
   const active =
     findActiveTab(tabList, path + searchParams) ||
     findActiveTab(tabList, path) ||
-    tabList[0]?.href || "";
+    tabList[0]?.href ||
+    "";
 
   return (
     <div
@@ -166,18 +167,18 @@ export function TabLayout({
         role="tablist"
         className={cn(tabListClassNames, classNames?.[orientation]?.tabList)}
         style={{
-          scrollbarWidth: 'thin',
+          scrollbarWidth: "thin",
         }}
       >
         {tabList.map((tab) => (
           <span
             role="tab"
             key={tab.href}
-            data-state={tab.href === active ? 'active' : 'inactive'}
+            data-state={tab.href === active ? "active" : "inactive"}
             className={cn(
               tabTriggerClassNames,
               classNames?.[orientation]?.tabTrigger,
-              tab.disabled && 'text-muted-foreground cursor-not-allowed'
+              tab.disabled && "text-muted-foreground cursor-not-allowed",
             )}
           >
             {tab.disabled ? (
@@ -200,7 +201,7 @@ export function TabLayout({
       <div
         className={cn(
           tabContentClassNames,
-          classNames?.[orientation]?.tabContent
+          classNames?.[orientation]?.tabContent,
         )}
       >
         <Suspense fallback={<Skeleton className="flex-1 size-full" />}>

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { ClockIcon } from 'lucide-react';
+import React from "react";
+import { ClockIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@repo/ayasofyazilim-ui/components/tooltip';
+} from "@repo/ayasofyazilim-ui/components/tooltip";
 
 export type Localization = { locale: string; timeZone: string; lang: string };
 
@@ -14,11 +14,11 @@ function DateTooltip({
   icon = <ClockIcon className="w-4 h-4" />,
   date,
   dateOptions = {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: false,
   },
   localization,
@@ -38,7 +38,7 @@ function DateTooltip({
     localization,
     date,
     dateOptions,
-    timeZone: 'UTC',
+    timeZone: "UTC",
   });
   const userDate = formatToLocalizedDate({ localization, date, dateOptions });
   return (
@@ -66,17 +66,15 @@ function DateTooltip({
 
 export default DateTooltip;
 
-
-
 export function formatToLocalizedDate({
   localization,
   date,
   dateOptions = {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: false,
   },
   timeZone,
@@ -86,7 +84,7 @@ export function formatToLocalizedDate({
   dateOptions?: Intl.DateTimeFormatOptions;
   timeZone?: string;
 }) {
-  const _date = typeof date === 'string' ? new Date(date) : date;
+  const _date = typeof date === "string" ? new Date(date) : date;
   const dateString = _date.toLocaleDateString(localization.lang, {
     ...dateOptions,
     timeZone,

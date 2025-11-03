@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, {
   createContext,
@@ -7,10 +7,10 @@ import React, {
   useEffect,
   useMemo,
   useState,
-} from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { Skeleton } from '@repo/ayasofyazilim-ui/components/skeleton';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 export interface ISection {
   children?: React.ReactNode;
@@ -50,25 +50,25 @@ export function SectionLayoutNavbar({
   return (
     <nav
       className={cn(
-        'flex gap-4 text-sm text-center md:text-left p-3 ',
+        "flex gap-4 text-sm text-center md:text-left p-3 ",
         vertical
-          ? 'flex-col border-b md:border-b-0 md:border-r overflow-auto min-w-full md:min-w-60 items-center md:items-start'
-          : 'flex-col md:flex-row border-b'
+          ? "flex-col border-b md:border-b-0 md:border-r overflow-auto min-w-full md:min-w-60 items-center md:items-start"
+          : "flex-col md:flex-row border-b",
       )}
     >
       {sections.map((section) => (
         <LinkElement
           className={cn(
             activeSectionId === section.id
-              ? 'font-semibold text-primary hover:no-underline m-0 p-0 h-auto justify-start'
-              : 'font-normal text-muted-foreground hover:no-underline m-0 p-0 h-auto justify-start',
+              ? "font-semibold text-primary hover:no-underline m-0 p-0 h-auto justify-start"
+              : "font-normal text-muted-foreground hover:no-underline m-0 p-0 h-auto justify-start",
             section.disabled
-              ? 'cursor-not-allowed opacity-50'
-              : 'cursor-pointer',
-            section.className
+              ? "cursor-not-allowed opacity-50"
+              : "cursor-pointer",
+            section.className,
           )}
           data-active={activeSectionId === section.id}
-          href={section.link || '#'}
+          href={section.link || "#"}
           onClick={() => {
             if (section.disabled) return;
             if (!linkElement && onSectionChange) {
@@ -112,7 +112,7 @@ export function SectionLayoutContent({
   return (
     <div
       id={`section-${sectionId}`}
-      className={cn('w-full p-5 overflow-auto h-full flex-1', className)}
+      className={cn("w-full p-5 overflow-auto h-full flex-1", className)}
     >
       {children}
     </div>
@@ -120,7 +120,7 @@ export function SectionLayoutContent({
 }
 
 const SectionLayoutContext = createContext({
-  activeSectionId: '',
+  activeSectionId: "",
 });
 export interface ISectionLayoutProps {
   children: React.ReactNode;
@@ -148,21 +148,24 @@ export function SectionLayout({
   vertical,
 }: ISectionLayoutProps) {
   const [activeSectionId, setActiveSectionId] = useState(
-    defaultActiveSectionId || sections?.[0]?.id
+    defaultActiveSectionId || sections?.[0]?.id,
   );
   useEffect(() => {
     if (linkElement && defaultActiveSectionId) {
       setActiveSectionId(defaultActiveSectionId);
     }
   }, [defaultActiveSectionId]);
-  const contextValue = useMemo(() => ({ activeSectionId: activeSectionId || "" }), [activeSectionId]);
+  const contextValue = useMemo(
+    () => ({ activeSectionId: activeSectionId || "" }),
+    [activeSectionId],
+  );
   return (
     <SectionLayoutContext.Provider value={contextValue}>
       <div
         className={
           vertical
-            ? 'flex flex-wrap md:flex-nowrap rounded-lg h-full overflow-hidden mb-5'
-            : 'rounded-lg h-full overflow-hidden flex flex-col'
+            ? "flex flex-wrap md:flex-nowrap rounded-lg h-full overflow-hidden mb-5"
+            : "rounded-lg h-full overflow-hidden flex flex-col"
         }
       >
         <SectionLayoutNavbar
@@ -182,16 +185,16 @@ export const SectionLayoutSkeleton = ({ vertical }: { vertical?: boolean }) => (
   <div
     className={
       vertical
-        ? 'flex flex-wrap md:flex-nowrap rounded-lg h-full overflow-hidden'
-        : 'rounded-lg h-full overflow-hidden flex flex-col'
+        ? "flex flex-wrap md:flex-nowrap rounded-lg h-full overflow-hidden"
+        : "rounded-lg h-full overflow-hidden flex flex-col"
     }
   >
     <nav
       className={cn(
-        'flex gap-4 text-sm text-center md:text-left p-5 ',
+        "flex gap-4 text-sm text-center md:text-left p-5 ",
         vertical
-          ? 'flex-col border-b md:border-b-0 md:border-r min-w-full md:min-w-60 items-center md:items-start'
-          : 'flex-col md:flex-row border-b'
+          ? "flex-col border-b md:border-b-0 md:border-r min-w-full md:min-w-60 items-center md:items-start"
+          : "flex-col md:flex-row border-b",
       )}
     >
       <Skeleton className="h-6 w-full bg-gray-200" />

@@ -20,4 +20,3 @@ export interface CornerPoints {
 }
 
 export type WindowWithCV = Window & { cv: typeof cv };
-

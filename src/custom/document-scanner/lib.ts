@@ -1,6 +1,6 @@
-import { createScanner } from '../tscanify/browser';
-import { DEFAULT_MAX_DOCUMENT_SIZE, DEFAULT_MIN_DOCUMENT_SIZE } from './consts';
-import { DocumentCorners } from './types';
+import { createScanner } from "../tscanify/browser";
+import { DEFAULT_MAX_DOCUMENT_SIZE, DEFAULT_MIN_DOCUMENT_SIZE } from "./consts";
+import { DocumentCorners } from "./types";
 import cv, { Mat } from "opencv-ts";
 
 export async function scanDocument(
@@ -13,19 +13,19 @@ export async function scanDocument(
     maxDocumentSize?: number;
     detectionSensitivity?: number;
     detectionConfidence?: number;
-  }
+  },
 ) {
   try {
     const scanner = createScanner();
-    const inputCanvas = document.createElement('canvas');
+    const inputCanvas = document.createElement("canvas");
     const img = new Image();
 
     await new Promise<void>((resolve, reject) => {
       img.onload = () => {
         try {
-          const ctx = inputCanvas.getContext('2d');
+          const ctx = inputCanvas.getContext("2d");
           if (!ctx) {
-            reject(new Error('Failed to get canvas context'));
+            reject(new Error("Failed to get canvas context"));
             return;
           }
 
@@ -54,7 +54,7 @@ export async function scanDocument(
               detectedCorners = findDocumentCornersAdvanced(
                 src,
                 img.width,
-                img.height
+                img.height,
               );
             }
 
@@ -114,14 +114,14 @@ export async function scanDocument(
         }
       };
 
-      img.onerror = () => reject(new Error('Failed to load image'));
+      img.onerror = () => reject(new Error("Failed to load image"));
       img.src = imageBase64;
     });
   } catch (error) {
     const errorMessage =
       error instanceof Error
         ? error.message
-        : 'Unknown error occurred during document scanning';
+        : "Unknown error occurred during document scanning";
     onError(errorMessage);
   }
 }
@@ -132,7 +132,7 @@ export async function scanDocument(
 export function findDocumentSimple(
   src: Mat,
   width: number,
-  height: number
+  height: number,
 ): DocumentCorners | null {
   try {
     const gray = new cv.Mat();
@@ -149,7 +149,7 @@ export function findDocumentSimple(
       contours,
       hierarchy,
       cv.RETR_EXTERNAL,
-      cv.CHAIN_APPROX_SIMPLE
+      cv.CHAIN_APPROX_SIMPLE,
     );
 
     for (let i = 0; i < contours.size(); i++) {
@@ -163,7 +163,7 @@ export function findDocumentSimple(
         cv.approxPolyDP(contour, approx, 0.02 * peri, true);
 
         if (approx.rows === 4) {
-          const points: Array<{ x: number, y: number }> = [];
+          const points: Array<{ x: number; y: number }> = [];
           for (let j = 0; j < 4; j++) {
             const point = approx.data32S;
             points.push({ x: point[j * 2] || 0, y: point[j * 2 + 1] || 0 });
@@ -188,7 +188,7 @@ export function findDocumentSimple(
           contours.delete();
           hierarchy.delete();
 
-          return corners as DocumentCorners
+          return corners as DocumentCorners;
         }
 
         approx.delete();
@@ -211,16 +211,15 @@ export function findDocumentSimple(
 export function findDocumentCornersAdvanced(
   src: Mat,
   width: number,
-  height: number
+  height: number,
 ): DocumentCorners | null {
-
   try {
     const gray = new cv.Mat();
     cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
 
     const approaches = [
       {
-        name: 'OTSU + Gaussian',
+        name: "OTSU + Gaussian",
         process: (input: any) => {
           const blurred = new cv.Mat();
           const binary = new cv.Mat();
@@ -230,14 +229,14 @@ export function findDocumentCornersAdvanced(
             binary,
             0,
             255,
-            cv.THRESH_BINARY + cv.THRESH_OTSU
+            cv.THRESH_BINARY + cv.THRESH_OTSU,
           );
           blurred.delete();
           return binary;
         },
       },
       {
-        name: 'Adaptive Threshold',
+        name: "Adaptive Threshold",
         process: (input: Mat) => {
           const binary = new cv.Mat();
           cv.adaptiveThreshold(
@@ -247,7 +246,7 @@ export function findDocumentCornersAdvanced(
             cv.ADAPTIVE_THRESH_GAUSSIAN_C,
             cv.THRESH_BINARY,
             15,
-            10
+            10,
           );
           return binary;
         },
@@ -282,7 +281,7 @@ export function findDocumentCornersAdvanced(
 export function findCornersFromBinary(
   binary: Mat,
   width: number,
-  height: number
+  height: number,
 ): DocumentCorners | null {
   try {
     const contours = new cv.MatVector();
@@ -292,7 +291,7 @@ export function findCornersFromBinary(
       contours,
       hierarchy,
       cv.RETR_EXTERNAL,
-      cv.CHAIN_APPROX_SIMPLE
+      cv.CHAIN_APPROX_SIMPLE,
     );
 
     let bestCorners: DocumentCorners | null = null;
@@ -322,8 +321,10 @@ export function findCornersFromBinary(
           bestCorners = {
             topLeftCorner: topPoints[0] as DocumentCorners["topLeftCorner"],
             topRightCorner: topPoints[1] as DocumentCorners["topRightCorner"],
-            bottomRightCorner: bottomPoints[1] as DocumentCorners["bottomRightCorner"],
-            bottomLeftCorner: bottomPoints[0] as DocumentCorners["bottomLeftCorner"],
+            bottomRightCorner:
+              bottomPoints[1] as DocumentCorners["bottomRightCorner"],
+            bottomLeftCorner:
+              bottomPoints[0] as DocumentCorners["bottomLeftCorner"],
           };
           bestArea = area;
         }
@@ -344,7 +345,7 @@ export function findCornersFromBinary(
 export function scoreCornersQuality(
   corners: DocumentCorners,
   width: number,
-  height: number
+  height: number,
 ): number {
   try {
     const {
@@ -385,9 +386,9 @@ export function scoreCornersQuality(
     const maxSize = Math.min(width, height) * 0.95; // At most 95% of image
     const sizeScore =
       avgWidth >= minSize &&
-        avgHeight >= minSize &&
-        avgWidth <= maxSize &&
-        avgHeight <= maxSize
+      avgHeight >= minSize &&
+      avgWidth <= maxSize &&
+      avgHeight <= maxSize
         ? 1
         : 0.3;
 

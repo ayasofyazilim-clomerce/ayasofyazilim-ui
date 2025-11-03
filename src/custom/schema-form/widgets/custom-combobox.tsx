@@ -1,9 +1,9 @@
-import { ChevronsUpDown } from 'lucide-react';
-import { WidgetProps } from '@rjsf/utils';
-import { CheckIcon } from 'lucide-react';
-import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
-import { Badge } from '@repo/ayasofyazilim-ui/components/badge';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { ChevronsUpDown } from "lucide-react";
+import { WidgetProps } from "@rjsf/utils";
+import { CheckIcon } from "lucide-react";
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -11,16 +11,20 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@repo/ayasofyazilim-ui/components/command';
-import { Drawer, DrawerContent, DrawerTrigger } from '@repo/ayasofyazilim-ui/components/drawer';
+} from "@repo/ayasofyazilim-ui/components/command";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from "@repo/ayasofyazilim-ui/components/drawer";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@repo/ayasofyazilim-ui/components/popover';
-import { useMediaQuery } from '@repo/ayasofyazilim-ui/hooks/use-media-query';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { fieldOptionsByDependency } from '../utils/dependency';
+} from "@repo/ayasofyazilim-ui/components/popover";
+import { useMediaQuery } from "@repo/ayasofyazilim-ui/hooks/use-media-query";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { fieldOptionsByDependency } from "../utils/dependency";
 
 type BadgeOptions = { className?: string; showValue?: boolean; label?: string };
 
@@ -46,20 +50,20 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
     selectIdentifier,
     selectLabel,
     disabled,
-    emptyValue = 'Please select',
+    emptyValue = "Please select",
     onChange,
   } = props;
-  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const [open, setOpen] = useState(false);
   const fieldValue = value || defaultValue;
   const fieldValueDisplayName = list?.find(
-    (x) => x[selectIdentifier] === fieldValue
+    (x) => x[selectIdentifier] === fieldValue,
   )?.[selectLabel];
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,
@@ -74,7 +78,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
       <PopoverTrigger
         asChild
         disabled={fieldOptions.disabled}
-        className={cn(disabled && 'cursor-not-allowed')}
+        className={cn(disabled && "cursor-not-allowed")}
       >
         <Button
           id={props.id}
@@ -83,10 +87,10 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           variant="outline"
           role="combobox"
           className={cn(
-            'text-muted-foreground w-full justify-between font-normal h-10 shadow-sm hover:bg-white overflow-hidden',
-            fieldValueDisplayName && 'text-black',
+            "text-muted-foreground w-full justify-between font-normal h-10 shadow-sm hover:bg-white overflow-hidden",
+            fieldValueDisplayName && "text-black",
             disabled &&
-            'disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground'
+              "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground",
           )}
         >
           <span className="truncate has-[role=dialog]:max-w-xs">
@@ -112,8 +116,8 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           disabled={fieldOptions.disabled}
           variant="outline"
           className={cn(
-            'text-muted-foreground w-full justify-between font-normal h-10 shadow-sm hover:bg-white',
-            fieldValueDisplayName && 'text-black'
+            "text-muted-foreground w-full justify-between font-normal h-10 shadow-sm hover:bg-white",
+            fieldValueDisplayName && "text-black",
           )}
         >
           {fieldValueDisplayName
@@ -152,14 +156,14 @@ function List<T>({
     badges,
     customItemRenderer,
   } = props;
-  const uiOptions = uiSchema?.['ui:options'];
+  const uiOptions = uiSchema?.["ui:options"];
   return (
     <Command
       filter={(value, search) => {
         const filterResult = list?.find(
           (i) =>
             (i[selectIdentifier] as string).toString()?.toLocaleLowerCase() ===
-            value.toLocaleLowerCase()
+            value.toLocaleLowerCase(),
         )?.[selectLabel] as string;
         if (
           value.includes(search) ||
@@ -171,11 +175,11 @@ function List<T>({
     >
       <CommandInput
         data-testid={`${props.id}_search`}
-        placeholder={searchPlaceholder || 'Search...'}
+        placeholder={searchPlaceholder || "Search..."}
         className="h-9"
       />
       <CommandList className="w-full min-w-full max-w-full">
-        <CommandEmpty>{searchResultLabel || '0 search result.'}</CommandEmpty>
+        <CommandEmpty>{searchResultLabel || "0 search result."}</CommandEmpty>
         <CommandGroup>
           {list?.map((item: T, index) => (
             <CommandItem
@@ -187,11 +191,11 @@ function List<T>({
                     ? item[selectIdentifier] === value
                       ? undefined
                       : item[selectIdentifier]
-                    : item[selectIdentifier]
+                    : item[selectIdentifier],
                 );
                 if (onValueChange)
                   onValueChange(
-                    list.find((i) => i[selectIdentifier] === value)
+                    list.find((i) => i[selectIdentifier] === value),
                   );
                 setOpen(false);
               }}
@@ -199,7 +203,7 @@ function List<T>({
               value={item[selectIdentifier] as string}
             >
               {item[selectIdentifier] === value && (
-                <CheckIcon className={cn('mr-2 h-4 w-4')} />
+                <CheckIcon className={cn("mr-2 h-4 w-4")} />
               )}
               {customItemRenderer ? (
                 customItemRenderer(item)
@@ -215,7 +219,7 @@ function List<T>({
                           <Badge
                             key={badgeKey}
                             variant="outline"
-                            className={cn('ml-2', badgeOptions.className)}
+                            className={cn("ml-2", badgeOptions.className)}
                           >
                             {badgeOptions.showValue !== false &&
                               (item[badgeKey as keyof T] as string)}
@@ -246,21 +250,21 @@ export function CustomComboboxWidget<T>({
   customItemRenderer,
 }: {
   languageData: {
-    'Select.Placeholder': string;
-    'Select.ResultLabel': string;
-    'Select.EmptyValue': string;
+    "Select.Placeholder": string;
+    "Select.ResultLabel": string;
+    "Select.EmptyValue": string;
   };
   selectIdentifier: keyof T;
   selectLabel: keyof T;
   list: T[];
   onChange?: (value: T | null | undefined) => void;
   disabledItems?: T[keyof T][];
-  badges?: CustomComboboxProps<T>['badges'];
-  customItemRenderer?: CustomComboboxProps<T>['customItemRenderer'];
+  badges?: CustomComboboxProps<T>["badges"];
+  customItemRenderer?: CustomComboboxProps<T>["customItemRenderer"];
 }) {
   function Widget(props: WidgetProps) {
     const { uiSchema } = props;
-    const uiList = uiSchema?.['ui:optionList'];
+    const uiList = uiSchema?.["ui:optionList"];
     return (
       <CustomCombobox<T>
         {...props}
@@ -272,9 +276,9 @@ export function CustomComboboxWidget<T>({
           }
         }}
         customItemRenderer={customItemRenderer}
-        searchPlaceholder={languageData['Select.Placeholder']}
-        searchResultLabel={languageData['Select.ResultLabel']}
-        emptyValue={languageData['Select.EmptyValue']}
+        searchPlaceholder={languageData["Select.Placeholder"]}
+        searchResultLabel={languageData["Select.ResultLabel"]}
+        emptyValue={languageData["Select.EmptyValue"]}
         selectIdentifier={selectIdentifier}
         selectLabel={selectLabel}
         disabledItems={disabledItems}

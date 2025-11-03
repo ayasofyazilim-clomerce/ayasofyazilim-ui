@@ -1,11 +1,11 @@
-import { useCallback, useState, PointerEvent } from 'react';
-import { DocumentCorners } from '../../types';
-import { DragState } from '../types';
+import { useCallback, useState, PointerEvent } from "react";
+import { DocumentCorners } from "../../types";
+import { DragState } from "../types";
 
 export function useCornerDrag(
   detectedCorners: DocumentCorners,
   videoDimensions: { width: number; height: number },
-  onCornersChange: (corners: DocumentCorners) => void
+  onCornersChange: (corners: DocumentCorners) => void,
 ) {
   const [dragState, setDragState] = useState<DragState>({
     isDragging: null,
@@ -18,7 +18,7 @@ export function useCornerDrag(
 
       const rect = event.currentTarget.getBoundingClientRect();
       const containerRect = event.currentTarget
-        .closest('.corner-adjustment-container')
+        .closest(".corner-adjustment-container")
         ?.getBoundingClientRect();
 
       if (containerRect) {
@@ -32,7 +32,7 @@ export function useCornerDrag(
         setDragState(newDragState);
       }
     },
-    []
+    [],
   );
 
   const handleCornerDrag = useCallback(
@@ -66,7 +66,7 @@ export function useCornerDrag(
 
       onCornersChange(updatedCorners);
     },
-    [dragState, detectedCorners, videoDimensions, onCornersChange]
+    [dragState, detectedCorners, videoDimensions, onCornersChange],
   );
 
   const handleCornerDragEnd = useCallback(() => {

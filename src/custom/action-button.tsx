@@ -1,7 +1,10 @@
-import { Button, buttonVariants } from "@repo/ayasofyazilim-ui/components/button";
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+import {
+  Button,
+  buttonVariants,
+} from "@repo/ayasofyazilim-ui/components/button";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { VariantProps } from "class-variance-authority";
-import React, { ComponentType } from 'react';
+import React, { ComponentType } from "react";
 
 export function ActionList({
   className,
@@ -13,8 +16,8 @@ export function ActionList({
   return (
     <div
       className={cn(
-        'justify-end gap-2 rounded-md border p-2 has-[*]:flex hidden',
-        className
+        "justify-end gap-2 rounded-md border p-2 has-[*]:flex hidden",
+        className,
       )}
     >
       {children}
@@ -27,7 +30,7 @@ export function ActionButton({
   onClick,
   text,
   icon: Icon,
-  variant = 'outline',
+  variant = "outline",
 }: {
   loading: boolean;
   onClick?: () => void;

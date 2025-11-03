@@ -1,14 +1,14 @@
-import React, { Dispatch, useEffect } from 'react';
+import React, { Dispatch, useEffect } from "react";
 import {
   TanstackTableConfirmationDialog,
   TanstackTableCustomDialog,
   TanstackTableTableCustomDialog,
-} from '.';
+} from ".";
 import {
   TanstackTableRowActionsType,
   TanstackTableTableActionsType,
-} from '../types';
-import { TanstackTableTableSchemaFormDialog } from './tanstack-table-table-actions-schemaform-dialog';
+} from "../types";
+import { TanstackTableTableSchemaFormDialog } from "./tanstack-table-table-actions-schemaform-dialog";
 
 export function TanstackTableActionDialogs<TData>({
   rowAction,
@@ -20,8 +20,8 @@ export function TanstackTableActionDialogs<TData>({
   setRowAction: Dispatch<
     React.SetStateAction<
       | (TanstackTableRowActionsType<TData> & {
-        row: TData;
-      })
+          row: TData;
+        })
       | null
     >
   >;
@@ -31,7 +31,7 @@ export function TanstackTableActionDialogs<TData>({
   tableAction: TanstackTableTableActionsType<TData> | null;
 }) {
   useEffect(() => {
-    if (rowAction?.type === 'simple') {
+    if (rowAction?.type === "simple") {
       rowAction.onClick(rowAction.row);
       setRowAction(null);
     }
@@ -39,7 +39,7 @@ export function TanstackTableActionDialogs<TData>({
 
   return (
     <>
-      {rowAction?.type === 'confirmation-dialog' && (
+      {rowAction?.type === "confirmation-dialog" && (
         <TanstackTableConfirmationDialog<TData>
           setDialogOpen={() => setRowAction(null)}
           row={rowAction.row}
@@ -52,7 +52,7 @@ export function TanstackTableActionDialogs<TData>({
           type="confirmation-dialog"
         />
       )}
-      {rowAction?.type === 'custom-dialog' && (
+      {rowAction?.type === "custom-dialog" && (
         <TanstackTableCustomDialog<TData>
           setDialogOpen={() => setRowAction(null)}
           row={rowAction.row}
@@ -65,7 +65,7 @@ export function TanstackTableActionDialogs<TData>({
           type="custom-dialog"
         />
       )}
-      {tableAction?.type === 'custom-dialog' && (
+      {tableAction?.type === "custom-dialog" && (
         <TanstackTableTableCustomDialog
           setDialogOpen={() => setTableAction(null)}
           title={tableAction.title}
@@ -78,7 +78,7 @@ export function TanstackTableActionDialogs<TData>({
           dialogClassNames={tableAction.dialogClassNames}
         />
       )}
-      {tableAction?.type === 'schemaform-dialog' && (
+      {tableAction?.type === "schemaform-dialog" && (
         <TanstackTableTableSchemaFormDialog<TData>
           setDialogOpen={() => setTableAction(null)}
           {...tableAction}

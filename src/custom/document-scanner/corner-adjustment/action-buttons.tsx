@@ -1,6 +1,6 @@
-import { memo } from 'react';
-import { ActionButtonsProps } from './types';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { memo } from "react";
+import { ActionButtonsProps } from "./types";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 
 export const ActionButtons = memo<ActionButtonsProps>(
   ({
@@ -27,7 +27,7 @@ export const ActionButtons = memo<ActionButtonsProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
-ActionButtons.displayName = 'ActionButtons';
+ActionButtons.displayName = "ActionButtons";

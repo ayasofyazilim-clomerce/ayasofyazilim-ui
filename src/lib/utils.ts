@@ -1,33 +1,34 @@
-import { clsx, type ClassValue } from "clsx"
+import { clsx, type ClassValue } from "clsx";
 import { JSX } from "react";
-import { twMerge } from "tailwind-merge"
+import { twMerge } from "tailwind-merge";
 import _ from "lodash";
 export const lodash = _;
-export * from "class-variance-authority"
+export * from "class-variance-authority";
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function formatBytes(
   bytes: number,
   opts: {
     decimals?: number;
-    sizeType?: 'accurate' | 'normal';
-  } = {}
+    sizeType?: "accurate" | "normal";
+  } = {},
 ) {
-  const { decimals = 0, sizeType = 'normal' } = opts;
+  const { decimals = 0, sizeType = "normal" } = opts;
 
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const accurateSizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB'];
-  if (bytes === 0) return '0 Byte';
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  const accurateSizes = ["Bytes", "KiB", "MiB", "GiB", "TiB"];
+  if (bytes === 0) return "0 Byte";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${sizeType === 'accurate' ? accurateSizes[i] ?? 'Bytest' : sizes[i] ?? 'Bytes'
-    }`;
+  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${
+    sizeType === "accurate" ? accurateSizes[i] ?? "Bytest" : sizes[i] ?? "Bytes"
+  }`;
 }
 
 export function replacePlaceholders(
   string: string,
-  replacements: { holder: string; replacement: string | React.ReactNode }[]
+  replacements: { holder: string; replacement: string | React.ReactNode }[],
 ): (string | React.ReactNode | JSX.Element)[] {
   if (!string || !replacements || replacements.length === 0) {
     return [];
@@ -39,7 +40,7 @@ export function replacePlaceholders(
     const updatedResult: (string | React.ReactNode)[] = [];
 
     result.forEach((element) => {
-      if (typeof element === 'string') {
+      if (typeof element === "string") {
         const parts: string[] = (element as string).split(holder);
         parts.forEach((part, i) => {
           if (i !== parts.length - 1) {

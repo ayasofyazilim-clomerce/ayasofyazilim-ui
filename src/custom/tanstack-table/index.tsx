@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   getCoreRowModel,
@@ -9,29 +9,29 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-} from '@tanstack/react-table';
-import { useCallback, useMemo, useState } from 'react';
+} from "@tanstack/react-table";
+import { useCallback, useMemo, useState } from "react";
 
 import {
   TanstackTableActionDialogs,
   TanstackTablePagination,
   TanstackTablePlainTable,
   TanstackTableToolbar,
-} from './fields';
+} from "./fields";
 
 import {
   TanstackBaseProps,
   TanstackTablePropsType,
   TanstackTableRowActionsType,
   TanstackTableTableActionsType,
-} from './types';
+} from "./types";
 import {
   CellWithActions,
   EditableTanstackTable,
   NonEditableTanstackTable,
-} from './utils';
+} from "./utils";
 
-declare module '@tanstack/react-table' {
+declare module "@tanstack/react-table" {
   // eslint-disaxxble-next-line @typescript-eslint/no-unused-vars
   interface TableMeta<TData extends RowData> {
     addRow: (rowIndex: number, columnId: string, value: unknown) => void;
@@ -127,16 +127,16 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
   const [colVisibility, setColumnVisibility] = useState<VisibilityState>(
     columnVisibility
       ? Object.fromEntries(
-        columns.map((col) => [
-          col.id || '',
+          columns.map((col) => [
+            col.id || "",
 
-          columnVisibility?.columns.includes(
-            (col.id || '') as keyof TData
-          ) ===
-          (columnVisibility.type === 'show'),
-        ])
-      )
-      : {}
+            columnVisibility?.columns.includes(
+              (col.id || "") as keyof TData,
+            ) ===
+              (columnVisibility.type === "show"),
+          ]),
+        )
+      : {},
   );
   const [rowAction, setRowAction] = useState<
     (TanstackTableRowActionsType<TData> & { row: TData }) | null
@@ -146,12 +146,12 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
 
   const tableColumns = useMemo(() => {
     const _columns = [...columns].filter(
-      (col) => !excludeColumns?.includes(col.id as keyof TData)
+      (col) => !excludeColumns?.includes(col.id as keyof TData),
     );
 
     if (rowActions) {
       _columns.push({
-        id: 'actions',
+        id: "actions",
         cell: ({ row }) =>
           CellWithActions(table, row, rowActions, setRowAction),
       });
@@ -166,15 +166,15 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
   const getRowId = useCallback(
     (row: TData, index: number) =>
       editable ? index.toString() : (row as TData & { id: string }).id,
-    []
+    [],
   );
 
   const table = useReactTable({
     data,
     columns: tableColumns,
     getRowId,
-    columnResizeMode: 'onChange',
-    columnResizeDirection: 'ltr',
+    columnResizeMode: "onChange",
+    columnResizeDirection: "ltr",
     state: {
       sorting,
       columnVisibility: colVisibility,
@@ -185,11 +185,11 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
       columnOrder: columnOrder as string[],
       columnPinning: {
         left: [
-          'expanded-content',
-          'select',
+          "expanded-content",
+          "select",
           ...((pinColumns as string[]) ?? []),
         ],
-        right: ['actions'],
+        right: ["actions"],
       },
     },
     enableRowSelection: true,

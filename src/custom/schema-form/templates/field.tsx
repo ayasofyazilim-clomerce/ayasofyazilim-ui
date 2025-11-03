@@ -1,7 +1,7 @@
-import { FieldTemplateProps } from '@rjsf/utils';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { FieldLabel } from '../custom/label';
-import { fieldOptionsByDependency } from '../utils/dependency';
+import { FieldTemplateProps } from "@rjsf/utils";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { FieldLabel } from "../custom/label";
+import { fieldOptionsByDependency } from "../utils/dependency";
 
 export function FieldTemplate(props: FieldTemplateProps) {
   const {
@@ -17,31 +17,31 @@ export function FieldTemplate(props: FieldTemplateProps) {
     schema,
     disabled,
   } = props;
-  if (schema.type === 'object' || schema.type === 'array') {
+  if (schema.type === "object" || schema.type === "array") {
     return children;
   }
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,
     ...dependencyOptions,
   };
-  if (fieldOptions.hidden || uiSchema?.['ui:widget'] === 'hidden')
+  if (fieldOptions.hidden || uiSchema?.["ui:widget"] === "hidden")
     return children;
   return (
     <div
       className={cn(
-        'w-full grid gap-1.5 h-fit',
-        uiSchema?.['ui:className'],
-        classNames
+        "w-full grid gap-1.5 h-fit",
+        uiSchema?.["ui:className"],
+        classNames,
       )}
       style={style}
     >
-      {displayLabel && schema.type !== 'boolean' && (
+      {displayLabel && schema.type !== "boolean" && (
         <FieldLabel
           id={id}
           label={label}

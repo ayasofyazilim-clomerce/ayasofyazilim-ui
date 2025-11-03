@@ -1,17 +1,17 @@
-import { useCallback } from 'react';
-import { scanDocument } from '../lib';
+import { useCallback } from "react";
+import { scanDocument } from "../lib";
 import {
   DocumentCorners,
   DocumentScannerCallbacks,
   DetectionSettings,
-} from '../types';
+} from "../types";
 
 export interface UseDocumentCaptureProps {
   videoDimensions: { width: number; height: number };
   callbacks: DocumentScannerCallbacks;
   customDetectionAlgorithm?: (
     image: string,
-    dimensions: { width: number; height: number }
+    dimensions: { width: number; height: number },
   ) => Promise<DocumentCorners | null>;
   detectionSettings: DetectionSettings;
   setCapturedImage: (image: string | null) => void;
@@ -42,14 +42,14 @@ export function useDocumentCapture({
           .then((corners) => {
             if (corners) {
               setDetectedCorners(corners);
-              callbacks.onStatusChange?.('detected');
+              callbacks.onStatusChange?.("detected");
               callbacks.onDocumentDetected?.(corners, capturedImageBase64);
             } else {
-              handleError('Document not detected by custom algorithm');
+              handleError("Document not detected by custom algorithm");
             }
           })
           .catch((error) => {
-            const errorMessage = error?.message || 'Custom detection failed';
+            const errorMessage = error?.message || "Custom detection failed";
             handleError(errorMessage);
           });
       } else {
@@ -58,13 +58,13 @@ export function useDocumentCapture({
           videoDimensions,
           (corners) => {
             setDetectedCorners(corners);
-            callbacks.onStatusChange?.('detected');
+            callbacks.onStatusChange?.("detected");
             callbacks.onDocumentDetected?.(corners, capturedImageBase64);
           },
           (error) => {
             handleError(error);
           },
-          detectionSettings
+          detectionSettings,
         );
       }
     },
@@ -76,6 +76,6 @@ export function useDocumentCapture({
       setCapturedImage,
       setDetectedCorners,
       handleError,
-    ]
+    ],
   );
 }

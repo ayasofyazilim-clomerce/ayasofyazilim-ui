@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { Label } from '@repo/ayasofyazilim-ui/components/label';
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Label } from "@repo/ayasofyazilim-ui/components/label";
 import {
   Select,
   SelectContent,
@@ -10,8 +10,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@repo/ayasofyazilim-ui/components/select';
-import type { DateSelectType } from '..';
+} from "@repo/ayasofyazilim-ui/components/select";
+import type { DateSelectType } from "..";
 
 function DateField({
   filter,
@@ -29,7 +29,7 @@ function DateField({
         disabled={isPending}
       >
         <SelectTrigger className="min-h-10">
-          <SelectValue placeholder={filter.placeholder || 'Select a date'} />
+          <SelectValue placeholder={filter.placeholder || "Select a date"} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -46,7 +46,7 @@ function DateField({
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              filter.onChange('');
+              filter.onChange("");
             }}
           >
             Clear

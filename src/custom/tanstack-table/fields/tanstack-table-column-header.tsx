@@ -1,19 +1,15 @@
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ChevronsUpDownIcon,
-} from 'lucide-react';
-import { Column } from '@tanstack/react-table';
+import { ArrowDownIcon, ArrowUpIcon, ChevronsUpDownIcon } from "lucide-react";
+import { Column } from "@tanstack/react-table";
 
-import { HTMLAttributes } from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { HTMLAttributes } from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@repo/ayasofyazilim-ui/components/dropdown-menu';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "@repo/ayasofyazilim-ui/components/dropdown-menu";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 interface TanstackTableColumnHeaderProps<TData, TValue>
   extends HTMLAttributes<HTMLDivElement> {
@@ -31,7 +27,7 @@ export function TanstackTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={cn('flex items-center w-full space-x-2 mx-2', className)}>
+    <div className={cn("flex items-center w-full space-x-2 mx-2", className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -40,9 +36,9 @@ export function TanstackTableColumnHeader<TData, TValue>({
             className="-ml-3 h-8 data-[state=open]:bg-accent w-full justify-between"
           >
             <span>{title}</span>
-            {column.getIsSorted() === 'desc' ? (
+            {column.getIsSorted() === "desc" ? (
               <ArrowDownIcon className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === 'asc' ? (
+            ) : column.getIsSorted() === "asc" ? (
               <ArrowUpIcon className="ml-2 h-4 w-4" />
             ) : (
               <ChevronsUpDownIcon className="ml-2 h-4 w-4" />

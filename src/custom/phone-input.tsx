@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { ChevronDownIcon, PhoneIcon } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+import { ChevronDownIcon, PhoneIcon } from "lucide-react";
+import React, { useMemo, useState } from "react";
 import PhoneInputWithCountrySelect, {
   Country,
   FlagProps,
   getCountryCallingCode,
   isValidPhoneNumber,
   parsePhoneNumber,
-} from 'react-phone-number-input';
-import flags from 'react-phone-number-input/flags';
+} from "react-phone-number-input";
+import flags from "react-phone-number-input/flags";
 
-import { Input } from '@repo/ayasofyazilim-ui/components/input';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { FieldErrorTemplate } from './schema-form/fields';
+import { Input } from "@repo/ayasofyazilim-ui/components/input";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { FieldErrorTemplate } from "./schema-form/fields";
 
 export function PhoneInput({
   id,
@@ -39,16 +39,16 @@ export function PhoneInput({
   className?: string;
   required?: boolean;
 }) {
-  const [value, setValue] = useState(initialValue || defaultValue || '');
+  const [value, setValue] = useState(initialValue || defaultValue || "");
   const [isPhoneValid, setIsPhoneValid] = useState(true);
   const defaultCountry = useMemo(
-    () => localStorage.getItem('countryCode2')?.toUpperCase() as Country,
-    []
+    () => localStorage.getItem("countryCode2")?.toUpperCase() as Country,
+    [],
   );
   return (
     <>
       <PhoneInputWithCountrySelect
-        className={cn('flex rounded-md shadow-xs', className)}
+        className={cn("flex rounded-md shadow-xs", className)}
         international
         flagComponent={FlagComponent}
         defaultCountry={defaultCountry}
@@ -62,18 +62,18 @@ export function PhoneInput({
         placeholder={placeholder}
         value={value}
         onChange={(newValue) => {
-          setValue(newValue ?? '');
+          setValue(newValue ?? "");
           if (onChange) {
             onChange({
               value: newValue ?? undefined,
-              parsed: parsePhoneNumber(newValue || ''),
+              parsed: parsePhoneNumber(newValue || ""),
             });
           }
-          setIsPhoneValid(isValidPhoneNumber(newValue || ''));
+          setIsPhoneValid(isValidPhoneNumber(newValue || ""));
         }}
       />
       {!isPhoneValid && (
-        <FieldErrorTemplate errors={['Please enter a valid phone number.']} />
+        <FieldErrorTemplate errors={["Please enter a valid phone number."]} />
       )}
     </>
   );
@@ -82,21 +82,21 @@ export function PhoneInput({
 // Use forwardRef to support refs from react-phone-number-input
 const _PhoneInput = React.forwardRef<
   HTMLInputElement,
-  React.ComponentProps<'input'>
+  React.ComponentProps<"input">
 >(({ className, ...props }, ref) => (
   <Input
     data-testid={`${props.id}_input`}
     data-slot="phone-input"
     className={cn(
-      '-ms-px rounded-s-none shadow-none focus-visible:z-10',
-      className
+      "-ms-px rounded-s-none shadow-none focus-visible:z-10",
+      className,
     )}
     ref={ref}
     {...props}
   />
 ));
 
-_PhoneInput.displayName = '_PhoneInput';
+_PhoneInput.displayName = "_PhoneInput";
 
 type CountrySelectProps = {
   id: string;
@@ -145,7 +145,7 @@ const CountrySelect = ({
               value={option.value}
               data-testid={`${id}_${option.value}`}
             >
-              {option.label}{' '}
+              {option.label}{" "}
               {option.value && `+${getCountryCallingCode(option.value)}`}
             </option>
           ))}

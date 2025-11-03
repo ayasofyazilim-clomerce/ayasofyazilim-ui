@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 import {
   PolarAngleAxis,
   PolarGrid,
   Radar,
   RadarChart as RechartsRadarChart,
-} from 'recharts';
+} from "recharts";
 
 import {
   ChartConfig,
@@ -15,10 +15,10 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '@repo/ayasofyazilim-ui/components/chart';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { ChartCard, CardClassNames } from './chart-card';
-import { ChartData } from '.';
+} from "@repo/ayasofyazilim-ui/components/chart";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { ChartCard, CardClassNames } from "./chart-card";
+import { ChartData } from ".";
 
 export type RadarChartProps = {
   data: ChartData;
@@ -73,11 +73,11 @@ export function RadarChart({
     >
       <ChartContainer
         config={config}
-        className={cn('mx-auto max-h-full', classNames?.chart?.container)}
+        className={cn("mx-auto max-h-full", classNames?.chart?.container)}
       >
         <RechartsRadarChart
           data={data}
-          className={cn('flex flex-col pb-2', classNames?.chart?.radar)}
+          className={cn("flex flex-col pb-2", classNames?.chart?.radar)}
           margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
         >
           <ChartTooltip
@@ -105,15 +105,15 @@ export function RadarChart({
           {showLegend && (
             <ChartLegend
               wrapperStyle={{
-                position: 'relative',
-                top: 'unset',
-                left: 'unset',
-                bottom: 'unset',
-                right: 'unset',
-                width: '100%',
-                textAlign: 'center',
+                position: "relative",
+                top: "unset",
+                left: "unset",
+                bottom: "unset",
+                right: "unset",
+                width: "100%",
+                textAlign: "center",
               }}
-              className={cn('p-0', classNames?.chart?.legend)}
+              className={cn("p-0", classNames?.chart?.legend)}
               content={<ChartLegendContent />}
             />
           )}

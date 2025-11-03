@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { Input, InputProps } from '@repo/ayasofyazilim-ui/components/input';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { EyeIcon, EyeOffIcon, KeyIcon } from 'lucide-react';
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Input, InputProps } from "@repo/ayasofyazilim-ui/components/input";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { EyeIcon, EyeOffIcon, KeyIcon } from "lucide-react";
 import {
   forwardRef,
   useCallback,
@@ -11,7 +11,7 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
+} from "react";
 
 interface PasswordInputProps extends InputProps {
   passwordLength?: number;
@@ -21,7 +21,7 @@ interface PasswordInputProps extends InputProps {
 const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   (
     { className, showGenerator = false, passwordLength = 10, ...props },
-    ref
+    ref,
   ) => {
     const [showPassword, setShowPassword] = useState(false);
     const internalRef = useRef<HTMLInputElement>(null);
@@ -32,10 +32,10 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
     // Memoize character sets to avoid recreation on every render
     const characterSets = useMemo(() => {
       const sets = {
-        lowercase: 'abcdefghijklmnopqrstuvwxyz',
-        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        numbers: '0123456789',
-        symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?',
+        lowercase: "abcdefghijklmnopqrstuvwxyz",
+        uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        numbers: "0123456789",
+        symbols: "!@#$%^&*()_+-=[]{}|;:,.<>?",
       };
 
       return {
@@ -47,19 +47,19 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
     const inputClassName = useMemo(
       () =>
         cn(
-          'hide-password-toggle',
-          showGenerator ? 'pr-20' : 'pr-10',
-          className
+          "hide-password-toggle",
+          showGenerator ? "pr-20" : "pr-10",
+          className,
         ),
-      [showGenerator, className]
+      [showGenerator, className],
     );
 
     // Use crypto.getRandomValues for better randomness when available
     const getRandomInt = useCallback((max: number): number => {
-      if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+      if (typeof window !== "undefined" && window.crypto?.getRandomValues) {
         const array = new Uint32Array(1);
         window.crypto.getRandomValues(array);
-        return array?.[0] || 0 % max;
+        return (array[0] ?? 0) % max;
       }
       return Math.floor(Math.random() * max);
     }, []);
@@ -78,7 +78,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         }
         return shuffled;
       },
-      [getRandomInt]
+      [getRandomInt],
     );
 
     const generatePassword = useCallback(
@@ -97,14 +97,14 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         const remainingLength = Math.max(0, length - requiredChars.length);
         const additionalChars = Array.from(
           { length: remainingLength },
-          () => all[getRandomInt(all.length)]
+          () => all[getRandomInt(all.length)],
         );
 
         // Combine and shuffle
         const allChars = [...requiredChars, ...additionalChars] as string[];
-        return shuffleArray(allChars).join('');
+        return shuffleArray(allChars).join("");
       },
-      [passwordLength, characterSets, getRandomInt, shuffleArray]
+      [passwordLength, characterSets, getRandomInt, shuffleArray],
     );
 
     // Optimized event dispatching
@@ -114,7 +114,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         // Use React's internal event system when possible
         const descriptor = Object.getOwnPropertyDescriptor(
           HTMLInputElement.prototype,
-          'value'
+          "value",
         );
         if (descriptor?.set) {
           descriptor.set.call(_input, value);
@@ -123,13 +123,13 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         }
 
         // Dispatch events in the correct order
-        const inputEvent = new Event('input', { bubbles: true });
-        const changeEvent = new Event('change', { bubbles: true });
+        const inputEvent = new Event("input", { bubbles: true });
+        const changeEvent = new Event("change", { bubbles: true });
 
         _input.dispatchEvent(inputEvent);
         _input.dispatchEvent(changeEvent);
       },
-      []
+      [],
     );
 
     const handleGeneratePassword = useCallback(() => {
@@ -149,13 +149,14 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           className={inputClassName}
           ref={internalRef}
           {...props}
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
         />
 
         {showGenerator && (
           <Button
             type="button"
             variant="ghost"
+            data-testid="generate-password-button"
             size="icon"
             className="absolute right-10 top-0 h-full p-1 hover:bg-transparent"
             onClick={handleGeneratePassword}
@@ -171,10 +172,11 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
           type="button"
           variant="ghost"
           size="icon"
+          data-testid="toggle-password-visibility-button"
           className="absolute right-0 top-0 h-full p-1 hover:bg-transparent"
           onClick={togglePasswordVisibility}
           disabled={disabled}
-          aria-label={showPassword ? 'Hide password' : 'Show password'}
+          aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword && !disabled ? (
             <EyeIcon className="h-4 w-4" aria-hidden="true" />
@@ -184,10 +186,10 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         </Button>
       </div>
     );
-  }
+  },
 );
 
-PasswordInput.displayName = 'PasswordInput';
+PasswordInput.displayName = "PasswordInput";
 
 export { PasswordInput };
 export type { PasswordInputProps };

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Area,
@@ -6,7 +6,7 @@ import {
   AreaChart as RechartsAreaChart,
   XAxis,
   YAxis,
-} from 'recharts';
+} from "recharts";
 
 import {
   ChartContainer,
@@ -14,14 +14,14 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '@repo/ayasofyazilim-ui/components/chart';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { ReactNode } from 'react';
-import { CurveType } from 'recharts/types/shape/Curve';
-import { BaseAxisProps } from 'recharts/types/util/types';
-import { CardClassNames, ChartCard } from './chart-card';
+} from "@repo/ayasofyazilim-ui/components/chart";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { ReactNode } from "react";
+import { CurveType } from "recharts/types/shape/Curve";
+import { BaseAxisProps } from "recharts/types/util/types";
+import { CardClassNames, ChartCard } from "./chart-card";
 
-export const description = 'An area chart with a legend';
+export const description = "An area chart with a legend";
 
 type ChartData = Array<{
   [key: string]: number | string;
@@ -45,7 +45,7 @@ export type AreaChartProps = {
   trendText?: ReactNode;
   trendIcon?: ReactNode;
   showLegend?: boolean;
-  xAxisTickFormatter?: BaseAxisProps["tickFormatter"]
+  xAxisTickFormatter?: BaseAxisProps["tickFormatter"];
   classNames?: {
     chart?: {
       container?: string;
@@ -85,12 +85,12 @@ export function AreaChart({
     >
       <ChartContainer
         config={config}
-        className={cn('mx-auto max-h-full', classNames?.chart?.container)}
+        className={cn("mx-auto max-h-full", classNames?.chart?.container)}
       >
         <RechartsAreaChart
           accessibilityLayer
           data={data}
-          className={cn('flex flex-col pb-2', classNames?.chart?.area)}
+          className={cn("flex flex-col pb-2", classNames?.chart?.area)}
           margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
         >
           <CartesianGrid vertical={false} />
@@ -115,7 +115,7 @@ export function AreaChart({
             <Area
               key={key}
               dataKey={key}
-              type={config[key]?.type || 'monotoneX'}
+              type={config[key]?.type || "monotoneX"}
               fill={config[key]?.color || `var(--color-${key})`}
               fillOpacity={0.4}
               stroke={config[key]?.color || `var(--color-${key})`}
@@ -125,15 +125,15 @@ export function AreaChart({
           {showLegend && (
             <ChartLegend
               wrapperStyle={{
-                position: 'relative',
-                top: 'unset',
-                left: 'unset',
-                bottom: 'unset',
-                right: 'unset',
-                width: '100%',
-                textAlign: 'center',
+                position: "relative",
+                top: "unset",
+                left: "unset",
+                bottom: "unset",
+                right: "unset",
+                width: "100%",
+                textAlign: "center",
               }}
-              className={cn('p-0', classNames?.chart?.legend)}
+              className={cn("p-0", classNames?.chart?.legend)}
               content={<ChartLegendContent />}
             />
           )}

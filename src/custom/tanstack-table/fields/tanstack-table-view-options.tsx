@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-import { Table } from '@tanstack/react-table';
+import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { Table } from "@tanstack/react-table";
 
-import { ChevronDownIcon } from 'lucide-react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { ChevronDownIcon } from "lucide-react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-} from '@repo/ayasofyazilim-ui/components/dropdown-menu';
+} from "@repo/ayasofyazilim-ui/components/dropdown-menu";
 import {
   TanstackTableSelectedRowActionType,
   TanstackTableTableActionsType,
-} from '../types';
+} from "../types";
 
 interface TanstackTableViewOptionsProps<TData> {
   editable?: boolean;
@@ -48,14 +48,14 @@ function TablePrimaryActionButton<TData>({
 function handleActionOnClick<TData>(
   table: Table<TData>,
   action: TanstackTableTableActionsType<TData>,
-  setRowAction: (actions: TanstackTableTableActionsType<TData>) => void
+  setRowAction: (actions: TanstackTableTableActionsType<TData>) => void,
 ) {
-  if (action.type === 'simple') {
+  if (action.type === "simple") {
     action.onClick();
     return;
   }
-  if (action.type === 'create-row') {
-    table.options.meta?.addRow(-1, '', null);
+  if (action.type === "create-row") {
+    table.options.meta?.addRow(-1, "", null);
     action?.onClick?.();
     return;
   }
@@ -63,7 +63,7 @@ function handleActionOnClick<TData>(
 }
 
 export function TanstackTableViewOptions<TData>(
-  props: TanstackTableViewOptionsProps<TData>
+  props: TanstackTableViewOptionsProps<TData>,
 ) {
   const {
     table,
@@ -77,7 +77,7 @@ export function TanstackTableViewOptions<TData>(
   // Filter actions based on condition, keeping backward compatibility
   const filteredActions =
     tableActions?.filter(
-      (action) => !action.condition || action.condition(tableData)
+      (action) => !action.condition || action.condition(tableData),
     ) ?? [];
 
   const primaryAction = filteredActions[0];
@@ -95,7 +95,7 @@ export function TanstackTableViewOptions<TData>(
               primaryAction.condition?.(tableData)) ||
               true) &&
             otherActions &&
-            'mr-2'
+            "mr-2"
           }
         >
           <Button
