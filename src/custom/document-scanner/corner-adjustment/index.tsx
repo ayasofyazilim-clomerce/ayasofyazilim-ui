@@ -1,10 +1,10 @@
-import { memo, useMemo, useRef, useLayoutEffect, useState } from 'react';
-import { ActionButtons } from './action-buttons';
-import { CornerHandle } from './corner-handle';
-import { ZoomMagnifier } from './zoom-magnifier';
-import { useCornerDrag } from './hooks/use-corner-drag';
-import { generateClipPath } from './utils/clip-path';
-import { CornerAdjustmentProps } from '../types';
+import { memo, useMemo, useRef, useLayoutEffect, useState } from "react";
+import { ActionButtons } from "./action-buttons";
+import { CornerHandle } from "./corner-handle";
+import { ZoomMagnifier } from "./zoom-magnifier";
+import { useCornerDrag } from "./hooks/use-corner-drag";
+import { generateClipPath } from "./utils/clip-path";
+import { CornerAdjustmentProps } from "../types";
 
 export const CornerAdjustment = memo<CornerAdjustmentProps>(
   ({
@@ -14,12 +14,12 @@ export const CornerAdjustment = memo<CornerAdjustmentProps>(
     onCornersChange,
     onCrop,
     onRetry,
-    cornerColor = 'bg-white/80',
+    cornerColor = "bg-white/80",
     cornerTouchAreaSize = 20,
     allowCrop = true,
     allowRetry = true,
-    cropButtonText = 'Crop',
-    retryButtonText = 'Scan Again',
+    cropButtonText = "Crop",
+    retryButtonText = "Scan Again",
     showMagnifier = true,
     magnifierSize = 100,
     zoomLevel = 2,
@@ -47,12 +47,12 @@ export const CornerAdjustment = memo<CornerAdjustmentProps>(
 
     const clipPath = useMemo(
       () => generateClipPath(detectedCorners, videoDimensions),
-      [detectedCorners, videoDimensions]
+      [detectedCorners, videoDimensions],
     );
 
     const cornerEntries = useMemo(
       () => Object.entries(detectedCorners),
-      [detectedCorners]
+      [detectedCorners],
     );
 
     return (
@@ -119,7 +119,7 @@ export const CornerAdjustment = memo<CornerAdjustmentProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
-CornerAdjustment.displayName = 'CornerAdjustment';
+CornerAdjustment.displayName = "CornerAdjustment";

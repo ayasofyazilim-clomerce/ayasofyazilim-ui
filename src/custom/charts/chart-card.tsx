@@ -5,9 +5,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@repo/ayasofyazilim-ui/components/card';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { ReactNode } from 'react';
+} from "@repo/ayasofyazilim-ui/components/card";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { ReactNode } from "react";
 
 export type CardClassNames = {
   container?: string;
@@ -41,9 +41,13 @@ export function ChartCard({
 }) {
   return (
     <Card className={cn(classNames?.container)}>
-      <CardHeader className={cn('items-center pb-4! grid-rows-1', classNames?.header)}>
+      <CardHeader
+        className={cn("items-center pb-4! grid-rows-1", classNames?.header)}
+      >
         {title && (
-          <CardTitle className={cn("my-auto", classNames?.title)}>{title}</CardTitle>
+          <CardTitle className={cn("my-auto", classNames?.title)}>
+            {title}
+          </CardTitle>
         )}
         {period && (
           <CardDescription className={cn(classNames?.description)}>
@@ -57,14 +61,14 @@ export function ChartCard({
         )}
         {header}
       </CardHeader>
-      <CardContent className={cn('pb-0', classNames?.content)}>
+      <CardContent className={cn("pb-0", classNames?.content)}>
         {children}
       </CardContent>
       {(trendText || trendIcon) && (
         <CardFooter
           className={cn(
-            'flex items-center gap-2 leading-none font-medium',
-            classNames?.footer
+            "flex items-center gap-2 leading-none font-medium",
+            classNames?.footer,
           )}
         >
           {trendText} {trendIcon}

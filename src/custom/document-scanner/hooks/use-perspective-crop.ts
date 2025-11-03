@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
-import { perspectiveCorrection } from '../utils/perspective-correction';
-import { DocumentCorners, Dimensions } from '../types';
+import { useCallback } from "react";
+import { perspectiveCorrection } from "../utils/perspective-correction";
+import { DocumentCorners, Dimensions } from "../types";
 
 export interface UsePerspectiveCropProps {
   videoDimensions: Dimensions;
@@ -24,15 +24,15 @@ export function usePerspectiveCrop({
           capturedImage,
           detectedCorners,
           videoDimensions,
-          { imageQuality }
+          { imageQuality },
         );
         handleImageCrop(croppedImage);
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : 'Cropping failed';
+          error instanceof Error ? error.message : "Cropping failed";
         handleError(errorMessage);
       }
     },
-    [videoDimensions, imageQuality, handleImageCrop, handleError]
+    [videoDimensions, imageQuality, handleImageCrop, handleError],
   );
 }

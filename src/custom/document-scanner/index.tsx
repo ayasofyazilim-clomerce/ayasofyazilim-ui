@@ -1,19 +1,19 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Loader } from 'lucide-react';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { Webcam } from '../webcam';
+import { useCallback, useMemo, useState } from "react";
+import { Loader } from "lucide-react";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Webcam } from "../webcam";
 import {
   DEFAULT_CAPTURE_INTERVAL,
   DEFAULT_IMAGE_QUALITY,
   DEFAULT_MAX_DOCUMENT_SIZE,
   DEFAULT_MIN_DOCUMENT_SIZE,
-} from './consts';
-import { CornerAdjustment } from './corner-adjustment';
-import { useDocumentCapture } from './hooks/use-document-capture';
-import { useDocumentScanner } from './hooks/use-document-scanner';
-import { usePerspectiveCrop } from './hooks/use-perspective-crop';
-import { DocumentScannerProps, ScannerStatus } from './types';
-import { Skeleton } from '@repo/ayasofyazilim-ui/components/skeleton';
+} from "./consts";
+import { CornerAdjustment } from "./corner-adjustment";
+import { useDocumentCapture } from "./hooks/use-document-capture";
+import { useDocumentScanner } from "./hooks/use-document-scanner";
+import { usePerspectiveCrop } from "./hooks/use-perspective-crop";
+import { DocumentScannerProps, ScannerStatus } from "./types";
+import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
 
 export function DocumentScanner({
   // Core callbacks
@@ -27,7 +27,7 @@ export function DocumentScanner({
   onImageCapture,
 
   // Basic configuration
-  className = '',
+  className = "",
   captureInterval = DEFAULT_CAPTURE_INTERVAL,
 
   // Feature toggles
@@ -38,11 +38,11 @@ export function DocumentScanner({
   showWebcamControls = false,
 
   // UI Text customization
-  cropButtonText = 'Crop',
-  retryButtonText = 'Scan Again',
+  cropButtonText = "Crop",
+  retryButtonText = "Scan Again",
 
   // Visual styling
-  cornerColor = 'bg-white/80',
+  cornerColor = "bg-white/80",
   cornerTouchAreaSize = 20,
 
   // Detection settings
@@ -66,11 +66,11 @@ export function DocumentScanner({
   customOverlay,
 
   // Webcam interface
-  interfaceLocation = 'absolute',
+  interfaceLocation = "absolute",
   showBorder = true,
 }: DocumentScannerProps) {
   const [webCamKey, setWebCamKey] = useState(() => Date.now().toString());
-  const [status, setStatus] = useState<ScannerStatus>('scanning');
+  const [status, setStatus] = useState<ScannerStatus>("scanning");
 
   // Combine callbacks for hooks
   const callbacks = useMemo(
@@ -96,7 +96,7 @@ export function DocumentScanner({
       onCameraReady,
       onScanAttempt,
       onImageCapture,
-    ]
+    ],
   );
 
   // Detection settings
@@ -106,7 +106,7 @@ export function DocumentScanner({
       maxDocumentSize,
       detectionConfidence,
     }),
-    [minDocumentSize, maxDocumentSize, detectionConfidence]
+    [minDocumentSize, maxDocumentSize, detectionConfidence],
   );
 
   // Main document scanner state
@@ -154,14 +154,14 @@ export function DocumentScanner({
       onWebcamReady: handleVideoReady,
       onAutoPhotoCaptured: handleCapture,
     }),
-    [handleVideoReady, handleCapture]
+    [handleVideoReady, handleCapture],
   );
 
   const webcamClassNames = useMemo(
     () => ({
-      placeholder: 'block',
+      placeholder: "block",
     }),
-    []
+    [],
   );
 
   const webcamAutoCapture = useMemo(
@@ -172,11 +172,11 @@ export function DocumentScanner({
       quality: imageQuality,
       stopOnCapture: true,
     }),
-    [captureInterval, imageQuality, showWebcamControls]
+    [captureInterval, imageQuality, showWebcamControls],
   );
 
   const webcamPlaceholder = useMemo(() => {
-    if (status === 'scanning') {
+    if (status === "scanning") {
       return (
         <Skeleton className="w-full h-full bg-white/50 flex items-center justify-center">
           <Loader className="size-4 animate-spin" />
@@ -232,8 +232,8 @@ export function DocumentScanner({
   return (
     <div
       className={cn(
-        'container relative mx-auto max-w-3xl overflow-hidden p-4',
-        className
+        "container relative mx-auto max-w-3xl overflow-hidden p-4",
+        className,
       )}
     >
       {customOverlay}

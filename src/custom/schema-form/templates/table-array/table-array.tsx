@@ -1,19 +1,19 @@
-import { ArrayFieldTemplateProps } from '@rjsf/utils';
-import { CircleXIcon, Copy, PlusCircle } from 'lucide-react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import * as Table from '@repo/ayasofyazilim-ui/components/table';
-import { fieldOptionsByDependency } from '../../utils/dependency';
-import { FieldLabel } from '../../custom/label';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+import { ArrayFieldTemplateProps } from "@rjsf/utils";
+import { CircleXIcon, Copy, PlusCircle } from "lucide-react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import * as Table from "@repo/ayasofyazilim-ui/components/table";
+import { fieldOptionsByDependency } from "../../utils/dependency";
+import { FieldLabel } from "../../custom/label";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 export const TableArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
   const { items, required, canAdd, title, onAddClick, uiSchema, disabled } =
     props;
-  const displayName = uiSchema?.['ui:title'] || title;
-  const addable = uiSchema?.['ui:options']?.addable || canAdd;
+  const displayName = uiSchema?.["ui:title"] || title;
+  const addable = uiSchema?.["ui:options"]?.addable || canAdd;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
   const fieldOptions = {
     disabled,
@@ -25,11 +25,11 @@ export const TableArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
     <Table.Table
       wrapperClassName={cn(
         uiSchema?.className?.table?.wrapper,
-        uiSchema?.['ui:className']
+        uiSchema?.["ui:className"],
       )}
       className={cn(
-        'col-span-full table-auto',
-        uiSchema?.className?.table.container
+        "col-span-full table-auto",
+        uiSchema?.className?.table.container,
       )}
     >
       <Table.TableCaption className="caption-top mb-2">
@@ -43,7 +43,7 @@ export const TableArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
         <Table.TableRow className="border-x border-t bg-gray-100">
           {props.idSchema &&
             Object.keys(props.idSchema).map((item) => {
-              if (item === '$id') return null;
+              if (item === "$id") return null;
               return (
                 <Table.TableHead
                   className="text-nowrap text-xs font-bold p-0"
@@ -51,7 +51,7 @@ export const TableArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
                 >
                   <div className="flex h-10 items-center justify-center w-full border-r">
                     <FieldLabel
-                      label={uiSchema?.items?.[item]?.['ui:title'] || item}
+                      label={uiSchema?.items?.[item]?.["ui:title"] || item}
                       id={props.idSchema.$id}
                     />
                   </div>

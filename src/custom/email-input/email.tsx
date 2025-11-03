@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { Input } from '@repo/ayasofyazilim-ui/components/input';
-import { Label } from '@repo/ayasofyazilim-ui/components/label';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import domains from './domains.json';
+import * as React from "react";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Input } from "@repo/ayasofyazilim-ui/components/input";
+import { Label } from "@repo/ayasofyazilim-ui/components/label";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import domains from "./domains.json";
 
 interface EmailInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
   label?: string;
   suggestions?: string[];
   onValueChange?: (value: string) => void;
@@ -26,14 +26,14 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
       required,
       ...props
     },
-    ref
+    ref,
   ) => {
     const allSuggestions = React.useMemo(() => {
       const combined = [...domains, ...suggestions];
       return combined.filter((item, index) => combined.indexOf(item) === index);
     }, [suggestions]);
 
-    const [value, setValue] = React.useState(props.value?.toString() || '');
+    const [value, setValue] = React.useState(props.value?.toString() || "");
     const [open, setOpen] = React.useState(false);
     const [filteredSuggestions, setFilteredSuggestions] = React.useState<
       string[]
@@ -47,7 +47,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
 
     const updateSuggestions = React.useCallback(
       (inputValue: string) => {
-        const atIndex = inputValue.lastIndexOf('@');
+        const atIndex = inputValue.lastIndexOf("@");
 
         if (atIndex === -1) {
           setOpen(false);
@@ -69,7 +69,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
         } else {
           const filtered = allSuggestions
             .filter((domain) =>
-              domain.toLowerCase().startsWith(afterAt.toLowerCase())
+              domain.toLowerCase().startsWith(afterAt.toLowerCase()),
             )
             .map((domain) => beforeAt + domain);
 
@@ -84,7 +84,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
           }
         }
       },
-      [allSuggestions]
+      [allSuggestions],
     );
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,26 +104,26 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (!open || filteredSuggestions.length === 0) {
-        if (e.key === 'Escape') {
+        if (e.key === "Escape") {
           setOpen(false);
         }
         return;
       }
 
       switch (e.key) {
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
           setSelectedIndex((prev) =>
-            prev < filteredSuggestions.length - 1 ? prev + 1 : 0
+            prev < filteredSuggestions.length - 1 ? prev + 1 : 0,
           );
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
           setSelectedIndex((prev) =>
-            prev > 0 ? prev - 1 : filteredSuggestions.length - 1
+            prev > 0 ? prev - 1 : filteredSuggestions.length - 1,
           );
           break;
-        case 'Enter':
+        case "Enter":
           e.preventDefault();
           if (
             selectedIndex >= 0 &&
@@ -132,7 +132,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
             applySuggestion(filteredSuggestions?.[selectedIndex] || "");
           }
           break;
-        case 'Escape':
+        case "Escape":
           setOpen(false);
           setSelectedIndex(-1);
           break;
@@ -153,9 +153,9 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
         }
       };
 
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
       return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     React.useEffect(() => {
@@ -169,9 +169,9 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
         {label && (
           <Label
             className={cn(
-              'mb-2 block',
+              "mb-2 block",
               required &&
-              "after:content-['*'] after:ml-0.5 after:text-destructive"
+                "after:content-['*'] after:ml-0.5 after:text-destructive",
             )}
           >
             {label}
@@ -202,16 +202,16 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
                     data-testid={`${id}_suggestion_${index}`}
                     key={suggestion}
                     className={cn(
-                      'w-full justify-start text-left px-2 py-1.5 text-sm cursor-pointer rounded-sm transition-colors',
-                      'hover:bg-accent hover:text-accent-foreground',
+                      "w-full justify-start text-left px-2 py-1.5 text-sm cursor-pointer rounded-sm transition-colors",
+                      "hover:bg-accent hover:text-accent-foreground",
                       index === selectedIndex &&
-                      'bg-accent text-accent-foreground'
+                        "bg-accent text-accent-foreground",
                     )}
                     onClick={() => applySuggestion(suggestion)}
                   >
-                    <span>{suggestion.split('@')[0]}</span>
+                    <span>{suggestion.split("@")[0]}</span>
                     <span className="text-primary font-semibold">
-                      @{suggestion.split('@')[1]}
+                      @{suggestion.split("@")[1]}
                     </span>
                   </Button>
                 ))}
@@ -221,9 +221,9 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
-EmailInput.displayName = 'EmailInput';
+EmailInput.displayName = "EmailInput";
 
 export { EmailInput };

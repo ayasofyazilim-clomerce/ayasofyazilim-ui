@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
-import { DocRenderer, DocRendererProps } from 'react-doc-viewer';
-import { Document, Page, pdfjs, Thumbnail } from 'react-pdf';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
-import { Controllers } from '../controllers';
+import { useMemo, useState } from "react";
+import { DocRenderer, DocRendererProps } from "react-doc-viewer";
+import { Document, Page, pdfjs, Thumbnail } from "react-pdf";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+import { Controllers } from "../controllers";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.mjs`;
 type CustomDocRendererProps = {} & DocRendererProps;
@@ -21,7 +21,7 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
   if (!currentDocument) return null;
   return (
     <Document
-      className={cn('p-4 w-full flex')}
+      className={cn("p-4 w-full flex")}
       file={currentDocument.uri}
       renderMode="canvas"
       onLoadSuccess={({ numPages }) => {
@@ -48,8 +48,8 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
                   setActivePage(index + 1);
                 }}
                 className={cn(
-                  'rounded-md border bg-white p-1 flex justify-center',
-                  activePage === index + 1 && 'border-primary'
+                  "rounded-md border bg-white p-1 flex justify-center",
+                  activePage === index + 1 && "border-primary",
                 )}
                 pageNumber={index + 1}
                 width={100}
@@ -58,15 +58,15 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
             ))}
           </div>
         )}
-        <div className={cn('flex flex-col', showThumbnail && '')}>
+        <div className={cn("flex flex-col", showThumbnail && "")}>
           {Array.from(new Array(pageCount), (el, index) => (
             <Page
               customTextRenderer={({ str }) =>
                 searchValue
                   ? str.replace(
-                    new RegExp(searchValue, 'gi'),
-                    (value) => `<mark>${value}</mark>`
-                  )
+                      new RegExp(searchValue, "gi"),
+                      (value) => `<mark>${value}</mark>`,
+                    )
                   : str
               }
               className="border shadow-sm max-w-max overflow-hidden rounded-md mb-2"
@@ -81,7 +81,7 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
   );
 };
 
-CustomPDFRenderer.fileTypes = ['pdf', 'application/pdf'];
+CustomPDFRenderer.fileTypes = ["pdf", "application/pdf"];
 CustomPDFRenderer.weight = 1;
 
 export default CustomPDFRenderer;
@@ -95,7 +95,7 @@ export const ExtendCustomPDFRenderer = ({
     function RendererComponent(props: DocRendererProps) {
       return <CustomPDFRenderer {...props} />;
     }
-    RendererComponent.fileTypes = ['pdf', 'application/pdf'];
+    RendererComponent.fileTypes = ["pdf", "application/pdf"];
     RendererComponent.weight = 1;
     return RendererComponent;
   }, [searchValue]);

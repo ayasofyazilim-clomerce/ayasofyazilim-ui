@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { CheckIcon, ChevronDown, XCircle, XIcon } from 'lucide-react';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Badge } from '@repo/ayasofyazilim-ui/components/badge';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { CheckIcon, ChevronDown, XCircle, XIcon } from "lucide-react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Command as Cmd,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-} from '@repo/ayasofyazilim-ui/components/command';
+} from "@repo/ayasofyazilim-ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@repo/ayasofyazilim-ui/components/popover';
-import { Separator } from '@repo/ayasofyazilim-ui/components/separator';
-import { Skeleton } from '@repo/ayasofyazilim-ui/components/skeleton';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { useDebounce } from '../hooks/use-debounce';
+} from "@repo/ayasofyazilim-ui/components/popover";
+import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
+import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { useDebounce } from "../hooks/use-debounce";
 
 type SearchItem = { id: string; name: string };
 
@@ -57,7 +57,7 @@ function CommandGroupItem({
         >
           {currentItem.name}
           {value.find((i) => i.id === currentItem.id) && (
-            <CheckIcon className={cn('ml-auto h-4 w-4')} />
+            <CheckIcon className={cn("ml-auto h-4 w-4")} />
           )}
         </CommandItem>
       ))}
@@ -89,27 +89,27 @@ export function AsyncSelectBase({
   value,
   fetchAction,
   onChange,
-  resultText = 'Results',
-  searchText = 'Search',
-  noResultText = 'No result',
+  resultText = "Results",
+  searchText = "Search",
+  noResultText = "No result",
   disabled = false,
   multiple = true,
   closeOnSelect = false,
   id,
   setIsPopoverOpen,
-}: Omit<AsyncSelectType, 'classNames'> & {
+}: Omit<AsyncSelectType, "classNames"> & {
   setIsPopoverOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const [loading, setLoading] = useState(false);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState("");
   const searchValue = useDebounce(searchInput, 500);
 
   const [items, setItems] = useState<SearchItem[]>(data || []);
   const showableItems = items.filter(
-    (item) => !value.find((i) => i.id === item.id)
+    (item) => !value.find((i) => i.id === item.id),
   );
   const showableSuggestions = suggestions.filter(
-    (item) => !value.find((i) => i.id === item.id)
+    (item) => !value.find((i) => i.id === item.id),
   );
 
   function onSearch(search: string) {
@@ -123,9 +123,9 @@ export function AsyncSelectBase({
   }
 
   useEffect(() => {
-    if (searchValue === '' && searchInput === '') {
+    if (searchValue === "" && searchInput === "") {
       setLoading(true);
-      fetchAction('').then((res) => {
+      fetchAction("").then((res) => {
         setItems(res);
         setLoading(false);
       });
@@ -218,8 +218,8 @@ export default function AsyncSelect(props: AsyncSelectType) {
           type="button"
           onClick={() => setIsPopoverOpen(true)}
           className={cn(
-            'flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit',
-            props.classNames?.trigger
+            "flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit",
+            props.classNames?.trigger,
           )}
         >
           {props.value.length > 0 ? (
@@ -235,7 +235,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
                       className="ml-2 h-4 w-4 cursor-pointer"
                       onClick={() => {
                         props.onChange(
-                          props.value.filter((i) => i.id !== value.id)
+                          props.value.filter((i) => i.id !== value.id),
                         );
                       }}
                     />
@@ -244,7 +244,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
                 {props.value.length > 3 && (
                   <Badge
                     className={cn(
-                      'bg-transparent text-foreground border-foreground/1 hover:bg-transparent'
+                      "bg-transparent text-foreground border-foreground/1 hover:bg-transparent",
                     )}
                   >
                     {props.value.length - 3} more

@@ -62,7 +62,14 @@ export class TScanify {
     cv.Canny(img, imgGray, 50, 200);
 
     const imgBlur = new cv.Mat();
-    cv.GaussianBlur(imgGray, imgBlur, new cv.Size(3, 3), 0, 0, cv.BORDER_DEFAULT);
+    cv.GaussianBlur(
+      imgGray,
+      imgBlur,
+      new cv.Size(3, 3),
+      0,
+      0,
+      cv.BORDER_DEFAULT,
+    );
 
     const imgThresh = new cv.Mat();
     cv.threshold(imgBlur, imgThresh, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU);
@@ -70,7 +77,13 @@ export class TScanify {
     const contours = new cv.MatVector();
     const hierarchy = new cv.Mat();
 
-    cv.findContours(imgThresh, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    cv.findContours(
+      imgThresh,
+      contours,
+      hierarchy,
+      cv.RETR_CCOMP,
+      cv.CHAIN_APPROX_SIMPLE,
+    );
 
     let maxArea = 0;
     let maxContourIndex = -1;
@@ -82,7 +95,8 @@ export class TScanify {
       }
     }
 
-    const maxContour = maxContourIndex >= 0 ? contours.get(maxContourIndex) : null;
+    const maxContour =
+      maxContourIndex >= 0 ? contours.get(maxContourIndex) : null;
 
     imgGray.delete();
     imgBlur.delete();
@@ -98,7 +112,10 @@ export class TScanify {
    * @param options options for highlighting. Accepts `color` and `thickness` parameter
    * @returns Canvas with original image and paper highlighted
    */
-  highlightPaper(image: HTMLImageElement, options?: HighlightOptions): CanvasResult {
+  highlightPaper(
+    image: HTMLImageElement,
+    options?: HighlightOptions,
+  ): CanvasResult {
     options = options || {};
     options.color = options.color || "orange";
     options.thickness = options.thickness || 10;
@@ -119,9 +136,12 @@ export class TScanify {
     // Use the canvas id instead of the canvas object
     cv.imshow(canvasId, img);
     if (maxContour) {
-      const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } = this.getCornerPoints(
-        img,
-      );
+      const {
+        topLeftCorner,
+        topRightCorner,
+        bottomLeftCorner,
+        bottomRightCorner,
+      } = this.getCornerPoints(img);
 
       ctx.strokeStyle = options.color!;
       ctx.lineWidth = options.thickness!;
@@ -145,8 +165,6 @@ export class TScanify {
    * @returns object with corner points
    */
   getCornerPoints(originalImage: Mat): CornerPoints {
-
-
     // Implementation will depend on actual CV.js structure
     // This is a placeholder that would need to be updated
     return {
@@ -172,13 +190,22 @@ export class TScanify {
 
     const maxContour = this.findPaperContour(img);
     if (maxContour) {
-      const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } = this.getCornerPoints(
-        img,
-      );
+      const {
+        topLeftCorner,
+        topRightCorner,
+        bottomLeftCorner,
+        bottomRightCorner,
+      } = this.getCornerPoints(img);
 
       // Calculate width and height for the transformed image
-      const width = Math.max(distance(topLeftCorner, topRightCorner), distance(bottomLeftCorner, bottomRightCorner));
-      const height = Math.max(distance(topLeftCorner, bottomLeftCorner), distance(topRightCorner, bottomRightCorner));
+      const width = Math.max(
+        distance(topLeftCorner, topRightCorner),
+        distance(bottomLeftCorner, bottomRightCorner),
+      );
+      const height = Math.max(
+        distance(topLeftCorner, bottomLeftCorner),
+        distance(topRightCorner, bottomRightCorner),
+      );
 
       // Create source points matrix for perspective transform
       const srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
@@ -193,7 +220,16 @@ export class TScanify {
       ]);
 
       // Create destination points matrix for perspective transform
-      const dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, width, 0, 0, height, width, height]);
+      const dstPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
+        0,
+        0,
+        width,
+        0,
+        0,
+        height,
+        width,
+        height,
+      ]);
 
       // Perform perspective transform
       const M = cv.getPerspectiveTransform(srcPoints, dstPoints);

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useIsVisible(ref: any, threshold = 0.3) {
   const [isIntersecting, setIntersecting] = useState(false);
@@ -10,7 +10,7 @@ export function useIsVisible(ref: any, threshold = 0.3) {
       ([entry]) => {
         setIntersecting(entry?.isIntersecting || false);
       },
-      { threshold }
+      { threshold },
     );
 
     observer.observe(ref.current);

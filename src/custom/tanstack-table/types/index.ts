@@ -1,12 +1,12 @@
-import { SchemaFormProps } from '@repo/ayasofyazilim-ui/custom/schema-form/types';
+import { SchemaFormProps } from "@repo/ayasofyazilim-ui/custom/schema-form/types";
 import {
   ColumnDef,
   ColumnFiltersState,
   OnChangeFn,
   PaginationState,
   TableMeta,
-} from '@tanstack/react-table';
-import { ComponentType, JSX } from 'react';
+} from "@tanstack/react-table";
+import { ComponentType, JSX } from "react";
 
 export type NonEditableTanstackTableProps<TData> = {
   rowCount: number;
@@ -27,11 +27,11 @@ export type TanstackBaseProps<TData, TValue> = {
   columnOrder?: (keyof TData)[];
   data: TData[];
   columnVisibility?:
-  | {
-    columns: ('select' | keyof TData)[];
-    type: 'show' | 'hide';
-  }
-  | undefined;
+    | {
+        columns: ("select" | keyof TData)[];
+        type: "show" | "hide";
+      }
+    | undefined;
   pinColumns?: (keyof TData)[];
   rowActions?: TanstackTableRowActionsType<TData>[];
   rowCount?: number;
@@ -41,7 +41,7 @@ export type TanstackBaseProps<TData, TValue> = {
   showPagination?: boolean;
   expandedRowComponent?: (
     row: TData,
-    toggleExpanded: () => void
+    toggleExpanded: () => void,
   ) => JSX.Element;
   fillerColumn?: keyof TData;
   editable: boolean;
@@ -62,11 +62,11 @@ export type TanstackTablePropsType<TData, TValue> = {
   pinColumns?: (keyof TData)[] | undefined;
   columnOrder?: (keyof TData)[] | undefined;
   columnVisibility?:
-  | {
-    columns: (keyof TData | 'select')[];
-    type: 'show' | 'hide';
-  }
-  | undefined;
+    | {
+        columns: (keyof TData | "select")[];
+        type: "show" | "hide";
+      }
+    | undefined;
   excludeColumns?: (keyof TData)[];
   rowActions?: TanstackTableRowActionsType<TData>[] | undefined;
   selectedRowAction?: TanstackTableSelectedRowActionType<TData> | undefined;
@@ -74,20 +74,20 @@ export type TanstackTablePropsType<TData, TValue> = {
   filters?: TanstackTableFiltersType | undefined;
   showPagination?: boolean;
   expandedRowComponent?:
-  | ((row: TData, toggleExpanded: () => void) => JSX.Element)
-  | undefined;
+    | ((row: TData, toggleExpanded: () => void) => JSX.Element)
+    | undefined;
 } & (
-    | {
+  | {
       rowCount?: number;
       editable?: undefined;
       onTableDataChange?: undefined;
     }
-    | {
+  | {
       editable: true;
       rowCount?: undefined;
       onTableDataChange?: (data: TData[]) => void;
     }
-  );
+);
 
 export type TanstackTableConfig = {
   dateOptions?: Intl.DateTimeFormatOptions;
@@ -140,7 +140,7 @@ export type TanstackTableColumnBadge = {
   className?: string;
   hideColumnValue?: boolean;
   values: {
-    position?: 'before' | 'after';
+    position?: "before" | "after";
     badgeClassName?: string;
     conditions?: TanstackTableCellCondition[];
     label: string;
@@ -149,7 +149,7 @@ export type TanstackTableColumnBadge = {
 export type TanstackTableColumnIcon = {
   icon?: ComponentType<{ className?: string }>;
   iconClassName?: string;
-  position?: 'before' | 'after';
+  position?: "before" | "after";
 };
 export type TanstackTableColumCell<TData> = {
   conditions?: TanstackTableCellCondition[];
@@ -157,20 +157,20 @@ export type TanstackTableColumCell<TData> = {
   showHeader?: boolean;
 };
 export type TanstackTableRowActionsDeleteRow = {
-  type: 'delete-row';
+  type: "delete-row";
 };
 export type TanstackTableRowActionsDuplicateRow = {
-  type: 'duplicate-row';
+  type: "duplicate-row";
 };
 export type TanstackTableRowActionsMoveRowUp = {
-  type: 'move-row-up';
+  type: "move-row-up";
 };
 export type TanstackTableRowActionsMoveRowDown = {
-  type: 'move-row-down';
+  type: "move-row-down";
 };
 export type TanstackTableRowActionsSimple<TData> = {
   onClick: (row: TData) => void;
-  type: 'simple';
+  type: "simple";
 };
 
 export type TanstackTableRowDialog<TData> = {
@@ -185,9 +185,9 @@ export type TanstackTableRowActionsCustomDialog<TData> =
     cancelText?: string;
     confirmationText?: string;
     content:
-    | JSX.Element
-    | ((row: TData, closeDialog?: () => void) => JSX.Element);
-    type: 'custom-dialog';
+      | JSX.Element
+      | ((row: TData, closeDialog?: () => void) => JSX.Element);
+    type: "custom-dialog";
   };
 export type TanstackTableRowActionsConfirmationDialog<TData> =
   TanstackTableRowDialog<TData> & {
@@ -196,33 +196,33 @@ export type TanstackTableRowActionsConfirmationDialog<TData> =
     description: string;
     onCancel?: (row: TData) => void;
     onConfirm: (row: TData) => void;
-    type: 'confirmation-dialog';
+    type: "confirmation-dialog";
   };
 
 export type TanstackTableRowActionsType<TData> = {
-  actionLocation: 'row';
+  actionLocation: "row";
   cta: string;
   condition?: (row: TData) => boolean;
   icon?: ComponentType<{ className?: string }>;
 } & (
-    | TanstackTableRowActionsConfirmationDialog<TData>
-    | TanstackTableRowActionsSimple<TData>
-    | TanstackTableRowActionsDeleteRow
-    | TanstackTableRowActionsDuplicateRow
-    | TanstackTableRowActionsMoveRowUp
-    | TanstackTableRowActionsMoveRowDown
-    | TanstackTableRowActionsCustomDialog<TData>
-  );
+  | TanstackTableRowActionsConfirmationDialog<TData>
+  | TanstackTableRowActionsSimple<TData>
+  | TanstackTableRowActionsDeleteRow
+  | TanstackTableRowActionsDuplicateRow
+  | TanstackTableRowActionsMoveRowUp
+  | TanstackTableRowActionsMoveRowDown
+  | TanstackTableRowActionsCustomDialog<TData>
+);
 
 export type TanstackTableActionsSimple = {
-  actionLocation: 'table';
+  actionLocation: "table";
   onClick: () => void;
-  type: 'simple';
+  type: "simple";
 };
 export type TanstackTableCreateRowAction = {
-  actionLocation: 'table';
+  actionLocation: "table";
   onClick?: () => void;
-  type: 'create-row';
+  type: "create-row";
 };
 export type TanstackTableActionsDialog = {
   cancelText?: string;
@@ -232,19 +232,18 @@ export type TanstackTableActionsDialog = {
   title: string;
 };
 
-
 export type TanstackTableActionsSchemaFormDialog<TData> = Omit<
   TanstackTableActionsDialog,
-  'cancelText' | 'onCancel' | 'confirmationText' | 'onConfirm'
+  "cancelText" | "onCancel" | "confirmationText" | "onConfirm"
 > & {
   className?: { autoform: string; submit: string };
   onSubmit: (values: TData | undefined) => void;
   submitText: string;
-  type: 'schemaform-dialog';
-} & Omit<SchemaFormProps<TData>, 'onSubmit'>;
+  type: "schemaform-dialog";
+} & Omit<SchemaFormProps<TData>, "onSubmit">;
 export type TanstackTableActionsCustomDialog = TanstackTableActionsDialog & {
   content: JSX.Element | ((closeDialog?: () => void) => JSX.Element);
-  type: 'custom-dialog';
+  type: "custom-dialog";
   dialogClassNames?: {
     content?: string;
     header?: string;
@@ -254,19 +253,19 @@ export type TanstackTableActionsCustomDialog = TanstackTableActionsDialog & {
 };
 
 export type TanstackTableTableActionsType<TData> = {
-  actionLocation: 'table';
+  actionLocation: "table";
   cta: string;
   icon?: ComponentType<{ className?: string }>;
   condition?: (data: TData[]) => boolean;
 } & (
-    | TanstackTableActionsSimple
-    | TanstackTableActionsCustomDialog
-    | TanstackTableCreateRowAction
-    | TanstackTableActionsSchemaFormDialog<TData>
-  );
+  | TanstackTableActionsSimple
+  | TanstackTableActionsCustomDialog
+  | TanstackTableCreateRowAction
+  | TanstackTableActionsSchemaFormDialog<TData>
+);
 
 export type TanstackTableSelectedRowActionType<TData> = {
-  actionLocation: 'table';
+  actionLocation: "table";
   cta: string;
   icon?: ComponentType<{ className?: string }>;
   onClick: (selectedIds: string[], selectedRows: TData[]) => void;
@@ -325,5 +324,5 @@ export type TanstacktableEditableColumnsByRowId<T> = {
 
 export type TanstackTableCreationProps<T> = Omit<
   TanstackTablePropsType<T, string>,
-  'columns' | 'data' | 'rowCount' | 'editable' | 'onTableDataChange'
+  "columns" | "data" | "rowCount" | "editable" | "onTableDataChange"
 >;

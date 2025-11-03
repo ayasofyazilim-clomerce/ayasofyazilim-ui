@@ -1,5 +1,5 @@
-import { Column } from '@tanstack/react-table';
-import { CSSProperties } from 'react';
+import { Column } from "@tanstack/react-table";
+import { CSSProperties } from "react";
 
 export function getCommonPinningStyles<TData>({
   column,
@@ -19,9 +19,9 @@ export function getCommonPinningStyles<TData>({
 }): CSSProperties {
   const isPinned = column.getIsPinned();
   const isLastLeftPinnedColumn =
-    isPinned === 'left' && column.getIsLastColumn('left');
+    isPinned === "left" && column.getIsLastColumn("left");
   const isFirstRightPinnedColumn =
-    isPinned === 'right' && column.getIsFirstColumn('right');
+    isPinned === "right" && column.getIsFirstColumn("right");
 
   let width: string | number = column.getSize();
   if (resizeable) {
@@ -31,7 +31,7 @@ export function getCommonPinningStyles<TData>({
       width = column.getSize();
     }
   } else if (fillerColumn === column.id) {
-    width = '100%';
+    width = "100%";
   } else {
     width = column.getSize();
   }
@@ -39,19 +39,19 @@ export function getCommonPinningStyles<TData>({
   return {
     boxShadow: withBorder
       ? isLastLeftPinnedColumn
-        ? '-4px 0 4px -4px hsl(var(--border)) inset'
+        ? "-4px 0 4px -4px hsl(var(--border)) inset"
         : isFirstRightPinnedColumn
-          ? '4px 0 4px -4px hsl(var(--border)) inset'
+          ? "4px 0 4px -4px hsl(var(--border)) inset"
           : undefined
       : undefined,
-    left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
-    right: isPinned === 'right' ? `${column.getAfter('right')}px` : undefined,
+    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
     opacity: isPinned ? 0.97 : 1,
     width,
-    position: isPinned ? 'sticky' : 'relative',
-    background: isPinned ? 'hsl(var(--background))' : '',
+    position: isPinned ? "sticky" : "relative",
+    background: isPinned ? "hsl(var(--background))" : "",
     zIndex: isPinned ? 1 : 0,
-    textWrap: 'nowrap',
-    ...(column.id === 'select' && { minWidth: '40px', padding: 0 }),
+    textWrap: "nowrap",
+    ...(column.id === "select" && { minWidth: "40px", padding: 0 }),
   };
 }

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { JSX, useState } from 'react';
+import { JSX, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,9 +10,9 @@ import {
   DialogTrigger,
   DialogDescription,
   DialogClose,
-} from '@repo/ayasofyazilim-ui/components/dialog';
-import { Button, ButtonProps } from '@repo/ayasofyazilim-ui/components/button';
-import { Skeleton } from '@repo/ayasofyazilim-ui/components/skeleton';
+} from "@repo/ayasofyazilim-ui/components/dialog";
+import { Button, ButtonProps } from "@repo/ayasofyazilim-ui/components/button";
+import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
 
 export type ConfirmDialogProps = {
   closeProps?: ButtonProps;
@@ -25,16 +25,16 @@ export type ConfirmDialogProps = {
   title: string | JSX.Element;
 } & (WithTriggerConfirmDialogProps | WithoutTriggerConfirmDialogProps);
 type WithTriggerConfirmDialogProps = {
-  triggerProps: ButtonProps & { 'data-testid'?: string };
-  type: 'with-trigger';
+  triggerProps: ButtonProps & { "data-testid"?: string };
+  type: "with-trigger";
 };
 type WithoutTriggerConfirmDialogProps = {
-  type: 'without-trigger';
+  type: "without-trigger";
   children: JSX.Element;
 };
 export default function ConfirmDialog(props: ConfirmDialogProps) {
   const [open, setOpen] = useState(false);
-  const isWithTrigger = props.type === 'with-trigger';
+  const isWithTrigger = props.type === "with-trigger";
   const { title, description, loading, confirmProps } = props;
   const { closeAfterConfirm, onConfirm, ...confirmButtonProps } =
     confirmProps || {};
@@ -72,7 +72,7 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
                 {...props.closeProps}
                 disabled={loading}
               >
-                {props.closeProps?.children || 'Cancel'}
+                {props.closeProps?.children || "Cancel"}
               </Button>
             </DialogClose>
           )}
@@ -92,7 +92,7 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
                 }
               }}
             >
-              {props.confirmProps?.children || 'Confirm'}
+              {props.confirmProps?.children || "Confirm"}
             </Button>
           )}
         </DialogFooter>

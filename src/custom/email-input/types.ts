@@ -1,14 +1,14 @@
-import * as React from 'react';
+import * as React from "react";
 
 export type Maybe<T> = T | null;
 
 export enum Elements {
-  Domain = 'domain',
-  Dropdown = 'dropdown',
-  Input = 'input',
-  Suggestion = 'suggestion',
-  Username = 'username',
-  Wrapper = 'wrapper',
+  Domain = "domain",
+  Dropdown = "dropdown",
+  Input = "input",
+  Suggestion = "suggestion",
+  Username = "username",
+  Wrapper = "wrapper",
 }
 
 export type ClassNames = Partial<Record<Elements, string>>;
@@ -54,7 +54,7 @@ export type Props = {
    *
    * @deprecated Since version 1.0.0 dropdown is always placed below the input.
    */
-  placement?: 'auto' | 'bottom';
+  placement?: "auto" | "bottom";
   /** Custom prefix for dropdown unique ID.
    *
    * @deprecated Since version 1.2.0 it is generated automatically.
@@ -82,13 +82,13 @@ export type Events = {
 };
 
 export type InternalInputProps =
-  | 'ref'
-  | 'aria-expanded'
-  | 'type'
-  | 'role'
-  | 'autoComplete'
-  | 'aria-autocomplete'
-  | 'aria-controls';
+  | "ref"
+  | "aria-expanded"
+  | "type"
+  | "role"
+  | "autoComplete"
+  | "aria-autocomplete"
+  | "aria-controls";
 
 export type EmailProps = Props &
   Events &

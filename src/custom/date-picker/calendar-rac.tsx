@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { getLocalTimeZone, today } from '@internationalized/date';
-import { ComponentProps } from 'react';
+import { getLocalTimeZone, today } from "@internationalized/date";
+import { ComponentProps } from "react";
 import {
   Button as ButtonRac,
   CalendarCell as CalendarCellRac,
@@ -13,9 +13,9 @@ import {
   Heading as HeadingRac,
   RangeCalendar as RangeCalendarRac,
   composeRenderProps,
-} from 'react-aria-components';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "react-aria-components";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 interface BaseCalendarProps {
   className?: string;
@@ -62,18 +62,18 @@ const CalendarGridComponent = ({ isRange = false }: { isRange?: boolean }) => {
           <CalendarCellRac
             date={date}
             className={cn(
-              'relative flex size-9 items-center justify-center whitespace-nowrap rounded-lg border border-transparent p-0 text-sm font-normal text-foreground outline-offset-2 duration-150 [transition-property:color,background-color,border-radius,box-shadow] focus:outline-none data-disabled:pointer-events-none data-unavailable:pointer-events-none data-focus-visible:z-10 data-hovered:bg-accent data-selected:bg-primary data-hovered:text-foreground data-selected:text-primary-foreground data-unavailable:line-through data-disabled:opacity-30 data-unavailable:opacity-30 data-focus-visible:outline-2 data-focus-visible:outline-ring/70',
+              "relative flex size-9 items-center justify-center whitespace-nowrap rounded-lg border border-transparent p-0 text-sm font-normal text-foreground outline-offset-2 duration-150 [transition-property:color,background-color,border-radius,box-shadow] focus:outline-none data-disabled:pointer-events-none data-unavailable:pointer-events-none data-focus-visible:z-10 data-hovered:bg-accent data-selected:bg-primary data-hovered:text-foreground data-selected:text-primary-foreground data-unavailable:line-through data-disabled:opacity-30 data-unavailable:opacity-30 data-focus-visible:outline-2 data-focus-visible:outline-ring/70",
               // Range-specific styles
               isRange &&
-              'data-selected:rounded-none data-selection-end:rounded-e-lg data-selection-start:rounded-s-lg data-invalid:bg-red-100 data-selected:bg-accent data-selected:text-foreground data-invalid:data-selection-end:[&:not([data-hover])]:bg-destructive data-invalid:data-selection-start:[&:not([data-hover])]:bg-destructive data-selection-end:[&:not([data-hover])]:bg-primary data-selection-start:[&:not([data-hover])]:bg-primary data-invalid:data-selection-end:[&:not([data-hover])]:text-destructive-foreground data-invalid:data-selection-start:[&:not([data-hover])]:text-destructive-foreground data-selection-end:[&:not([data-hover])]:text-primary-foreground data-selection-start:[&:not([data-hover])]:text-primary-foreground',
+                "data-selected:rounded-none data-selection-end:rounded-e-lg data-selection-start:rounded-s-lg data-invalid:bg-red-100 data-selected:bg-accent data-selected:text-foreground data-invalid:data-selection-end:[&:not([data-hover])]:bg-destructive data-invalid:data-selection-start:[&:not([data-hover])]:bg-destructive data-selection-end:[&:not([data-hover])]:bg-primary data-selection-start:[&:not([data-hover])]:bg-primary data-invalid:data-selection-end:[&:not([data-hover])]:text-destructive-foreground data-invalid:data-selection-start:[&:not([data-hover])]:text-destructive-foreground data-selection-end:[&:not([data-hover])]:text-primary-foreground data-selection-start:[&:not([data-hover])]:text-primary-foreground",
               // Today indicator styles
               date.compare(now) === 0 &&
-              cn(
-                'after:pointer-events-none after:absolute after:bottom-1 after:start-1/2 after:z-10 after:size-[3px] after:-translate-x-1/2 after:rounded-full after:bg-primary',
-                isRange
-                  ? 'data-selection-end:[&:not([data-hover])]:after:bg-background data-selection-start:[&:not([data-hover])]:after:bg-background'
-                  : 'data-selected:after:bg-background'
-              )
+                cn(
+                  "after:pointer-events-none after:absolute after:bottom-1 after:start-1/2 after:z-10 after:size-[3px] after:-translate-x-1/2 after:rounded-full after:bg-primary",
+                  isRange
+                    ? "data-selection-end:[&:not([data-hover])]:after:bg-background data-selection-start:[&:not([data-hover])]:after:bg-background"
+                    : "data-selected:after:bg-background",
+                ),
             )}
           />
         )}
@@ -86,7 +86,7 @@ const Calendar = ({ className, ...props }: CalendarProps) => (
   <CalendarRac
     {...props}
     className={composeRenderProps(className, (className) =>
-      cn('w-fit', className)
+      cn("w-fit", className),
     )}
   >
     <CalendarHeader />
@@ -98,7 +98,7 @@ const RangeCalendar = ({ className, ...props }: RangeCalendarProps) => (
   <RangeCalendarRac
     {...props}
     className={composeRenderProps(className, (className) =>
-      cn('w-fit', className)
+      cn("w-fit", className),
     )}
   >
     <CalendarHeader />

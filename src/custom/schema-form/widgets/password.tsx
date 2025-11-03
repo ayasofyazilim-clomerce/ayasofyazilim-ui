@@ -1,7 +1,7 @@
-import { WidgetProps } from '@rjsf/utils';
-import { PasswordInput } from '@repo/ayasofyazilim-ui/custom/password-input';
-import { fieldOptionsByDependency } from '../utils/dependency';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+import { WidgetProps } from "@rjsf/utils";
+import { PasswordInput } from "@repo/ayasofyazilim-ui/custom/password-input";
+import { fieldOptionsByDependency } from "../utils/dependency";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 export const PasswordInputWidget = (props: WidgetProps) => {
   const {
@@ -16,9 +16,9 @@ export const PasswordInputWidget = (props: WidgetProps) => {
   } = props;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,
@@ -33,10 +33,10 @@ export const PasswordInputWidget = (props: WidgetProps) => {
       id={id}
       data-testid={id}
       onBlur={props.onBlur && ((event) => props.onBlur(id, event.target.value))}
-      className={cn('h-10', className)}
+      className={cn("h-10", className)}
       required={required}
       onChange={(event) => {
-        if (event.target.value === '') {
+        if (event.target.value === "") {
           onChange(undefined);
         } else {
           onChange(event.target.value);
@@ -45,9 +45,9 @@ export const PasswordInputWidget = (props: WidgetProps) => {
       defaultValue={value || defaultValue}
       readOnly={readOnly}
       disabled={fieldOptions.disabled}
-      autoComplete={uiSchema?.['ui:autocomplete']}
-      showGenerator={uiSchema?.['ui:showGenerator']}
-      passwordLength={uiSchema?.['ui:passwordLength'] || 10}
+      autoComplete={uiSchema?.["ui:autocomplete"]}
+      showGenerator={uiSchema?.["ui:showGenerator"]}
+      passwordLength={uiSchema?.["ui:passwordLength"] || 10}
     />
   );
 };

@@ -1,12 +1,12 @@
-import { ErrorSchema, FieldErrorProps } from '@rjsf/utils';
-import { ReactElement } from 'react';
+import { ErrorSchema, FieldErrorProps } from "@rjsf/utils";
+import { ReactElement } from "react";
 
 export const FieldErrorTemplate = (
   props:
     | FieldErrorProps
     | {
         errors: Array<string | ReactElement>;
-      }
+      },
 ) =>
   props.errors && (
     <ul className="space-y-1">

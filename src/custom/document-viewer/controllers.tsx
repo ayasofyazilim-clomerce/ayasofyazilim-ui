@@ -5,16 +5,16 @@ import {
   SearchIcon,
   ZoomIn,
   ZoomOut,
-} from 'lucide-react';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@repo/ayasofyazilim-ui/components/popover';
-import { Input } from '@repo/ayasofyazilim-ui/components/input';
+} from "@repo/ayasofyazilim-ui/components/popover";
+import { Input } from "@repo/ayasofyazilim-ui/components/input";
 
 export function Controllers({
   documentUri,
@@ -37,7 +37,7 @@ export function Controllers({
   useEffect(() => {
     if (!open) {
       if (setSearchValue) {
-        setSearchValue('');
+        setSearchValue("");
       }
     }
   }, [open]);

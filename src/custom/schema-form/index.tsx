@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Form from '@rjsf/core';
-import { RJSFSchema } from '@rjsf/utils';
-import { customizeValidator } from '@rjsf/validator-ajv8';
+import Form from "@rjsf/core";
+import { RJSFSchema } from "@rjsf/utils";
+import { customizeValidator } from "@rjsf/validator-ajv8";
 import {
   createRef,
   Fragment,
@@ -12,15 +12,15 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
+} from "react";
 
-import { cloneDeep, get, set } from 'lodash';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { ScrollBar } from '@repo/ayasofyazilim-ui/components/scroll-area';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { ScrollArea } from '@repo/ayasofyazilim-ui/components/scroll-area';
-import { StringArrayItem } from './custom/string-array';
-import { FieldErrorTemplate } from './fields';
+import { cloneDeep, get, set } from "lodash";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { ScrollBar } from "@repo/ayasofyazilim-ui/components/scroll-area";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { ScrollArea } from "@repo/ayasofyazilim-ui/components/scroll-area";
+import { StringArrayItem } from "./custom/string-array";
+import { FieldErrorTemplate } from "./fields";
 import {
   AccordionArrayFieldTemplate,
   DescriptionFieldTemplate,
@@ -28,15 +28,15 @@ import {
   FieldTemplate,
   ObjectFieldTemplate,
   TableArrayFieldTemplate,
-} from './templates';
-import { FormContext, SchemaFormProps } from './types';
+} from "./templates";
+import { FormContext, SchemaFormProps } from "./types";
 import {
   createSchemaWithFilters,
   getArrayFieldKeys,
   mergeUISchemaObjects,
   removeFieldsfromGenericSchema,
-} from './utils';
-import { AJV_TR } from './utils/langugage';
+} from "./utils";
+import { AJV_TR } from "./utils/langugage";
 import {
   Combobox,
   CustomCheckbox,
@@ -51,10 +51,10 @@ import {
   CustomTextInput,
   EmailInputWidget,
   PasswordInputWidget,
-} from './widgets';
+} from "./widgets";
 
 const formRef = createRef<any>();
-export { FieldLabel } from './custom/label';
+export { FieldLabel } from "./custom/label";
 /**
  * SchemaForm component that renders a form based on the provided schema and options.
  * Extends the Form component from @rjsf/core.
@@ -71,7 +71,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
     useDependency = false,
     disableValidation = false,
     defaultSubmitClassName,
-    locale = 'en',
+    locale = "en",
     schema: originalSchema,
     uiSchema: propsUiSchema,
     onChange,
@@ -84,7 +84,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
     className,
     disabled,
     submitText,
-    id = 'schema_form',
+    id = "schema_form",
     formData: propsFormData,
     ...restProps
   } = props;
@@ -95,7 +95,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
 
   // Internal state only used when useDependency is true
   const [internalFormData, setInternalFormData] = useState<T | undefined>(
-    propsFormData
+    propsFormData,
   );
 
   // Update refs and internal state when props change
@@ -109,7 +109,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
   // Memoize array fields calculation
   const arrayFields = useMemo(
     () => getArrayFieldKeys(originalSchema),
-    [originalSchema]
+    [originalSchema],
   );
 
   // Memoize default widgets, fields, and templates
@@ -126,11 +126,11 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       password: PasswordInputWidget,
       email: EmailInputWidget,
       phone: CustomPhoneField,
-      'phone-with-parse': CustomPhoneFieldWithParse,
-      'phone-with-value': CustomPhoneFieldWithValue,
+      "phone-with-parse": CustomPhoneFieldWithParse,
+      "phone-with-value": CustomPhoneFieldWithValue,
       StringArray: StringArrayItem,
     }),
-    []
+    [],
   );
 
   const defaultTemplates = useMemo(
@@ -145,7 +145,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       ObjectFieldTemplate,
       DescriptionFieldTemplate,
     }),
-    [useTableForArrayItems, arrayFields.length]
+    [useTableForArrayItems, arrayFields.length],
   );
 
   // Memoize merged widgets, fields, and templates
@@ -154,14 +154,14 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       ...defaultWidgets,
       ...customWidgets,
     }),
-    [defaultWidgets, customWidgets]
+    [defaultWidgets, customWidgets],
   );
 
   const mergedFields = useMemo(
     () => ({
       ...customFields,
     }),
-    [customFields]
+    [customFields],
   );
 
   const mergedTemplates = useMemo(
@@ -169,7 +169,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       ...defaultTemplates,
       ...customTemplates,
     }),
-    [defaultTemplates, customTemplates]
+    [defaultTemplates, customTemplates],
   );
 
   // Memoize schema processing
@@ -182,14 +182,14 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       });
     }
     return removeFieldsfromGenericSchema(schema, [
-      'extraProperties',
+      "extraProperties",
     ]) as RJSFSchema;
   }, [originalSchema, filter]);
 
   // Memoize UI schema processing
   const processedUiSchema = useMemo(() => {
     let uiSchema = {
-      'ui:config': {
+      "ui:config": {
         locale,
       },
     };
@@ -205,7 +205,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
   // Memoize form context
   const formContext = useMemo(
     () => ({
-      ...processedUiSchema['ui:config'],
+      ...processedUiSchema["ui:config"],
       formData: useDependency
         ? useDependency
           ? internalFormData
@@ -221,7 +221,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       propsFormData,
       useTableForArrayItems,
       arrayFields,
-    ]
+    ],
   );
 
   // Memoize validator
@@ -229,19 +229,19 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
   // Determine which formData to use for the form
   const formDataToUse = useMemo(
     () => (useDependency ? internalFormData : propsFormData),
-    [useDependency, internalFormData, propsFormData]
+    [useDependency, internalFormData, propsFormData],
   );
 
   // Memoize wrapper component
   const Wrapper = useMemo(
     () => (withScrollArea ? ScrollArea : Fragment),
-    [withScrollArea]
+    [withScrollArea],
   );
 
   // Memoize wrapper props
   const wrapperProps = useMemo(
-    () => (withScrollArea ? { className: 'h-full [&>div>div]:!block' } : {}),
-    [withScrollArea]
+    () => (withScrollArea ? { className: "h-full [&>div>div]:!block" } : {}),
+    [withScrollArea],
   );
 
   // Optimized change handler
@@ -259,15 +259,15 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
         setInternalFormData(e.formData);
       }
     },
-    [useDependency]
+    [useDependency],
   );
   const handleBlur = useCallback(async (changedField: string) => {
     const { errorSchema: _errorSchema } = formRef.current.validate(
-      currentFormDataRef.current
+      currentFormDataRef.current,
     );
 
     // changeField is like root_name or root_address_addressLine
-    const path = `${changedField.replace('root_', '').replaceAll('_', '.')}.__errors`;
+    const path = `${changedField.replace("root_", "").replaceAll("_", ".")}.__errors`;
     const formValidationErrors = get(formRef.current.state.errorSchema, path);
     if (formValidationErrors) {
       setExtraErrors({});
@@ -277,7 +277,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
     setExtraErrors((prev: any) => {
       const newErrors = cloneDeep(prev);
       if (!errors || errors.length === 0) {
-        return set(newErrors, path.replace('.__errors', ''), undefined);
+        return set(newErrors, path.replace(".__errors", ""), undefined);
       }
       return set(newErrors, path, errors);
     });
@@ -297,13 +297,13 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
         onSubmit(latestData, event);
       }
     },
-    [onSubmit]
+    [onSubmit],
   );
 
   // Memoize form className
   const formClassName = useMemo(
-    () => cn('p-px', withScrollArea && 'pr-4', className),
-    [withScrollArea, className]
+    () => cn("p-px", withScrollArea && "pr-4", className),
+    [withScrollArea, className],
   );
 
   return (
@@ -322,7 +322,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
         schema={processedSchema}
         validator={customizeValidator(
           { ajvOptionsOverrides: { removeAdditional: true } },
-          locale === 'tr' ? AJV_TR : undefined
+          locale === "tr" ? AJV_TR : undefined,
         )}
         noValidate={disableValidation}
         fields={mergedFields}
@@ -339,7 +339,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
         {children}
         {useDefaultSubmit && (
           <SchemaFormSubmit
-            submit={submitText || 'Submit'}
+            submit={submitText || "Submit"}
             className={defaultSubmitClassName}
             disabled={disabled}
             id={id}
@@ -366,8 +366,8 @@ export const SchemaFormSubmit = memo(
   }) => {
     const submitClassName = useMemo(
       () =>
-        cn('py-4 sticky bottom-0 bg-white flex justify-end z-40', className),
-      [className]
+        cn("py-4 sticky bottom-0 bg-white flex justify-end z-40", className),
+      [className],
     );
 
     return (
@@ -377,7 +377,7 @@ export const SchemaFormSubmit = memo(
         </Button>
       </div>
     );
-  }
+  },
 );
 
-SchemaFormSubmit.displayName = 'SchemaFormSubmit';
+SchemaFormSubmit.displayName = "SchemaFormSubmit";

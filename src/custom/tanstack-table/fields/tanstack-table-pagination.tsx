@@ -3,19 +3,19 @@ import {
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-} from 'lucide-react';
-import { Table } from '@tanstack/react-table';
+} from "lucide-react";
+import { Table } from "@tanstack/react-table";
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@repo/ayasofyazilim-ui/components/select';
+} from "@repo/ayasofyazilim-ui/components/select";
 
 interface TanstackTablePaginationProps<TData> {
   pagination: {
@@ -26,7 +26,7 @@ interface TanstackTablePaginationProps<TData> {
 }
 
 export function TanstackTablePagination<TData>(
-  props: TanstackTablePaginationProps<TData>
+  props: TanstackTablePaginationProps<TData>,
 ) {
   const { table, pagination } = props;
   const { replace } = useRouter();
@@ -36,23 +36,23 @@ export function TanstackTablePagination<TData>(
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
 
-    if (Number(searchParams?.get('maxResultCount')) !== pagination.pageSize) {
-      params.set('maxResultCount', pagination.pageSize.toString());
+    if (Number(searchParams?.get("maxResultCount")) !== pagination.pageSize) {
+      params.set("maxResultCount", pagination.pageSize.toString());
     }
     if (
-      Number(searchParams?.get('skipCount')) !==
+      Number(searchParams?.get("skipCount")) !==
       pagination.pageIndex * pagination.pageSize
     ) {
       params.set(
-        'skipCount',
-        (pagination.pageIndex * pagination.pageSize).toString()
+        "skipCount",
+        (pagination.pageIndex * pagination.pageSize).toString(),
       );
     }
-    if (Number(params?.get('maxResultCount')) === 10) {
-      params.delete('maxResultCount');
+    if (Number(params?.get("maxResultCount")) === 10) {
+      params.delete("maxResultCount");
     }
-    if (Number(params?.get('skipCount')) === 0) {
-      params.delete('skipCount');
+    if (Number(params?.get("skipCount")) === 0) {
+      params.delete("skipCount");
     }
 
     replace(`${pathname}?${params.toString()}`);
@@ -61,7 +61,7 @@ export function TanstackTablePagination<TData>(
   return (
     <div className="flex items-center justify-between flex-wrap">
       <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} of{' '}
+        {table.getFilteredSelectedRowModel().rows.length} of{" "}
         {table.getFilteredRowModel().rows.length} row(s) selected.
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8 flex-wrap">
@@ -86,7 +86,7 @@ export function TanstackTablePagination<TData>(
           </Select>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount()}
         </div>
         <div className="flex items-center space-x-2">

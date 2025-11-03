@@ -1,18 +1,31 @@
-'use client';
+"use client";
 
-import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@repo/ayasofyazilim-ui/components/chart';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import * as React from 'react';
-import { Bar, CartesianGrid, BarChart as RechartsBarChart, XAxis, YAxis } from 'recharts';
-import { BaseAxisProps } from 'recharts/types/util/types';
-import { ChartData } from '.';
-import { CardClassNames, ChartCard } from './chart-card';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@repo/ayasofyazilim-ui/components/chart";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import * as React from "react";
+import {
+  Bar,
+  CartesianGrid,
+  BarChart as RechartsBarChart,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { BaseAxisProps } from "recharts/types/util/types";
+import { ChartData } from ".";
+import { CardClassNames, ChartCard } from "./chart-card";
 
 export type BarChartProps = {
   data: ChartData;
   config: ChartConfig;
   xAxisKey: string;
-  layout?: 'vertical' | 'horizontal';
+  layout?: "vertical" | "horizontal";
   title?: React.ReactNode;
   description?: React.ReactNode;
   period?: React.ReactNode;
@@ -20,8 +33,8 @@ export type BarChartProps = {
   trendText?: React.ReactNode;
   showLegend?: boolean;
   trendIcon?: React.ReactNode;
-  xAxisTickFormatter?: BaseAxisProps['tickFormatter'];
-  yAxisTickFormatter?: BaseAxisProps['tickFormatter'];
+  xAxisTickFormatter?: BaseAxisProps["tickFormatter"];
+  yAxisTickFormatter?: BaseAxisProps["tickFormatter"];
   valuePrefix?: string;
   valueSuffix?: string;
   classNames?: {
@@ -34,17 +47,12 @@ export type BarChartProps = {
   };
 };
 
-export function BarChart({
-  layout = 'vertical',
-  ...props
-}: BarChartProps) {
-  if (layout === 'horizontal') {
+export function BarChart({ layout = "vertical", ...props }: BarChartProps) {
+  if (layout === "horizontal") {
     return <HorizontalBarChart {...props} />;
   }
   return <VerticalBarChart {...props} />;
 }
-
-
 
 function HorizontalBarChart({
   data,
@@ -75,13 +83,13 @@ function HorizontalBarChart({
     >
       <ChartContainer
         config={config}
-        className={cn('mx-auto max-h-full', classNames?.chart?.container)}
+        className={cn("mx-auto max-h-full", classNames?.chart?.container)}
       >
         <RechartsBarChart
           accessibilityLayer
           data={data}
           layout="vertical"
-          className={cn('flex flex-col pb-2', classNames?.chart?.bar)}
+          className={cn("flex flex-col pb-2", classNames?.chart?.bar)}
           margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
         >
           <CartesianGrid vertical={false} />
@@ -110,22 +118,22 @@ function HorizontalBarChart({
             <Bar
               key={key}
               dataKey={key}
-              fill={config[key]?.color || 'var(--chart-1)'}
+              fill={config[key]?.color || "var(--chart-1)"}
               radius={5}
             />
           ))}
           {showLegend && (
             <ChartLegend
               wrapperStyle={{
-                position: 'relative',
-                top: 'unset',
-                left: 'unset',
-                bottom: 'unset',
-                right: 'unset',
-                width: '100%',
-                textAlign: 'center',
+                position: "relative",
+                top: "unset",
+                left: "unset",
+                bottom: "unset",
+                right: "unset",
+                width: "100%",
+                textAlign: "center",
               }}
-              className={cn('p-0', classNames?.chart?.legend)}
+              className={cn("p-0", classNames?.chart?.legend)}
               content={<ChartLegendContent />}
             />
           )}
@@ -134,7 +142,6 @@ function HorizontalBarChart({
     </ChartCard>
   );
 }
-
 
 function VerticalBarChart({
   data,
@@ -164,13 +171,13 @@ function VerticalBarChart({
     >
       <ChartContainer
         config={config}
-        className={cn('mx-auto max-h-full', classNames?.chart?.container)}
+        className={cn("mx-auto max-h-full", classNames?.chart?.container)}
       >
         <RechartsBarChart
           accessibilityLayer
           data={data}
           layout="horizontal"
-          className={cn('flex flex-col pb-2', classNames?.chart?.bar)}
+          className={cn("flex flex-col pb-2", classNames?.chart?.bar)}
           margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
         >
           <CartesianGrid vertical={false} />
@@ -196,22 +203,22 @@ function VerticalBarChart({
             <Bar
               key={key}
               dataKey={key}
-              fill={config[key]?.color || 'var(--chart-1)'}
+              fill={config[key]?.color || "var(--chart-1)"}
               radius={0}
             />
           ))}
           {showLegend && (
             <ChartLegend
               wrapperStyle={{
-                position: 'relative',
-                top: 'unset',
-                left: 'unset',
-                bottom: 'unset',
-                right: 'unset',
-                width: '100%',
-                textAlign: 'center',
+                position: "relative",
+                top: "unset",
+                left: "unset",
+                bottom: "unset",
+                right: "unset",
+                width: "100%",
+                textAlign: "center",
               }}
-              className={cn('p-0', classNames?.chart?.legend)}
+              className={cn("p-0", classNames?.chart?.legend)}
               content={<ChartLegendContent />}
             />
           )}

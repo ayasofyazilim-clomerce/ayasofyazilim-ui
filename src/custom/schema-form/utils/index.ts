@@ -1,11 +1,11 @@
-import { GenericObjectType } from '@rjsf/utils';
-import { PhoneNumberUtil } from 'google-libphonenumber';
-import { Locale } from 'date-fns';
-import * as Locales from 'date-fns/locale';
-import { FilteredObject, FilterType, UiSchema } from '../types';
+import { GenericObjectType } from "@rjsf/utils";
+import { PhoneNumberUtil } from "google-libphonenumber";
+import { Locale } from "date-fns";
+import * as Locales from "date-fns/locale";
+import { FilteredObject, FilterType, UiSchema } from "../types";
 
-export * from './schema-dependency';
-export * from './password-validate';
+export * from "./schema-dependency";
+export * from "./password-validate";
 // if google-libphonenumber gives type error simply do this; pnpm add @types/google-libphonenumber
 
 /**
@@ -34,23 +34,25 @@ export const isPhoneValid = (phoneNumber: string): boolean => {
 export const splitPhone = (phoneNumber: string) => {
   const phoneUtil = PhoneNumberUtil.getInstance(); // Get instance of phone number utility
   const parsedNumber = phoneUtil.parseAndKeepRawInput(phoneNumber); // Parse the phone number
-  const formattedNumber = phoneUtil.formatOutOfCountryCallingNumber(parsedNumber).split('+')[1]!; // Format the number and split to get the relevant part
-  const ituCountryCode = formattedNumber.split(' ')[0]!; // Extract the ITU country code
+  const formattedNumber = phoneUtil
+    .formatOutOfCountryCallingNumber(parsedNumber)
+    .split("+")[1]!; // Format the number and split to get the relevant part
+  const ituCountryCode = formattedNumber.split(" ")[0]!; // Extract the ITU country code
   const phoneNumberWithoutCountryCode = formattedNumber.substring(
-    ituCountryCode.length + 1
+    ituCountryCode.length + 1,
   );
 
-  const areaCode = phoneNumberWithoutCountryCode.includes('-')
-    ? phoneNumberWithoutCountryCode.split('-')[0] // Extract area code if present
-    : phoneNumberWithoutCountryCode.split(' ')[0];
+  const areaCode = phoneNumberWithoutCountryCode.includes("-")
+    ? phoneNumberWithoutCountryCode.split("-")[0] // Extract area code if present
+    : phoneNumberWithoutCountryCode.split(" ")[0];
 
   const phoneData = {
     ituCountryCode,
     areaCode,
     localNumber: phoneNumberWithoutCountryCode
       .substring(areaCode!.length + 1)
-      .replaceAll(' ', '')
-      .replaceAll('-', ''), // Clean local number
+      .replaceAll(" ", "")
+      .replaceAll("-", ""), // Clean local number
   };
 
   return phoneData; // Return the extracted phone data
@@ -67,31 +69,31 @@ export const splitPhone = (phoneNumber: string) => {
  */
 export function removeFieldsfromGenericSchema(
   inputSchema: GenericObjectType,
-  fieldsToRemove: string[]
+  fieldsToRemove: string[],
 ): GenericObjectType {
-  if (inputSchema.type === 'object' && inputSchema.properties) {
+  if (inputSchema.type === "object" && inputSchema.properties) {
     const schemaProperties = inputSchema.properties;
 
     // Use `Object.keys()` instead of `for..in`
     Object.keys(schemaProperties).forEach((propertyKey) => {
-      if (schemaProperties[propertyKey].type === 'object') {
+      if (schemaProperties[propertyKey].type === "object") {
         schemaProperties[propertyKey] = removeFieldsfromGenericSchema(
           schemaProperties[propertyKey],
-          fieldsToRemove
+          fieldsToRemove,
         );
       } else if (
-        schemaProperties[propertyKey].type === 'array' &&
+        schemaProperties[propertyKey].type === "array" &&
         schemaProperties[propertyKey].items
       ) {
         schemaProperties[propertyKey].items = removeFieldsfromGenericSchema(
           schemaProperties[propertyKey].items,
-          fieldsToRemove
+          fieldsToRemove,
         );
       }
     });
 
     const shouldTransform = fieldsToRemove.every((field) =>
-      Object.prototype.hasOwnProperty.call(schemaProperties, field)
+      Object.prototype.hasOwnProperty.call(schemaProperties, field),
     );
     if (shouldTransform) {
       const transformedSchema = {
@@ -120,46 +122,46 @@ export function transformGenericSchema(
   inputSchema: GenericObjectType,
   fieldsToRemove: string[],
   newFieldName: string,
-  requiredFields: string[]
+  requiredFields: string[],
 ): GenericObjectType {
-  if (inputSchema.type === 'object' && inputSchema.properties) {
+  if (inputSchema.type === "object" && inputSchema.properties) {
     const schemaProperties = inputSchema.properties;
 
     // Use `Object.keys()` instead of `for..in`
     Object.keys(schemaProperties).forEach((propertyKey) => {
-      if (schemaProperties[propertyKey].type === 'object') {
+      if (schemaProperties[propertyKey].type === "object") {
         schemaProperties[propertyKey] = transformGenericSchema(
           schemaProperties[propertyKey],
           fieldsToRemove,
           newFieldName,
-          requiredFields
+          requiredFields,
         );
       } else if (
-        schemaProperties[propertyKey].type === 'array' &&
+        schemaProperties[propertyKey].type === "array" &&
         schemaProperties[propertyKey].items
       ) {
         schemaProperties[propertyKey].items = transformGenericSchema(
           schemaProperties[propertyKey].items,
           fieldsToRemove,
           newFieldName,
-          requiredFields
+          requiredFields,
         );
       }
     });
 
     const shouldTransform = fieldsToRemove.every((field) =>
-      Object.prototype.hasOwnProperty.call(schemaProperties, field)
+      Object.prototype.hasOwnProperty.call(schemaProperties, field),
     );
 
     if (shouldTransform) {
       if (!(newFieldName in schemaProperties)) {
         // Create a new variable to avoid assigning directly to `inputSchema`
         const updatedRequired = inputSchema.required?.filter(
-          (requiredItem: string) => !fieldsToRemove.includes(requiredItem)
+          (requiredItem: string) => !fieldsToRemove.includes(requiredItem),
         );
 
         const newFieldProperties = {
-          type: 'object',
+          type: "object",
           required: requiredFields,
           properties: requiredFields.reduce((acc, field) => {
             acc[field] = schemaProperties[field];
@@ -201,7 +203,7 @@ export function transformGenericSchema(
 export function flattenGenericData(
   inputData: GenericObjectType,
   targetKey: string,
-  fieldsToExtract: string[]
+  fieldsToExtract: string[],
 ): GenericObjectType {
   const transformObject = (obj: GenericObjectType): GenericObjectType => {
     if (Array.isArray(obj)) {
@@ -211,9 +213,9 @@ export function flattenGenericData(
     const transformedObject: GenericObjectType = { ...obj }; // Create a copy of the original object
 
     for (const key in Object.keys(transformedObject)) {
-      if (typeof transformedObject[key] !== 'undefined') {
+      if (typeof transformedObject[key] !== "undefined") {
         // Is the key valid?
-        if (key === targetKey && typeof transformedObject[key] === 'object') {
+        if (key === targetKey && typeof transformedObject[key] === "object") {
           // Extract specified fields
           const extractedFields = fieldsToExtract.reduce(
             (accumulator, field) => {
@@ -222,7 +224,7 @@ export function flattenGenericData(
               }
               return accumulator;
             },
-            {} as GenericObjectType
+            {} as GenericObjectType,
           );
 
           // Create the new object
@@ -233,7 +235,7 @@ export function flattenGenericData(
 
         // If the value is an object, apply recursive transformation
         if (
-          typeof transformedObject[key] === 'object' &&
+          typeof transformedObject[key] === "object" &&
           transformedObject[key] !== null
         ) {
           transformedObject[key] = transformObject(transformedObject[key]);
@@ -258,7 +260,7 @@ export function flattenGenericData(
 export function generateUiSchema<T extends GenericObjectType>(
   schema: T,
   key: string,
-  prop: GenericObjectType
+  prop: GenericObjectType,
 ): GenericObjectType {
   const result: GenericObjectType = {};
 
@@ -266,7 +268,7 @@ export function generateUiSchema<T extends GenericObjectType>(
     for (const k in obj) {
       if (k === key) {
         res[k] = { ...prop };
-      } else if (typeof obj[k] === 'object' && obj[k] !== null) {
+      } else if (typeof obj[k] === "object" && obj[k] !== null) {
         if (obj[k].items) {
           res[k] = {
             items: {},
@@ -289,7 +291,7 @@ export function generateUiSchema<T extends GenericObjectType>(
  * @returns True if the value is an object; otherwise, false.
  */
 export const isObject = (value: any): value is GenericObjectType =>
-  value && typeof value === 'object' && !Array.isArray(value);
+  value && typeof value === "object" && !Array.isArray(value);
 
 /**
  * Merges two UISchema objects recursively.
@@ -318,14 +320,14 @@ export function mergeUISchemaObjects<
 export function generateFormData(
   formData: GenericObjectType,
   fieldsToMerge: string[],
-  newFieldName: string
+  newFieldName: string,
 ) {
   const _formData = { ...formData };
   const c = {
     [newFieldName]: {},
   };
   for (const field of Object.keys(_formData)) {
-    if (typeof _formData[field] === 'object') {
+    if (typeof _formData[field] === "object") {
       // object
       if (Array.isArray(_formData[field])) {
         // array
@@ -385,7 +387,7 @@ export function createSchemaWithFilters<T = string>({
 
   const filterProperties = (
     object: GenericObjectType,
-    parentKey: string = ''
+    parentKey: string = "",
   ) => {
     const currentObj = object;
     if (!currentObj.properties && !currentObj.items) return;
@@ -403,54 +405,54 @@ export function createSchemaWithFilters<T = string>({
       Object.keys(currentObj.properties).forEach((key) => {
         const property = currentObj.properties[key];
         const currentPath = parentKey ? `${parentKey}.${key}` : key;
-        if (type === 'include') {
+        if (type === "include") {
           if (isWildCard(currentPath)) return;
           if (hasKey(currentPath)) {
             keptKeys.add(key);
-            if (property.type === 'object') {
+            if (property.type === "object") {
               filterProperties(property, currentPath);
-            } else if (property.type === 'array') {
+            } else if (property.type === "array") {
               filterProperties(property.items, currentPath);
             }
           } else {
             delete currentObj.properties[key];
           }
-        } else if (type === 'exclude') {
+        } else if (type === "exclude") {
           if (!hasKey(currentPath)) {
             keptKeys.add(key);
-            if (property.type === 'object') {
+            if (property.type === "object") {
               filterProperties(property, currentPath);
-            } else if (property.type === 'array') {
+            } else if (property.type === "array") {
               filterProperties(property.items, currentPath);
             }
           } else {
             delete currentObj.properties[key];
           }
-        } else if (type === 'fullExclude') {
+        } else if (type === "fullExclude") {
           if (hasKey(currentPath)) {
             delete currentObj.properties[key];
-          } else if (property.type === 'object') {
+          } else if (property.type === "object") {
             filterProperties(property, currentPath);
-          } else if (property.type === 'array') {
+          } else if (property.type === "array") {
             filterProperties(property.items, currentPath);
           }
         }
       });
-      if (filter.type !== 'fullExclude' && filter.sort) {
+      if (filter.type !== "fullExclude" && filter.sort) {
         const sortedProperties = Object.entries(currentObj.properties).sort(
           ([keyA], [keyB]) => {
             const indexA = keys.indexOf(
               parentKey
                 ? (`${parentKey}.${keyA}` as keyof T)
-                : (keyA as keyof T)
+                : (keyA as keyof T),
             );
             const indexB = keys.indexOf(
               parentKey
                 ? (`${parentKey}.${keyB}` as keyof T)
-                : (keyB as keyof T)
+                : (keyB as keyof T),
             );
             return indexA - indexB;
-          }
+          },
         );
         // Update currentObj.properties with sorted properties
         currentObj.properties = Object.fromEntries(sortedProperties);
@@ -490,7 +492,7 @@ export function createUiSchemaWithResource<T = unknown>({
   resources,
   schema,
   extend,
-  name = 'Form',
+  name = "Form",
 }: CreateFieldConfigWithResourceProps): UiSchema<T> {
   const uiSchema = uiSchemaFromSchema({
     object: schema,
@@ -519,10 +521,10 @@ export function uiSchemaFromSchema({
     [name]: {},
   };
   // object
-  if (object && object.type === 'object' && object.properties) {
+  if (object && object.type === "object" && object.properties) {
     for (const property of Object.keys(object.properties)) {
       Object.assign(uiSchema[name] || {}, {
-        'ui:title': resources[constantKey],
+        "ui:title": resources[constantKey],
         ...uiSchemaFromSchema({
           name: property,
           object: object.properties[property],
@@ -535,7 +537,7 @@ export function uiSchemaFromSchema({
   // array
   else if (
     object &&
-    object.type === 'array' &&
+    object.type === "array" &&
     object.items &&
     object.items.properties
   ) {
@@ -548,11 +550,11 @@ export function uiSchemaFromSchema({
           object: object.items.properties[property],
           resources,
           constantKey: `${constantKey}.${property}`,
-        })
+        }),
       );
     }
     Object.assign(uiSchema[name] || {}, {
-      'ui:title': resources[constantKey] || beautifyLabel(name),
+      "ui:title": resources[constantKey] || beautifyLabel(name),
       items,
     });
   }
@@ -561,21 +563,21 @@ export function uiSchemaFromSchema({
     const getResourceValue = (name: string) =>
       resources[`${constantKey}.${name}`] || undefined;
     const uiSchemaItem = {
-      'ui:title': resources[constantKey] || beautifyLabel(name),
-      'ui:placeholder': getResourceValue('ui:placeholder'),
+      "ui:title": resources[constantKey] || beautifyLabel(name),
+      "ui:placeholder": getResourceValue("ui:placeholder"),
     };
     // enum varsa
-    if (Object.keys(object).includes('enum')) {
+    if (Object.keys(object).includes("enum")) {
       const labels = object.enum.map(
-        (key: string) => getResourceValue(key) || key
+        (key: string) => getResourceValue(key) || key,
       );
       Object.assign(uiSchemaItem, {
-        'ui:enumNames': labels,
-        'ui:options': {
+        "ui:enumNames": labels,
+        "ui:options": {
           label: true,
-          emptyValue: getResourceValue('emptyValue'),
-          searchPlaceholder: getResourceValue('searchPlaceholder'),
-          searchResultLabel: getResourceValue('searchResultLabel'),
+          emptyValue: getResourceValue("emptyValue"),
+          searchPlaceholder: getResourceValue("searchPlaceholder"),
+          searchResultLabel: getResourceValue("searchResultLabel"),
         },
       });
     }
@@ -586,7 +588,7 @@ export function uiSchemaFromSchema({
 }
 
 export function filterUndefinedAndEmpty<T>(obj: T): FilteredObject<T> {
-  if (typeof obj !== 'object' || obj === null) {
+  if (typeof obj !== "object" || obj === null) {
     return obj as FilteredObject<T>;
   }
 
@@ -598,7 +600,7 @@ export function filterUndefinedAndEmpty<T>(obj: T): FilteredObject<T> {
     if (
       filteredValue !== undefined &&
       !(
-        typeof filteredValue === 'object' &&
+        typeof filteredValue === "object" &&
         Object.keys(filteredValue).length === 0
       )
     ) {
@@ -646,32 +648,32 @@ export function getDateFnsLocale({
 export function extendFieldInGenericSchema(
   inputSchema: GenericObjectType,
   fieldToFind: string,
-  newField?: object
+  newField?: object,
 ): GenericObjectType {
-  if (inputSchema.type === 'object' && inputSchema.properties) {
+  if (inputSchema.type === "object" && inputSchema.properties) {
     const schemaProperties = inputSchema.properties;
 
     // Use `Object.keys()` instead of `for..in`
     Object.keys(schemaProperties).forEach((propertyKey) => {
-      if (schemaProperties[propertyKey].type === 'object') {
+      if (schemaProperties[propertyKey].type === "object") {
         schemaProperties[propertyKey] = extendFieldInGenericSchema(
           schemaProperties[propertyKey],
-          fieldToFind
+          fieldToFind,
         );
       } else if (
-        schemaProperties[propertyKey].type === 'array' &&
+        schemaProperties[propertyKey].type === "array" &&
         schemaProperties[propertyKey].items
       ) {
         schemaProperties[propertyKey].items = extendFieldInGenericSchema(
           schemaProperties[propertyKey].items,
-          fieldToFind
+          fieldToFind,
         );
       }
     });
 
     const shouldTransform = Object.prototype.hasOwnProperty.call(
       schemaProperties,
-      fieldToFind
+      fieldToFind,
     );
     if (shouldTransform) {
       const transformedSchema = {
@@ -688,32 +690,32 @@ export function extendFieldInGenericSchema(
 
 export function findFieldInGenericSchema(
   inputSchema: GenericObjectType,
-  fieldToFind: string
+  fieldToFind: string,
 ): GenericObjectType {
-  if (inputSchema.type === 'object' && inputSchema.properties) {
+  if (inputSchema.type === "object" && inputSchema.properties) {
     const schemaProperties = inputSchema.properties;
 
     // Use `Object.keys()` instead of `for..in`
     Object.keys(schemaProperties).forEach((propertyKey) => {
-      if (schemaProperties[propertyKey].type === 'object') {
+      if (schemaProperties[propertyKey].type === "object") {
         schemaProperties[propertyKey] = extendFieldInGenericSchema(
           schemaProperties[propertyKey],
-          fieldToFind
+          fieldToFind,
         );
       } else if (
-        schemaProperties[propertyKey].type === 'array' &&
+        schemaProperties[propertyKey].type === "array" &&
         schemaProperties[propertyKey].items
       ) {
         schemaProperties[propertyKey].items = extendFieldInGenericSchema(
           schemaProperties[propertyKey].items,
-          fieldToFind
+          fieldToFind,
         );
       }
     });
 
     const shouldTransform = Object.prototype.hasOwnProperty.call(
       schemaProperties,
-      fieldToFind
+      fieldToFind,
     );
     if (shouldTransform) {
       return schemaProperties[fieldToFind];
@@ -726,21 +728,21 @@ export function getArrayFieldKeys(schema: GenericObjectType): string[] {
   const keys: string[] = [];
 
   function traverse(node: GenericObjectType) {
-    if (node.type === 'object' && node.properties) {
+    if (node.type === "object" && node.properties) {
       for (const [key, value] of Object.entries(node.properties)) {
         if (
-          typeof value === 'object' &&
+          typeof value === "object" &&
           value !== null &&
-          'type' in value &&
-          (value as GenericObjectType).type === 'array'
+          "type" in value &&
+          (value as GenericObjectType).type === "array"
         ) {
           keys.push(key);
           traverse((value as GenericObjectType).items); // array içinde object olabilir
         } else if (
-          typeof value === 'object' &&
+          typeof value === "object" &&
           value !== null &&
-          'type' in value &&
-          (value as GenericObjectType).type === 'object'
+          "type" in value &&
+          (value as GenericObjectType).type === "object"
         ) {
           traverse(value as GenericObjectType);
         }
@@ -752,11 +754,11 @@ export function getArrayFieldKeys(schema: GenericObjectType): string[] {
 }
 
 export function beautifyLabel(input: string | undefined | null): string {
-  if (!input || typeof input !== 'string') return ''; // Handle null, undefined, or non-string inputs
+  if (!input || typeof input !== "string") return ""; // Handle null, undefined, or non-string inputs
   return input
-    .replace(/([a-z])([A-Z])/g, '$1 $2') // Handle camelCase
-    .replace(/[-_]/g, ' ') // Replace underscores and hyphens with spaces
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // Handle camelCase
+    .replace(/[-_]/g, " ") // Replace underscores and hyphens with spaces
     .split(/\s+/) // Split by spaces
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
-    .join(' ');
+    .join(" ");
 }

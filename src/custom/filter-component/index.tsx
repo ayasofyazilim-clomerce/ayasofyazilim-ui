@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { FilterIcon } from 'lucide-react';
+import { FilterIcon } from "lucide-react";
 import {
   Dispatch,
   JSX,
@@ -8,18 +8,22 @@ import {
   SetStateAction,
   useState,
   useTransition,
-} from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { Card, CardContent, CardHeader } from '@repo/ayasofyazilim-ui/components/card';
+} from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+} from "@repo/ayasofyazilim-ui/components/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@repo/ayasofyazilim-ui/components/collapsible';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import AsyncSelectField from './fields/async-select';
-import DateField from './fields/date';
-import MultiSelectField from './fields/multi-select';
+} from "@repo/ayasofyazilim-ui/components/collapsible";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import AsyncSelectField from "./fields/async-select";
+import DateField from "./fields/date";
+import MultiSelectField from "./fields/multi-select";
 
 export type FilterComponentSearchItem = { id: string; name: string };
 export type DateSelectType = {
@@ -57,13 +61,13 @@ export type AsyncSelectType = {
 export type CustomFieldType = { order?: number; component: JSX.Element };
 
 function isAsyncSelectType(
-  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType
+  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType,
 ): filter is AsyncSelectType {
   return (filter as AsyncSelectType).fetchAction !== undefined;
 }
 
 function isMultiSelectType(
-  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType
+  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType,
 ): filter is MultiSelectType {
   return (
     (filter as MultiSelectType).options !== undefined &&
@@ -72,11 +76,11 @@ function isMultiSelectType(
 }
 
 function isDateSelectType(
-  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType
+  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType,
 ): filter is DateSelectType {
   return (
     (filter as DateSelectType).options !== undefined &&
-    typeof (filter as DateSelectType).value === 'string'
+    typeof (filter as DateSelectType).value === "string"
   );
 }
 
@@ -85,9 +89,9 @@ export default function FilterComponent({
   multiSelect,
   asyncSelect,
   onSubmit,
-  filtersText = 'Filters',
-  searchText = 'Search',
-  applyFilterText = 'Apply',
+  filtersText = "Filters",
+  searchText = "Search",
+  applyFilterText = "Apply",
   className,
   cardClassName,
   defaultOpen = true,
@@ -129,7 +133,7 @@ export default function FilterComponent({
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
-      className={cn('w-full space-y-2', className)}
+      className={cn("w-full space-y-2", className)}
     >
       {isCollapsible && (
         <CollapsibleTrigger asChild>
@@ -142,9 +146,9 @@ export default function FilterComponent({
       <CollapsibleContent className="space-y-2">
         <Card
           className={cn(
-            'shadow-none',
-            !filterGuidanceContent && 'mx-auto',
-            cardClassName
+            "shadow-none",
+            !filterGuidanceContent && "mx-auto",
+            cardClassName,
           )}
         >
           <CardHeader className="flex flex-row font-bold text-xl items-center justify-between">
@@ -159,8 +163,8 @@ export default function FilterComponent({
 
             <div
               className={cn(
-                'flex flex-col gap-4',
-                filterGuidanceContent ? 'w-1/2' : 'w-full'
+                "flex flex-col gap-4",
+                filterGuidanceContent ? "w-1/2" : "w-full",
               )}
             >
               {fields.map((filter, index) => {

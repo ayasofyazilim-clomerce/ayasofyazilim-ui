@@ -1,6 +1,6 @@
-import cv from 'opencv-ts';
-import type { Mat } from 'opencv-ts';
-import { DocumentCorners } from '../types';
+import cv from "opencv-ts";
+import type { Mat } from "opencv-ts";
+import { DocumentCorners } from "../types";
 
 export interface PerspectiveCorrectionOptions {
   imageQuality: number;
@@ -10,7 +10,7 @@ export function perspectiveCorrection(
   imageBase64: string,
   corners: DocumentCorners,
   videoDimensions: { width: number; height: number },
-  options: PerspectiveCorrectionOptions
+  options: PerspectiveCorrectionOptions,
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
@@ -18,12 +18,12 @@ export function perspectiveCorrection(
       img.onload = () => {
         try {
           // Create canvas and get image data
-          const canvas = document.createElement('canvas');
+          const canvas = document.createElement("canvas");
           canvas.width = img.width;
           canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
+          const ctx = canvas.getContext("2d");
           if (!ctx) {
-            reject(new Error('Failed to get canvas context'));
+            reject(new Error("Failed to get canvas context"));
             return;
           }
           ctx.drawImage(img, 0, 0);
@@ -51,7 +51,7 @@ export function perspectiveCorrection(
           const { outputWidth, outputHeight } = calculateOutputDimensions(
             corners,
             scaleX,
-            scaleY
+            scaleY,
           );
 
           // Destination points (rectangle)
@@ -69,7 +69,7 @@ export function perspectiveCorrection(
           // Get perspective transform matrix
           const transformMatrix = cv.getPerspectiveTransform(
             srcPoints,
-            dstPoints
+            dstPoints,
           );
 
           // Apply perspective transformation
@@ -78,15 +78,15 @@ export function perspectiveCorrection(
             src,
             dst,
             transformMatrix,
-            new cv.Size(outputWidth, outputHeight)
+            new cv.Size(outputWidth, outputHeight),
           );
 
           // Convert back to canvas and get base64
-          const outputCanvas = document.createElement('canvas');
+          const outputCanvas = document.createElement("canvas");
           cv.imshow(outputCanvas, dst);
           const croppedBase64 = outputCanvas.toDataURL(
-            'image/jpeg',
-            options.imageQuality
+            "image/jpeg",
+            options.imageQuality,
           );
 
           // Cleanup OpenCV matrices
@@ -97,7 +97,7 @@ export function perspectiveCorrection(
           reject(error);
         }
       };
-      img.onerror = () => reject(new Error('Failed to load image'));
+      img.onerror = () => reject(new Error("Failed to load image"));
       img.src = imageBase64;
     } catch (error) {
       reject(error);
@@ -108,22 +108,22 @@ export function perspectiveCorrection(
 function calculateOutputDimensions(
   corners: DocumentCorners,
   scaleX: number,
-  scaleY: number
+  scaleY: number,
 ): { outputWidth: number; outputHeight: number } {
   const distance = (
     p1: { x: number; y: number },
-    p2: { x: number; y: number }
+    p2: { x: number; y: number },
   ) => Math.sqrt(((p2.x - p1.x) * scaleX) ** 2 + ((p2.y - p1.y) * scaleY) ** 2);
 
   const topWidth = distance(corners.topLeftCorner, corners.topRightCorner);
   const bottomWidth = distance(
     corners.bottomLeftCorner,
-    corners.bottomRightCorner
+    corners.bottomRightCorner,
   );
   const leftHeight = distance(corners.topLeftCorner, corners.bottomLeftCorner);
   const rightHeight = distance(
     corners.topRightCorner,
-    corners.bottomRightCorner
+    corners.bottomRightCorner,
   );
 
   return {

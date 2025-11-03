@@ -1,15 +1,15 @@
-import * as React from 'react';
-import { useMemo } from 'react';
-import { Label, LabelProps, Pie, PieChart as RechartsPieChart } from 'recharts';
+import * as React from "react";
+import { useMemo } from "react";
+import { Label, LabelProps, Pie, PieChart as RechartsPieChart } from "recharts";
 import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '@repo/ayasofyazilim-ui/components/chart';
-import { CardClassNames, ChartCard } from './chart-card';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "@repo/ayasofyazilim-ui/components/chart";
+import { CardClassNames, ChartCard } from "./chart-card";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 export type PieChartData = Record<
   string,
@@ -28,7 +28,7 @@ export interface PieChartProps {
   trendIcon?: React.ReactNode;
   footer?: React.ReactNode;
   totalLabel?: string;
-  chartStyle: 'donut' | 'pie';
+  chartStyle: "donut" | "pie";
   innerRadius?: number;
   strokeWidth?: number;
   valuePrefix?: string;
@@ -64,16 +64,16 @@ export function PieChart({
 }: PieChartProps) {
   const totalCount = useMemo(
     () => Object.values(data).reduce((acc, curr) => acc + curr.value, 0),
-    [data]
+    [data],
   );
 
   // Transform data to ChartConfig shape for ChartContainer
   const renderLabelContent = ({
     viewBox,
   }: {
-    viewBox?: LabelProps['viewBox'] | null;
+    viewBox?: LabelProps["viewBox"] | null;
   }) => {
-    if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
       return (
         <text
           x={viewBox.cx}
@@ -113,9 +113,9 @@ export function PieChart({
     >
       <ChartContainer
         config={data}
-        className={cn('max-h-[300px]', classNames?.chart?.container)}
+        className={cn("max-h-[300px]", classNames?.chart?.container)}
       >
-        <RechartsPieChart className={cn('relative', classNames?.chart?.pie)}>
+        <RechartsPieChart className={cn("relative", classNames?.chart?.pie)}>
           <ChartTooltip
             cursor={false}
             content={
@@ -136,9 +136,9 @@ export function PieChart({
             className="fixed"
             dataKey="value"
             nameKey="key"
-            innerRadius={innerRadius || (chartStyle === 'donut' ? 60 : 0)}
+            innerRadius={innerRadius || (chartStyle === "donut" ? 60 : 0)}
             strokeWidth={
-              strokeWidth || (chartStyle === 'donut' ? 0 : undefined)
+              strokeWidth || (chartStyle === "donut" ? 0 : undefined)
             }
           >
             <Label content={renderLabelContent} />
@@ -146,7 +146,7 @@ export function PieChart({
           {showLegend && (
             <ChartLegend
               wrapperStyle={{
-                width: '100%',
+                width: "100%",
                 height: 0,
                 bottom: 0,
               }}

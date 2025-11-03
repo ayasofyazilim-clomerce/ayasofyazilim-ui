@@ -1,15 +1,21 @@
-'use client';
+"use client";
 
-import { Circle, CircleCheckBig } from 'lucide-react';
-import React, { createContext, JSX, useContext, useMemo, useState } from 'react';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+import { Circle, CircleCheckBig } from "lucide-react";
+import React, {
+  createContext,
+  JSX,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 const variants = {
   default:
-    'flex flex-row justify-between border-2 border-gray-300 gap-5 text-gray-700/80 flex-1',
+    "flex flex-row justify-between border-2 border-gray-300 gap-5 text-gray-700/80 flex-1",
   active:
-    'flex flex-row justify-between border-2 border-primary/80  gap-5 text-primary/80 hover:text-primary  flex-1',
+    "flex flex-row justify-between border-2 border-primary/80  gap-5 text-primary/80 hover:text-primary  flex-1",
 };
 
 interface ISelectTabsContentProps {
@@ -50,8 +56,8 @@ interface IContextProps {
   onChange: (value: string) => void;
 }
 const SelectTabsContext = createContext<IContextProps>({
-  activeTab: '',
-  onChange: () => { },
+  activeTab: "",
+  onChange: () => {},
 });
 interface ISelectTabsProps {
   children?: React.ReactNode;
@@ -76,7 +82,7 @@ interface ISelectTabsProps {
 export default function SelectTabs({
   deselect,
   children,
-  value = '',
+  value = "",
   onValueChange,
   disabled,
   className,
@@ -87,8 +93,8 @@ export default function SelectTabs({
     if (disabled) return;
 
     if (newValue === activeTab && deselect) {
-      setActiveTab('');
-      onValueChange?.('');
+      setActiveTab("");
+      onValueChange?.("");
     } else if (newValue !== activeTab) {
       setActiveTab(newValue);
       onValueChange?.(newValue);
@@ -97,7 +103,7 @@ export default function SelectTabs({
 
   return (
     <SelectTabsContext.Provider value={contextValue}>
-      <div className={cn('w-full grid gap-3', className)}>{children}</div>
+      <div className={cn("w-full grid gap-3", className)}>{children}</div>
     </SelectTabsContext.Provider>
   );
 }

@@ -1,10 +1,10 @@
-import { FormProps } from '@rjsf/core';
+import { FormProps } from "@rjsf/core";
 import {
   UiSchema as BaseUiSchema,
   GenericObjectType,
   ErrorSchema as BaseErrorSchema,
   FormValidation as BaseFormValidation,
-} from '@rjsf/utils';
+} from "@rjsf/utils";
 
 import type {
   FieldProps as BaseFieldProps,
@@ -12,16 +12,16 @@ import type {
   WidgetProps as BaseWidgetProps,
   RJSFSchema,
   StrictRJSFSchema,
-} from '@rjsf/utils';
+} from "@rjsf/utils";
 
 export type FormContext<T> = {
   locale?: string;
   formData?: T;
 };
 export enum DependencyType {
-  DISABLES = 'DISABLES',
-  HIDES = 'HIDES',
-  REQUIRES = 'REQUIRES',
+  DISABLES = "DISABLES",
+  HIDES = "HIDES",
+  REQUIRES = "REQUIRES",
 }
 export type Dependency<T> = {
   sourceField: string;
@@ -32,10 +32,10 @@ export type Dependency<T> = {
 
 export type ErrorSchema = BaseErrorSchema;
 export type FormValidation<T> = BaseFormValidation<T>;
-type UiConfig<T = unknown> = { 'ui:config'?: FormContext<T> } | undefined;
+type UiConfig<T = unknown> = { "ui:config"?: FormContext<T> } | undefined;
 export type UiSchema<T = unknown> = BaseUiSchema & UiConfig<T>;
 export interface SchemaFormProps<T>
-  extends Omit<FormProps<T>, 'validator' | 'uiSchema'> {
+  extends Omit<FormProps<T>, "validator" | "uiSchema"> {
   defaultSubmitClassName?: string;
   useDependency?: boolean;
   filter?: FilterType<T>;
@@ -54,7 +54,7 @@ export type FilterType<T> = CommonFilterType<T> &
   (
     | SortableFilterType
     | {
-        type: 'fullExclude';
+        type: "fullExclude";
       }
   );
 export type CommonFilterType<T> = {
@@ -62,7 +62,7 @@ export type CommonFilterType<T> = {
 };
 type SortableFilterType = {
   sort?: boolean;
-  type: 'include' | 'exclude';
+  type: "include" | "exclude";
 };
 
 export type FilteredObject<T> = {

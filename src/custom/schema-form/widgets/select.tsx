@@ -1,14 +1,14 @@
-import { WidgetProps } from '@rjsf/utils';
+import { WidgetProps } from "@rjsf/utils";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@repo/ayasofyazilim-ui/components/select';
-import { fieldOptionsByDependency } from '../utils/dependency';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { beautifyLabel } from '../utils';
+} from "@repo/ayasofyazilim-ui/components/select";
+import { fieldOptionsByDependency } from "../utils/dependency";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { beautifyLabel } from "../utils";
 
 export const CustomSelect = (props: WidgetProps) => {
   const { label, options, onChange, value, defaultValue, disabled, uiSchema } =
@@ -17,9 +17,9 @@ export const CustomSelect = (props: WidgetProps) => {
 
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,
@@ -42,15 +42,15 @@ export const CustomSelect = (props: WidgetProps) => {
         id={props.id}
         data-testid={props.id}
         className={cn(
-          'h-10',
-          hasValue ? 'text-black ' : 'text-muted-foreground'
+          "h-10",
+          hasValue ? "text-black " : "text-muted-foreground",
         )}
         disabled={fieldOptions.disabled}
       >
         <SelectValue
           placeholder={
             _value ||
-            props?.uiSchema?.['ui:placeholder'] ||
+            props?.uiSchema?.["ui:placeholder"] ||
             `Please select an ${beautifyLabel(label)}`
           }
         />

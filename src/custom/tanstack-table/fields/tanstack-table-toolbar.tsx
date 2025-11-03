@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { Table } from '@tanstack/react-table';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Table } from "@tanstack/react-table";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   TanstackTableFiltersType,
   TanstackTableSelectedRowActionType,
   TanstackTableTableActionsType,
-} from '../types';
-import { TanstackTableDateFilter } from './tanstack-table-filter-date';
-import { TanstackTableFacetedFilter } from './tanstack-table-filter-faceted';
-import { TanstackTableTextFilter } from './tanstack-table-filter-text';
-import { TanstackTableViewOptions } from './tanstack-table-view-options';
-import { Label } from '@repo/ayasofyazilim-ui/components/label';
+} from "../types";
+import { TanstackTableDateFilter } from "./tanstack-table-filter-date";
+import { TanstackTableFacetedFilter } from "./tanstack-table-filter-faceted";
+import { TanstackTableTextFilter } from "./tanstack-table-filter-text";
+import { TanstackTableViewOptions } from "./tanstack-table-view-options";
+import { Label } from "@repo/ayasofyazilim-ui/components/label";
 
 interface TanstackTableToolbarProps<TData> {
   title?: string;
@@ -51,7 +51,7 @@ export const TanstackTableToolbar = <TData,>({
     }
   }
   function onFilterMultiple(
-    filter: { accessorKey: string; selectedValues: string }[]
+    filter: { accessorKey: string; selectedValues: string }[],
   ) {
     const newParams = new URLSearchParams(searchParams.toString());
     filter.forEach(({ accessorKey, selectedValues }) => {

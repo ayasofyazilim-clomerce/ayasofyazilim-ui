@@ -1,2 +1,2 @@
-export * from './table-array';
-export * from './table-array-object';
+export * from "./table-array";
+export * from "./table-array-object";

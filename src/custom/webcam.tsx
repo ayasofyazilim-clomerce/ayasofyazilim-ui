@@ -13,14 +13,14 @@
  * - Internationalization support
  */
 
-'use client';
+"use client";
 
-import { Camera, Pause, Play, RefreshCw, Square, Video } from 'lucide-react';
-import * as React from 'react';
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import WebcamCore from 'react-webcam';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { Camera, Pause, Play, RefreshCw, Square, Video } from "lucide-react";
+import * as React from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import WebcamCore from "react-webcam";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 
 // Types
 export interface VideoDimensions {
@@ -33,7 +33,7 @@ export interface VideoRecordingConfig {
   hasInterface: boolean; // Show video recording UI controls
   autoStart?: boolean; // Auto-start recording when camera ready
   maxVideoDuration?: number; // Max duration in seconds (default: 60)
-  quality?: 'low' | 'medium' | 'high'; // Video quality
+  quality?: "low" | "medium" | "high"; // Video quality
   mimeType?: string; // Video MIME type (default: 'video/webm')
 }
 
@@ -71,7 +71,7 @@ export interface WebcamProps {
   autoCapture?: AutoCaptureConfig;
 
   // Camera Settings
-  defaultCamera?: 'front' | 'back'; // Default camera (front='user', back='environment')
+  defaultCamera?: "front" | "back"; // Default camera (front='user', back='environment')
   allowCameraSwitch?: boolean; // Allow camera switching
 
   // UI Customization
@@ -116,7 +116,7 @@ export interface WebcamProps {
   webcamRef?: React.RefObject<WebcamCore>;
   videoCheckInterval?: number; // default: 500ms
   maxRetryCount?: number; // default: 10
-  interfaceLocation?: 'static' | 'absolute'; // Location of controls (default: 'bottom')
+  interfaceLocation?: "static" | "absolute"; // Location of controls (default: 'bottom')
   showBorder?: boolean; // Show border around webcam area (default: true)
 }
 
@@ -131,7 +131,7 @@ export function Webcam(props: WebcamProps) {
     videoRecording,
     photoCapture,
     autoCapture,
-    defaultCamera = 'front',
+    defaultCamera = "front",
     allowCameraSwitch = false,
     placeholder,
     showCapturedImage = false,
@@ -144,35 +144,35 @@ export function Webcam(props: WebcamProps) {
     maxRetryCount = 10,
     showBorder = false,
     forceHideInterface = false,
-    interfaceLocation = 'static',
+    interfaceLocation = "static",
   } = props;
 
   // Validation: At least one feature must be enabled
   if (!videoRecording && !photoCapture && !autoCapture) {
     throw new Error(
-      'WebcamComponent: At least one core feature (videoRecording, photoCapture, or autoCapture) must be enabled'
+      "WebcamComponent: At least one core feature (videoRecording, photoCapture, or autoCapture) must be enabled",
     );
   }
 
   // Default labels
   const defaultLabels = {
-    startRecording: 'Start Recording',
-    stopRecording: 'Stop Recording',
-    recording: 'Recording...',
-    capturePhoto: 'Capture Photo',
-    startAutoCapture: 'Start Auto Capture',
-    stopAutoCapture: 'Stop Auto Capture',
-    autoCapturing: 'Auto Capturing...',
-    switchCamera: 'Switch Camera',
-    cameraReady: 'Camera Ready',
-    cameraError: 'Camera Error',
+    startRecording: "Start Recording",
+    stopRecording: "Stop Recording",
+    recording: "Recording...",
+    capturePhoto: "Capture Photo",
+    startAutoCapture: "Start Auto Capture",
+    stopAutoCapture: "Stop Auto Capture",
+    autoCapturing: "Auto Capturing...",
+    switchCamera: "Switch Camera",
+    cameraReady: "Camera Ready",
+    cameraError: "Camera Error",
     ...labels,
   };
 
   // State
   const [isPending, startTransition] = useTransition();
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>(
-    defaultCamera === 'front' ? 'user' : 'environment'
+  const [facingMode, setFacingMode] = useState<"user" | "environment">(
+    defaultCamera === "front" ? "user" : "environment",
   );
   const [isWebcamReady, setIsWebcamReady] = useState(false);
   // Video Recording State
@@ -223,7 +223,7 @@ export function Webcam(props: WebcamProps) {
 
     try {
       const { stream } = webcamRef.current;
-      const mimeType = videoRecording.mimeType || 'video/webm';
+      const mimeType = videoRecording.mimeType || "video/webm";
 
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
       recordedChunksRef.current = [];
@@ -290,19 +290,19 @@ export function Webcam(props: WebcamProps) {
     const video = webcamRef.current?.video;
     if (!video) return null;
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     if (!ctx) return null;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = "high";
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const quality = photoCapture?.quality || 0.95;
-    return canvas.toDataURL('image/jpeg', quality);
+    return canvas.toDataURL("image/jpeg", quality);
   }, [webcamRef, photoCapture]);
 
   const capturePhoto = useCallback(() => {
@@ -327,19 +327,19 @@ export function Webcam(props: WebcamProps) {
     const video = webcamRef.current?.video;
     if (!video) return;
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = "high";
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const quality = autoCapture.quality || 0.95;
-    const imageData = canvas.toDataURL('image/jpeg', quality);
+    const imageData = canvas.toDataURL("image/jpeg", quality);
 
     if (imageData) {
       callbacks?.onAutoPhotoCaptured?.(imageData);
@@ -380,12 +380,12 @@ export function Webcam(props: WebcamProps) {
       webcamRef,
       callbacks,
       hasAutoStarted,
-    ]
+    ],
   );
 
   // Camera Management
   const switchCamera = useCallback(() => {
-    const newFacingMode = facingMode === 'user' ? 'environment' : 'user';
+    const newFacingMode = facingMode === "user" ? "environment" : "user";
     setFacingMode(newFacingMode);
     setIsWebcamReady(false);
     setHasAutoStarted(false); // Reset auto-start flag for new camera
@@ -399,7 +399,7 @@ export function Webcam(props: WebcamProps) {
   useEffect(() => {
     const checkIsMobile = () =>
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
+        navigator.userAgent,
       );
     setIsMobile(checkIsMobile());
   }, []);
@@ -449,12 +449,12 @@ export function Webcam(props: WebcamProps) {
         if (retryCountRef.current > maxRetryCount) {
           clearVideoCheckInterval();
           callbacks?.onError?.(
-            'Failed to initialize camera after maximum retries'
+            "Failed to initialize camera after maximum retries",
           );
 
           // Try with default constraints as a fallback
           const currentFacingMode = facingMode;
-          setFacingMode('user');
+          setFacingMode("user");
           setTimeout(() => setFacingMode(currentFacingMode), 100);
         }
       }
@@ -478,11 +478,11 @@ export function Webcam(props: WebcamProps) {
   const handleUserMediaError = useCallback(
     (error: string | DOMException) => {
       callbacks?.onError?.(
-        typeof error === 'string' ? error : `Camera error: ${error.message}`
+        typeof error === "string" ? error : `Camera error: ${error.message}`,
       );
       setIsWebcamReady(false);
     },
-    [callbacks]
+    [callbacks],
   );
 
   // Manual capture function
@@ -511,7 +511,7 @@ export function Webcam(props: WebcamProps) {
       stopAutoCapture,
       clearAutoCapture,
       clearRecordingInterval,
-    ]
+    ],
   );
 
   useEffect(() => {
@@ -552,7 +552,7 @@ export function Webcam(props: WebcamProps) {
               <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
               <span className="text-xs">
                 {defaultLabels.recording} {Math.floor(recordingDuration / 60)}:
-                {String(recordingDuration % 60).padStart(2, '0')}
+                {String(recordingDuration % 60).padStart(2, "0")}
               </span>
             </div>
           </>
@@ -642,7 +642,7 @@ export function Webcam(props: WebcamProps) {
     if (!showCapturedImage || !capturedImage) return null;
 
     return (
-      <div className={cn('captured size-10', classNames?.previewImage)}>
+      <div className={cn("captured size-10", classNames?.previewImage)}>
         <img
           src={capturedImage}
           alt="Captured"
@@ -673,22 +673,22 @@ export function Webcam(props: WebcamProps) {
   return (
     <div
       className={cn(
-        'webcam-container overflow-hidden rounded-md bg-black relative',
-        classNames?.container
+        "webcam-container overflow-hidden rounded-md bg-black relative",
+        classNames?.container,
       )}
     >
       <div
         className={cn(
-          'webcam relative',
-          showBorder && 'p-2',
-          classNames?.webcam
+          "webcam relative",
+          showBorder && "p-2",
+          classNames?.webcam,
         )}
       >
         <div className="relative">
           <WebcamCore
             audio={false}
             className="background-transparent h-auto w-full rounded-md"
-            mirrored={facingMode === 'user'}
+            mirrored={facingMode === "user"}
             onUserMedia={handleUserMedia}
             onUserMediaError={handleUserMediaError}
             ref={webcamRef}
@@ -706,8 +706,8 @@ export function Webcam(props: WebcamProps) {
           {placeholder && isWebcamReady && (
             <div
               className={cn(
-                'absolute w-full h-full inset-0 z-3',
-                classNames?.placeholder
+                "absolute w-full h-full inset-0 z-3",
+                classNames?.placeholder,
               )}
             >
               {placeholder}
@@ -718,11 +718,11 @@ export function Webcam(props: WebcamProps) {
 
       <div
         className={cn(
-          'actions flex items-center justify-between p-2 pt-0',
+          "actions flex items-center justify-between p-2 pt-0",
           classNames?.controls,
-          interfaceLocation === 'absolute'
-            ? 'absolute bottom-0 left-0 p-4 z-10'
-            : ''
+          interfaceLocation === "absolute"
+            ? "absolute bottom-0 left-0 p-4 z-10"
+            : "",
         )}
       >
         {renderCapturedImagePreview()}

@@ -1,4 +1,4 @@
-import { GenericObjectType } from '@rjsf/utils';
+import { GenericObjectType } from "@rjsf/utils";
 
 interface JSONSchema {
   type?: string;
@@ -43,9 +43,9 @@ type DependencyConfig = Record<string, FieldDependencies>;
  */
 function getNestedProperty(
   obj: JSONSchema,
-  path: string
+  path: string,
 ): JSONSchema | undefined {
-  const parts = path.split('.');
+  const parts = path.split(".");
   let current: JSONSchema | undefined = obj;
 
   for (const part of parts) {
@@ -62,9 +62,9 @@ function getFieldValues(schema: JSONSchema, fieldPath: string): unknown[] {
   const field = getNestedProperty(schema, fieldPath);
   if (!field) return [];
   if (field.enum) return field.enum;
-  if (field.type === 'boolean') return [true, false];
-  if (field.type === 'integer' || field.type === 'number')
-    return ['__NUMERIC_RANGE__'];
+  if (field.type === "boolean") return [true, false];
+  if (field.type === "integer" || field.type === "number")
+    return ["__NUMERIC_RANGE__"];
   return [];
 }
 
@@ -73,7 +73,7 @@ function getFieldValues(schema: JSONSchema, fieldPath: string): unknown[] {
  */
 function applyFieldDependencies(
   originalSchema: GenericObjectType,
-  dependencies: DependencyConfig
+  dependencies: DependencyConfig,
 ): JSONSchema {
   const schema: JSONSchema = JSON.parse(JSON.stringify(originalSchema));
   if (!schema.properties) return schema;
@@ -81,11 +81,11 @@ function applyFieldDependencies(
   for (const [fieldPath, fieldDeps] of Object.entries(dependencies)) {
     const fieldValues = getFieldValues(schema, fieldPath);
     if (fieldValues.length > 0) {
-      const parentPath = fieldPath.split('.').slice(0, -1).join('.');
+      const parentPath = fieldPath.split(".").slice(0, -1).join(".");
       const parentSchema = parentPath
         ? getNestedProperty(schema, parentPath)
         : schema;
-      const fieldName = fieldPath.split('.').pop()!;
+      const fieldName = fieldPath.split(".").pop()!;
 
       if (parentSchema) {
         // Collect all HIDES targets globally, to remove from root properties
@@ -102,7 +102,7 @@ function applyFieldDependencies(
             delete schema.properties[hiddenTarget];
             if (schema.required?.includes(hiddenTarget)) {
               schema.required = schema.required.filter(
-                (r) => r !== hiddenTarget
+                (r) => r !== hiddenTarget,
               );
             }
           }
@@ -155,7 +155,7 @@ function applyFieldDependencies(
               // Else get original schema for that target field
               const originalFieldSchema = getNestedProperty(
                 originalSchema,
-                targetField
+                targetField,
               );
               if (originalFieldSchema) {
                 conditionalProperties[targetField] = { ...originalFieldSchema };
@@ -169,7 +169,7 @@ function applyFieldDependencies(
 
           if (requiredFields.length > 0) {
             conditionalSchema.required = requiredFields.filter((r) =>
-              visibleFieldsUnique.includes(r)
+              visibleFieldsUnique.includes(r),
             );
           }
 

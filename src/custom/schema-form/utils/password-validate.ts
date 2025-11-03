@@ -1,4 +1,4 @@
-import { FormValidation } from '../types';
+import { FormValidation } from "../types";
 
 export function customPasswordValidate<T>({
   formData,

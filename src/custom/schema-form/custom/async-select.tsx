@@ -1,12 +1,12 @@
-import { WidgetProps } from '@rjsf/utils';
+import { WidgetProps } from "@rjsf/utils";
 import AsyncSelectCore, {
   AsyncSelectType,
-} from '@repo/ayasofyazilim-ui/custom/async-select';
-import { fieldOptionsByDependency } from '../utils/dependency';
+} from "@repo/ayasofyazilim-ui/custom/async-select";
+import { fieldOptionsByDependency } from "../utils/dependency";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 export function AsyncSelectWidget(
-  props: Omit<Optional<AsyncSelectType, 'value'>, 'onChange'>
+  props: Omit<Optional<AsyncSelectType, "value">, "onChange">,
 ) {
   function Widget(widgetProps: WidgetProps) {
     const { value, uiSchema, disabled, onChange, required, formContext } =
@@ -25,7 +25,7 @@ export function AsyncSelectWidget(
       <AsyncSelectCore
         {...props}
         classNames={{
-          trigger: 'h-10 hover:bg-white bg-white shadow-sm',
+          trigger: "h-10 hover:bg-white bg-white shadow-sm",
         }}
         value={value || []}
         onChange={onChange}

@@ -1,14 +1,14 @@
-import { DatePicker } from '@repo/ayasofyazilim-ui/custom/date-picker';
-import { WidgetProps } from '../types';
-import { fieldOptionsByDependency } from '../utils/dependency';
+import { DatePicker } from "@repo/ayasofyazilim-ui/custom/date-picker";
+import { WidgetProps } from "../types";
+import { fieldOptionsByDependency } from "../utils/dependency";
 
 export const CustomDate = (props: WidgetProps) => {
   const { value, onChange, disabled, uiSchema } = props;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,
@@ -28,12 +28,12 @@ export const CustomDate = (props: WidgetProps) => {
       defaultValue={initialDate}
       disabled={fieldOptions.disabled}
       classNames={{
-        dateInput: 'h-10 shadow-sm date-input',
+        dateInput: "h-10 shadow-sm date-input",
       }}
       onChange={(selectedDate) => {
         if (selectedDate) {
-          if (props.schema.format === 'date') {
-            onChange(selectedDate.toISOString().split('T').at(0));
+          if (props.schema.format === "date") {
+            onChange(selectedDate.toISOString().split("T").at(0));
           } else {
             onChange(selectedDate.toISOString());
           }
@@ -47,9 +47,9 @@ export const CustomDateWithTime = (props: WidgetProps) => {
   const { value, onChange, disabled, uiSchema } = props;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,
@@ -70,12 +70,12 @@ export const CustomDateWithTime = (props: WidgetProps) => {
       useTime
       disabled={fieldOptions.disabled}
       classNames={{
-        dateInput: 'h-10 shadow-sm date-input',
+        dateInput: "h-10 shadow-sm date-input",
       }}
       onChange={(selectedDate) => {
         if (selectedDate) {
-          if (props.schema.format === 'date') {
-            onChange(selectedDate.toISOString().split('T').at(0));
+          if (props.schema.format === "date") {
+            onChange(selectedDate.toISOString().split("T").at(0));
           } else {
             onChange(selectedDate.toISOString());
           }

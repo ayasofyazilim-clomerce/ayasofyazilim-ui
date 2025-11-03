@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 type Props = {
   imageUrl: string;
@@ -35,23 +35,23 @@ export default function ImageCanvas({
     if (!canvasRef.current) return;
 
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Set styling for the error message
-    ctx.fillStyle = 'rgba(220, 53, 69, 0.1)'; // Light red background
+    ctx.fillStyle = "rgba(220, 53, 69, 0.1)"; // Light red background
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = '16px Arial';
-    ctx.fillStyle = '#dc3545'; // Bootstrap danger color
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#dc3545"; // Bootstrap danger color
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
     // Split message by newlines and render each line
-    const lines = errorMessage.split('\n');
+    const lines = errorMessage.split("\n");
     const lineHeight = 20;
     const startY = canvas.height / 2 - (lines.length * lineHeight) / 2;
 
@@ -70,7 +70,7 @@ export default function ImageCanvas({
       return;
     }
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // Set canvas dimensions to match container
@@ -106,27 +106,27 @@ export default function ImageCanvas({
     };
 
     const onError = (e: ErrorEvent) => {
-      const errorMsg = e.message || 'Failed to load image';
+      const errorMsg = e.message || "Failed to load image";
       setError(`Failed to load image: ${errorMsg}`);
       setImage(null);
       setTimeout(() => renderCanvas(), 0);
     };
 
-    img.addEventListener('load', onLoad);
-    img.addEventListener('error', onError);
+    img.addEventListener("load", onLoad);
+    img.addEventListener("error", onError);
 
     try {
       img.src = imageUrl;
-      img.crossOrigin = 'anonymous'; // Handle CORS if needed
-      img.className = 'border rounded-md';
+      img.crossOrigin = "anonymous"; // Handle CORS if needed
+      img.className = "border rounded-md";
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Invalid image URL';
+      const errorMsg = err instanceof Error ? err.message : "Invalid image URL";
       setError(`Image error: ${errorMsg}`);
     }
     return () => {
-      img.removeEventListener('load', onLoad);
-      img.removeEventListener('error', onError);
-      img.src = ''; // Clean up to avoid memory leaks
+      img.removeEventListener("load", onLoad);
+      img.removeEventListener("error", onError);
+      img.src = ""; // Clean up to avoid memory leaks
     };
   }, [imageUrl]);
 
@@ -153,10 +153,10 @@ export default function ImageCanvas({
       }
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(frameId);
     };
   }, [renderCanvas]);
@@ -181,7 +181,7 @@ export default function ImageCanvas({
       setIsDragging(true);
       setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     },
-    [position]
+    [position],
   );
 
   const handleMouseMove = useCallback(
@@ -194,7 +194,7 @@ export default function ImageCanvas({
         y: e.clientY - dragStart.y,
       });
     },
-    [isDragging, dragStart]
+    [isDragging, dragStart],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -227,16 +227,16 @@ export default function ImageCanvas({
         }
       }
     },
-    [currentZoom, minZoom, maxZoom, onZoomChange]
+    [currentZoom, minZoom, maxZoom, onZoomChange],
   ); // Add non-passive wheel event listener
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
 
-    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    canvas.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
-      canvas.removeEventListener('wheel', handleWheel);
+      canvas.removeEventListener("wheel", handleWheel);
     };
   }, [handleWheel]);
 
@@ -245,15 +245,15 @@ export default function ImageCanvas({
       <canvas
         ref={canvasRef}
         className={cn(
-          'w-full h-full cursor-grab',
-          isDragging ? 'cursor-grabbing' : '',
-          classNames?.canvas
+          "w-full h-full cursor-grab",
+          isDragging ? "cursor-grabbing" : "",
+          classNames?.canvas,
         )}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-      // onWheel handler removed and replaced with addEventListener above
+        // onWheel handler removed and replaced with addEventListener above
       />
     </div>
   );

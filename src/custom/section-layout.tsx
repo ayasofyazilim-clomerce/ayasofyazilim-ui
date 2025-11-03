@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
-import React, { JSX, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
-import { ScrollBar, ScrollArea } from '@repo/ayasofyazilim-ui/components/scroll-area';
+import React, { JSX, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import {
+  ScrollBar,
+  ScrollArea,
+} from "@repo/ayasofyazilim-ui/components/scroll-area";
 
 export interface ISection {
   id: string;
@@ -14,7 +17,7 @@ export interface ISection {
 }
 export interface ISectionNavbarBase {
   activeSectionId: string;
-  navAlignment?: 'start' | 'center' | 'end';
+  navAlignment?: "start" | "center" | "end";
   navClassName?: string;
   navContainerClassName?: string;
   onSectionChange?: (sectionId: string) => void;
@@ -42,7 +45,7 @@ export interface ISectionLayoutProps {
   contentClassName?: string;
   defaultActiveSectionId: string;
   isScrollArea?: boolean;
-  navAlignment?: 'start' | 'center' | 'end';
+  navAlignment?: "start" | "center" | "end";
   navClassName?: string;
   onSectionChange?: (sectionId: string) => void;
   openOnNewPage?: boolean;
@@ -87,13 +90,13 @@ function useWindowSize() {
     }
 
     // Add event listener
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     // Call handler right away so state gets updated with initial window size
     handleResize();
 
     // Remove event listener on cleanup
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []); // Empty array ensures that effect is only run on mount
   return windowSize;
 }
@@ -109,7 +112,7 @@ export const SectionNavbarBase = ({
   navContainerClassName,
   showScrollArea = true,
 }: ISectionNavbarBase) => {
-  const windowSize = useWindowSize()
+  const windowSize = useWindowSize();
   function onClick(e: string) {
     if (onSectionChange) onSectionChange(e);
   }
@@ -117,32 +120,34 @@ export const SectionNavbarBase = ({
     return (
       <ScrollArea
         className={cn(
-          `bg-white w-full shadow-sm ${vertical ? 'h-16 max-w-full md:h-full md:max-w-72' : 'h-16 max-w-full overflow-visible'}`,
-          navContainerClassName
+          `bg-white w-full shadow-sm ${vertical ? "h-16 max-w-full md:h-full md:max-w-72" : "h-16 max-w-full overflow-visible"}`,
+          navContainerClassName,
         )}
       >
         <ScrollBar
           orientation={
-            vertical && windowSize.width > 768 ? 'vertical' : 'horizontal'
+            vertical && windowSize.width > 768 ? "vertical" : "horizontal"
           }
           className="z-10"
         />
         <div>
           <nav
             className={cn(
-              `flex gap-4 text-sm text-muted-foreground md:border-0 border-b text-center md:text-left ${vertical
-                ? `flex-row justify-start p-0 h-16 items-center md:items-start md:flex-col md:gap-0 md:h-full`
-                : `flex-row justify-${navAlignment}  h-16 items-center p-5`
+              `flex gap-4 text-sm text-muted-foreground md:border-0 border-b text-center md:text-left ${
+                vertical
+                  ? `flex-row justify-start p-0 h-16 items-center md:items-start md:flex-col md:gap-0 md:h-full`
+                  : `flex-row justify-${navAlignment}  h-16 items-center p-5`
               }     `,
-              navClassName
+              navClassName,
             )}
           >
             {sections.map((section) => {
               const className = `
-            hover:no-underline rounded-none bg-white ${section.id === activeSectionId ? `font-semibold text-primary sticky left-0 right-0` : 'text-muted-foreground hover:text-black'} ${vertical
-                  ? 'block overflow-hidden text-ellipsis text-left max-w-72 h-10 px-4 py-0'
-                  : ''
-                } `;
+            hover:no-underline rounded-none bg-white ${section.id === activeSectionId ? `font-semibold text-primary sticky left-0 right-0` : "text-muted-foreground hover:text-black"} ${
+              vertical
+                ? "block overflow-hidden text-ellipsis text-left max-w-72 h-10 px-4 py-0"
+                : ""
+            } `;
 
               if (!openOnNewPage && showContentInSamePage) {
                 return (
@@ -178,19 +183,21 @@ export const SectionNavbarBase = ({
   return (
     <nav
       className={cn(
-        `flex gap-4 text-sm text-muted-foreground md:border-0 border-b text-center md:text-left ${vertical
-          ? `flex-row justify-start p-0 h-16 items-center md:items-start md:flex-col md:gap-0 md:h-full`
-          : `flex-row justify-${navAlignment}  h-16 items-center p-5`
+        `flex gap-4 text-sm text-muted-foreground md:border-0 border-b text-center md:text-left ${
+          vertical
+            ? `flex-row justify-start p-0 h-16 items-center md:items-start md:flex-col md:gap-0 md:h-full`
+            : `flex-row justify-${navAlignment}  h-16 items-center p-5`
         }     `,
-        navClassName
+        navClassName,
       )}
     >
       {sections.map((section) => {
         const className = `
-        hover:no-underline rounded-none bg-white ${section.id === activeSectionId ? `font-semibold text-primary sticky left-0 right-0` : 'text-muted-foreground hover:text-black'} ${vertical
-            ? 'block overflow-hidden text-ellipsis text-left max-w-72 h-10 px-4 py-0'
-            : ''
-          } `;
+        hover:no-underline rounded-none bg-white ${section.id === activeSectionId ? `font-semibold text-primary sticky left-0 right-0` : "text-muted-foreground hover:text-black"} ${
+          vertical
+            ? "block overflow-hidden text-ellipsis text-left max-w-72 h-10 px-4 py-0"
+            : ""
+        } `;
 
         if (!openOnNewPage && showContentInSamePage) {
           return (
@@ -234,7 +241,7 @@ const SectionContentBase = ({
           setActiveSectionId(sectionId);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
     if (divRef.current) {
       observer.observe(divRef.current);
@@ -250,7 +257,7 @@ const SectionContentBase = ({
     <div
       id={`${sectionId}testTable`}
       ref={divRef}
-      className={cn('w-full ', className)}
+      className={cn("w-full ", className)}
     >
       {sectionContent}
     </div>
@@ -275,7 +282,7 @@ export function SectionContent({
     );
   }
   return (
-    <div className={cn('flex flex-1 justify-center', className)}>
+    <div className={cn("flex flex-1 justify-center", className)}>
       {children}
     </div>
   );
@@ -289,17 +296,17 @@ export function SectionLayout({
   openOnNewPage,
   vertical,
   defaultActiveSectionId,
-  navAlignment = 'start',
+  navAlignment = "start",
   navClassName,
   onSectionChange,
   showContentInSamePage,
   isScrollArea = true,
 }: ISectionLayoutProps) {
   const [activeSectionId, setActiveSectionId] = useState(
-    defaultActiveSectionId
+    defaultActiveSectionId,
   );
   const activeSection = sections.find(
-    (section) => section.id === activeSectionId
+    (section) => section.id === activeSectionId,
   );
   useEffect(() => {
     if (openOnNewPage || showContentInSamePage) {
@@ -317,8 +324,8 @@ export function SectionLayout({
   return (
     <div
       className={cn(
-        `flex overflow-hidden h-full ${vertical ? 'flex-col md:flex-row' : 'flex-col'}`,
-        className
+        `flex overflow-hidden h-full ${vertical ? "flex-col md:flex-row" : "flex-col"}`,
+        className,
       )}
     >
       <SectionNavbarBase

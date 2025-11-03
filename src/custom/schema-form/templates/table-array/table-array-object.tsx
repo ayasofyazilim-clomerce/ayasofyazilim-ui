@@ -1,12 +1,12 @@
-import { ObjectFieldTemplateProps } from '@rjsf/utils';
-import { TableCell } from '@repo/ayasofyazilim-ui/components/table';
+import { ObjectFieldTemplateProps } from "@rjsf/utils";
+import { TableCell } from "@repo/ayasofyazilim-ui/components/table";
 
 export const TableArrayObjectFieldTemplate = (
-  props: ObjectFieldTemplateProps
+  props: ObjectFieldTemplateProps,
 ) =>
   props.properties.map((element) =>
     Object.keys(props.idSchema).map((item) => {
-      if (item === '$id' || item !== element.name) return null;
+      if (item === "$id" || item !== element.name) return null;
       return (
         <TableCell
           key={element.name}
@@ -15,5 +15,5 @@ export const TableArrayObjectFieldTemplate = (
           {element.content}
         </TableCell>
       );
-    })
+    }),
   );

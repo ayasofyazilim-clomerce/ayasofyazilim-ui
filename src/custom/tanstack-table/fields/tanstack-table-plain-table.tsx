@@ -2,9 +2,9 @@ import {
   ColumnDef,
   flexRender,
   Table as TableType,
-} from '@tanstack/react-table';
-import { Fragment, JSX } from 'react';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "@tanstack/react-table";
+import { Fragment, JSX } from "react";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import {
   Table,
   TableBody,
@@ -12,8 +12,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@repo/ayasofyazilim-ui/components/table';
-import { getCommonPinningStyles } from '../utils';
+} from "@repo/ayasofyazilim-ui/components/table";
+import { getCommonPinningStyles } from "../utils";
 
 export function TanstackTablePlainTable<TData, TValue>({
   table,
@@ -28,26 +28,26 @@ export function TanstackTablePlainTable<TData, TValue>({
   editable?: boolean;
   expandedRowComponent?: (
     row: TData,
-    toggleExpanded: () => void
+    toggleExpanded: () => void,
   ) => JSX.Element;
   table: TableType<TData>;
   resizeable?: boolean;
 }) {
   return (
-    <Table style={{ width: table.getCenterTotalSize(), minWidth: '100%' }}>
+    <Table style={{ width: table.getCenterTotalSize(), minWidth: "100%" }}>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id} className="group">
             {headerGroup.headers.map((header) => {
-              if (header.id === 'actions') return null;
+              if (header.id === "actions") return null;
               return (
                 <TableHead
                   key={header.id}
                   colSpan={header.colSpan}
                   className={cn(
-                    ' relative group/th border-r border-gray-200',
+                    " relative group/th border-r border-gray-200",
                     header.column.getIsResizing() &&
-                    'border-dashed border-black border-r'
+                      "border-dashed border-black border-r",
                   )}
                   style={{
                     ...getCommonPinningStyles({
@@ -60,16 +60,16 @@ export function TanstackTablePlainTable<TData, TValue>({
                 >
                   <div
                     className={cn(
-                      header.column.getIsResizing() && 'resizing',
-                      'group-has-[.resizing]:pointer-events-none group-has-[.resizing]:select-none'
+                      header.column.getIsResizing() && "resizing",
+                      "group-has-[.resizing]:pointer-events-none group-has-[.resizing]:select-none",
                     )}
                   >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </div>
                   {resizeable && (
                     <div
@@ -93,15 +93,15 @@ export function TanstackTablePlainTable<TData, TValue>({
           table.getRowModel().rows.map((row) => (
             <Fragment key={row.id}>
               <TableRow
-                data-state={row.getIsSelected() && 'selected'}
-                className={cn(editable && '[&>td:last-child]:border-r-0')}
+                data-state={row.getIsSelected() && "selected"}
+                className={cn(editable && "[&>td:last-child]:border-r-0")}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
                     className={cn(
-                      (editable || cell.column.id === 'actions') &&
-                      'p-0 border border-b-0'
+                      (editable || cell.column.id === "actions") &&
+                        "p-0 border border-b-0",
                     )}
                     style={{
                       ...getCommonPinningStyles({
@@ -121,7 +121,7 @@ export function TanstackTablePlainTable<TData, TValue>({
                   <TableCell colSpan={row.getAllCells().length}>
                     {expandedRowComponent(
                       row.original,
-                      row.getToggleExpandedHandler()
+                      row.getToggleExpandedHandler(),
                     )}
                   </TableCell>
                 </TableRow>

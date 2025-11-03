@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@repo/ayasofyazilim-ui/components/dialog';
-import { SchemaForm } from '@repo/ayasofyazilim-ui/custom/schema-form';
-import { TanstackTableActionsSchemaFormDialog } from '../types';
+} from "@repo/ayasofyazilim-ui/components/dialog";
+import { SchemaForm } from "@repo/ayasofyazilim-ui/custom/schema-form";
+import { TanstackTableActionsSchemaFormDialog } from "../types";
 
 type TanstackTableSchemaFormDialogProps<TData> = {
   setDialogOpen: () => void;
 } & TanstackTableActionsSchemaFormDialog<TData>;
 export function TanstackTableTableSchemaFormDialog<TData>(
-  props: TanstackTableSchemaFormDialogProps<TData>
+  props: TanstackTableSchemaFormDialogProps<TData>,
 ) {
   const { title, setDialogOpen, onSubmit } = props;
   return (

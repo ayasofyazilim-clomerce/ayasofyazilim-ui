@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { DocRendererProps } from 'react-doc-viewer';
-import { Controllers } from '../controllers';
-import ImageCanvas from '../../image-canvas';
+import { useState } from "react";
+import { DocRendererProps } from "react-doc-viewer";
+import { Controllers } from "../controllers";
+import ImageCanvas from "../../image-canvas";
 
 const CustomImageRenderer = (props: DocRendererProps) => {
   const { mainState } = props;
@@ -18,7 +18,7 @@ const CustomImageRenderer = (props: DocRendererProps) => {
       <div className="relative size-full flex items-center justify-center">
         <ImageCanvas
           classNames={{
-            canvas: 'border rounded-md',
+            canvas: "border rounded-md",
           }}
           imageUrl={currentDocument.uri}
           zoom={zoom}
@@ -31,7 +31,7 @@ const CustomImageRenderer = (props: DocRendererProps) => {
   );
 };
 
-CustomImageRenderer.fileTypes = ['image/jpeg', 'image/png', 'image/gif'];
+CustomImageRenderer.fileTypes = ["image/jpeg", "image/png", "image/gif"];
 CustomImageRenderer.weight = 1;
 
 export default CustomImageRenderer;

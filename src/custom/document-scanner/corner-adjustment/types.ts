@@ -1,5 +1,5 @@
-import { PointerEvent } from 'react';
-import { DocumentCorners } from '../types';
+import { PointerEvent } from "react";
+import { DocumentCorners } from "../types";
 
 export interface CornerAdjustmentProps {
   capturedImage: string;

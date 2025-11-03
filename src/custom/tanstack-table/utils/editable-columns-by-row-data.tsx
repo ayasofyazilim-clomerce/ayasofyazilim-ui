@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { ColumnDef } from '@tanstack/react-table';
-import { useEffect, useState } from 'react';
-import { Input } from '@repo/ayasofyazilim-ui/components/input';
+import { ColumnDef } from "@tanstack/react-table";
+import { useEffect, useState } from "react";
+import { Input } from "@repo/ayasofyazilim-ui/components/input";
 import {
   Select,
   SelectContent,
@@ -10,20 +10,20 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@repo/ayasofyazilim-ui/components/select';
-import { Switch } from '@repo/ayasofyazilim-ui/components/switch';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { createCell, tanstackTableCreateTitleWithLanguageData } from '.';
-import { TanstackTableColumnHeader } from '../fields';
+} from "@repo/ayasofyazilim-ui/components/select";
+import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { createCell, tanstackTableCreateTitleWithLanguageData } from ".";
+import { TanstackTableColumnHeader } from "../fields";
 import {
   TanstackTableCreateColumnsByRowId,
   TanstacktableEditableColumnsByRowId,
-} from '../types';
-import { DatePicker } from '@repo/ayasofyazilim-ui/custom/date-picker';
+} from "../types";
+import { DatePicker } from "@repo/ayasofyazilim-ui/custom/date-picker";
 
 export function tanstackTableEditableColumnsByRowData<T>(
   params: TanstacktableEditableColumnsByRowId<T> &
-    Omit<TanstackTableCreateColumnsByRowId<T>, 'rows' | 'selectableRows'>
+    Omit<TanstackTableCreateColumnsByRowId<T>, "rows" | "selectableRows">,
 ) {
   const {
     rows,
@@ -74,7 +74,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
               localization,
             });
           }
-          const initialValue = (getValue() as string)?.toString() || '';
+          const initialValue = (getValue() as string)?.toString() || "";
           const [value, setValue] = useState(initialValue);
           const rowId = row.index.toString();
           const isRowSelected = table.getRow(rowId)?.getIsSelected();
@@ -83,11 +83,11 @@ export function tanstackTableEditableColumnsByRowData<T>(
           const onBlur = () => {
             let $value: string | number | boolean;
             switch (rows[accessorKey]?.type) {
-              case 'number':
+              case "number":
                 $value = Number(value);
                 break;
-              case 'boolean':
-                $value = value === 'true';
+              case "boolean":
+                $value = value === "true";
                 break;
               default:
                 $value = value;
@@ -124,7 +124,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
                 onValueChange={(_value) => {
                   handleValueChange(_value);
                   const $value =
-                    rows[accessorKey]?.type === 'number'
+                    rows[accessorKey]?.type === "number"
                       ? Number(_value)
                       : _value;
                   table.options.meta?.updateData(row.index, id, $value);
@@ -132,9 +132,9 @@ export function tanstackTableEditableColumnsByRowData<T>(
               >
                 <SelectTrigger
                   className={cn(
-                    'w-[180px] min-w-max border-none rounded-none focus-visible:border-none focus-within:border-none ring-0 focus-visible:ring-0 focus-within:ring-0 ring-transparent shadow-none',
-                    isRowSelected ? 'font-medium italic' : '',
-                    !value && 'text-muted-foreground'
+                    "w-[180px] min-w-max border-none rounded-none focus-visible:border-none focus-within:border-none ring-0 focus-visible:ring-0 focus-within:ring-0 ring-transparent shadow-none",
+                    isRowSelected ? "font-medium italic" : "",
+                    !value && "text-muted-foreground",
                   )}
                 >
                   <SelectValue
@@ -157,12 +157,12 @@ export function tanstackTableEditableColumnsByRowData<T>(
               </Select>
             );
           }
-          if (rows[accessorKey]?.type === 'boolean') {
+          if (rows[accessorKey]?.type === "boolean") {
             return (
               <div className="text-center">
                 <Switch
                   className="align-middle"
-                  checked={value === 'true'}
+                  checked={value === "true"}
                   onBlur={onBlur}
                   onCheckedChange={(_value) => {
                     handleValueChange(String(value));
@@ -172,7 +172,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
               </div>
             );
           }
-          if (rows[accessorKey]?.format === 'date-time') {
+          if (rows[accessorKey]?.format === "date-time") {
             const date = new Date(value);
             return (
               <div className="text-center">
@@ -185,13 +185,13 @@ export function tanstackTableEditableColumnsByRowData<T>(
                   }
                   onChange={(date) => {
                     const $value =
-                      rows[accessorKey]?.format === 'date-time'
+                      rows[accessorKey]?.format === "date-time"
                         ? date?.toISOString()
                         : date;
                     table.options.meta?.updateData(row.index, id, $value);
                   }}
                   classNames={{
-                    dateInput: 'border-none rounded-none',
+                    dateInput: "border-none rounded-none",
                   }}
                 />
               </div>
@@ -201,8 +201,8 @@ export function tanstackTableEditableColumnsByRowData<T>(
             <Input
               value={value as string}
               className={cn(
-                'w-full border-none rounded-none focus-visible:border-none focus-within:border-none ring-0 focus-visible:ring-0 focus-within:ring-0 ring-transparent shadow-none',
-                isRowSelected ? 'font-medium italic' : ''
+                "w-full border-none rounded-none focus-visible:border-none focus-within:border-none ring-0 focus-visible:ring-0 focus-within:ring-0 ring-transparent shadow-none",
+                isRowSelected ? "font-medium italic" : "",
               )}
               placeholder={accessorKey}
               onChange={(e) => {

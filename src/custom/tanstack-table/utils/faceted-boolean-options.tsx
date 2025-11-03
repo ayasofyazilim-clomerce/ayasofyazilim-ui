@@ -1,21 +1,21 @@
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle } from "lucide-react";
 
 export const BooleanOptions = {
   options: [
     {
-      label: 'Yes',
+      label: "Yes",
       when: (value: string | number | boolean | Date) => Boolean(value),
-      value: 'true',
+      value: "true",
       icon: CheckCircle,
-      iconClassName: 'text-green-700',
+      iconClassName: "text-green-700",
       hideColumnValue: true,
     },
     {
-      label: 'No',
+      label: "No",
       when: (value: string | number | boolean | Date) => !value,
-      value: 'false',
+      value: "false",
       icon: XCircle,
-      iconClassName: 'text-red-700',
+      iconClassName: "text-red-700",
       hideColumnValue: true,
     },
   ],

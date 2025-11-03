@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { LocalizedList } from './types';
+import { useState, useEffect } from "react";
+import { LocalizedList } from "./types";
 
 /**
  * Hook to automatically inject localized lists according to user's browser locale.

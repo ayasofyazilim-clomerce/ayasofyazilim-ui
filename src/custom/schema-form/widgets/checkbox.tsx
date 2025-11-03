@@ -1,7 +1,7 @@
-import { WidgetProps } from '@rjsf/utils';
-import { Checkbox } from '@repo/ayasofyazilim-ui/components/checkbox';
-import { FieldLabel } from '../custom/label';
-import { fieldOptionsByDependency } from '../utils/dependency';
+import { WidgetProps } from "@rjsf/utils";
+import { Checkbox } from "@repo/ayasofyazilim-ui/components/checkbox";
+import { FieldLabel } from "../custom/label";
+import { fieldOptionsByDependency } from "../utils/dependency";
 
 export const CustomCheckbox = (props: WidgetProps) => {
   const {
@@ -17,10 +17,10 @@ export const CustomCheckbox = (props: WidgetProps) => {
   } = props;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext
+    props.formContext,
   );
 
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,

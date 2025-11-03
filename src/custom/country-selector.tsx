@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 
-import { Badge } from '@repo/ayasofyazilim-ui/components/badge';
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -11,47 +11,47 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@repo/ayasofyazilim-ui/components/command';
+} from "@repo/ayasofyazilim-ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@repo/ayasofyazilim-ui/components/popover';
-import { ScrollArea } from '@repo/ayasofyazilim-ui/components/scroll-area';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "@repo/ayasofyazilim-ui/components/popover";
+import { ScrollArea } from "@repo/ayasofyazilim-ui/components/scroll-area";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 export const lang = {
-  searchText: 'Find',
-  searchEmptyValue: 'No country found.',
+  searchText: "Find",
+  searchEmptyValue: "No country found.",
   defaultValue: {
-    label: 'Test',
-    value: 'tr',
+    label: "Test",
+    value: "tr",
   },
   countries: [
     {
-      cultureName: 'en',
-      uiCultureName: 'en',
-      displayName: 'English',
-      flagIcon: 'en',
+      cultureName: "en",
+      uiCultureName: "en",
+      displayName: "English",
+      flagIcon: "en",
       isEnabled: true,
       isDefaultLanguage: true,
-      concurrencyStamp: '1a736aee0303420f9394ce3a98523e34',
-      creationTime: '2024-03-21T08:43:33.6867177',
+      concurrencyStamp: "1a736aee0303420f9394ce3a98523e34",
+      creationTime: "2024-03-21T08:43:33.6867177",
       creatorId: null,
-      id: '75fe277d-5138-285d-8088-3a1171b61635',
+      id: "75fe277d-5138-285d-8088-3a1171b61635",
       extraProperties: {},
     },
     {
-      cultureName: 'tr',
-      uiCultureName: 'tr',
-      displayName: 'Türkçe',
-      flagIcon: 'tr',
+      cultureName: "tr",
+      uiCultureName: "tr",
+      displayName: "Türkçe",
+      flagIcon: "tr",
       isEnabled: true,
       isDefaultLanguage: false,
-      concurrencyStamp: '095c8922c1b148bd9e161beca3c635ac',
-      creationTime: '2024-03-21T08:43:33.6892353',
+      concurrencyStamp: "095c8922c1b148bd9e161beca3c635ac",
+      creationTime: "2024-03-21T08:43:33.6892353",
       creatorId: null,
-      id: 'a8483e30-e0e6-e4e8-f2ff-3a1171b61638',
+      id: "a8483e30-e0e6-e4e8-f2ff-3a1171b61638",
       extraProperties: {},
     },
   ],
@@ -61,7 +61,7 @@ export type CountryItem = {
   creationTime?: string;
   creatorId?: string | null;
   cultureName?: string | null;
-  direction?: 'rtl' | 'ltr' | null;
+  direction?: "rtl" | "ltr" | null;
   displayName?: string | null;
   extraProperties?: object | null;
   flagIcon?: string | null;
@@ -75,7 +75,7 @@ export type CountryItem = {
 type CountrySelectorProps = {
   countries?: Array<CountryItem>;
   defaultValue?: string;
-  menuAlign?: 'start' | 'center' | 'end';
+  menuAlign?: "start" | "center" | "end";
   onValueChange?: (value: string) => void;
   searchEmptyValue?: string;
   searchText?: string;
@@ -89,7 +89,7 @@ export function CountrySelector({
   searchText,
   searchEmptyValue,
   defaultValue,
-  menuAlign = 'end',
+  menuAlign = "end",
   showLabel = false,
   showFlag = false,
   countries = [],
@@ -97,7 +97,7 @@ export function CountrySelector({
   className,
 }: CountrySelectorProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState<string>('');
+  const [value, setValue] = React.useState<string>("");
 
   function onSelect(currentValue: string) {
     setValue(currentValue);
@@ -112,14 +112,14 @@ export function CountrySelector({
           variant="ghost"
           aria-expanded={open}
           className={cn(
-            'justify-between border-none bg-transparent px-2 gap-2 rtl:flex-row-reverse min-h-8',
-            className
+            "justify-between border-none bg-transparent px-2 gap-2 rtl:flex-row-reverse min-h-8",
+            className,
           )}
         >
           {value ? (
             <SelectedCountry
               {...countries.find(
-                (country) => country.cultureName?.toLowerCase() === value
+                (country) => country.cultureName?.toLowerCase() === value,
               )}
               showFlag={showFlag}
               showLabel={showLabel}
@@ -127,7 +127,8 @@ export function CountrySelector({
           ) : (
             <SelectedCountry
               {...countries.find(
-                (country) => country.cultureName?.toLowerCase() === defaultValue
+                (country) =>
+                  country.cultureName?.toLowerCase() === defaultValue,
               )}
               showFlag={showFlag}
               showLabel={showLabel}
@@ -144,7 +145,7 @@ export function CountrySelector({
                 .find(
                   (i) =>
                     i.cultureName?.toLocaleLowerCase() ===
-                    commandValue.toLocaleLowerCase()
+                    commandValue.toLocaleLowerCase(),
                 )
                 ?.displayName?.toLocaleLowerCase()
                 ?.includes(search.toLocaleLowerCase())
@@ -161,7 +162,7 @@ export function CountrySelector({
                 {countries.map((country) => (
                   <CommandItem
                     key={country.cultureName}
-                    value={`${country.cultureName}` || ''}
+                    value={`${country.cultureName}` || ""}
                     onSelect={(currentValue: string) => onSelect(currentValue)}
                   >
                     <SelectedCountry {...country} />
@@ -182,26 +183,26 @@ type SelectedCountryProps = Partial<CountryItem> & {
 };
 const SelectedCountry = ({
   displayName,
-  flagIcon = '',
+  flagIcon = "",
   direction,
   showLabel = true,
   showFlag,
 }: SelectedCountryProps) => (
   <div
-    className={`${direction === 'rtl' && 'flex-row-reverse'} rtl:flex-row-reverse flex w-full justify-between gap-2 overflow-hidden items-center`}
+    className={`${direction === "rtl" && "flex-row-reverse"} rtl:flex-row-reverse flex w-full justify-between gap-2 overflow-hidden items-center`}
   >
     {showLabel && <span className="text-xs text-black">{displayName}</span>}
     <div>
       {showFlag && (
         <img
           src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/1x1/${flagIcon}.svg`}
-          alt={displayName || ''}
+          alt={displayName || ""}
           className="w-6 h-6 object-cover rounded-full"
         />
       )}
       {!showFlag && (
         <Badge className="text-xs py-0 px-1">
-          {flagIcon?.toUpperCase() || 'N/A'}
+          {flagIcon?.toUpperCase() || "N/A"}
         </Badge>
       )}
     </div>

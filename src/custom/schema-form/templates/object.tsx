@@ -1,14 +1,14 @@
-import { ObjectFieldTemplateProps } from '@rjsf/utils';
-import { Fragment } from 'react/jsx-runtime';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
-import { fieldOptionsByDependency } from '../utils/dependency';
-import { FieldLabel } from '../custom/label';
-import { TableArrayObjectFieldTemplate } from './table-array';
+import { ObjectFieldTemplateProps } from "@rjsf/utils";
+import { Fragment } from "react/jsx-runtime";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { fieldOptionsByDependency } from "../utils/dependency";
+import { FieldLabel } from "../custom/label";
+import { TableArrayObjectFieldTemplate } from "./table-array";
 
 export const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
   const { uiSchema, title, disabled, description, formContext } = props;
   const dependencyOptions = fieldOptionsByDependency(uiSchema, formContext);
-  const required = uiSchema?.['ui:required'] || props.required;
+  const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
     disabled,
     required,
@@ -26,9 +26,9 @@ export const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
   return (
     <div
       className={cn(
-        'flex flex-col gap-3 flex-1 w-full',
-        title && 'border p-4 rounded-md bg-white',
-        uiSchema?.['ui:className']
+        "flex flex-col gap-3 flex-1 w-full",
+        title && "border p-4 rounded-md bg-white",
+        uiSchema?.["ui:className"],
       )}
     >
       {title && uiSchema?.displayLabel !== false && (

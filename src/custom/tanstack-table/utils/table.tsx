@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { ColumnFiltersState } from '@tanstack/react-table';
-import { useState, useEffect } from 'react';
+import { ColumnFiltersState } from "@tanstack/react-table";
+import { useState, useEffect } from "react";
 import {
   EditableTanstackTableProps,
   NonEditableTanstackTableProps,
-} from '../types';
+} from "../types";
 
 export function NonEditableTanstackTable<TData>(
   data: TData[],
-  rowCount: number
+  rowCount: number,
 ): NonEditableTanstackTableProps<TData> {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 

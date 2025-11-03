@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Loader } from 'lucide-react';
-import * as React from 'react';
+import { Loader } from "lucide-react";
+import * as React from "react";
 
-import { Button } from '@repo/ayasofyazilim-ui/components/button';
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Dialog,
   DialogClose,
@@ -11,9 +11,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@repo/ayasofyazilim-ui/components/dialog';
-import { TanstackTableActionsCustomDialog } from '../types';
-import { cn } from '@repo/ayasofyazilim-ui/lib/utils';
+} from "@repo/ayasofyazilim-ui/components/dialog";
+import { TanstackTableActionsCustomDialog } from "../types";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 type TanstackTableCustomDialogProps = {
   setDialogOpen: () => void;
@@ -31,7 +31,7 @@ export function TanstackTableTableCustomDialog({
   const [isDeletePending, startDeleteTransition] = React.useTransition();
 
   const jsxContent =
-    typeof content === 'function' ? content(setDialogOpen) : content;
+    typeof content === "function" ? content(setDialogOpen) : content;
 
   const handleOnConfirmClick = () => {
     startDeleteTransition(() => {
@@ -55,7 +55,7 @@ export function TanstackTableTableCustomDialog({
         {jsxContent}
         {(confirmationText || cancelText) && (
           <DialogFooter
-            className={cn('gap-2 sm:space-x-0', dialogClassNames?.footer)}
+            className={cn("gap-2 sm:space-x-0", dialogClassNames?.footer)}
           >
             {cancelText && (
               <DialogClose asChild>
