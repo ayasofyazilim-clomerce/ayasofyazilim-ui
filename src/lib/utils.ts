@@ -1,7 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { JSX } from "react";
 import { twMerge } from "tailwind-merge"
-
+import _ from "lodash";
+export const lodash = _;
 export * from "class-variance-authority"
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
