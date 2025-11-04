@@ -23,11 +23,11 @@ jest.mock("lucide-react", () => {
                 .toLowerCase()
                 .slice(1)}`,
             },
-            React.createElement("path", { d: "M0 0" }),
-          ),
+            React.createElement("path", { d: "M0 0" })
+          )
         );
       },
-    },
+    }
   );
 });
 
@@ -40,6 +40,27 @@ const localStorageMock = {
 };
 
 global.localStorage = localStorageMock as any;
+
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+} as any;
+
+// Mock scrollIntoView
+Element.prototype.scrollIntoView = jest.fn();
 
 // Reset mocks before each test
 beforeEach(() => {

@@ -26,7 +26,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
       required,
       ...props
     },
-    ref,
+    ref
   ) => {
     const allSuggestions = React.useMemo(() => {
       const combined = [...domains, ...suggestions];
@@ -69,7 +69,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
         } else {
           const filtered = allSuggestions
             .filter((domain) =>
-              domain.toLowerCase().startsWith(afterAt.toLowerCase()),
+              domain.toLowerCase().startsWith(afterAt.toLowerCase())
             )
             .map((domain) => beforeAt + domain);
 
@@ -84,7 +84,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
           }
         }
       },
-      [allSuggestions],
+      [allSuggestions]
     );
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,13 +114,13 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
         case "ArrowDown":
           e.preventDefault();
           setSelectedIndex((prev) =>
-            prev < filteredSuggestions.length - 1 ? prev + 1 : 0,
+            prev < filteredSuggestions.length - 1 ? prev + 1 : 0
           );
           break;
         case "ArrowUp":
           e.preventDefault();
           setSelectedIndex((prev) =>
-            prev > 0 ? prev - 1 : filteredSuggestions.length - 1,
+            prev > 0 ? prev - 1 : filteredSuggestions.length - 1
           );
           break;
         case "Enter":
@@ -171,7 +171,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
             className={cn(
               "mb-2 block",
               required &&
-                "after:content-['*'] after:ml-0.5 after:text-destructive",
+                "after:content-['*'] after:ml-0.5 after:text-destructive"
             )}
           >
             {label}
@@ -193,7 +193,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
             {...props}
           />
 
-          {open && filteredSuggestions.length > 1 && (
+          {open && filteredSuggestions.length > 0 && (
             <div className="absolute top-full left-0 right-0 z-999 mt-1 bg-popover border border-border rounded-md shadow-md">
               <div className="p-1 flex flex-col">
                 {filteredSuggestions.map((suggestion, index) => (
@@ -202,10 +202,10 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
                     data-testid={`${id}_suggestion_${index}`}
                     key={suggestion}
                     className={cn(
-                      "w-full justify-start text-left px-2 py-1.5 text-sm cursor-pointer rounded-sm transition-colors",
+                      "w-full justify-start text-left px-2 py-1.5 text-sm cursor-pointer rounded-sm transition-colors gap-0",
                       "hover:bg-accent hover:text-accent-foreground",
                       index === selectedIndex &&
-                        "bg-accent text-accent-foreground",
+                        "bg-accent text-accent-foreground"
                     )}
                     onClick={() => applySuggestion(suggestion)}
                   >
@@ -221,7 +221,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
         </div>
       </div>
     );
-  },
+  }
 );
 
 EmailInput.displayName = "EmailInput";
