@@ -106,10 +106,10 @@ export function AsyncSelectBase({
 
   const [items, setItems] = useState<SearchItem[]>(data || []);
   const showableItems = items.filter(
-    (item) => !value.find((i) => i.id === item.id),
+    (item) => !value.find((i) => i.id === item.id)
   );
   const showableSuggestions = suggestions.filter(
-    (item) => !value.find((i) => i.id === item.id),
+    (item) => !value.find((i) => i.id === item.id)
   );
 
   function onSearch(search: string) {
@@ -164,6 +164,7 @@ export function AsyncSelectBase({
           <CommandGroupItem
             items={value}
             id={`${id}_selected`}
+            data-testid={`${id}_selected`}
             value={value}
             title="Selected"
             onChange={(value) => {
@@ -215,11 +216,12 @@ export default function AsyncSelect(props: AsyncSelectType) {
         <Button
           id={props.id}
           data-testid={props.id}
+          disabled={props.disabled}
           type="button"
           onClick={() => setIsPopoverOpen(true)}
           className={cn(
             "flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit",
-            props.classNames?.trigger,
+            props.classNames?.trigger
           )}
         >
           {props.value.length > 0 ? (
@@ -228,23 +230,22 @@ export default function AsyncSelect(props: AsyncSelectType) {
                 {props.value.slice(0, 3).map((value) => (
                   <Badge
                     key={value.id}
+                    data-testid={`${props.id}_badge_${value.name}`}
                     className="m-1 transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300 border-foreground/10 text-foreground bg-card hover:bg-card/80"
+                    onClick={() => {
+                      props.onChange(
+                        props.value.filter((i) => i.id !== value.id)
+                      );
+                    }}
                   >
                     {value.name}
-                    <XCircle
-                      className="ml-2 h-4 w-4 cursor-pointer"
-                      onClick={() => {
-                        props.onChange(
-                          props.value.filter((i) => i.id !== value.id),
-                        );
-                      }}
-                    />
+                    <XCircle className="ml-2 h-4 w-4 cursor-pointer" />
                   </Badge>
                 ))}
                 {props.value.length > 3 && (
                   <Badge
                     className={cn(
-                      "bg-transparent text-foreground border-foreground/1 hover:bg-transparent",
+                      "bg-transparent text-foreground border-foreground/1 hover:bg-transparent"
                     )}
                   >
                     {props.value.length - 3} more
