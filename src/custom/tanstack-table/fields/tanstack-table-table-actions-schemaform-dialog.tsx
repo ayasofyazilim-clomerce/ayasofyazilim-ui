@@ -17,7 +17,7 @@ export function TanstackTableTableSchemaFormDialog<TData>(
   props: TanstackTableSchemaFormDialogProps<TData>
 ) {
   const { title, setDialogOpen, onSubmit } = props;
-  const [formdData, setFormData] = useState<TData>(props.formData as TData);
+  const [formData, setFormData] = useState<TData>(props.formData as TData);
   const handleFormChange = useCallback(
     ({ formData: editedFormData }: { formData?: TData }) => {
       if (editedFormData) {
@@ -34,7 +34,7 @@ export function TanstackTableTableSchemaFormDialog<TData>(
         </DialogHeader>
         <SchemaForm
           {...props}
-          formData={formdData}
+          formData={formData}
           onChange={handleFormChange}
           onSubmit={(data) => {
             onSubmit(data.formData);
