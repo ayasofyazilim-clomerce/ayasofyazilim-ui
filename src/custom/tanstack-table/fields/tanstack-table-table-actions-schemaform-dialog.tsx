@@ -14,7 +14,7 @@ type TanstackTableSchemaFormDialogProps<TData> = {
   setDialogOpen: () => void;
 } & TanstackTableActionsSchemaFormDialog<TData>;
 export function TanstackTableTableSchemaFormDialog<TData>(
-  props: TanstackTableSchemaFormDialogProps<TData>
+  props: TanstackTableSchemaFormDialogProps<TData>,
 ) {
   const { title, setDialogOpen, onSubmit } = props;
   const [formData, setFormData] = useState<TData>(props.formData as TData);
@@ -24,7 +24,7 @@ export function TanstackTableTableSchemaFormDialog<TData>(
         setFormData(editedFormData);
       }
     },
-    []
+    [],
   );
   return (
     <Dialog open onOpenChange={setDialogOpen}>
