@@ -25,7 +25,7 @@ export const CustomPhoneField = function CustomPhoneField<T>(
       defaultCountry={defaultCountryCode}
       value={value || ""}
       onChange={onChange}
-      inputClassName={cn("flex-1 h-10", className)}
+      inputClassName={cn("flex-1", className)}
       countrySelectorStyleProps={{ flagClassName: "rounded-md pl-0.5" }}
     />
   );

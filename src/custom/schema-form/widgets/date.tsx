@@ -28,7 +28,7 @@ export const CustomDate = (props: WidgetProps) => {
       defaultValue={initialDate}
       disabled={fieldOptions.disabled}
       classNames={{
-        dateInput: "h-10 shadow-sm date-input",
+        dateInput: " shadow-xs date-input",
       }}
       onChange={(selectedDate) => {
         if (selectedDate) {
@@ -70,7 +70,7 @@ export const CustomDateWithTime = (props: WidgetProps) => {
       useTime
       disabled={fieldOptions.disabled}
       classNames={{
-        dateInput: "h-10 shadow-sm date-input",
+        dateInput: "shadow-xs date-input",
       }}
       onChange={(selectedDate) => {
         if (selectedDate) {

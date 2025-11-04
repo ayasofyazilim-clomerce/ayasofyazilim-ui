@@ -28,7 +28,7 @@ export const CustomCheckbox = (props: WidgetProps) => {
   };
   if (fieldOptions.hidden) return null;
   return (
-    <div className="flex items-center gap-2 h-10">
+    <div className="flex items-center gap-2">
       <Checkbox
         id={id}
         data-testid={id}

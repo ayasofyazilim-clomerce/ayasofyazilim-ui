@@ -87,10 +87,10 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           variant="outline"
           role="combobox"
           className={cn(
-            "text-muted-foreground w-full justify-between font-normal h-10 shadow-sm hover:bg-white overflow-hidden",
+            "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white overflow-hidden",
             fieldValueDisplayName && "text-black",
             disabled &&
-              "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground",
+            "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground",
           )}
         >
           <span className="truncate has-[role=dialog]:max-w-xs">
@@ -116,7 +116,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           disabled={fieldOptions.disabled}
           variant="outline"
           className={cn(
-            "text-muted-foreground w-full justify-between font-normal h-10 shadow-sm hover:bg-white",
+            "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white",
             fieldValueDisplayName && "text-black",
           )}
         >
