@@ -34,7 +34,7 @@ export function FieldLabel({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <InfoIcon className="size-4 ml-1 text-muted-foreground cursor-help" />
+              <InfoIcon className="size-3.5 ml-1 text-muted-foreground cursor-help" />
             </TooltipTrigger>
             <TooltipContent>{description}</TooltipContent>
           </Tooltip>
