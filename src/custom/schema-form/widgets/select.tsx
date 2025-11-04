@@ -41,11 +41,7 @@ export const CustomSelect = (props: WidgetProps) => {
       <SelectTrigger
         id={props.id}
         data-testid={props.id}
-
-        className={cn(
-
-          hasValue ? "text-black " : "text-muted-foreground",
-        )}
+        className={cn(hasValue ? "text-black " : "text-muted-foreground")}
         disabled={fieldOptions.disabled}
       >
         <SelectValue
