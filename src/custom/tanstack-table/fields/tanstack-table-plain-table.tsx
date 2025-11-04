@@ -29,7 +29,7 @@ export function TanstackTablePlainTable<TData, TValue>({
   editable?: boolean;
   expandedRowComponent?: (
     row: TData,
-    toggleExpanded: () => void
+    toggleExpanded: () => void,
   ) => JSX.Element;
   table: TableType<TData>;
   resizeable?: boolean;
@@ -48,7 +48,7 @@ export function TanstackTablePlainTable<TData, TValue>({
                   className={cn(
                     " relative group/th border-r border-gray-200",
                     header.column.getIsResizing() &&
-                      "border-dashed border-black border-r"
+                      "border-dashed border-black border-r",
                   )}
                   style={{
                     ...getCommonPinningStyles({
@@ -62,14 +62,14 @@ export function TanstackTablePlainTable<TData, TValue>({
                   <div
                     className={cn(
                       header.column.getIsResizing() && "resizing",
-                      "group-has-[.resizing]:pointer-events-none group-has-[.resizing]:select-none"
+                      "group-has-[.resizing]:pointer-events-none group-has-[.resizing]:select-none",
                     )}
                   >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </div>
                   {resizeable && (
@@ -102,7 +102,7 @@ export function TanstackTablePlainTable<TData, TValue>({
                     key={cell.id}
                     className={cn(
                       (editable || cell.column.id === "actions") &&
-                        "p-0 border border-b-0"
+                        "p-0 border border-b-0",
                     )}
                     style={{
                       ...getCommonPinningStyles({
@@ -122,7 +122,7 @@ export function TanstackTablePlainTable<TData, TValue>({
                   <TableCell colSpan={row.getAllCells().length}>
                     {expandedRowComponent(
                       row.original,
-                      row.getToggleExpandedHandler()
+                      row.getToggleExpandedHandler(),
                     )}
                   </TableCell>
                 </TableRow>
