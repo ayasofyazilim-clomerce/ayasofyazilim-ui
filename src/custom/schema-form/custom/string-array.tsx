@@ -20,7 +20,7 @@ export function StringArrayItem(props: WidgetProps) {
 
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const fieldOptions = {
     disabled,
@@ -36,7 +36,7 @@ export function StringArrayItem(props: WidgetProps) {
     value.map((tag: string) => ({
       id: Math.random().toString(36).substring(2, 15),
       text: tag,
-    })),
+    }))
   );
   useEffect(() => {
     onChange(exampleTags.map((tag) => tag.text));
@@ -47,7 +47,7 @@ export function StringArrayItem(props: WidgetProps) {
       className={cn(
         "w-full grid gap-1.5 h-fit",
         uiSchema?.["ui:className"],
-        classNames,
+        classNames
       )}
     >
       <FieldLabel id={id} label={label} required={required} />

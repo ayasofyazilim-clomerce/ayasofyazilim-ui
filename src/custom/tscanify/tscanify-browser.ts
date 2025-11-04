@@ -159,7 +159,7 @@ export class TScanifyBrowser {
   resizeImage(
     image: HTMLImageElement | HTMLCanvasElement,
     maxWidth = 500,
-    maxHeight = 500,
+    maxHeight = 500
   ): HTMLCanvasElement {
     const canvas = this.createCanvas(1, 1);
     const ctx = canvas.getContext("2d")!;
@@ -218,7 +218,7 @@ export class TScanifyBrowser {
         contours,
         hierarchy,
         cv.RETR_EXTERNAL,
-        cv.CHAIN_APPROX_SIMPLE,
+        cv.CHAIN_APPROX_SIMPLE
       );
 
       // Find largest contour
@@ -317,7 +317,7 @@ export class TScanifyBrowser {
     src: Mat,
     corners: CornerPoints,
     width: number,
-    height: number,
+    height: number
   ): Mat {
     // Create matrices for source and destination points
     const srcPoints = cv.matFromArray(4, 1, cv.CV_32FC2, [
@@ -354,7 +354,7 @@ export class TScanifyBrowser {
       new cv.Size(width, height),
       cv.INTER_LINEAR,
       cv.BORDER_CONSTANT,
-      new cv.Scalar(),
+      new cv.Scalar()
     );
 
     // Clean up
@@ -375,7 +375,7 @@ export class TScanifyBrowser {
   highlightCorners(
     image: HTMLImageElement | HTMLCanvasElement,
     corners: CornerPoints,
-    options: HighlightOptions = {},
+    options: HighlightOptions = {}
   ): HTMLCanvasElement {
     // Use our own default options since the HighlightOptions interface only has color and thickness
     const thickness = options.thickness || 2;
@@ -385,7 +385,7 @@ export class TScanifyBrowser {
 
     const canvas = this.createCanvas(
       image.width as number,
-      image.height as number,
+      image.height as number
     );
     const ctx = canvas.getContext("2d")!;
 
@@ -456,12 +456,12 @@ export class TScanifyBrowser {
     // Calculate output dimensions
     const width = Math.max(
       distance(corners.topRightCorner, corners.topLeftCorner),
-      distance(corners.bottomRightCorner, corners.bottomLeftCorner),
+      distance(corners.bottomRightCorner, corners.bottomLeftCorner)
     );
 
     const height = Math.max(
       distance(corners.topLeftCorner, corners.bottomLeftCorner),
-      distance(corners.topRightCorner, corners.bottomRightCorner),
+      distance(corners.topRightCorner, corners.bottomRightCorner)
     );
 
     // Apply perspective transform
@@ -474,7 +474,7 @@ export class TScanifyBrowser {
     const imgData = new ImageData(
       new Uint8ClampedArray(warped.data),
       warped.cols,
-      warped.rows,
+      warped.rows
     );
 
     ctx.putImageData(imgData, 0, 0);
@@ -500,7 +500,7 @@ export class TScanifyBrowser {
   canvasToDataURL(
     canvas: HTMLCanvasElement,
     type = "image/png",
-    quality = 0.9,
+    quality = 0.9
   ): string {
     return canvas.toDataURL(type, quality);
   }

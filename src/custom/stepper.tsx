@@ -131,7 +131,7 @@ export const StepperHeader = ({
     `flex gap-5 justify-between relative mb-10 ${
       vertical ? "flex-col items-center w-2/12" : "w-full"
     }`,
-    containerClassName,
+    containerClassName
   );
   const activeItemClass = cn("bg-primary text-white", activeItemClassName);
   const inactiveItemClass = cn("bg-zinc-200 text-black", inactiveItemClassName);
@@ -217,7 +217,7 @@ export default function Stepper({
       vertical,
       stepsLength,
     }),
-    [nextButtonText, previousButtonText, onIndexChange, vertical, stepsLength],
+    [nextButtonText, previousButtonText, onIndexChange, vertical, stepsLength]
   );
   const filteredChildren = React.Children.toArray(children)?.[activeTabIndex];
   return (

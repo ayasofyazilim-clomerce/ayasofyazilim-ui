@@ -24,7 +24,7 @@ export function usePerspectiveCrop({
           capturedImage,
           detectedCorners,
           videoDimensions,
-          { imageQuality },
+          { imageQuality }
         );
         handleImageCrop(croppedImage);
       } catch (error) {
@@ -33,6 +33,6 @@ export function usePerspectiveCrop({
         handleError(errorMessage);
       }
     },
-    [videoDimensions, imageQuality, handleImageCrop, handleError],
+    [videoDimensions, imageQuality, handleImageCrop, handleError]
   );
 }

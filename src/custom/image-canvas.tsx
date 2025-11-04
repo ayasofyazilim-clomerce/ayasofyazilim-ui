@@ -181,7 +181,7 @@ export default function ImageCanvas({
       setIsDragging(true);
       setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     },
-    [position],
+    [position]
   );
 
   const handleMouseMove = useCallback(
@@ -194,7 +194,7 @@ export default function ImageCanvas({
         y: e.clientY - dragStart.y,
       });
     },
-    [isDragging, dragStart],
+    [isDragging, dragStart]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -227,7 +227,7 @@ export default function ImageCanvas({
         }
       }
     },
-    [currentZoom, minZoom, maxZoom, onZoomChange],
+    [currentZoom, minZoom, maxZoom, onZoomChange]
   ); // Add non-passive wheel event listener
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -247,7 +247,7 @@ export default function ImageCanvas({
         className={cn(
           "w-full h-full cursor-grab",
           isDragging ? "cursor-grabbing" : "",
-          classNames?.canvas,
+          classNames?.canvas
         )}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

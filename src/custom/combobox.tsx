@@ -53,7 +53,7 @@ export type ComboboxProps<T> = {
   label?: string;
   list: Array<T> | null | undefined;
   onValueChange: (
-    value: T | null | undefined,
+    value: T | null | undefined
   ) => void | Dispatch<SetStateAction<T | null | undefined>>;
   required?: boolean;
   searchPlaceholder?: string;
@@ -81,7 +81,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
 
   const fieldValue =
     (list?.find(
-      (x: T) => x[props.selectIdentifier] === value?.[selectIdentifier],
+      (x: T) => x[props.selectIdentifier] === value?.[selectIdentifier]
     )?.[props.selectLabel] as string) ||
     emptyValue ||
     (label && `Please select an ${label.toLocaleLowerCase()}`) ||
@@ -97,13 +97,13 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
             value && "text-black",
-            classNames?.trigger?.button,
+            classNames?.trigger?.button
           )}
         >
           <span
             className={cn(
               "overflow-hidden truncate has-[role=dialog]:max-w-xs",
-              classNames?.trigger?.label,
+              classNames?.trigger?.label
             )}
           >
             {fieldValue}
@@ -111,7 +111,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           <ChevronsUpDown
             className={cn(
               "ml-2 h-4 w-4 shrink-0 opacity-50",
-              classNames?.trigger?.icon,
+              classNames?.trigger?.icon
             )}
           />
         </Button>
@@ -132,7 +132,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
             value && "text-black",
-            classNames?.trigger?.button,
+            classNames?.trigger?.button
           )}
         >
           <span className={cn("truncate", classNames?.trigger?.label)}>
@@ -141,7 +141,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           <ChevronsUpDown
             className={cn(
               "ml-2 h-4 w-4 shrink-0 opacity-50",
-              classNames?.trigger?.icon,
+              classNames?.trigger?.icon
             )}
           />
         </Button>
@@ -173,7 +173,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
         <span
           className={cn(
             "text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive",
-            classNames?.error,
+            classNames?.error
           )}
         >
           {errorMessage}
@@ -209,7 +209,7 @@ function List<T>({
         const filterResult = list?.find(
           (i) =>
             (i[selectIdentifier] as string)?.toLocaleLowerCase() ===
-            value.toLocaleLowerCase(),
+            value.toLocaleLowerCase()
         )?.[selectLabel] as string;
         if (
           value.includes(search) ||

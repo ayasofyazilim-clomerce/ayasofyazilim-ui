@@ -10,7 +10,7 @@ export function perspectiveCorrection(
   imageBase64: string,
   corners: DocumentCorners,
   videoDimensions: { width: number; height: number },
-  options: PerspectiveCorrectionOptions,
+  options: PerspectiveCorrectionOptions
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     try {
@@ -51,7 +51,7 @@ export function perspectiveCorrection(
           const { outputWidth, outputHeight } = calculateOutputDimensions(
             corners,
             scaleX,
-            scaleY,
+            scaleY
           );
 
           // Destination points (rectangle)
@@ -69,7 +69,7 @@ export function perspectiveCorrection(
           // Get perspective transform matrix
           const transformMatrix = cv.getPerspectiveTransform(
             srcPoints,
-            dstPoints,
+            dstPoints
           );
 
           // Apply perspective transformation
@@ -78,7 +78,7 @@ export function perspectiveCorrection(
             src,
             dst,
             transformMatrix,
-            new cv.Size(outputWidth, outputHeight),
+            new cv.Size(outputWidth, outputHeight)
           );
 
           // Convert back to canvas and get base64
@@ -86,7 +86,7 @@ export function perspectiveCorrection(
           cv.imshow(outputCanvas, dst);
           const croppedBase64 = outputCanvas.toDataURL(
             "image/jpeg",
-            options.imageQuality,
+            options.imageQuality
           );
 
           // Cleanup OpenCV matrices
@@ -108,22 +108,22 @@ export function perspectiveCorrection(
 function calculateOutputDimensions(
   corners: DocumentCorners,
   scaleX: number,
-  scaleY: number,
+  scaleY: number
 ): { outputWidth: number; outputHeight: number } {
   const distance = (
     p1: { x: number; y: number },
-    p2: { x: number; y: number },
+    p2: { x: number; y: number }
   ) => Math.sqrt(((p2.x - p1.x) * scaleX) ** 2 + ((p2.y - p1.y) * scaleY) ** 2);
 
   const topWidth = distance(corners.topLeftCorner, corners.topRightCorner);
   const bottomWidth = distance(
     corners.bottomLeftCorner,
-    corners.bottomRightCorner,
+    corners.bottomRightCorner
   );
   const leftHeight = distance(corners.topLeftCorner, corners.bottomLeftCorner);
   const rightHeight = distance(
     corners.topRightCorner,
-    corners.bottomRightCorner,
+    corners.bottomRightCorner
   );
 
   return {

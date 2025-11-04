@@ -9,7 +9,7 @@ import {
 
 export function NonEditableTanstackTable<TData>(
   data: TData[],
-  rowCount: number,
+  rowCount: number
 ): NonEditableTanstackTableProps<TData> {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 

@@ -4,7 +4,7 @@ import {
 } from "../types";
 
 const isTypeLanguageDataTypeWithConstantKey = (
-  value: object,
+  value: object
 ): value is TanstackTableLanguageDataTypeWithConstantKey =>
   value && typeof value !== "undefined" && "constantKey" in value;
 

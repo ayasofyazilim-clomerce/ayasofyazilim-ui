@@ -61,13 +61,13 @@ export type AsyncSelectType = {
 export type CustomFieldType = { order?: number; component: JSX.Element };
 
 function isAsyncSelectType(
-  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType,
+  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType
 ): filter is AsyncSelectType {
   return (filter as AsyncSelectType).fetchAction !== undefined;
 }
 
 function isMultiSelectType(
-  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType,
+  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType
 ): filter is MultiSelectType {
   return (
     (filter as MultiSelectType).options !== undefined &&
@@ -76,7 +76,7 @@ function isMultiSelectType(
 }
 
 function isDateSelectType(
-  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType,
+  filter: DateSelectType | MultiSelectType | AsyncSelectType | CustomFieldType
 ): filter is DateSelectType {
   return (
     (filter as DateSelectType).options !== undefined &&
@@ -148,7 +148,7 @@ export default function FilterComponent({
           className={cn(
             "shadow-none",
             !filterGuidanceContent && "mx-auto",
-            cardClassName,
+            cardClassName
           )}
         >
           <CardHeader className="flex flex-row font-bold text-xl items-center justify-between">
@@ -164,7 +164,7 @@ export default function FilterComponent({
             <div
               className={cn(
                 "flex flex-col gap-4",
-                filterGuidanceContent ? "w-1/2" : "w-full",
+                filterGuidanceContent ? "w-1/2" : "w-full"
               )}
             >
               {fields.map((filter, index) => {

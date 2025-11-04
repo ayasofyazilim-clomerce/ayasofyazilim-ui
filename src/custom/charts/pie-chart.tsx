@@ -64,7 +64,7 @@ export function PieChart({
 }: PieChartProps) {
   const totalCount = useMemo(
     () => Object.values(data).reduce((acc, curr) => acc + curr.value, 0),
-    [data],
+    [data]
   );
 
   // Transform data to ChartConfig shape for ChartContainer

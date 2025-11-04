@@ -21,7 +21,7 @@ interface PasswordInputProps extends InputProps {
 const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   (
     { className, showGenerator = false, passwordLength = 10, ...props },
-    ref,
+    ref
   ) => {
     const [showPassword, setShowPassword] = useState(false);
     const internalRef = useRef<HTMLInputElement>(null);
@@ -49,9 +49,9 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         cn(
           "hide-password-toggle",
           showGenerator ? "pr-20" : "pr-10",
-          className,
+          className
         ),
-      [showGenerator, className],
+      [showGenerator, className]
     );
 
     // Use crypto.getRandomValues for better randomness when available
@@ -78,7 +78,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         }
         return shuffled;
       },
-      [getRandomInt],
+      [getRandomInt]
     );
 
     const generatePassword = useCallback(
@@ -97,14 +97,14 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         const remainingLength = Math.max(0, length - requiredChars.length);
         const additionalChars = Array.from(
           { length: remainingLength },
-          () => all[getRandomInt(all.length)],
+          () => all[getRandomInt(all.length)]
         );
 
         // Combine and shuffle
         const allChars = [...requiredChars, ...additionalChars] as string[];
         return shuffleArray(allChars).join("");
       },
-      [passwordLength, characterSets, getRandomInt, shuffleArray],
+      [passwordLength, characterSets, getRandomInt, shuffleArray]
     );
 
     // Optimized event dispatching
@@ -114,7 +114,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         // Use React's internal event system when possible
         const descriptor = Object.getOwnPropertyDescriptor(
           HTMLInputElement.prototype,
-          "value",
+          "value"
         );
         if (descriptor?.set) {
           descriptor.set.call(_input, value);
@@ -129,7 +129,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         _input.dispatchEvent(inputEvent);
         _input.dispatchEvent(changeEvent);
       },
-      [],
+      []
     );
 
     const handleGeneratePassword = useCallback(() => {
@@ -186,7 +186,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         </Button>
       </div>
     );
-  },
+  }
 );
 
 PasswordInput.displayName = "PasswordInput";

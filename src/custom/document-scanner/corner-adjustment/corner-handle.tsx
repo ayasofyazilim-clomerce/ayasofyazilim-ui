@@ -22,7 +22,7 @@ export const CornerHandle = memo<CornerHandleProps>(
         className={cn(
           "block border rounded-full min-w-5 min-h-5 absolute cursor-grab active:cursor-grabbing select-none",
           isDragging ? "bg-blue-500/80 scale-125" : cornerColor,
-          isDragging ? "z-20" : "z-10",
+          isDragging ? "z-20" : "z-10"
         )}
         style={{
           left: `${percentX}%`,
@@ -37,7 +37,7 @@ export const CornerHandle = memo<CornerHandleProps>(
         <span className="sr-only">{`Drag ${cornerKey} corner`}</span>
       </div>
     );
-  },
+  }
 );
 
 CornerHandle.displayName = "CornerHandle";

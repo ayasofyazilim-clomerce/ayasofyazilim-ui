@@ -23,7 +23,7 @@ import { DatePicker } from "@repo/ayasofyazilim-ui/custom/date-picker";
 
 export function tanstackTableEditableColumnsByRowData<T>(
   params: TanstacktableEditableColumnsByRowId<T> &
-    Omit<TanstackTableCreateColumnsByRowId<T>, "rows" | "selectableRows">,
+    Omit<TanstackTableCreateColumnsByRowId<T>, "rows" | "selectableRows">
 ) {
   const {
     rows,
@@ -134,7 +134,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
                   className={cn(
                     "w-[180px] min-w-max border-none rounded-none focus-visible:border-none focus-within:border-none ring-0 focus-visible:ring-0 focus-within:ring-0 ring-transparent shadow-none",
                     isRowSelected ? "font-medium italic" : "",
-                    !value && "text-muted-foreground",
+                    !value && "text-muted-foreground"
                   )}
                 >
                   <SelectValue
@@ -202,7 +202,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
               value={value as string}
               className={cn(
                 "w-full border-none rounded-none focus-visible:border-none focus-within:border-none ring-0 focus-visible:ring-0 focus-within:ring-0 ring-transparent shadow-none",
-                isRowSelected ? "font-medium italic" : "",
+                isRowSelected ? "font-medium italic" : ""
               )}
               placeholder={accessorKey}
               onChange={(e) => {

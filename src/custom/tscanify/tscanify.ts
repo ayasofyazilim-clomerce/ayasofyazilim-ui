@@ -68,7 +68,7 @@ export class TScanify {
       new cv.Size(3, 3),
       0,
       0,
-      cv.BORDER_DEFAULT,
+      cv.BORDER_DEFAULT
     );
 
     const imgThresh = new cv.Mat();
@@ -82,7 +82,7 @@ export class TScanify {
       contours,
       hierarchy,
       cv.RETR_CCOMP,
-      cv.CHAIN_APPROX_SIMPLE,
+      cv.CHAIN_APPROX_SIMPLE
     );
 
     let maxArea = 0;
@@ -114,7 +114,7 @@ export class TScanify {
    */
   highlightPaper(
     image: HTMLImageElement,
-    options?: HighlightOptions,
+    options?: HighlightOptions
   ): CanvasResult {
     options = options || {};
     options.color = options.color || "orange";
@@ -200,11 +200,11 @@ export class TScanify {
       // Calculate width and height for the transformed image
       const width = Math.max(
         distance(topLeftCorner, topRightCorner),
-        distance(bottomLeftCorner, bottomRightCorner),
+        distance(bottomLeftCorner, bottomRightCorner)
       );
       const height = Math.max(
         distance(topLeftCorner, bottomLeftCorner),
-        distance(topRightCorner, bottomRightCorner),
+        distance(topRightCorner, bottomRightCorner)
       );
 
       // Create source points matrix for perspective transform

@@ -37,14 +37,14 @@ function useCheckboxTree(initialTree: TreeNode) {
       }
       if (
         childrenChecked.some(
-          (status) => status === true || status === "indeterminate",
+          (status) => status === true || status === "indeterminate"
         )
       ) {
         return "indeterminate";
       }
       return false;
     },
-    [checkedNodes],
+    [checkedNodes]
   );
 
   const handleCheck = useCallback(
@@ -66,7 +66,7 @@ function useCheckboxTree(initialTree: TreeNode) {
       toggleNode(node, newCheck);
       setCheckedNodes(newCheckedNodes);
     },
-    [checkedNodes, isChecked],
+    [checkedNodes, isChecked]
   );
 
   return { isChecked, handleCheck };

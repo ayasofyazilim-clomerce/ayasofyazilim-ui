@@ -171,7 +171,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
       const newFiles = acceptedFiles.map((file) =>
         Object.assign(file, {
           preview: URL.createObjectURL(file),
-        }),
+        })
       );
       if (newFiles.length > 0 && !isOpen) setIsOpen(true);
       const updatedFiles = files ? [...files, ...newFiles] : newFiles;
@@ -181,7 +181,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file, errors }) => {
           toast.error(
-            `File ${file.name} was rejected because of ${errors.map((error) => error.message).join(", ")}`,
+            `File ${file.name} was rejected because of ${errors.map((error) => error.message).join(", ")}`
           );
         });
       }
@@ -205,7 +205,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
       }
     },
 
-    [files, maxFileCount, multiple, onUpload, setFiles],
+    [files, maxFileCount, multiple, onUpload, setFiles]
   );
 
   function onRemove(index: number) {
@@ -226,7 +226,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
         }
       });
     },
-    [],
+    []
   );
 
   const isDisabled = disabled || (files?.length ?? 0) >= maxFileCount;
@@ -237,7 +237,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
       open={isOpen}
       className={cn(
         "transition-all flex flex-col w-full border rounded-lg [&>h3]:w-full",
-        classNames?.collapsible,
+        classNames?.collapsible
       )}
     >
       <div
@@ -246,13 +246,13 @@ export function FileUploader(props: BaseFileUploaderProps) {
           props.variant === "button"
             ? "flex flex-col sm:flex-row"
             : "grid grid-cols-12",
-          classNames?.container,
+          classNames?.container
         )}
       >
         <CollapsibleTrigger
           className={cn(
             "gap-4 group/trigger hover:no-underline",
-            !files?.length && "opacity-50",
+            !files?.length && "opacity-50"
           )}
           asChild
         >
@@ -306,7 +306,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
             "group relative flex flex-col gap-4 overflow-hidden",
             files?.length && props.variant === "button" && "",
             files?.length && files?.length > 0 && "p-4 border-t",
-            classNames?.container,
+            classNames?.container
           )}
         >
           {files?.length && showFileList !== false ? (
@@ -318,7 +318,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
                   files.length === 2 && "sm:grid-cols-2!",
                   files.length === 3 && "lg:grid-cols-3!",
                   files.length === 4 && "2xl:grid-cols-4!",
-                  classNames?.fileList,
+                  classNames?.fileList
                 )}
               >
                 {files?.map((file, index) => (
@@ -372,7 +372,7 @@ export function FileCard({
     <div
       className={cn(
         "bg-muted relative flex items-center gap-2.5 overflow-hidden rounded-md p-2",
-        classNames?.container,
+        classNames?.container
       )}
     >
       <div className="flex flex-1 gap-2.5">
@@ -411,7 +411,7 @@ export function FileCard({
 }
 
 export function isFileWithPreview(
-  file: FileWithPath,
+  file: FileWithPath
 ): file is FileWithPath & { preview: string } {
   return "preview" in file && typeof file.preview === "string";
 }
@@ -463,7 +463,7 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
       <div
         className={cn(
           "flex flex-col sm:flex-row gap-4",
-          classNames?.dropzoneContainer,
+          classNames?.dropzoneContainer
         )}
       >
         <div
@@ -471,7 +471,7 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
           // {...dropzoneProps}
           className={cn(
             "relative flex items-center gap-4 rounded-lg",
-            classNames?.dropzone,
+            classNames?.dropzone
           )}
         >
           <input {...getInputProps()} />
@@ -498,7 +498,7 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
         isDragActive && "border-muted-foreground/50",
         isDisabled && "pointer-events-none opacity-60",
         variant === "dropzone" && "col-span-full row-start-2",
-        classNames?.dropzone,
+        classNames?.dropzone
       )}
     >
       <input {...getInputProps()} />

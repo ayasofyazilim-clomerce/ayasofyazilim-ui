@@ -8,7 +8,7 @@ type Options = {
 };
 export function fieldOptionsByDependency<T>(
   uiSchema: UiSchema<T> | undefined,
-  formContext: FormContext<T> | undefined,
+  formContext: FormContext<T> | undefined
 ): Partial<Options> {
   const fieldOptions: Partial<Options> = {};
   if (uiSchema && uiSchema.dependencies && formContext) {

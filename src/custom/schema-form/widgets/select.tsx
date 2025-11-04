@@ -17,7 +17,7 @@ export const CustomSelect = (props: WidgetProps) => {
 
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
@@ -44,7 +44,7 @@ export const CustomSelect = (props: WidgetProps) => {
         className={cn(
           "w-full",
           uiSchema?.["ui:className"],
-          hasValue ? "text-black " : "text-muted-foreground",
+          hasValue ? "text-black " : "text-muted-foreground"
         )}
         disabled={fieldOptions.disabled}
       >

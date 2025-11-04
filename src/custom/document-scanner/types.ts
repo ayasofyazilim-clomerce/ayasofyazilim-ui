@@ -24,7 +24,7 @@ export interface DocumentScannerCallbacks {
   onDocumentCropped?: (croppedImage: string) => void;
   onDocumentDetected?: (
     corners: DocumentCorners,
-    capturedImage: string,
+    capturedImage: string
   ) => void;
   onCornersChanged?: (corners: DocumentCorners) => void;
   onError?: (error: string) => void;
@@ -53,7 +53,7 @@ export interface DocumentScannerProps {
   onDocumentCropped?: (croppedImage: string) => void;
   onDocumentDetected?: (
     corners: DocumentCorners,
-    capturedImage: string,
+    capturedImage: string
   ) => void;
   onCornersChanged?: (corners: DocumentCorners) => void;
   onError?: (error: string) => void;
@@ -97,7 +97,7 @@ export interface DocumentScannerProps {
   // Advanced settings
   customDetectionAlgorithm?: (
     image: string,
-    dimensions: Dimensions,
+    dimensions: Dimensions
   ) => Promise<DocumentCorners | null>;
 
   // Custom components
@@ -189,7 +189,7 @@ export interface UseDocumentCaptureProps {
   callbacks: DocumentScannerCallbacks;
   customDetectionAlgorithm?: (
     image: string,
-    dimensions: Dimensions,
+    dimensions: Dimensions
   ) => Promise<DocumentCorners | null>;
   detectionSettings: DetectionSettings;
   setCapturedImage: (image: string | null) => void;

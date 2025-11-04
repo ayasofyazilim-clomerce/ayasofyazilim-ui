@@ -43,7 +43,7 @@ export function PhoneInput({
   const [isPhoneValid, setIsPhoneValid] = useState(true);
   const defaultCountry = useMemo(
     () => localStorage.getItem("countryCode2")?.toUpperCase() as Country,
-    [],
+    []
   );
   return (
     <>
@@ -89,7 +89,7 @@ const _PhoneInput = React.forwardRef<
     data-slot="phone-input"
     className={cn(
       "-ms-px rounded-s-none shadow-none focus-visible:z-10",
-      className,
+      className
     )}
     ref={ref}
     {...props}

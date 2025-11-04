@@ -6,7 +6,7 @@ import { fieldOptionsByDependency } from "../utils/dependency";
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 export function AsyncSelectWidget(
-  props: Omit<Optional<AsyncSelectType, "value">, "onChange">,
+  props: Omit<Optional<AsyncSelectType, "value">, "onChange">
 ) {
   function Widget(widgetProps: WidgetProps) {
     const { value, uiSchema, disabled, onChange, required, formContext } =

@@ -5,7 +5,7 @@ import { DragState } from "../types";
 export function useCornerDrag(
   detectedCorners: DocumentCorners,
   videoDimensions: { width: number; height: number },
-  onCornersChange: (corners: DocumentCorners) => void,
+  onCornersChange: (corners: DocumentCorners) => void
 ) {
   const [dragState, setDragState] = useState<DragState>({
     isDragging: null,
@@ -32,7 +32,7 @@ export function useCornerDrag(
         setDragState(newDragState);
       }
     },
-    [],
+    []
   );
 
   const handleCornerDrag = useCallback(
@@ -66,7 +66,7 @@ export function useCornerDrag(
 
       onCornersChange(updatedCorners);
     },
-    [dragState, detectedCorners, videoDimensions, onCornersChange],
+    [dragState, detectedCorners, videoDimensions, onCornersChange]
   );
 
   const handleCornerDragEnd = useCallback(() => {

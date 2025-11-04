@@ -11,7 +11,7 @@ export interface UseDocumentCaptureProps {
   callbacks: DocumentScannerCallbacks;
   customDetectionAlgorithm?: (
     image: string,
-    dimensions: { width: number; height: number },
+    dimensions: { width: number; height: number }
   ) => Promise<DocumentCorners | null>;
   detectionSettings: DetectionSettings;
   setCapturedImage: (image: string | null) => void;
@@ -64,7 +64,7 @@ export function useDocumentCapture({
           (error) => {
             handleError(error);
           },
-          detectionSettings,
+          detectionSettings
         );
       }
     },
@@ -76,6 +76,6 @@ export function useDocumentCapture({
       setCapturedImage,
       setDetectedCorners,
       handleError,
-    ],
+    ]
   );
 }

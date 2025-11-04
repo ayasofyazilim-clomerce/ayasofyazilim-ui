@@ -9,8 +9,8 @@ export const CellWithActions = <TData,>(
   row: Row<TData>,
   actions: TanstackTableRowActionsType<TData>[],
   setRowAction: (
-    actions: TanstackTableRowActionsType<TData> & { row: TData },
-  ) => void,
+    actions: TanstackTableRowActionsType<TData> & { row: TData }
+  ) => void
 ) => (
   <TanstackTableRowActions
     row={row}

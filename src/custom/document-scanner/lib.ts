@@ -13,7 +13,7 @@ export async function scanDocument(
     maxDocumentSize?: number;
     detectionSensitivity?: number;
     detectionConfidence?: number;
-  },
+  }
 ) {
   try {
     const scanner = createScanner();
@@ -54,7 +54,7 @@ export async function scanDocument(
               detectedCorners = findDocumentCornersAdvanced(
                 src,
                 img.width,
-                img.height,
+                img.height
               );
             }
 
@@ -132,7 +132,7 @@ export async function scanDocument(
 export function findDocumentSimple(
   src: Mat,
   width: number,
-  height: number,
+  height: number
 ): DocumentCorners | null {
   try {
     const gray = new cv.Mat();
@@ -149,7 +149,7 @@ export function findDocumentSimple(
       contours,
       hierarchy,
       cv.RETR_EXTERNAL,
-      cv.CHAIN_APPROX_SIMPLE,
+      cv.CHAIN_APPROX_SIMPLE
     );
 
     for (let i = 0; i < contours.size(); i++) {
@@ -211,7 +211,7 @@ export function findDocumentSimple(
 export function findDocumentCornersAdvanced(
   src: Mat,
   width: number,
-  height: number,
+  height: number
 ): DocumentCorners | null {
   try {
     const gray = new cv.Mat();
@@ -229,7 +229,7 @@ export function findDocumentCornersAdvanced(
             binary,
             0,
             255,
-            cv.THRESH_BINARY + cv.THRESH_OTSU,
+            cv.THRESH_BINARY + cv.THRESH_OTSU
           );
           blurred.delete();
           return binary;
@@ -246,7 +246,7 @@ export function findDocumentCornersAdvanced(
             cv.ADAPTIVE_THRESH_GAUSSIAN_C,
             cv.THRESH_BINARY,
             15,
-            10,
+            10
           );
           return binary;
         },
@@ -281,7 +281,7 @@ export function findDocumentCornersAdvanced(
 export function findCornersFromBinary(
   binary: Mat,
   width: number,
-  height: number,
+  height: number
 ): DocumentCorners | null {
   try {
     const contours = new cv.MatVector();
@@ -291,7 +291,7 @@ export function findCornersFromBinary(
       contours,
       hierarchy,
       cv.RETR_EXTERNAL,
-      cv.CHAIN_APPROX_SIMPLE,
+      cv.CHAIN_APPROX_SIMPLE
     );
 
     let bestCorners: DocumentCorners | null = null;
@@ -345,7 +345,7 @@ export function findCornersFromBinary(
 export function scoreCornersQuality(
   corners: DocumentCorners,
   width: number,
-  height: number,
+  height: number
 ): number {
   try {
     const {

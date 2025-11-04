@@ -95,7 +95,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
 
   // Internal state only used when useDependency is true
   const [internalFormData, setInternalFormData] = useState<T | undefined>(
-    propsFormData,
+    propsFormData
   );
 
   // Update refs and internal state when props change
@@ -109,7 +109,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
   // Memoize array fields calculation
   const arrayFields = useMemo(
     () => getArrayFieldKeys(originalSchema),
-    [originalSchema],
+    [originalSchema]
   );
 
   // Memoize default widgets, fields, and templates
@@ -130,7 +130,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       "phone-with-value": CustomPhoneFieldWithValue,
       StringArray: StringArrayItem,
     }),
-    [],
+    []
   );
 
   const defaultTemplates = useMemo(
@@ -145,7 +145,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       ObjectFieldTemplate,
       DescriptionFieldTemplate,
     }),
-    [useTableForArrayItems, arrayFields.length],
+    [useTableForArrayItems, arrayFields.length]
   );
 
   // Memoize merged widgets, fields, and templates
@@ -154,14 +154,14 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       ...defaultWidgets,
       ...customWidgets,
     }),
-    [defaultWidgets, customWidgets],
+    [defaultWidgets, customWidgets]
   );
 
   const mergedFields = useMemo(
     () => ({
       ...customFields,
     }),
-    [customFields],
+    [customFields]
   );
 
   const mergedTemplates = useMemo(
@@ -169,7 +169,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       ...defaultTemplates,
       ...customTemplates,
     }),
-    [defaultTemplates, customTemplates],
+    [defaultTemplates, customTemplates]
   );
 
   // Memoize schema processing
@@ -221,7 +221,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
       propsFormData,
       useTableForArrayItems,
       arrayFields,
-    ],
+    ]
   );
 
   // Memoize validator
@@ -229,19 +229,19 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
   // Determine which formData to use for the form
   const formDataToUse = useMemo(
     () => (useDependency ? internalFormData : propsFormData),
-    [useDependency, internalFormData, propsFormData],
+    [useDependency, internalFormData, propsFormData]
   );
 
   // Memoize wrapper component
   const Wrapper = useMemo(
     () => (withScrollArea ? ScrollArea : Fragment),
-    [withScrollArea],
+    [withScrollArea]
   );
 
   // Memoize wrapper props
   const wrapperProps = useMemo(
     () => (withScrollArea ? { className: "h-full [&>div>div]:!block" } : {}),
-    [withScrollArea],
+    [withScrollArea]
   );
 
   // Optimized change handler
@@ -259,11 +259,11 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
         setInternalFormData(e.formData);
       }
     },
-    [useDependency],
+    [useDependency]
   );
   const handleBlur = useCallback(async (changedField: string) => {
     const { errorSchema: _errorSchema } = formRef.current.validate(
-      currentFormDataRef.current,
+      currentFormDataRef.current
     );
 
     // changeField is like root_name or root_address_addressLine
@@ -297,13 +297,13 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
         onSubmit(latestData, event);
       }
     },
-    [onSubmit],
+    [onSubmit]
   );
 
   // Memoize form className
   const formClassName = useMemo(
     () => cn("p-px", withScrollArea && "pr-4", className),
-    [withScrollArea, className],
+    [withScrollArea, className]
   );
 
   return (
@@ -322,7 +322,7 @@ export function SchemaForm<T = unknown>({ ...props }: SchemaFormProps<T>) {
         schema={processedSchema}
         validator={customizeValidator(
           { ajvOptionsOverrides: { removeAdditional: true } },
-          locale === "tr" ? AJV_TR : undefined,
+          locale === "tr" ? AJV_TR : undefined
         )}
         noValidate={disableValidation}
         fields={mergedFields}
@@ -367,7 +367,7 @@ export const SchemaFormSubmit = memo(
     const submitClassName = useMemo(
       () =>
         cn("py-4 sticky bottom-0 bg-white flex justify-end z-40", className),
-      [className],
+      [className]
     );
 
     return (
@@ -377,7 +377,7 @@ export const SchemaFormSubmit = memo(
         </Button>
       </div>
     );
-  },
+  }
 );
 
 SchemaFormSubmit.displayName = "SchemaFormSubmit";

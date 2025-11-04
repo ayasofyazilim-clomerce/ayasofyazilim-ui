@@ -43,7 +43,7 @@ type DependencyConfig = Record<string, FieldDependencies>;
  */
 function getNestedProperty(
   obj: JSONSchema,
-  path: string,
+  path: string
 ): JSONSchema | undefined {
   const parts = path.split(".");
   let current: JSONSchema | undefined = obj;
@@ -73,7 +73,7 @@ function getFieldValues(schema: JSONSchema, fieldPath: string): unknown[] {
  */
 function applyFieldDependencies(
   originalSchema: GenericObjectType,
-  dependencies: DependencyConfig,
+  dependencies: DependencyConfig
 ): JSONSchema {
   const schema: JSONSchema = JSON.parse(JSON.stringify(originalSchema));
   if (!schema.properties) return schema;
@@ -102,7 +102,7 @@ function applyFieldDependencies(
             delete schema.properties[hiddenTarget];
             if (schema.required?.includes(hiddenTarget)) {
               schema.required = schema.required.filter(
-                (r) => r !== hiddenTarget,
+                (r) => r !== hiddenTarget
               );
             }
           }
@@ -155,7 +155,7 @@ function applyFieldDependencies(
               // Else get original schema for that target field
               const originalFieldSchema = getNestedProperty(
                 originalSchema,
-                targetField,
+                targetField
               );
               if (originalFieldSchema) {
                 conditionalProperties[targetField] = { ...originalFieldSchema };
@@ -169,7 +169,7 @@ function applyFieldDependencies(
 
           if (requiredFields.length > 0) {
             conditionalSchema.required = requiredFields.filter((r) =>
-              visibleFieldsUnique.includes(r),
+              visibleFieldsUnique.includes(r)
             );
           }
 
