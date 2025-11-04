@@ -193,7 +193,7 @@ const EmailInput = React.forwardRef<HTMLInputElement, EmailInputProps>(
             {...props}
           />
 
-          {open && filteredSuggestions.length > 0 && (
+          {open && filteredSuggestions.length > 1 && (
             <div className="absolute top-full left-0 right-0 z-999 mt-1 bg-popover border border-border rounded-md shadow-md">
               <div className="p-1 flex flex-col">
                 {filteredSuggestions.map((suggestion, index) => (

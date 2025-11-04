@@ -26,7 +26,7 @@ export function FieldLabel({
     <Label
       data-testid={`${id}_label`}
       htmlFor={id}
-      className={cn("flex items-center text-slate-600", className)}
+      className={cn("flex items-center text-slate-600 gap-1", className)}
     >
       {label}
       {required ? <Asterisk className="size-3 text-destructive" /> : null}
