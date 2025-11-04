@@ -26,7 +26,7 @@ export const CustomTextInput = (props: WidgetProps) => {
       id={id}
       data-testid={id}
       onBlur={props.onBlur && ((event) => props.onBlur(id, event.target.value))}
-      className={cn("h-10", className)}
+      className={className}
       required={fieldOptions.required}
       onChange={(event) => {
         if (event.target.value === "") {
