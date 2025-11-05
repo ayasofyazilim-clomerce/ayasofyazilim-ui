@@ -101,7 +101,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-full min-w-screen max-w-screen">
+      <PopoverContent className="p-0">
         <List {...props} setOpen={setOpen} />
       </PopoverContent>
     </Popover>
