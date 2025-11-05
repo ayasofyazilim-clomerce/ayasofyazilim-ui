@@ -23,11 +23,11 @@ jest.mock("lucide-react", () => {
                 .toLowerCase()
                 .slice(1)}`,
             },
-            React.createElement("path", { d: "M0 0" }),
-          ),
+            React.createElement("path", { d: "M0 0" })
+          )
         );
       },
-    },
+    }
   );
 });
 

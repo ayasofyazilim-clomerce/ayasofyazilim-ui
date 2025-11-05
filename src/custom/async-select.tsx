@@ -106,10 +106,10 @@ export function AsyncSelectBase({
 
   const [items, setItems] = useState<SearchItem[]>(data || []);
   const showableItems = items.filter(
-    (item) => !value.find((i) => i.id === item.id),
+    (item) => !value.find((i) => i.id === item.id)
   );
   const showableSuggestions = suggestions.filter(
-    (item) => !value.find((i) => i.id === item.id),
+    (item) => !value.find((i) => i.id === item.id)
   );
 
   function onSearch(search: string) {
@@ -221,7 +221,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
           onClick={() => setIsPopoverOpen(true)}
           className={cn(
             "flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit",
-            props.classNames?.trigger,
+            props.classNames?.trigger
           )}
         >
           {props.value.length > 0 ? (
@@ -234,7 +234,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
                     className="m-1 transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300 border-foreground/10 text-foreground bg-card hover:bg-card/80"
                     onClick={() => {
                       props.onChange(
-                        props.value.filter((i) => i.id !== value.id),
+                        props.value.filter((i) => i.id !== value.id)
                       );
                     }}
                   >
@@ -245,7 +245,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
                 {props.value.length > 3 && (
                   <Badge
                     className={cn(
-                      "bg-transparent text-foreground border-foreground/1 hover:bg-transparent",
+                      "bg-transparent text-foreground border-foreground/1 hover:bg-transparent"
                     )}
                   >
                     {props.value.length - 3} more
