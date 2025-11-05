@@ -319,11 +319,10 @@ export const MultiSelect = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-auto p-0"
-          align="start"
+          className="p-0"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >
-          <Command>
+          <Command className="w-full">
             <CommandInput
               data-testid={`${props.id}_search`}
               placeholder="Search..."

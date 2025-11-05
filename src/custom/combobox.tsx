@@ -116,7 +116,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-full min-w-screen! max-w-screen">
+      <PopoverContent className="p-0">
         <List {...props} setOpen={setOpen} />
       </PopoverContent>
     </Popover>

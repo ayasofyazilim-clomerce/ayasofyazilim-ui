@@ -28,7 +28,7 @@ function DateField({
         value={filter.value}
         disabled={isPending}
       >
-        <SelectTrigger className="min-h-10">
+        <SelectTrigger className="w-full">
           <SelectValue placeholder={filter.placeholder || "Select a date"} />
         </SelectTrigger>
         <SelectContent>
