@@ -17,7 +17,7 @@ export const CustomSwitch = (props: WidgetProps) => {
   } = props;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {

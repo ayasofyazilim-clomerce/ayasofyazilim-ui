@@ -10,7 +10,7 @@ export function useIsVisible(ref: any, threshold = 0.3) {
       ([entry]) => {
         setIntersecting(entry?.isIntersecting || false);
       },
-      { threshold },
+      { threshold }
     );
 
     observer.observe(ref.current);

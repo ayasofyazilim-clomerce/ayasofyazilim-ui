@@ -17,7 +17,7 @@ export function ActionList({
     <div
       className={cn(
         "justify-end gap-2 rounded-md border p-2 has-[*]:flex hidden",
-        className,
+        className
       )}
     >
       {children}

@@ -13,7 +13,7 @@ export function formatBytes(
   opts: {
     decimals?: number;
     sizeType?: "accurate" | "normal";
-  } = {},
+  } = {}
 ) {
   const { decimals = 0, sizeType = "normal" } = opts;
 
@@ -28,7 +28,7 @@ export function formatBytes(
 
 export function replacePlaceholders(
   string: string,
-  replacements: { holder: string; replacement: string | React.ReactNode }[],
+  replacements: { holder: string; replacement: string | React.ReactNode }[]
 ): (string | React.ReactNode | JSX.Element)[] {
   if (!string || !replacements || replacements.length === 0) {
     return [];

@@ -13,7 +13,7 @@ export const TableArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
   const addable = uiSchema?.["ui:options"]?.addable || canAdd;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const fieldOptions = {
     disabled,
@@ -25,11 +25,11 @@ export const TableArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
     <Table.Table
       wrapperClassName={cn(
         uiSchema?.className?.table?.wrapper,
-        uiSchema?.["ui:className"],
+        uiSchema?.["ui:className"]
       )}
       className={cn(
         "col-span-full table-auto",
-        uiSchema?.className?.table.container,
+        uiSchema?.className?.table.container
       )}
     >
       <Table.TableCaption className="caption-top mb-2">

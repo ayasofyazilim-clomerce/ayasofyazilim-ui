@@ -3,14 +3,14 @@ import { TanstackTableCellCondition } from "../types";
 
 export function testConditions<T>(
   conditions: TanstackTableCellCondition[] | undefined,
-  row: Row<T>,
+  row: Row<T>
 ) {
   if (!conditions) return true;
 
   return (
     conditions
       .map((condition) =>
-        condition.when(row.getValue(condition.conditionAccessorKey)),
+        condition.when(row.getValue(condition.conditionAccessorKey))
       )
       .filter((i) => !i).length === 0
   );

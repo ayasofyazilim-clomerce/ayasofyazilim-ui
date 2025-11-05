@@ -2,7 +2,7 @@ import { DocumentCorners } from "../../types";
 
 export function generateClipPath(
   corners: DocumentCorners,
-  videoDimensions: { width: number; height: number },
+  videoDimensions: { width: number; height: number }
 ): string {
   const { topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner } =
     corners;

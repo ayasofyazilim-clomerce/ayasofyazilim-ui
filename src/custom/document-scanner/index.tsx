@@ -96,7 +96,7 @@ export function DocumentScanner({
       onCameraReady,
       onScanAttempt,
       onImageCapture,
-    ],
+    ]
   );
 
   // Detection settings
@@ -106,7 +106,7 @@ export function DocumentScanner({
       maxDocumentSize,
       detectionConfidence,
     }),
-    [minDocumentSize, maxDocumentSize, detectionConfidence],
+    [minDocumentSize, maxDocumentSize, detectionConfidence]
   );
 
   // Main document scanner state
@@ -154,14 +154,14 @@ export function DocumentScanner({
       onWebcamReady: handleVideoReady,
       onAutoPhotoCaptured: handleCapture,
     }),
-    [handleVideoReady, handleCapture],
+    [handleVideoReady, handleCapture]
   );
 
   const webcamClassNames = useMemo(
     () => ({
       placeholder: "block",
     }),
-    [],
+    []
   );
 
   const webcamAutoCapture = useMemo(
@@ -172,7 +172,7 @@ export function DocumentScanner({
       quality: imageQuality,
       stopOnCapture: true,
     }),
-    [captureInterval, imageQuality, showWebcamControls],
+    [captureInterval, imageQuality, showWebcamControls]
   );
 
   const webcamPlaceholder = useMemo(() => {
@@ -233,7 +233,7 @@ export function DocumentScanner({
     <div
       className={cn(
         "container relative mx-auto max-w-3xl overflow-hidden p-4",
-        className,
+        className
       )}
     >
       {customOverlay}

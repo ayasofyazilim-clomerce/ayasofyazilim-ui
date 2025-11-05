@@ -47,12 +47,12 @@ export const CornerAdjustment = memo<CornerAdjustmentProps>(
 
     const clipPath = useMemo(
       () => generateClipPath(detectedCorners, videoDimensions),
-      [detectedCorners, videoDimensions],
+      [detectedCorners, videoDimensions]
     );
 
     const cornerEntries = useMemo(
       () => Object.entries(detectedCorners),
-      [detectedCorners],
+      [detectedCorners]
     );
 
     return (
@@ -119,7 +119,7 @@ export const CornerAdjustment = memo<CornerAdjustmentProps>(
         )}
       </div>
     );
-  },
+  }
 );
 
 CornerAdjustment.displayName = "CornerAdjustment";

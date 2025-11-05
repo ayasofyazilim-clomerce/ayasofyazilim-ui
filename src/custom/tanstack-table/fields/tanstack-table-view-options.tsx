@@ -48,7 +48,7 @@ function TablePrimaryActionButton<TData>({
 function handleActionOnClick<TData>(
   table: Table<TData>,
   action: TanstackTableTableActionsType<TData>,
-  setRowAction: (actions: TanstackTableTableActionsType<TData>) => void,
+  setRowAction: (actions: TanstackTableTableActionsType<TData>) => void
 ) {
   if (action.type === "simple") {
     action.onClick();
@@ -63,7 +63,7 @@ function handleActionOnClick<TData>(
 }
 
 export function TanstackTableViewOptions<TData>(
-  props: TanstackTableViewOptionsProps<TData>,
+  props: TanstackTableViewOptionsProps<TData>
 ) {
   const {
     table,
@@ -77,7 +77,7 @@ export function TanstackTableViewOptions<TData>(
   // Filter actions based on condition, keeping backward compatibility
   const filteredActions =
     tableActions?.filter(
-      (action) => !action.condition || action.condition(tableData),
+      (action) => !action.condition || action.condition(tableData)
     ) ?? [];
 
   const primaryAction = filteredActions[0];

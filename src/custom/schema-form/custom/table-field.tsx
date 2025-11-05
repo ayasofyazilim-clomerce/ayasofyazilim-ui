@@ -20,7 +20,7 @@ export function TableField<TData>({ ...tableProps }: TableFieldProps<TData>) {
     const title = uiSchema?.["ui:title"];
     const dependencyOptions = fieldOptionsByDependency(
       uiSchema,
-      props.formContext,
+      props.formContext
     );
     const fieldOptions = {
       disabled,
@@ -33,7 +33,7 @@ export function TableField<TData>({ ...tableProps }: TableFieldProps<TData>) {
           className={cn(
             "flex flex-col border rounded-md p-4",
             disabled && "opacity-50 [&>div]:pointer-events-none select-none",
-            uiSchema?.["ui:className"],
+            uiSchema?.["ui:className"]
           )}
         >
           <FieldLabel id={id} label={title} required={fieldOptions.required} />
@@ -48,7 +48,7 @@ export function TableField<TData>({ ...tableProps }: TableFieldProps<TData>) {
           <ErrorSchemaTemplate errorSchema={props.errorSchema} />
         </div>
       ),
-      [props.errorSchema, props.disabled],
+      [props.errorSchema, props.disabled]
     );
     if (fieldOptions.hidden) return null;
     return memory;

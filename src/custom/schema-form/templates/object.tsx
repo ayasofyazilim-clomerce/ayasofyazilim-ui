@@ -28,7 +28,7 @@ export const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
       className={cn(
         "flex flex-col gap-3 flex-1 w-full",
         title && "border p-4 rounded-md bg-white",
-        uiSchema?.["ui:className"],
+        uiSchema?.["ui:className"]
       )}
     >
       {title && uiSchema?.displayLabel !== false && (

@@ -6,7 +6,7 @@ export const CustomDate = (props: WidgetProps) => {
   const { value, onChange, disabled, uiSchema } = props;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
@@ -47,7 +47,7 @@ export const CustomDateWithTime = (props: WidgetProps) => {
   const { value, onChange, disabled, uiSchema } = props;
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {

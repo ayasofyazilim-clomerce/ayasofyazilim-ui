@@ -25,7 +25,7 @@ interface TanstackTableDateFilterProps<TData, TValue> {
     filter: {
       accessorKey: string;
       selectedValues: string;
-    }[],
+    }[]
   ) => void;
   params: URLSearchParams;
 }
@@ -53,7 +53,7 @@ export function TanstackTableDateFilter<TData, TValue>({
         }
       : params?.get(dateItem.startAccessorKey)
         ? new Date(params?.get(dateItem.startAccessorKey) as string)
-        : undefined,
+        : undefined
   );
 
   useEffect(() => {

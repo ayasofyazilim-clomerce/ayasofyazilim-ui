@@ -9,7 +9,7 @@ import { useMemo } from "react";
 import { PhoneInput } from "../../phone-input";
 
 export const CustomPhoneField = function CustomPhoneField<T>(
-  props: WidgetProps<T, any, FormContext<T>>,
+  props: WidgetProps<T, any, FormContext<T>>
 ) {
   const { value, onChange, name, className } = props;
   const defaultCountryCode = useMemo(() => {
@@ -32,14 +32,14 @@ export const CustomPhoneField = function CustomPhoneField<T>(
 };
 
 export const CustomPhoneFieldWithParse = function CustomPhoneFieldWithParse<T>(
-  props: WidgetProps<T, any, FormContext<T>>,
+  props: WidgetProps<T, any, FormContext<T>>
 ) {
   const required = props.required || props.uiSchema?.["ui:required"];
   return <PhoneInput {...props} required={required} defaultValue={undefined} />;
 };
 
 export const CustomPhoneFieldWithValue = function CustomPhoneFieldWithValue<T>(
-  props: WidgetProps<T, any, FormContext<T>>,
+  props: WidgetProps<T, any, FormContext<T>>
 ) {
   const { onChange, uiSchema } = props;
   const required = uiSchema?.["ui:required"] || props.required;

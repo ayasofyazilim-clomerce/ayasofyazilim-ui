@@ -33,13 +33,13 @@ export const Combobox = (props: WidgetProps) => {
 
   const fieldValue = value || defaultValue;
   const fieldValueDisplayName = options.enumOptions?.find(
-    (x) => x.value === fieldValue,
+    (x) => x.value === fieldValue
   )?.label;
   const uiOptions = uiSchema?.["ui:options"];
 
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
@@ -62,7 +62,7 @@ export const Combobox = (props: WidgetProps) => {
           role="combobox"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
-            fieldValue && "text-black",
+            fieldValue && "text-black"
           )}
         >
           {fieldValueDisplayName ||
@@ -91,7 +91,7 @@ export const Combobox = (props: WidgetProps) => {
           variant="outline"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
-            fieldValue && "text-black",
+            fieldValue && "text-black"
           )}
         >
           {fieldValue || props?.uiSchema?.["ui:placeholder"] || label
@@ -124,7 +124,7 @@ function List<T>({
     <Command
       filter={(value, search) => {
         const filterResult = options.enumOptions?.find(
-          (i) => i.value.toLocaleLowerCase() === value.toLocaleLowerCase(),
+          (i) => i.value.toLocaleLowerCase() === value.toLocaleLowerCase()
         )?.label;
         if (
           value.includes(search) ||
@@ -153,7 +153,7 @@ function List<T>({
                     ? enumOption.value === props.value
                       ? undefined
                       : enumOption.value
-                    : enumOption.value,
+                    : enumOption.value
                 );
                 setOpen(false);
               }}

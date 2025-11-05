@@ -113,13 +113,13 @@ export function CountrySelector({
           aria-expanded={open}
           className={cn(
             "justify-between border-none bg-transparent px-2 gap-2 rtl:flex-row-reverse min-h-8",
-            className,
+            className
           )}
         >
           {value ? (
             <SelectedCountry
               {...countries.find(
-                (country) => country.cultureName?.toLowerCase() === value,
+                (country) => country.cultureName?.toLowerCase() === value
               )}
               showFlag={showFlag}
               showLabel={showLabel}
@@ -127,8 +127,7 @@ export function CountrySelector({
           ) : (
             <SelectedCountry
               {...countries.find(
-                (country) =>
-                  country.cultureName?.toLowerCase() === defaultValue,
+                (country) => country.cultureName?.toLowerCase() === defaultValue
               )}
               showFlag={showFlag}
               showLabel={showLabel}
@@ -145,7 +144,7 @@ export function CountrySelector({
                 .find(
                   (i) =>
                     i.cultureName?.toLocaleLowerCase() ===
-                    commandValue.toLocaleLowerCase(),
+                    commandValue.toLocaleLowerCase()
                 )
                 ?.displayName?.toLocaleLowerCase()
                 ?.includes(search.toLocaleLowerCase())

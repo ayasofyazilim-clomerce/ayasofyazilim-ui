@@ -51,7 +51,7 @@ export const TanstackTableToolbar = <TData,>({
     }
   }
   function onFilterMultiple(
-    filter: { accessorKey: string; selectedValues: string }[],
+    filter: { accessorKey: string; selectedValues: string }[]
   ) {
     const newParams = new URLSearchParams(searchParams.toString());
     filter.forEach(({ accessorKey, selectedValues }) => {

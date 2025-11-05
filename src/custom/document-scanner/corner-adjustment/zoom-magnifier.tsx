@@ -109,7 +109,7 @@ export const ZoomMagnifier = memo<ZoomMagnifierProps>(
         </div>
       </div>
     );
-  },
+  }
 );
 
 ZoomMagnifier.displayName = "ZoomMagnifier";

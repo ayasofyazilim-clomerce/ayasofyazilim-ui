@@ -72,8 +72,8 @@ const CalendarGridComponent = ({ isRange = false }: { isRange?: boolean }) => {
                   "after:pointer-events-none after:absolute after:bottom-1 after:start-1/2 after:z-10 after:size-[3px] after:-translate-x-1/2 after:rounded-full after:bg-primary",
                   isRange
                     ? "data-selection-end:[&:not([data-hover])]:after:bg-background data-selection-start:[&:not([data-hover])]:after:bg-background"
-                    : "data-selected:after:bg-background",
-                ),
+                    : "data-selected:after:bg-background"
+                )
             )}
           />
         )}
@@ -86,7 +86,7 @@ const Calendar = ({ className, ...props }: CalendarProps) => (
   <CalendarRac
     {...props}
     className={composeRenderProps(className, (className) =>
-      cn("w-fit", className),
+      cn("w-fit", className)
     )}
   >
     <CalendarHeader />
@@ -98,7 +98,7 @@ const RangeCalendar = ({ className, ...props }: RangeCalendarProps) => (
   <RangeCalendarRac
     {...props}
     className={composeRenderProps(className, (className) =>
-      cn("w-fit", className),
+      cn("w-fit", className)
     )}
   >
     <CalendarHeader />

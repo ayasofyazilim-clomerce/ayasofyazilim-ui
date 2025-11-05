@@ -22,7 +22,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
   }
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {
@@ -37,7 +37,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
       className={cn(
         "w-full grid gap-1.5 h-fit",
         uiSchema?.["ui:className"],
-        classNames,
+        classNames
       )}
       style={style}
     >

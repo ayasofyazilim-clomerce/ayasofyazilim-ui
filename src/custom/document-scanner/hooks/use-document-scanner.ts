@@ -16,10 +16,10 @@ export interface UseDocumentScannerReturn {
 }
 
 export function useDocumentScanner(
-  callbacks: DocumentScannerCallbacks,
+  callbacks: DocumentScannerCallbacks
 ): UseDocumentScannerReturn {
   const [videoDimensions, setVideoDimensions] = useState(
-    DEFAULT_VIDEO_DIMENSIONS,
+    DEFAULT_VIDEO_DIMENSIONS
   );
   const [detectedCorners, setDetectedCorners] = useState<
     DocumentCorners | undefined
@@ -32,7 +32,7 @@ export function useDocumentScanner(
       callbacks.onStatusChange?.("scanning");
       callbacks.onCameraReady?.(dimensions);
     },
-    [callbacks],
+    [callbacks]
   );
 
   const handleCornersChange = useCallback(
@@ -40,7 +40,7 @@ export function useDocumentScanner(
       setDetectedCorners(newCorners);
       callbacks.onCornersChanged?.(newCorners);
     },
-    [callbacks],
+    [callbacks]
   );
 
   const handleError = useCallback(
@@ -48,7 +48,7 @@ export function useDocumentScanner(
       callbacks.onStatusChange?.("error");
       callbacks.onError?.(error);
     },
-    [callbacks],
+    [callbacks]
   );
 
   const handleImageCrop = useCallback(
@@ -56,7 +56,7 @@ export function useDocumentScanner(
       callbacks.onStatusChange?.("cropped");
       callbacks.onDocumentCropped?.(croppedImageBase64);
     },
-    [callbacks],
+    [callbacks]
   );
 
   const handleRetry = useCallback(() => {

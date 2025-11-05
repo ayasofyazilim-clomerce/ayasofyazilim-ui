@@ -6,7 +6,7 @@ export const FieldErrorTemplate = (
     | FieldErrorProps
     | {
         errors: Array<string | ReactElement>;
-      },
+      }
 ) =>
   props.errors && (
     <ul className="space-y-1">

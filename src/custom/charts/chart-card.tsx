@@ -68,7 +68,7 @@ export function ChartCard({
         <CardFooter
           className={cn(
             "flex items-center gap-2 leading-none font-medium",
-            classNames?.footer,
+            classNames?.footer
           )}
         >
           {trendText} {trendIcon}

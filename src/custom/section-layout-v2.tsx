@@ -53,7 +53,7 @@ export function SectionLayoutNavbar({
         "flex gap-4 text-sm text-center md:text-left p-3 ",
         vertical
           ? "flex-col border-b md:border-b-0 md:border-r overflow-auto min-w-full md:min-w-60 items-center md:items-start"
-          : "flex-col md:flex-row border-b",
+          : "flex-col md:flex-row border-b"
       )}
     >
       {sections.map((section) => (
@@ -65,7 +65,7 @@ export function SectionLayoutNavbar({
             section.disabled
               ? "cursor-not-allowed opacity-50"
               : "cursor-pointer",
-            section.className,
+            section.className
           )}
           data-active={activeSectionId === section.id}
           href={section.link || "#"}
@@ -148,7 +148,7 @@ export function SectionLayout({
   vertical,
 }: ISectionLayoutProps) {
   const [activeSectionId, setActiveSectionId] = useState(
-    defaultActiveSectionId || sections?.[0]?.id,
+    defaultActiveSectionId || sections?.[0]?.id
   );
   useEffect(() => {
     if (linkElement && defaultActiveSectionId) {
@@ -157,7 +157,7 @@ export function SectionLayout({
   }, [defaultActiveSectionId]);
   const contextValue = useMemo(
     () => ({ activeSectionId: activeSectionId || "" }),
-    [activeSectionId],
+    [activeSectionId]
   );
   return (
     <SectionLayoutContext.Provider value={contextValue}>
@@ -194,7 +194,7 @@ export const SectionLayoutSkeleton = ({ vertical }: { vertical?: boolean }) => (
         "flex gap-4 text-sm text-center md:text-left p-5 ",
         vertical
           ? "flex-col border-b md:border-b-0 md:border-r min-w-full md:min-w-60 items-center md:items-start"
-          : "flex-col md:flex-row border-b",
+          : "flex-col md:flex-row border-b"
       )}
     >
       <Skeleton className="h-6 w-full bg-gray-200" />

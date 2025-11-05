@@ -150,7 +150,7 @@ export function Webcam(props: WebcamProps) {
   // Validation: At least one feature must be enabled
   if (!videoRecording && !photoCapture && !autoCapture) {
     throw new Error(
-      "WebcamComponent: At least one core feature (videoRecording, photoCapture, or autoCapture) must be enabled",
+      "WebcamComponent: At least one core feature (videoRecording, photoCapture, or autoCapture) must be enabled"
     );
   }
 
@@ -172,7 +172,7 @@ export function Webcam(props: WebcamProps) {
   // State
   const [isPending, startTransition] = useTransition();
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
-    defaultCamera === "front" ? "user" : "environment",
+    defaultCamera === "front" ? "user" : "environment"
   );
   const [isWebcamReady, setIsWebcamReady] = useState(false);
   // Video Recording State
@@ -380,7 +380,7 @@ export function Webcam(props: WebcamProps) {
       webcamRef,
       callbacks,
       hasAutoStarted,
-    ],
+    ]
   );
 
   // Camera Management
@@ -399,7 +399,7 @@ export function Webcam(props: WebcamProps) {
   useEffect(() => {
     const checkIsMobile = () =>
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent,
+        navigator.userAgent
       );
     setIsMobile(checkIsMobile());
   }, []);
@@ -449,7 +449,7 @@ export function Webcam(props: WebcamProps) {
         if (retryCountRef.current > maxRetryCount) {
           clearVideoCheckInterval();
           callbacks?.onError?.(
-            "Failed to initialize camera after maximum retries",
+            "Failed to initialize camera after maximum retries"
           );
 
           // Try with default constraints as a fallback
@@ -478,11 +478,11 @@ export function Webcam(props: WebcamProps) {
   const handleUserMediaError = useCallback(
     (error: string | DOMException) => {
       callbacks?.onError?.(
-        typeof error === "string" ? error : `Camera error: ${error.message}`,
+        typeof error === "string" ? error : `Camera error: ${error.message}`
       );
       setIsWebcamReady(false);
     },
-    [callbacks],
+    [callbacks]
   );
 
   // Manual capture function
@@ -511,7 +511,7 @@ export function Webcam(props: WebcamProps) {
       stopAutoCapture,
       clearAutoCapture,
       clearRecordingInterval,
-    ],
+    ]
   );
 
   useEffect(() => {
@@ -674,14 +674,14 @@ export function Webcam(props: WebcamProps) {
     <div
       className={cn(
         "webcam-container overflow-hidden rounded-md bg-black relative",
-        classNames?.container,
+        classNames?.container
       )}
     >
       <div
         className={cn(
           "webcam relative",
           showBorder && "p-2",
-          classNames?.webcam,
+          classNames?.webcam
         )}
       >
         <div className="relative">
@@ -707,7 +707,7 @@ export function Webcam(props: WebcamProps) {
             <div
               className={cn(
                 "absolute w-full h-full inset-0 z-3",
-                classNames?.placeholder,
+                classNames?.placeholder
               )}
             >
               {placeholder}
@@ -722,7 +722,7 @@ export function Webcam(props: WebcamProps) {
           classNames?.controls,
           interfaceLocation === "absolute"
             ? "absolute bottom-0 left-0 p-4 z-10"
-            : "",
+            : ""
         )}
       >
         {renderCapturedImagePreview()}

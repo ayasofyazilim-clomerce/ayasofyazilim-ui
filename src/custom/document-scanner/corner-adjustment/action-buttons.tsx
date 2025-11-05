@@ -27,7 +27,7 @@ export const ActionButtons = memo<ActionButtonsProps>(
         )}
       </div>
     );
-  },
+  }
 );
 
 ActionButtons.displayName = "ActionButtons";

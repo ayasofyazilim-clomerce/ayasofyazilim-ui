@@ -95,7 +95,7 @@ export function createCell<T>(props: {
               key={item.label}
             >
               {item.label}
-            </Badge>,
+            </Badge>
           );
         }
         return null;
@@ -113,7 +113,7 @@ export function createCell<T>(props: {
     const facetedItem = faceted.find(
       (item) =>
         item.when?.(row.getValue(accessorKey.toString())) ||
-        row.getValue(accessorKey.toString()) === item.value,
+        row.getValue(accessorKey.toString()) === item.value
     );
     if (facetedItem) {
       content = (
@@ -122,7 +122,7 @@ export function createCell<T>(props: {
             <facetedItem.icon
               className={cn(
                 "text-muted-foreground mr-2 h-4 w-4",
-                facetedItem.iconClassName,
+                facetedItem.iconClassName
               )}
             />
           )}
@@ -150,7 +150,7 @@ export function createCell<T>(props: {
           data-testid={`expand-row-${accessorKey.toString()}`}
           className={cn(
             "font-medium text-blue-700 flex items-center gap-2 cursor-pointer",
-            containerClassName,
+            containerClassName
           )}
         >
           {content}
@@ -175,7 +175,7 @@ export function createCell<T>(props: {
       href={url}
       className={cn(
         "font-medium text-blue-700 flex items-center gap-2",
-        containerClassName,
+        containerClassName
       )}
     >
       {content}
@@ -183,7 +183,7 @@ export function createCell<T>(props: {
   );
 }
 export function tanstackTableCreateColumnsByRowData<T>(
-  params: TanstackTableCreateColumnsByRowId<T>,
+  params: TanstackTableCreateColumnsByRowId<T>
 ) {
   const { rows, config } = params;
 
@@ -218,7 +218,7 @@ export function tanstackTableCreateColumnsByRowData<T>(
                 .rows.some(
                   (row) =>
                     !params.disabledRowIds?.includes(row.id) &&
-                    row.getIsSelected(),
+                    row.getIsSelected()
                 )
             }
             onCheckedChange={(value) => {

@@ -48,10 +48,10 @@ export function DatePicker({
   onChange?: (date: Date) => void;
 }) {
   const [dateValue, setDateValue] = useState(
-    createDate({ date: defaultValue, offset }),
+    createDate({ date: defaultValue, offset })
   );
   const [timeValue, setTimeValue] = useState(
-    createTime({ date: defaultValue, offset }),
+    createTime({ date: defaultValue, offset })
   );
   useEffect(() => {
     if (!dateValue) return;
@@ -64,8 +64,8 @@ export function DatePicker({
             dateValue.day,
             timeValue.hour,
             timeValue.minute,
-            timeValue.second,
-          ),
+            timeValue.second
+          )
         );
       } else {
         const timeZone = localStorage.getItem("tenantTimeZone") || "UTC";
@@ -97,7 +97,7 @@ export function DatePicker({
           className={cn(
             "w-full flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer",
             showIcon ? "pr-9" : "pr-3",
-            classNames?.dateInput,
+            classNames?.dateInput
           )}
         >
           <DateInput
@@ -229,7 +229,7 @@ export function DateRangePicker({
           className={cn(
             "w-full min-w-fit flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer",
             showIcon ? "pr-9" : "pr-3",
-            classNames?.dateInput,
+            classNames?.dateInput
           )}
         >
           <DateInput

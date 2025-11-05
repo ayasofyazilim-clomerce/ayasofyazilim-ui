@@ -39,7 +39,7 @@ export const splitPhone = (phoneNumber: string) => {
     .split("+")[1]!; // Format the number and split to get the relevant part
   const ituCountryCode = formattedNumber.split(" ")[0]!; // Extract the ITU country code
   const phoneNumberWithoutCountryCode = formattedNumber.substring(
-    ituCountryCode.length + 1,
+    ituCountryCode.length + 1
   );
 
   const areaCode = phoneNumberWithoutCountryCode.includes("-")
@@ -69,7 +69,7 @@ export const splitPhone = (phoneNumber: string) => {
  */
 export function removeFieldsfromGenericSchema(
   inputSchema: GenericObjectType,
-  fieldsToRemove: string[],
+  fieldsToRemove: string[]
 ): GenericObjectType {
   if (inputSchema.type === "object" && inputSchema.properties) {
     const schemaProperties = inputSchema.properties;
@@ -79,7 +79,7 @@ export function removeFieldsfromGenericSchema(
       if (schemaProperties[propertyKey].type === "object") {
         schemaProperties[propertyKey] = removeFieldsfromGenericSchema(
           schemaProperties[propertyKey],
-          fieldsToRemove,
+          fieldsToRemove
         );
       } else if (
         schemaProperties[propertyKey].type === "array" &&
@@ -87,13 +87,13 @@ export function removeFieldsfromGenericSchema(
       ) {
         schemaProperties[propertyKey].items = removeFieldsfromGenericSchema(
           schemaProperties[propertyKey].items,
-          fieldsToRemove,
+          fieldsToRemove
         );
       }
     });
 
     const shouldTransform = fieldsToRemove.every((field) =>
-      Object.prototype.hasOwnProperty.call(schemaProperties, field),
+      Object.prototype.hasOwnProperty.call(schemaProperties, field)
     );
     if (shouldTransform) {
       const transformedSchema = {
@@ -122,7 +122,7 @@ export function transformGenericSchema(
   inputSchema: GenericObjectType,
   fieldsToRemove: string[],
   newFieldName: string,
-  requiredFields: string[],
+  requiredFields: string[]
 ): GenericObjectType {
   if (inputSchema.type === "object" && inputSchema.properties) {
     const schemaProperties = inputSchema.properties;
@@ -134,7 +134,7 @@ export function transformGenericSchema(
           schemaProperties[propertyKey],
           fieldsToRemove,
           newFieldName,
-          requiredFields,
+          requiredFields
         );
       } else if (
         schemaProperties[propertyKey].type === "array" &&
@@ -144,20 +144,20 @@ export function transformGenericSchema(
           schemaProperties[propertyKey].items,
           fieldsToRemove,
           newFieldName,
-          requiredFields,
+          requiredFields
         );
       }
     });
 
     const shouldTransform = fieldsToRemove.every((field) =>
-      Object.prototype.hasOwnProperty.call(schemaProperties, field),
+      Object.prototype.hasOwnProperty.call(schemaProperties, field)
     );
 
     if (shouldTransform) {
       if (!(newFieldName in schemaProperties)) {
         // Create a new variable to avoid assigning directly to `inputSchema`
         const updatedRequired = inputSchema.required?.filter(
-          (requiredItem: string) => !fieldsToRemove.includes(requiredItem),
+          (requiredItem: string) => !fieldsToRemove.includes(requiredItem)
         );
 
         const newFieldProperties = {
@@ -203,7 +203,7 @@ export function transformGenericSchema(
 export function flattenGenericData(
   inputData: GenericObjectType,
   targetKey: string,
-  fieldsToExtract: string[],
+  fieldsToExtract: string[]
 ): GenericObjectType {
   const transformObject = (obj: GenericObjectType): GenericObjectType => {
     if (Array.isArray(obj)) {
@@ -224,7 +224,7 @@ export function flattenGenericData(
               }
               return accumulator;
             },
-            {} as GenericObjectType,
+            {} as GenericObjectType
           );
 
           // Create the new object
@@ -260,7 +260,7 @@ export function flattenGenericData(
 export function generateUiSchema<T extends GenericObjectType>(
   schema: T,
   key: string,
-  prop: GenericObjectType,
+  prop: GenericObjectType
 ): GenericObjectType {
   const result: GenericObjectType = {};
 
@@ -320,7 +320,7 @@ export function mergeUISchemaObjects<
 export function generateFormData(
   formData: GenericObjectType,
   fieldsToMerge: string[],
-  newFieldName: string,
+  newFieldName: string
 ) {
   const _formData = { ...formData };
   const c = {
@@ -387,7 +387,7 @@ export function createSchemaWithFilters<T = string>({
 
   const filterProperties = (
     object: GenericObjectType,
-    parentKey: string = "",
+    parentKey: string = ""
   ) => {
     const currentObj = object;
     if (!currentObj.properties && !currentObj.items) return;
@@ -444,15 +444,15 @@ export function createSchemaWithFilters<T = string>({
             const indexA = keys.indexOf(
               parentKey
                 ? (`${parentKey}.${keyA}` as keyof T)
-                : (keyA as keyof T),
+                : (keyA as keyof T)
             );
             const indexB = keys.indexOf(
               parentKey
                 ? (`${parentKey}.${keyB}` as keyof T)
-                : (keyB as keyof T),
+                : (keyB as keyof T)
             );
             return indexA - indexB;
-          },
+          }
         );
         // Update currentObj.properties with sorted properties
         currentObj.properties = Object.fromEntries(sortedProperties);
@@ -550,7 +550,7 @@ export function uiSchemaFromSchema({
           object: object.items.properties[property],
           resources,
           constantKey: `${constantKey}.${property}`,
-        }),
+        })
       );
     }
     Object.assign(uiSchema[name] || {}, {
@@ -569,7 +569,7 @@ export function uiSchemaFromSchema({
     // enum varsa
     if (Object.keys(object).includes("enum")) {
       const labels = object.enum.map(
-        (key: string) => getResourceValue(key) || key,
+        (key: string) => getResourceValue(key) || key
       );
       Object.assign(uiSchemaItem, {
         "ui:enumNames": labels,
@@ -648,7 +648,7 @@ export function getDateFnsLocale({
 export function extendFieldInGenericSchema(
   inputSchema: GenericObjectType,
   fieldToFind: string,
-  newField?: object,
+  newField?: object
 ): GenericObjectType {
   if (inputSchema.type === "object" && inputSchema.properties) {
     const schemaProperties = inputSchema.properties;
@@ -658,7 +658,7 @@ export function extendFieldInGenericSchema(
       if (schemaProperties[propertyKey].type === "object") {
         schemaProperties[propertyKey] = extendFieldInGenericSchema(
           schemaProperties[propertyKey],
-          fieldToFind,
+          fieldToFind
         );
       } else if (
         schemaProperties[propertyKey].type === "array" &&
@@ -666,14 +666,14 @@ export function extendFieldInGenericSchema(
       ) {
         schemaProperties[propertyKey].items = extendFieldInGenericSchema(
           schemaProperties[propertyKey].items,
-          fieldToFind,
+          fieldToFind
         );
       }
     });
 
     const shouldTransform = Object.prototype.hasOwnProperty.call(
       schemaProperties,
-      fieldToFind,
+      fieldToFind
     );
     if (shouldTransform) {
       const transformedSchema = {
@@ -690,7 +690,7 @@ export function extendFieldInGenericSchema(
 
 export function findFieldInGenericSchema(
   inputSchema: GenericObjectType,
-  fieldToFind: string,
+  fieldToFind: string
 ): GenericObjectType {
   if (inputSchema.type === "object" && inputSchema.properties) {
     const schemaProperties = inputSchema.properties;
@@ -700,7 +700,7 @@ export function findFieldInGenericSchema(
       if (schemaProperties[propertyKey].type === "object") {
         schemaProperties[propertyKey] = extendFieldInGenericSchema(
           schemaProperties[propertyKey],
-          fieldToFind,
+          fieldToFind
         );
       } else if (
         schemaProperties[propertyKey].type === "array" &&
@@ -708,14 +708,14 @@ export function findFieldInGenericSchema(
       ) {
         schemaProperties[propertyKey].items = extendFieldInGenericSchema(
           schemaProperties[propertyKey].items,
-          fieldToFind,
+          fieldToFind
         );
       }
     });
 
     const shouldTransform = Object.prototype.hasOwnProperty.call(
       schemaProperties,
-      fieldToFind,
+      fieldToFind
     );
     if (shouldTransform) {
       return schemaProperties[fieldToFind];

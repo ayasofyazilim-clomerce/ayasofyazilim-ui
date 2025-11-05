@@ -12,7 +12,7 @@ type CustomMultiSelectProps = Omit<MultiSelectProps, "options" | "onChange"> & {
 };
 
 export function CustomMultiSelect(
-  props: CustomMultiSelectProps & Omit<WidgetProps, "options">,
+  props: CustomMultiSelectProps & Omit<WidgetProps, "options">
 ) {
   const {
     value,
@@ -37,7 +37,7 @@ export function CustomMultiSelect(
 
   const dependencyOptions = fieldOptionsByDependency(
     uiSchema,
-    props.formContext,
+    props.formContext
   );
   const required = uiSchema?.["ui:required"] || props.required;
   const fieldOptions = {

@@ -17,7 +17,7 @@ export function createDate({
 }): CalendarDate | DateValue | undefined {
   if (date)
     return parseDate(
-      new Date(date.getTime() - offset).toJSON().split("T").at(0) || "",
+      new Date(date.getTime() - offset).toJSON().split("T").at(0) || ""
     );
   return undefined;
 }
@@ -35,7 +35,7 @@ export function createTime({
         .toJSON()
         .split("T")
         .at(1)
-        ?.replace("Z", "") || "",
+        ?.replace("Z", "") || ""
     );
 
   return parseTime("00:00");
