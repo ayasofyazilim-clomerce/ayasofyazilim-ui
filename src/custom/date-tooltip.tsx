@@ -43,10 +43,15 @@ function DateTooltip({
   const userDate = formatToLocalizedDate({ localization, date, dateOptions });
   return (
     <Tooltip>
-      <TooltipTrigger className="flex items-center gap-1 underline decoration-dotted underline-offset-2">
-        {icon} {tenantDate}
+      <TooltipTrigger
+        className="flex items-center gap-1 underline decoration-dotted underline-offset-2"
+        asChild
+      >
+        <div>
+          {icon} {tenantDate}
+        </div>
       </TooltipTrigger>
-      <TooltipContent className="bg-gray-100 text-gray-900 border border-gray-300 z-100">
+      <TooltipContent className="bg-gray-100 text-gray-900 border border-gray-300 z-100 [&_svg]:fill-gray-100">
         <p className="flex justify-between">
           <span className="font-semibold mr-2">UTC:</span>
           {utcDate}

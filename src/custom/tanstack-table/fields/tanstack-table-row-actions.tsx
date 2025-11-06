@@ -45,7 +45,7 @@ export const TanstackTableRowActions = <TData,>({
   }
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger className="w-full justify-start" asChild>
         <Button
           variant="ghost"
           type="button"

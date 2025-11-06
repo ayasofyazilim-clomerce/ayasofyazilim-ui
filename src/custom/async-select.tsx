@@ -140,7 +140,7 @@ export function AsyncSelectBase({
   }, [searchValue, searchInput, fetchAction]);
 
   return (
-    <Cmd className="border" aria-disabled={disabled}>
+    <Cmd aria-disabled={disabled}>
       <CommandInput
         id={`${id}_input`}
         data-testid={`${id}_input`}
@@ -220,7 +220,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
           type="button"
           onClick={() => setIsPopoverOpen(true)}
           className={cn(
-            "flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit",
+            "flex w-full p-1 rounded-md border items-center justify-between bg-inherit hover:bg-inherit",
             props.classNames?.trigger
           )}
         >
@@ -277,7 +277,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-auto p-0"
+        className="p-0"
         align="start"
         onEscapeKeyDown={() => setIsPopoverOpen(false)}
       >
