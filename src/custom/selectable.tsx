@@ -27,11 +27,10 @@ type SelectableProps<T> = {
   className?: string;
   options?: T[];
   defaultValue?: T[];
-  keyExtractor: (option: T) => string;
-  labelExtractor: (option: T) => string;
-  typeExtractor?: (option: T) => string;
-  optionRenderer?: (option: T) => React.ReactNode;
-  fetchAction?: (search: string) => Promise<T[]>;
+  getKey: (option: T) => string;
+  getLabel: (option: T) => string;
+  getGroup?: (option: T) => string;
+  onSearch?: (search: string) => Promise<T[]>;
   onChange?: (value: T[]) => void;
   singular?: boolean;
   singleLine?: boolean;
@@ -39,17 +38,22 @@ type SelectableProps<T> = {
   noResult?: string;
   searchPlaceholderText?: string;
   makeAChoiceText?: string;
+  renderOption?: (option: T) => React.ReactNode;
+  renderTrigger?: ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) => React.ReactNode;
 };
 
 export function Selectable<T>({
   className,
   options,
   defaultValue,
-  keyExtractor,
-  labelExtractor,
-  typeExtractor,
-  optionRenderer,
-  fetchAction,
+  getKey: keyExtractor,
+  getLabel: labelExtractor,
+  getGroup: typeExtractor,
+  onSearch: fetchAction,
   onChange,
   singular = false,
   singleLine,
@@ -57,6 +61,8 @@ export function Selectable<T>({
   noResult = "Nothing to show.",
   searchPlaceholderText = "Search...",
   makeAChoiceText = "Make a choice...",
+  renderOption,
+  renderTrigger: Trigger,
 }: SelectableProps<T>) {
   const [open, setOpen] = useState(false);
 
@@ -151,56 +157,63 @@ export function Selectable<T>({
     setSearchInput("");
   }, []);
 
+  const TriggerContent = (
+    <>
+      {selectedOptions?.length ? (
+        <div className={"flex flex-wrap gap-1 overflow-hidden w-full"}>
+          {!singleLine &&
+            selectedOptions.map((option) => {
+              const key = keyExtractor(option);
+              const label = labelExtractor(option);
+              if (singular) {
+                return <Fragment key={key}>{label}</Fragment>;
+              }
+
+              return (
+                <Badge
+                  key={key}
+                  variant={"secondary"}
+                  className="hover:animate-pulse"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSelection(option, false);
+                  }}
+                >
+                  {label}
+                  <XIcon className="size-4" />
+                </Badge>
+              );
+            })}
+          {singleLine && (
+            <span className="truncate">
+              {selectedOptions
+                .map((option) => labelExtractor(option))
+                .join(", ")}
+            </span>
+          )}
+        </div>
+      ) : (
+        makeAChoiceText
+      )}
+      <ChevronsUpDown className="opacity-50" />
+    </>
+  );
   return (
     <Popover open={open} onOpenChange={onPopoverOpenChange}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn(
-            "w-full justify-between h-max hover:bg-accent/30",
-            className
-          )}
-        >
-          {selectedOptions?.length ? (
-            <div className={"flex flex-wrap gap-1 overflow-hidden w-full"}>
-              {!singleLine &&
-                selectedOptions.map((option) => {
-                  const key = keyExtractor(option);
-                  const label = labelExtractor(option);
-                  if (singular) {
-                    return <Fragment key={key}>{label}</Fragment>;
-                  }
-
-                  return (
-                    <Badge
-                      key={key}
-                      variant={"secondary"}
-                      className="hover:animate-pulse"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleSelection(option, false);
-                      }}
-                    >
-                      {label}
-                      <XIcon className="size-4" />
-                    </Badge>
-                  );
-                })}
-              {singleLine && (
-                <span className="truncate">
-                  {selectedOptions
-                    .map((option) => labelExtractor(option))
-                    .join(", ")}
-                </span>
-              )}
-            </div>
-          ) : (
-            makeAChoiceText
-          )}
-          <ChevronsUpDown className="opacity-50" />
-        </Button>
+      <PopoverTrigger
+        className={cn(
+          "w-full justify-between h-max hover:bg-accent/30",
+          className
+        )}
+        asChild
+      >
+        {Trigger ? (
+          <span>
+            <Trigger>{TriggerContent}</Trigger>
+          </span>
+        ) : (
+          <Button variant="outline">{TriggerContent}</Button>
+        )}
       </PopoverTrigger>
       <PopoverContent className="p-0">
         <Command>
@@ -240,8 +253,8 @@ export function Selectable<T>({
                         value={key}
                         onSelect={() => toggleSelection(option, false)}
                       >
-                        {optionRenderer ? (
-                          optionRenderer(option)
+                        {renderOption ? (
+                          renderOption(option)
                         ) : (
                           <>
                             {labelExtractor(option)}
