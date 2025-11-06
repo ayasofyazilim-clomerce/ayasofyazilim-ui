@@ -23,8 +23,9 @@ import { Skeleton } from "../components/skeleton";
 import { useDebounce } from "../hooks/use-debounce";
 import { cn } from "../lib/utils";
 
-type SelectableProps<T> = {
+export type SelectableProps<T> = {
   className?: string;
+  disabled?: boolean;
   options?: T[];
   defaultValue?: T[];
   getKey: (option: T) => string;
@@ -38,11 +39,14 @@ type SelectableProps<T> = {
   noResult?: string;
   searchPlaceholderText?: string;
   makeAChoiceText?: string;
+  typeToSearchText?: string;
   renderOption?: (option: T) => React.ReactNode;
   renderTrigger?: ({
     children,
+    disabled,
   }: {
     children: React.ReactNode;
+    disabled: boolean;
   }) => React.ReactNode;
 };
 
@@ -50,10 +54,10 @@ export function Selectable<T>({
   className,
   options,
   defaultValue,
-  getKey: keyExtractor,
-  getLabel: labelExtractor,
-  getGroup: typeExtractor,
-  onSearch: fetchAction,
+  getKey,
+  getLabel,
+  getGroup,
+  onSearch,
   onChange,
   singular = false,
   singleLine,
@@ -61,6 +65,8 @@ export function Selectable<T>({
   noResult = "Nothing to show.",
   searchPlaceholderText = "Search...",
   makeAChoiceText = "Make a choice...",
+  typeToSearchText = "Type to search...",
+  disabled = false,
   renderOption,
   renderTrigger: Trigger,
 }: SelectableProps<T>) {
@@ -76,20 +82,20 @@ export function Selectable<T>({
   );
 
   const selectableOptions = useMemo(() => {
-    const sourceOptions = fetchAction && searchValue ? searchResults : options;
+    const sourceOptions = onSearch && searchValue ? searchResults : options;
     const selectableOptions =
       sourceOptions?.filter(
         (option) =>
           !selectedOptions?.some(
-            (selected) => keyExtractor(selected) === keyExtractor(option)
+            (selected) => getKey(selected) === getKey(option)
           )
       ) || [];
 
-    if (!typeExtractor)
+    if (!getGroup)
       return { groupedOptions: { "": selectableOptions }, sortedTypes: [""] };
     const groupedOptions: Record<string, T[]> = {};
     selectableOptions.forEach((option) => {
-      const type = typeExtractor(option);
+      const type = getGroup(option);
       if (!groupedOptions[type]) {
         groupedOptions[type] = [];
       }
@@ -98,14 +104,7 @@ export function Selectable<T>({
     const sortedTypes = Object.keys(groupedOptions).sort();
 
     return { groupedOptions, sortedTypes };
-  }, [
-    selectedOptions,
-    searchResults,
-    options,
-    searchValue,
-    keyExtractor,
-    typeExtractor,
-  ]);
+  }, [selectedOptions, searchResults, options, searchValue, getKey, getGroup]);
 
   const toggleSelection = useCallback(
     (option: T, isSelected: boolean) => {
@@ -119,14 +118,12 @@ export function Selectable<T>({
       setSelectedOptions((prev) => {
         const newSelection = isSelected
           ? [...(prev || []), option]
-          : prev?.filter(
-              (item) => keyExtractor(item) !== keyExtractor(option)
-            ) || [];
+          : prev?.filter((item) => getKey(item) !== getKey(option)) || [];
         onChange?.(newSelection);
         return newSelection;
       });
     },
-    [singular, keyExtractor, onChange]
+    [singular, getKey, onChange]
   );
 
   const handleSearchChange = useCallback((search: string) => {
@@ -135,7 +132,7 @@ export function Selectable<T>({
   }, []);
 
   useEffect(() => {
-    if (!fetchAction) {
+    if (!onSearch) {
       setSearching(false);
       setSearchResults([]);
       return;
@@ -143,19 +140,23 @@ export function Selectable<T>({
     if (searchValue !== searchInput) return;
 
     setSearchResults([]);
-    fetchAction(searchValue)
+    onSearch(searchValue)
       .then((fetchedOptions) => {
         setSearchResults(fetchedOptions);
       })
       .finally(() => {
         setSearching(false);
       });
-  }, [fetchAction, searchValue, searchInput]);
+  }, [onSearch, searchValue, searchInput]);
 
-  const onPopoverOpenChange = useCallback((isOpen: boolean) => {
-    setOpen(isOpen);
-    setSearchInput("");
-  }, []);
+  const onPopoverOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (disabled) return;
+      setOpen(isOpen);
+      setSearchInput("");
+    },
+    [disabled]
+  );
 
   const TriggerContent = (
     <>
@@ -163,8 +164,8 @@ export function Selectable<T>({
         <div className={"flex flex-wrap gap-1 overflow-hidden w-full"}>
           {!singleLine &&
             selectedOptions.map((option) => {
-              const key = keyExtractor(option);
-              const label = labelExtractor(option);
+              const key = getKey(option);
+              const label = getLabel(option);
               if (singular) {
                 return <Fragment key={key}>{label}</Fragment>;
               }
@@ -175,6 +176,7 @@ export function Selectable<T>({
                   variant={"secondary"}
                   className="hover:animate-pulse"
                   onClick={(e) => {
+                    if (disabled) return;
                     e.stopPropagation();
                     toggleSelection(option, false);
                   }}
@@ -186,9 +188,7 @@ export function Selectable<T>({
             })}
           {singleLine && (
             <span className="truncate">
-              {selectedOptions
-                .map((option) => labelExtractor(option))
-                .join(", ")}
+              {selectedOptions.map((option) => getLabel(option)).join(", ")}
             </span>
           )}
         </div>
@@ -205,14 +205,17 @@ export function Selectable<T>({
           "w-full justify-between h-max hover:bg-accent/30",
           className
         )}
+        disabled={disabled}
         asChild
       >
         {Trigger ? (
           <span>
-            <Trigger>{TriggerContent}</Trigger>
+            <Trigger disabled={disabled}>{TriggerContent}</Trigger>
           </span>
         ) : (
-          <Button variant="outline">{TriggerContent}</Button>
+          <Button variant="outline" disabled={disabled}>
+            {TriggerContent}
+          </Button>
         )}
       </PopoverTrigger>
       <PopoverContent className="p-0">
@@ -245,7 +248,7 @@ export function Selectable<T>({
                 </CollapsibleTrigger>
                 <CollapsibleContent className="px-1">
                   {selectedOptions.map((option) => {
-                    const key = keyExtractor(option);
+                    const key = getKey(option);
                     return (
                       <CommandItem
                         id={"option-" + key}
@@ -257,7 +260,7 @@ export function Selectable<T>({
                           renderOption(option)
                         ) : (
                           <>
-                            {labelExtractor(option)}
+                            {getLabel(option)}
                             <Check className="ml-auto opacity-100" />
                           </>
                         )}
@@ -268,21 +271,25 @@ export function Selectable<T>({
               </Collapsible>
             )}
             {!searching && (
-              <CommandEmpty id="no-result-text">{noResult}</CommandEmpty>
+              <CommandEmpty id="no-result-text">
+                {onSearch && !options?.length && !searchValue
+                  ? typeToSearchText
+                  : noResult}
+              </CommandEmpty>
             )}
             {!searching &&
               selectableOptions.sortedTypes?.map((group) => (
                 <CommandGroup key={group} heading={group}>
                   {selectableOptions.groupedOptions[group]?.map((option) => {
-                    const key = keyExtractor(option);
+                    const key = getKey(option);
                     return (
                       <CommandItem
                         id={"option-" + key}
                         key={key}
-                        value={labelExtractor(option)}
+                        value={getLabel(option)}
                         onSelect={() => toggleSelection(option, true)}
                       >
-                        {labelExtractor(option)}
+                        {getLabel(option)}
                       </CommandItem>
                     );
                   })}
