@@ -1,7 +1,7 @@
-import { WidgetProps } from "@rjsf/utils";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
+import { WidgetProps } from "@rjsf/utils";
 import { Selectable, SelectableProps } from "../../selectable";
+import { FieldLabel } from "../custom";
 
 export const CustomSelectable = <T,>(
   props: Omit<WidgetProps, "options"> & Omit<SelectableProps<T>, "onChange">
@@ -19,10 +19,7 @@ export const CustomSelectable = <T,>(
       className={cn(uiSchema?.["ui:className"], classNames, "w-full space-y-2")}
     >
       {label && displayLabel !== false && (
-        <Label htmlFor={props.id}>
-          {label}
-          {required ? <span className="text-destructive">*</span> : null}
-        </Label>
+        <FieldLabel required={required} label={label} id={props.id} />
       )}
       <Selectable {...props} onChange={handleChange} />
     </div>
