@@ -31,6 +31,7 @@ export type SelectableProps<T> = {
   getKey: (option: T) => string;
   getLabel: (option: T) => string;
   getGroup?: (option: T) => string;
+  getDisabled?: (option: T) => boolean;
   onSearch?: (search: string) => Promise<T[]>;
   onChange?: (value: T[]) => void;
   singular?: boolean;
@@ -57,6 +58,7 @@ export function Selectable<T>({
   getKey,
   getLabel,
   getGroup,
+  getDisabled,
   onSearch,
   onChange,
   singular = false,
@@ -108,6 +110,9 @@ export function Selectable<T>({
 
   const toggleSelection = useCallback(
     (option: T, isSelected: boolean) => {
+      // Prevent selection of disabled options
+      if (getDisabled?.(option)) return;
+
       if (singular) {
         const newSelection = isSelected ? [option] : [];
         setSelectedOptions(newSelection);
@@ -123,7 +128,7 @@ export function Selectable<T>({
         return newSelection;
       });
     },
-    [singular, getKey, onChange]
+    [singular, getKey, getDisabled, onChange]
   );
 
   const handleSearchChange = useCallback((search: string) => {
@@ -249,11 +254,13 @@ export function Selectable<T>({
                 <CollapsibleContent className="px-1">
                   {selectedOptions.map((option) => {
                     const key = getKey(option);
+                    const isDisabled = getDisabled?.(option) ?? false;
                     return (
                       <CommandItem
                         id={"option-" + key}
                         key={key}
                         value={key}
+                        disabled={isDisabled}
                         onSelect={() => toggleSelection(option, false)}
                       >
                         {renderOption ? (
@@ -282,11 +289,13 @@ export function Selectable<T>({
                 <CommandGroup key={group} heading={group}>
                   {selectableOptions.groupedOptions[group]?.map((option) => {
                     const key = getKey(option);
+                    const isDisabled = getDisabled?.(option) ?? false;
                     return (
                       <CommandItem
                         id={"option-" + key}
                         key={key}
                         value={getLabel(option)}
+                        disabled={isDisabled}
                         onSelect={() => toggleSelection(option, true)}
                       >
                         {getLabel(option)}
