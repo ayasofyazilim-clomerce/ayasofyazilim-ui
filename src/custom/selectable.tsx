@@ -24,6 +24,7 @@ import { useDebounce } from "../hooks/use-debounce";
 import { cn } from "../lib/utils";
 
 export type SelectableProps<T> = {
+  id?: string;
   className?: string;
   disabled?: boolean;
   options?: T[];
@@ -52,6 +53,7 @@ export type SelectableProps<T> = {
 };
 
 export function Selectable<T>({
+  id,
   className,
   options,
   defaultValue,
@@ -206,6 +208,7 @@ export function Selectable<T>({
   return (
     <Popover open={open} onOpenChange={onPopoverOpenChange}>
       <PopoverTrigger
+        id={id}
         className={cn(
           "w-full justify-between h-max hover:bg-accent/30",
           className
