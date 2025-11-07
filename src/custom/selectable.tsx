@@ -34,7 +34,7 @@ export type SelectableProps<T> = {
   getGroup?: (option: T) => string;
   getDisabled?: (option: T) => boolean;
   onSearch?: (search: string) => Promise<T[]>;
-  onChange?: (value: T[]) => void;
+  onChange: (value: T[]) => void;
   singular?: boolean;
   singleLine?: boolean;
   selectedText?: string;
@@ -118,7 +118,7 @@ export function Selectable<T>({
       if (singular) {
         const newSelection = isSelected ? [option] : [];
         setSelectedOptions(newSelection);
-        onChange?.(newSelection);
+        onChange(newSelection);
         setOpen(false);
         return;
       }
@@ -126,7 +126,7 @@ export function Selectable<T>({
         const newSelection = isSelected
           ? [...(prev || []), option]
           : prev?.filter((item) => getKey(item) !== getKey(option)) || [];
-        onChange?.(newSelection);
+        onChange(newSelection);
         return newSelection;
       });
     },
