@@ -146,6 +146,7 @@ export function Selectable<T>({
     }
     if (searchValue !== searchInput) return;
 
+    setSearching(true);
     setSearchResults([]);
     onSearch(searchValue)
       .then((fetchedOptions) => {
