@@ -111,6 +111,7 @@ export function DatePicker({
               <TimeField
                 aria-label="Time"
                 value={timeValue}
+                className="h-max *:m-0"
                 onChange={(time) => {
                   if (time) {
                     setTimeValue(time);
