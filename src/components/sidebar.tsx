@@ -104,12 +104,14 @@ function SidebarProvider({
         let open = false;
         if (openProp) {
           open = openProp.includes(name);
-        } else if (!initialRegistrations.current.has(name)) {
+        } else {
           if (typeof defaultOpen === "boolean") {
             open = defaultOpen;
           } else if (Array.isArray(defaultOpen)) {
             open = defaultOpen.includes(name);
           }
+        }
+        if (!initialRegistrations.current.has(name)) {
           initialRegistrations.current.add(name);
         }
 
