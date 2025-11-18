@@ -1,5 +1,5 @@
 "use client";
-
+"use no memo";
 import {
   getCoreRowModel,
   getExpandedRowModel,
