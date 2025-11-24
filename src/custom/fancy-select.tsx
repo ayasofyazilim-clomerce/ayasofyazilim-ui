@@ -122,8 +122,7 @@ export function FancySelect({
         className={cn(
           "flex w-full items-center h-9 justify-between gap-2 whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
           !selectedItem && required && "border-red-500",
-          disabled && "opacity-50 cursor-not-allowed",
-          className
+          disabled && "opacity-50 cursor-not-allowed"
         )}
       >
         <span
