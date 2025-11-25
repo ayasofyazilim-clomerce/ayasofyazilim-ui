@@ -13,7 +13,7 @@ import flags from "react-phone-number-input/flags";
 
 import { Input } from "@repo/ayasofyazilim-ui/components/input";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { FieldErrorTemplate } from "./schema-form/fields";
+// import { FieldErrorTemplate } from "./schema-form/fields";
 
 export function PhoneInput({
   id,
@@ -72,9 +72,9 @@ export function PhoneInput({
           setIsPhoneValid(isValidPhoneNumber(newValue || ""));
         }}
       />
-      {!isPhoneValid && (
+      {/* {!isPhoneValid && (
         <FieldErrorTemplate errors={["Please enter a valid phone number."]} />
-      )}
+      )} */}
     </>
   );
 }

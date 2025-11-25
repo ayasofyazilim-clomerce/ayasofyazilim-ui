@@ -1,72 +1,105 @@
-import { WidgetProps } from "@rjsf/utils";
+import {
+  FormContextType,
+  RJSFSchema,
+  StrictRJSFSchema,
+  WidgetProps,
+} from "@rjsf/utils";
+
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@repo/ayasofyazilim-ui/components/select";
-import { fieldOptionsByDependency } from "../utils/dependency";
+import { Selectable } from "@repo/ayasofyazilim-ui/custom/selectable";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { beautifyLabel } from "../utils";
 
-export const CustomSelect = (props: WidgetProps) => {
-  const { label, options, onChange, value, defaultValue, disabled, uiSchema } =
-    props;
-  const _value = value?.toString() || defaultValue?.toString();
+/** The `SelectWidget` is a widget for rendering dropdowns.
+ *  It is typically used with string properties constrained with enum options.
+ *
+ * @param props - The `WidgetProps` for this component
+ */
 
-  const dependencyOptions = fieldOptionsByDependency(
-    uiSchema,
-    props.formContext
+interface EnumOption {
+  value: string;
+  label: string;
+  // Add other properties if your options have them (e.g., key, rawData)
+}
+
+// 2. Define the shape of the transformed item (optional, but good for clarity)
+interface MappedItem {
+  value: string;
+  label: string;
+  disabled: boolean;
+}
+
+export function SelectWidget<
+  T = any,
+  S extends StrictRJSFSchema = RJSFSchema,
+  F extends FormContextType = any,
+>({
+  id,
+  options,
+  required,
+  disabled,
+  value,
+  multiple,
+  onChange,
+  rawErrors = [],
+  className,
+}: WidgetProps<T, S, F>) {
+  const { enumOptions, enumDisabled, emptyValue: optEmptyValue } = options;
+  const items: MappedItem[] = (enumOptions as EnumOption[])?.map(
+    ({ value, label }: EnumOption) => {
+      return {
+        value,
+        label,
+        disabled: Array.isArray(enumDisabled) && enumDisabled.includes(value),
+      };
+    }
   );
-  const required = uiSchema?.["ui:required"] || props.required;
-  const fieldOptions = {
-    disabled,
-    required,
-    ...dependencyOptions,
-  };
-  if (fieldOptions.hidden) {
-    onChange(undefined);
-    return null;
-  }
-
-  const hasValue = !!_value;
-  return (
+  const cnClassName = cn(
+    "w-full",
+    { "border-destructive": rawErrors.length > 0 },
+    className
+  );
+  return !multiple ? (
     <Select
-      defaultValue={_value}
-      onValueChange={(value) => {
-        onChange(value);
+      required={required}
+      value={value}
+      onValueChange={(val) => {
+        onChange(val);
       }}
     >
-      <SelectTrigger
-        id={props.id}
-        data-testid={props.id}
-        className={cn(
-          "w-full",
-          uiSchema?.["ui:className"],
-          hasValue ? "text-black " : "text-muted-foreground"
-        )}
-        disabled={fieldOptions.disabled}
-      >
-        <SelectValue
-          placeholder={
-            _value ||
-            props?.uiSchema?.["ui:placeholder"] ||
-            `Please select an ${beautifyLabel(label)}`
-          }
-        />
+      <SelectTrigger className={cnClassName} id={id}>
+        <SelectValue placeholder={optEmptyValue} />
       </SelectTrigger>
-      <SelectContent id={`${props.id}_content`}>
-        {options.enumOptions?.map((enumOption) => (
-          <SelectItem
-            data-testid={`${props.id}_${enumOption.value}`}
-            key={JSON.stringify(enumOption.value)}
-            value={enumOption.value.toString()}
-          >
-            {enumOption.label}
-          </SelectItem>
-        ))}
+      <SelectContent>
+        {items.map((item) => {
+          return (
+            <SelectItem
+              disabled={item.disabled}
+              key={item.value}
+              value={item.value}
+            >
+              {item.label}
+            </SelectItem>
+          );
+        })}
       </SelectContent>
     </Select>
+  ) : (
+    <Selectable<MappedItem>
+      id={id}
+      getKey={(opt) => opt.value}
+      getLabel={(opt) => opt.label}
+      options={items}
+      onChange={(val) => {
+        onChange(val.map((item) => item.value));
+      }}
+      disabled={disabled}
+      makeAChoiceText={optEmptyValue}
+    />
   );
-};
+}

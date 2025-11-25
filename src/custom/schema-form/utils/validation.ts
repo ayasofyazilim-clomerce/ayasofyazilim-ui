@@ -1,4 +1,4 @@
-import { FormValidation } from "../types";
+import { FormValidation } from "@rjsf/utils";
 
 export function customPasswordValidate<T>({
   formData,

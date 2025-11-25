@@ -32,12 +32,12 @@ export function TanstackTableTableSchemaFormDialog<TData>(
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <SchemaForm
+        <SchemaForm<TData>
           {...props}
           formData={formData}
           onChange={handleFormChange}
-          onSubmit={(data) => {
-            onSubmit(data.formData);
+          onSubmit={({ formData: editedFormData }) => {
+            onSubmit(editedFormData);
             setDialogOpen();
           }}
         />

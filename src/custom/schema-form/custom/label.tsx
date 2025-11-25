@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@repo/ayasofyazilim-ui/components/tooltip";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { JSXElementConstructor, ReactElement } from "react";
 
 export function FieldLabel({
   id,
@@ -19,18 +20,23 @@ export function FieldLabel({
   id: string | undefined;
   className?: string;
   required?: boolean;
-  description?: string | undefined;
+  description?:
+    | ReactElement<unknown, string | JSXElementConstructor<any>>
+    | string
+    | undefined;
 }) {
   if (!label) return null;
   return (
     <Label
       data-testid={`${id}_label`}
       htmlFor={id}
-      className={cn("flex items-center text-slate-600 gap-1", className)}
+      className={cn("flex items-center gap-1 text-nowrap", className)}
     >
       {label}
       {required ? <Asterisk className="size-3 text-destructive" /> : null}
-      {description && description.length > 0 && (
+      {description &&
+      typeof description === "string" &&
+      description.length > 0 ? (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -39,6 +45,8 @@ export function FieldLabel({
             <TooltipContent>{description}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
+      ) : (
+        description
       )}
     </Label>
   );
