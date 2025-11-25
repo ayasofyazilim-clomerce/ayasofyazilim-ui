@@ -2,6 +2,7 @@ import { Label } from "@repo/ayasofyazilim-ui/components/label";
 import { TableCell } from "@repo/ayasofyazilim-ui/components/table";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { FieldTemplateProps } from "@rjsf/utils";
+import { FieldLabel } from "../custom";
 
 export const FieldTemplate = (props: FieldTemplateProps) => {
   const {
@@ -49,12 +50,13 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
       style={style}
     >
       {shouldRenderLabel && (
-        <Label htmlFor={id}>
-          {label}
-          {required ? "*" : null}
-        </Label>
+        <FieldLabel
+          id={id}
+          label={label}
+          description={description}
+          required={required}
+        />
       )}
-      {description}
       {children}
       {errors}
       {help}

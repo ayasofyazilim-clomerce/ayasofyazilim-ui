@@ -14,10 +14,16 @@ export type {
   StrictRJSFSchema,
 } from "@rjsf/utils";
 
-export type RJSFFormProps<T = any> = Omit<FormProps<T>, "validator"> & {
+export type SchemaFormProps<T = any> = Omit<
+  FormProps<T>,
+  "validator" | "schema" | "uiSchema"
+> & {
+  schema: GenericObjectType;
   validator?: FormProps<T>["validator"];
+  uiSchema?: UiSchema | UiSchema<T>;
+  filter?: FilterType<T>;
+  useTableForArrayFields?: boolean;
 };
-
 export type RJSFChangeEvent<T = any> = IChangeEvent<T>;
 
 export type CreateFieldConfigWithResourceProps = {

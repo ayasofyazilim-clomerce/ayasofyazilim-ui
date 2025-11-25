@@ -164,6 +164,19 @@ export function removeFieldsfromGenericSchema<T>(
 }
 
 /**
+ * Merges two UISchema objects recursively.
+ */
+
+export function mergeUISchemaObjects<
+  T extends UiSchema<T> | UiSchema,
+  U extends UiSchema<T> | UiSchema,
+>(source: T, target: U): T & U {
+  // We pass {} as the first argument to ensure we create a new object
+  // rather than mutating 'source'.
+  return lodash.merge({}, source, target) as T & U;
+}
+
+/**
  * Helper: Generates UiSchema structure from JSON Schema + Resources
  */
 function uiSchemaFromSchema({

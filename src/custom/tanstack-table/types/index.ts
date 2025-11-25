@@ -1,4 +1,4 @@
-import { SchemaFormProps } from "@repo/ayasofyazilim-ui/custom/schema-form/types";
+import { SchemaFormProps } from "@repo/ayasofyazilim-ui/custom/schema-form";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -238,7 +238,6 @@ export type TanstackTableActionsSchemaFormDialog<TData> = Omit<
 > & {
   className?: { autoform: string; submit: string };
   onSubmit: (values: TData | undefined) => void;
-  submitText: string;
   type: "schemaform-dialog";
 } & Omit<SchemaFormProps<TData>, "onSubmit">;
 export type TanstackTableActionsCustomDialog = TanstackTableActionsDialog & {

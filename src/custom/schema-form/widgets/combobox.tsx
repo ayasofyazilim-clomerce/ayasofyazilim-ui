@@ -1,7 +1,8 @@
 import { ChevronsUpDown } from "lucide-react";
 import { WidgetProps } from "@rjsf/utils";
 import { CheckIcon } from "lucide-react";
-import { useState } from "react";
+import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
 import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Command,
@@ -23,59 +24,68 @@ import {
 } from "@repo/ayasofyazilim-ui/components/popover";
 import { useMediaQuery } from "@repo/ayasofyazilim-ui/hooks/use-media-query";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { fieldOptionsByDependency } from "../utils/dependency";
 
-export const Combobox = (props: WidgetProps) => {
-  const { label, value, defaultValue, disabled, uiSchema, options, onChange } =
-    props;
+type BadgeOptions = { className?: string; showValue?: boolean; label?: string };
+
+type CustomComboboxProps<T> = {
+  emptyValue?: string;
+  list: Array<T> | null | undefined;
+  onValueChange?: Dispatch<SetStateAction<T | null | undefined>>;
+  searchPlaceholder?: string;
+  searchResultLabel?: string;
+  selectIdentifier: keyof T;
+  selectLabel: keyof T;
+  disabledItems?: T[keyof T][];
+  badges?: Partial<Record<keyof T, BadgeOptions>>;
+  customItemRenderer?: (values: T) => ReactNode | undefined | string;
+} & WidgetProps;
+
+export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
+  const {
+    value,
+    defaultValue,
+    list,
+    selectIdentifier,
+    selectLabel,
+    disabled,
+    emptyValue = "Please select",
+  } = props;
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [open, setOpen] = useState(false);
-
   const fieldValue = value || defaultValue;
-  const fieldValueDisplayName = options.enumOptions?.find(
-    (x) => x.value === fieldValue
-  )?.label;
-  const uiOptions = uiSchema?.["ui:options"];
+  const fieldValueDisplayName = list?.find(
+    (x) => x[selectIdentifier] === fieldValue
+  )?.[selectLabel];
 
-  const dependencyOptions = fieldOptionsByDependency(
-    uiSchema,
-    props.formContext
-  );
-  const required = uiSchema?.["ui:required"] || props.required;
-  const fieldOptions = {
-    disabled,
-    required,
-    ...dependencyOptions,
-  };
-  if (fieldOptions.hidden) {
-    onChange(undefined);
-    return null;
-  }
   const DesktopContent = (
     <Popover open={open} onOpenChange={setOpen} modal>
-      <PopoverTrigger asChild>
+      <PopoverTrigger
+        asChild
+        disabled={disabled}
+        className={cn(disabled && "cursor-not-allowed")}
+      >
         <Button
-          disabled={fieldOptions.disabled}
-          type="button"
+          id={props.id}
           data-testid={props.id}
+          type="button"
           variant="outline"
           role="combobox"
           className={cn(
-            "text-muted-foreground w-full justify-between font-normal",
-            fieldValue && "text-black"
+            "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white overflow-hidden",
+            fieldValueDisplayName && "text-black",
+            disabled &&
+              "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground"
           )}
         >
-          {fieldValueDisplayName ||
-          fieldValue ||
-          uiSchema?.["ui:placeholder"] ||
-          uiOptions?.["ui:placeholder"] ||
-          label
-            ? `Please select an ${label.toLocaleLowerCase()}`
-            : "Please select"}
+          <span className="truncate has-[role=dialog]:max-w-xs">
+            {fieldValueDisplayName
+              ? fieldValueDisplayName.toString()
+              : emptyValue}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-full min-w-screen max-w-screen">
+      <PopoverContent className="p-0">
         <List {...props} setOpen={setOpen} />
       </PopoverContent>
     </Popover>
@@ -86,17 +96,17 @@ export const Combobox = (props: WidgetProps) => {
       <DrawerTrigger asChild>
         <Button
           data-testid={props.id}
-          disabled={fieldOptions.disabled}
           type="button"
+          disabled={disabled}
           variant="outline"
           className={cn(
-            "text-muted-foreground w-full justify-between font-normal",
-            fieldValue && "text-black"
+            "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white",
+            fieldValueDisplayName && "text-black"
           )}
         >
-          {fieldValue || props?.uiSchema?.["ui:placeholder"] || label
-            ? `Please select an ${label.toLocaleLowerCase()}`
-            : "Please select"}
+          {fieldValueDisplayName
+            ? fieldValueDisplayName.toString()
+            : emptyValue}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DrawerTrigger>
@@ -109,23 +119,36 @@ export const Combobox = (props: WidgetProps) => {
   );
 
   return isDesktop ? DesktopContent : MobileContent;
-};
+}
 
 function List<T>({
   setOpen,
   ...props
-}: WidgetProps<T> & {
+}: CustomComboboxProps<T> & {
   setOpen: (open: boolean) => void;
 }) {
-  const { uiSchema, options } = props;
+  const {
+    uiSchema,
+    onChange,
+    value,
+    list,
+    selectIdentifier,
+    selectLabel,
+    searchPlaceholder,
+    searchResultLabel,
+    onValueChange,
+    badges,
+    customItemRenderer,
+  } = props;
   const uiOptions = uiSchema?.["ui:options"];
-
   return (
     <Command
       filter={(value, search) => {
-        const filterResult = options.enumOptions?.find(
-          (i) => i.value.toLocaleLowerCase() === value.toLocaleLowerCase()
-        )?.label;
+        const filterResult = list?.find(
+          (i) =>
+            (i[selectIdentifier] as string).toString()?.toLocaleLowerCase() ===
+            value.toLocaleLowerCase()
+        )?.[selectLabel] as string;
         if (
           value.includes(search) ||
           filterResult?.toLocaleLowerCase().includes(search.toLocaleLowerCase())
@@ -136,33 +159,61 @@ function List<T>({
     >
       <CommandInput
         data-testid={`${props.id}_search`}
-        placeholder={(uiOptions?.searchPlaceholder as string) || "Search..."}
+        placeholder={searchPlaceholder || "Search..."}
         className="h-9"
       />
       <CommandList className="w-full min-w-full max-w-full">
-        <CommandEmpty>
-          {(uiOptions?.searchResultLabel as string) || "0 search result."}
-        </CommandEmpty>
+        <CommandEmpty>{searchResultLabel || "0 search result."}</CommandEmpty>
         <CommandGroup>
-          {options.enumOptions?.map((enumOption, index) => (
+          {list?.map((item: T, index) => (
             <CommandItem
               data-testid={`${props.id}_${index}`}
+              disabled={props.disabledItems?.includes(item[selectIdentifier])}
               onSelect={() => {
-                props.onChange(
+                onChange(
                   uiOptions?.allowEmpty !== false
-                    ? enumOption.value === props.value
+                    ? item[selectIdentifier] === value
                       ? undefined
-                      : enumOption.value
-                    : enumOption.value
+                      : item[selectIdentifier]
+                    : item[selectIdentifier]
                 );
+                if (onValueChange)
+                  onValueChange(
+                    list.find((i) => i[selectIdentifier] === value)
+                  );
                 setOpen(false);
               }}
-              key={JSON.stringify(enumOption.value)}
-              value={enumOption.value}
+              key={JSON.stringify(item[selectIdentifier])}
+              value={item[selectIdentifier] as string}
             >
-              {enumOption.label}
-              {enumOption.value === props.value && (
-                <CheckIcon className={cn("ml-auto h-4 w-4")} />
+              {item[selectIdentifier] === value && (
+                <CheckIcon className={cn("mr-2 h-4 w-4")} />
+              )}
+              {customItemRenderer ? (
+                customItemRenderer(item)
+              ) : (
+                <>
+                  {item[selectLabel] as string}
+                  {badges && (
+                    <div className="ml-auto">
+                      {Object.keys(badges).map((badgeKey) => {
+                        const badgeOptions = badges[badgeKey as keyof T];
+                        if (!badgeOptions) return null;
+                        return (
+                          <Badge
+                            key={badgeKey}
+                            variant="outline"
+                            className={cn("ml-2", badgeOptions.className)}
+                          >
+                            {badgeOptions.showValue !== false &&
+                              (item[badgeKey as keyof T] as string)}
+                            {badgeOptions.label && badgeOptions.label}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
               )}
             </CommandItem>
           ))}
@@ -170,4 +221,54 @@ function List<T>({
       </CommandList>
     </Command>
   );
+}
+
+export function CustomComboboxWidget<T>({
+  languageData,
+  selectLabel,
+  selectIdentifier,
+  list,
+  onChange,
+  disabledItems,
+  badges,
+  customItemRenderer,
+}: {
+  languageData: {
+    "Select.Placeholder": string;
+    "Select.ResultLabel": string;
+    "Select.EmptyValue": string;
+  };
+  selectIdentifier: keyof T;
+  selectLabel: keyof T;
+  list: T[];
+  onChange?: (value: T | null | undefined) => void;
+  disabledItems?: T[keyof T][];
+  badges?: CustomComboboxProps<T>["badges"];
+  customItemRenderer?: CustomComboboxProps<T>["customItemRenderer"];
+}) {
+  function Widget(props: WidgetProps) {
+    const { uiSchema } = props;
+    const uiList = uiSchema?.["ui:optionList"];
+    return (
+      <CustomCombobox<T>
+        {...props}
+        list={uiList || list}
+        onChange={(value) => {
+          props.onChange(value);
+          if (onChange) {
+            onChange(list.find((i) => i[selectIdentifier] === value));
+          }
+        }}
+        customItemRenderer={customItemRenderer}
+        searchPlaceholder={languageData["Select.Placeholder"]}
+        searchResultLabel={languageData["Select.ResultLabel"]}
+        emptyValue={languageData["Select.EmptyValue"]}
+        selectIdentifier={selectIdentifier}
+        selectLabel={selectLabel}
+        disabledItems={disabledItems}
+        badges={badges}
+      />
+    );
+  }
+  return Widget;
 }
