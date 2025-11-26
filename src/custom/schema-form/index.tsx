@@ -12,7 +12,7 @@ import {
   FieldTemplate,
   ObjectFieldTemplate,
 } from "./fields";
-import { SubmitButton } from "./templates";
+import { DescriptionFieldTemplate, SubmitButton } from "./templates";
 import { FilterType, SchemaFormProps, UiSchema } from "./types";
 import {
   createSchemaWithFilters,
@@ -51,6 +51,7 @@ const INTERNAL_TEMPLATES = {
   ObjectFieldTemplate,
   BaseInputTemplate,
   FieldTemplate,
+  DescriptionFieldTemplate,
   ButtonTemplates: { SubmitButton },
 };
 

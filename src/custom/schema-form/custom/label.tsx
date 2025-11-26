@@ -1,4 +1,3 @@
-import { Asterisk, InfoIcon } from "lucide-react";
 import { Label } from "@repo/ayasofyazilim-ui/components/label";
 import {
   Tooltip,
@@ -7,6 +6,7 @@ import {
   TooltipTrigger,
 } from "@repo/ayasofyazilim-ui/components/tooltip";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { InfoIcon } from "lucide-react";
 import { JSXElementConstructor, ReactElement } from "react";
 
 export function FieldLabel({
@@ -30,10 +30,10 @@ export function FieldLabel({
     <Label
       data-testid={`${id}_label`}
       htmlFor={id}
-      className={cn("flex items-center gap-1 text-nowrap", className)}
+      className={cn("flex items-center gap-0 text-nowrap", className)}
     >
       {label}
-      {required ? <Asterisk className="size-3 text-destructive" /> : null}
+      {required ? <span className="text-destructive">*</span> : null}
       {description &&
       typeof description === "string" &&
       description.length > 0 ? (

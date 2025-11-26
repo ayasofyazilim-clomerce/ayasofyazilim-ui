@@ -1,4 +1,3 @@
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
 import { TableCell } from "@repo/ayasofyazilim-ui/components/table";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { FieldTemplateProps } from "@rjsf/utils";
