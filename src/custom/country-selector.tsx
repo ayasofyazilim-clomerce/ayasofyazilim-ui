@@ -112,7 +112,7 @@ export function CountrySelector({
           variant="ghost"
           aria-expanded={open}
           className={cn(
-            "justify-between border-none bg-transparent px-2 gap-2 rtl:flex-row-reverse min-h-8",
+            "justify-between border-none bg-transparent! p-0 gap-2 rtl:flex-row-reverse h-auto",
             className
           )}
         >
@@ -191,7 +191,7 @@ const SelectedCountry = ({
     className={`${direction === "rtl" && "flex-row-reverse"} rtl:flex-row-reverse flex w-full justify-between gap-2 overflow-hidden items-center`}
   >
     {showLabel && <span className="text-xs text-black">{displayName}</span>}
-    <div>
+    <div className="h-auto">
       {showFlag && (
         <img
           src={`https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/1x1/${flagIcon}.svg`}
