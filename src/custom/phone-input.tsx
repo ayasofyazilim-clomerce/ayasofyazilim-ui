@@ -25,6 +25,7 @@ export function PhoneInput({
   disabled,
   required,
   className,
+  defaultCountry,
 }: {
   id: string;
   name?: string;
@@ -38,20 +39,17 @@ export function PhoneInput({
   disabled?: boolean;
   className?: string;
   required?: boolean;
+  defaultCountry: string;
 }) {
   const [value, setValue] = useState(initialValue || defaultValue || "");
   const [isPhoneValid, setIsPhoneValid] = useState(true);
-  const defaultCountry = useMemo(
-    () => localStorage.getItem("countryCode2")?.toUpperCase() as Country,
-    []
-  );
   return (
     <>
       <PhoneInputWithCountrySelect
         className={cn("flex rounded-md shadow-xs", className)}
         international
         flagComponent={FlagComponent}
-        defaultCountry={defaultCountry}
+        defaultCountry={defaultCountry as Country}
         countrySelectComponent={(props) => CountrySelect({ ...props, id })}
         inputComponent={_PhoneInput}
         id={id}
