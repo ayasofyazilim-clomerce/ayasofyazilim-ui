@@ -1,12 +1,11 @@
 "use client";
 
 import { ChevronDownIcon, PhoneIcon } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import PhoneInputWithCountrySelect, {
   Country,
   FlagProps,
   getCountryCallingCode,
-  isValidPhoneNumber,
   parsePhoneNumber,
 } from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
@@ -25,7 +24,7 @@ export function PhoneInput({
   disabled,
   required,
   className,
-  defaultCountry,
+  defaultCountry = "US",
 }: {
   id: string;
   name?: string;
@@ -39,10 +38,9 @@ export function PhoneInput({
   disabled?: boolean;
   className?: string;
   required?: boolean;
-  defaultCountry: string;
+  defaultCountry?: string;
 }) {
   const [value, setValue] = useState(initialValue || defaultValue || "");
-  const [isPhoneValid, setIsPhoneValid] = useState(true);
   return (
     <>
       <PhoneInputWithCountrySelect
@@ -67,12 +65,8 @@ export function PhoneInput({
               parsed: parsePhoneNumber(newValue || ""),
             });
           }
-          setIsPhoneValid(isValidPhoneNumber(newValue || ""));
         }}
       />
-      {/* {!isPhoneValid && (
-        <FieldErrorTemplate errors={["Please enter a valid phone number."]} />
-      )} */}
     </>
   );
 }
