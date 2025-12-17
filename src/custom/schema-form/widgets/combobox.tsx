@@ -73,11 +73,14 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
             "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white overflow-hidden",
             fieldValueDisplayName && "text-black",
             disabled &&
-            "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground"
+              "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground"
           )}
         >
           <span className="truncate has-[role=dialog]:max-w-xs">
-            {(typeof fieldValueDisplayName !== "undefined" && fieldValueDisplayName !== null) ? fieldValueDisplayName.toString() : emptyValue}
+            {typeof fieldValueDisplayName !== "undefined" &&
+            fieldValueDisplayName !== null
+              ? fieldValueDisplayName.toString()
+              : emptyValue}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
