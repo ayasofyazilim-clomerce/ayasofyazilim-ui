@@ -28,11 +28,11 @@ export function TanstackTableCustomDialog<TData>({
   content,
   setDialogOpen,
 }: TanstackTableCustomDialogProps<TData>) {
+  const [isDeletePending, startDeleteTransition] = React.useTransition();
+
   const dialogTitle = typeof title === "function" ? title(row) : title;
   const jsxContent =
     typeof content === "function" ? content(row, setDialogOpen) : content;
-
-  const [isDeletePending, startDeleteTransition] = React.useTransition();
 
   const handleOnConfirmClick = () => {
     startDeleteTransition(() => {
