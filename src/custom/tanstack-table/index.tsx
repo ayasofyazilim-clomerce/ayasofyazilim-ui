@@ -127,15 +127,15 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
   const [colVisibility, setColumnVisibility] = useState<VisibilityState>(
     columnVisibility
       ? Object.fromEntries(
-          columns.map((col) => [
-            col.id || "",
+        columns.map((col) => [
+          col.id || "",
 
-            columnVisibility?.columns.includes(
-              (col.id || "") as keyof TData
-            ) ===
-              (columnVisibility.type === "show"),
-          ])
-        )
+          columnVisibility?.columns.includes(
+            (col.id || "") as keyof TData
+          ) ===
+          (columnVisibility.type === "show"),
+        ])
+      )
       : {}
   );
   const [rowAction, setRowAction] = useState<
@@ -209,7 +209,7 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
     meta,
   });
   return (
-    <div className="flex flex-col gap-2 size-full flex-1 min-h-max overflow-hidden">
+    <div className="flex flex-col gap-2 overflow-hidden">
       <TanstackTableToolbar<TData>
         title={title}
         table={table}
