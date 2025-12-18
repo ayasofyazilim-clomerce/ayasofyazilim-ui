@@ -2,7 +2,6 @@
 
 import { lodash } from "@repo/ayasofyazilim-ui/lib/utils";
 import { Form } from "@rjsf/shadcn";
-import { GenericObjectType } from "@rjsf/utils";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import { useMemo } from "react";
 import {
@@ -13,7 +12,7 @@ import {
   ObjectFieldTemplate,
 } from "./fields";
 import { DescriptionFieldTemplate, SubmitButton } from "./templates";
-import { FilterType, SchemaFormProps, UiSchema } from "./types";
+import { SchemaFormProps } from "./types";
 import {
   createSchemaWithFilters,
   removeFieldsfromGenericSchema,
@@ -26,14 +25,15 @@ import {
   PasswordInputWidget,
   PhoneWithParseWidget,
   PhoneWithValueWidget,
-  SwitchWidget,
   SelectWidget,
+  SwitchWidget,
+  URLInputWidget,
 } from "./widgets";
 
+export * from "./custom";
 export * from "./types";
 export * from "./utils";
 export * from "./widgets";
-export * from "./custom";
 
 const INTERNAL_WIDGETS = {
   switch: SwitchWidget,
@@ -45,6 +45,7 @@ const INTERNAL_WIDGETS = {
   phone: PhoneWithValueWidget,
   "phone-with-parse": PhoneWithParseWidget,
   select: SelectWidget,
+  url: URLInputWidget,
 };
 
 const INTERNAL_TEMPLATES = {

@@ -3,6 +3,8 @@ export * from "./combobox";
 export * from "./date";
 export * from "./email";
 export * from "./password";
+export * from "./url";
 export * from "./phone";
 export * from "./selectable";
 export * from "./select";
+export * from "./string-array";
