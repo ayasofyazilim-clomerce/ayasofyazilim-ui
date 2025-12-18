@@ -1,9 +1,8 @@
 "use client";
 
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { Input, InputProps } from "@repo/ayasofyazilim-ui/components/input";
+import { InputProps } from "@repo/ayasofyazilim-ui/components/input";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { EyeIcon, EyeOffIcon, KeyIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, RotateCcwKey } from "lucide-react";
 import {
   forwardRef,
   useCallback,
@@ -12,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "../components/input-group";
 
 interface PasswordInputProps extends InputProps {
   passwordLength?: number;
@@ -144,47 +144,37 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
     }, []);
 
     return (
-      <div className="relative">
-        <Input
+      <InputGroup>
+        <InputGroupInput
+          placeholder={props.placeholder}
           className={inputClassName}
           ref={internalRef}
           {...props}
           type={showPassword ? "text" : "password"}
         />
-
-        {showGenerator && (
-          <Button
-            type="button"
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton
             variant="ghost"
-            data-testid="generate-password-button"
-            size="icon"
-            className="absolute right-10 top-0 h-full p-1 hover:bg-transparent"
-            onClick={handleGeneratePassword}
-            disabled={disabled}
-            title="Generate password"
-            aria-label="Generate password"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            size="icon-xs"
+            onClick={togglePasswordVisibility}
           >
-            <KeyIcon className="h-4 w-4" aria-hidden="true" />
-          </Button>
+            {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+          </InputGroupButton>
+        </InputGroupAddon>
+        {showGenerator && (
+          <InputGroupAddon align="inline-start">
+            <InputGroupButton
+              variant="ghost"
+              size="icon-xs"
+              onClick={handleGeneratePassword}
+            >
+              <RotateCcwKey />
+              <span className="sr-only">Generate password</span>
+            </InputGroupButton>
+          </InputGroupAddon>
         )}
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          data-testid="toggle-password-visibility-button"
-          className="absolute right-0 top-0 h-full p-1 hover:bg-transparent"
-          onClick={togglePasswordVisibility}
-          disabled={disabled}
-          aria-label={showPassword ? "Hide password" : "Show password"}
-        >
-          {showPassword && !disabled ? (
-            <EyeIcon className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <EyeOffIcon className="h-4 w-4" aria-hidden="true" />
-          )}
-        </Button>
-      </div>
+      </InputGroup>
     );
   }
 );
@@ -193,3 +183,4 @@ PasswordInput.displayName = "PasswordInput";
 
 export { PasswordInput };
 export type { PasswordInputProps };
+
