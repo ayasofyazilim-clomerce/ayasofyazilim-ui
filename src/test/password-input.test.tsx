@@ -18,11 +18,11 @@ describe("PasswordInput", () => {
   it("shows password when toggle clicked", async () => {
     render(<PasswordInput />);
     const input = getInput();
-    const toggle = screen.getByRole("button");
+    const toggle = document.getElementById("toggle-password-visibility-button");
     expect(input.type).toBe("password");
-    await userEvent.click(toggle);
+    await userEvent.click(toggle!);
     expect(input.type).toBe("text");
-    await userEvent.click(toggle);
+    await userEvent.click(toggle!);
     expect(input.type).toBe("password");
   });
 
@@ -37,15 +37,15 @@ describe("PasswordInput", () => {
 
   it("shows generator button if showGenerator", () => {
     render(<PasswordInput showGenerator />);
-    expect(screen.getByTestId("generate-password-button")).toBeInTheDocument();
+    expect(document.getElementById("generate-password-button")).toBeInTheDocument();
   });
 
   it("generates password when generator clicked", async () => {
     render(<PasswordInput showGenerator />);
     const input = getInput();
-    const generator = screen.getByTestId("generate-password-button");
-    await userEvent.click(generator);
-    await new Promise((r) => setTimeout(r, 1000)); // Wait for async updates
+    const generator = document.getElementById("generate-password-button");
+    await userEvent.click(generator!);
+    await new Promise((r) => setTimeout(r, 100)); // Wait for async updates
     expect(input.value.length).toBeGreaterThan(0);
   });
 
@@ -55,12 +55,34 @@ describe("PasswordInput", () => {
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
   });
 
-  it("disables input and buttons", () => {
+  it("disables input and buttons when disabled", () => {
     render(<PasswordInput disabled showGenerator />);
     expect(getInput()).toBeDisabled();
-    expect(
-      screen.getByTestId("toggle-password-visibility-button")
-    ).toBeDisabled();
-    expect(screen.getByTestId("generate-password-button")).toBeDisabled();
+    expect(document.getElementById("toggle-password-visibility-button")).toBeDisabled();
+    expect(document.getElementById("generate-password-button")).toBeDisabled();
+  });
+
+  it("generates password with correct length", async () => {
+    const passwordLength = 16;
+    render(<PasswordInput showGenerator passwordLength={passwordLength} />);
+    const input = getInput();
+    const generator = document.getElementById("generate-password-button");
+    await userEvent.click(generator!);
+    await new Promise((r) => setTimeout(r, 100));
+    expect(input.value.length).toBe(passwordLength);
+  });
+
+  it("generated password contains required character types", async () => {
+    render(<PasswordInput showGenerator />);
+    const input = getInput();
+    const generator = document.getElementById("generate-password-button");
+    await userEvent.click(generator!);
+    await new Promise((r) => setTimeout(r, 100));
+    const password = input.value;
+    // Check for lowercase, uppercase, numbers, and symbols
+    expect(/[a-z]/.test(password)).toBe(true);
+    expect(/[A-Z]/.test(password)).toBe(true);
+    expect(/[0-9]/.test(password)).toBe(true);
+    expect(/[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/.test(password)).toBe(true);
   });
 });
