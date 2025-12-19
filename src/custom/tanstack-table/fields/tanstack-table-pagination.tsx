@@ -61,10 +61,12 @@ export function TanstackTablePagination<TData>(
 
   return (
     <div className="flex items-center flex-wrap">
-      {table.getIsSomeRowsSelected() && <div className="text-sm text-muted-foreground text-nowrap">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
-      </div>}
+      {table.getIsSomeRowsSelected() && (
+        <div className="text-sm text-muted-foreground text-nowrap">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+      )}
       <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto ml-auto">
         <div className="flex items-center w-full justify-between gap-2 sm:w-auto md:mr-4">
           <p className="text-sm font-medium">Rows per page</p>

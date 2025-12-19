@@ -48,7 +48,7 @@ export function TanstackTablePlainTable<TData, TValue>({
                   className={cn(
                     " relative group/th border-r border-gray-200",
                     header.column.getIsResizing() &&
-                    "border-dashed border-black border-r"
+                      "border-dashed border-black border-r"
                   )}
                   style={{
                     ...getCommonPinningStyles({
@@ -68,9 +68,9 @@ export function TanstackTablePlainTable<TData, TValue>({
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </div>
                   {resizeable && (
                     <div
@@ -102,7 +102,7 @@ export function TanstackTablePlainTable<TData, TValue>({
                     key={cell.id}
                     className={cn(
                       (editable || cell.column.id === "actions") &&
-                      "p-0 border border-b-0 border-r-0"
+                        "p-0 border border-b-0 border-r-0"
                     )}
                     style={{
                       ...getCommonPinningStyles({

@@ -127,15 +127,15 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
   const [colVisibility, setColumnVisibility] = useState<VisibilityState>(
     columnVisibility
       ? Object.fromEntries(
-        columns.map((col) => [
-          col.id || "",
+          columns.map((col) => [
+            col.id || "",
 
-          columnVisibility?.columns.includes(
-            (col.id || "") as keyof TData
-          ) ===
-          (columnVisibility.type === "show"),
-        ])
-      )
+            columnVisibility?.columns.includes(
+              (col.id || "") as keyof TData
+            ) ===
+              (columnVisibility.type === "show"),
+          ])
+        )
       : {}
   );
   const [rowAction, setRowAction] = useState<

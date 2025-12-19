@@ -11,7 +11,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "../components/input-group";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "../components/input-group";
 
 interface PasswordInputProps extends InputProps {
   passwordLength?: number;
@@ -183,4 +188,3 @@ PasswordInput.displayName = "PasswordInput";
 
 export { PasswordInput };
 export type { PasswordInputProps };
-

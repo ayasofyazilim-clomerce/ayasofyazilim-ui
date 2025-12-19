@@ -71,24 +71,26 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
         <TableHeader>
           <TableRow className="divide-x">
             {Object.keys(
-              (schema?.items as { properties: Record<string, string> })?.properties || {}).map((item) => {
-                const itemsUiSchema =
-                  typeof uiSchema?.items === "function"
-                    ? undefined
-                    : (uiSchema?.items as
+              (schema?.items as { properties: Record<string, string> })
+                ?.properties || {}
+            ).map((item) => {
+              const itemsUiSchema =
+                typeof uiSchema?.items === "function"
+                  ? undefined
+                  : (uiSchema?.items as
                       | Record<string, { "ui:title": string }>
                       | undefined);
-                const title =
-                  itemsUiSchema?.[item as string]?.["ui:title"] || item;
-                return (
-                  <TableHead
-                    key={item}
-                    className={cn("h-9", !canAdd && "nth-last-2:border-0!")}
-                  >
-                    {title}
-                  </TableHead>
-                );
-              })}
+              const title =
+                itemsUiSchema?.[item as string]?.["ui:title"] || item;
+              return (
+                <TableHead
+                  key={item}
+                  className={cn("h-9", !canAdd && "nth-last-2:border-0!")}
+                >
+                  {title}
+                </TableHead>
+              );
+            })}
             <TableHead className={cn("p-0 size-9")}>
               {canAdd && (
                 <Button
