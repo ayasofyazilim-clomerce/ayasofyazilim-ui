@@ -37,7 +37,9 @@ describe("PasswordInput", () => {
 
   it("shows generator button if showGenerator", () => {
     render(<PasswordInput showGenerator />);
-    expect(document.getElementById("generate-password-button")).toBeInTheDocument();
+    expect(
+      document.getElementById("generate-password-button")
+    ).toBeInTheDocument();
   });
 
   it("generates password when generator clicked", async () => {
@@ -58,7 +60,9 @@ describe("PasswordInput", () => {
   it("disables input and buttons when disabled", () => {
     render(<PasswordInput disabled showGenerator />);
     expect(getInput()).toBeDisabled();
-    expect(document.getElementById("toggle-password-visibility-button")).toBeDisabled();
+    expect(
+      document.getElementById("toggle-password-visibility-button")
+    ).toBeDisabled();
     expect(document.getElementById("generate-password-button")).toBeDisabled();
   });
 
