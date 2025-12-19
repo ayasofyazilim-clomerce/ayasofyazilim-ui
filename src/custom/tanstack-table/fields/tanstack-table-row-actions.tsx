@@ -49,7 +49,7 @@ export const TanstackTableRowActions = <TData,>({
         <Button
           variant="ghost"
           type="button"
-          className="flex data-[state=open]:bg-muted rounded-none"
+          className="flex bg-white rounded-none"
         >
           Actions
           <span className="sr-only">Open Menu</span>
@@ -143,7 +143,9 @@ function ActionButton<TData>({
       {!action.icon && action.type === "delete-row" && (
         <Trash2 className="w-4 h-4" />
       )}
-      <span className="md:ml-2 hidden md:block">{action.cta}</span>
+      <span className="md:ml-2 in-data-[slot=dropdown-menu-item]:block hidden md:block">
+        {action.cta}
+      </span>
     </Button>
   );
 }

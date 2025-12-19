@@ -209,7 +209,7 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
     meta,
   });
   return (
-    <div className="flex flex-col gap-2 size-full flex-1 min-h-max overflow-hidden">
+    <div className="flex flex-col gap-2 overflow-hidden">
       <TanstackTableToolbar<TData>
         title={title}
         table={table}

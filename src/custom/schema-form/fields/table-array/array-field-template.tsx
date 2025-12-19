@@ -72,7 +72,7 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
           <TableRow className="divide-x">
             {Object.keys(
               (schema?.items as { properties: Record<string, string> })
-                ?.properties
+                ?.properties || {}
             ).map((item) => {
               const itemsUiSchema =
                 typeof uiSchema?.items === "function"

@@ -102,7 +102,7 @@ export function TanstackTablePlainTable<TData, TValue>({
                     key={cell.id}
                     className={cn(
                       (editable || cell.column.id === "actions") &&
-                        "p-0 border border-b-0"
+                        "p-0 border border-b-0 border-r-0"
                     )}
                     style={{
                       ...getCommonPinningStyles({
