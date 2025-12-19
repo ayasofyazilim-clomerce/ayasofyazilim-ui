@@ -159,10 +159,12 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         />
         <InputGroupAddon align="inline-end">
           <InputGroupButton
+            id="toggle-password-visibility-button"
             variant="ghost"
             aria-label={showPassword ? "Hide password" : "Show password"}
             size="icon-xs"
             onClick={togglePasswordVisibility}
+            disabled={disabled}
           >
             {showPassword ? <EyeOffIcon /> : <EyeIcon />}
           </InputGroupButton>
@@ -170,9 +172,11 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
         {showGenerator && (
           <InputGroupAddon align="inline-start">
             <InputGroupButton
+              id="generate-password-button"
               variant="ghost"
               size="icon-xs"
               onClick={handleGeneratePassword}
+              disabled={disabled}
             >
               <RotateCcwKey />
               <span className="sr-only">Generate password</span>
