@@ -54,9 +54,7 @@ function BooleanWrapper({
   children: ReactNode;
   widgetProps: WidgetProps;
 }) {
-  const { id, className, label, uiSchema, registry } = widgetProps;
-  const { useTableForArrayFields } = registry.formContext;
-
+  const { id, className, label, uiSchema } = widgetProps;
   const required = uiSchema?.["ui:required"] || widgetProps.required;
   const displayLabel = uiSchema?.displayLabel;
   return (
@@ -68,7 +66,7 @@ function BooleanWrapper({
       )}
     >
       {children}
-      {displayLabel !== false && !useTableForArrayFields && (
+      {displayLabel !== false && (
         <Label id={id} htmlFor={id} className="w-full">
           {label}
           {required && "*"}
