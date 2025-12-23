@@ -29,14 +29,16 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
   if (isInArray && useTableForArrayFields)
     return (
       <TableCell
-        className="p-0 
-        *:data-wrapper:border-0 *:data-wrapper:shadow-none *:data-wrapper:rounded-none *:data-wrapper:justify-center
-        **:[[role=combobox]]:border-0 **:[[role=combobox]]:shadow-none **:[[role=combobox]]:rounded-none
-        **:data-[slot=input]:border-0 **:data-[slot=input]:shadow-none **:data-[slot=input]:rounded-none
-        **:data-rac:border-0 **:data-rac:shadow-none **:data-rac:rounded-none"
+        className={cn("p-0",
+          "*:data-wrapper:border-0 *:data-wrapper:shadow-none *:data-wrapper:rounded-none *:data-wrapper:justify-center",
+          "**:[[role=combobox]]:border-0 **:[[role=combobox]]:shadow-none **:[[role=combobox]]:rounded-none",
+          "**:data-[slot=input]:border-0 **:data-[slot=input]:shadow-none **:data-[slot=input]:rounded-none",
+          "**:data-rac:border-0 **:data-rac:shadow-none **:data-rac:rounded-none",
+          "*:data-[slot=drawer-trigger]:border-0"
+        )}
       >
         {children}
-      </TableCell>
+      </TableCell >
     );
   return (
     <div
