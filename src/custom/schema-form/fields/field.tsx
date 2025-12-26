@@ -29,7 +29,8 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
   if (isInArray && useTableForArrayFields)
     return (
       <TableCell
-        className={cn("p-0",
+        className={cn(
+          "p-0",
           "*:data-wrapper:border-0 *:data-wrapper:shadow-none *:data-wrapper:rounded-none *:data-wrapper:justify-center",
           "**:[[role=combobox]]:border-0 **:[[role=combobox]]:shadow-none **:[[role=combobox]]:rounded-none",
           "**:data-[slot=input]:border-0 **:data-[slot=input]:shadow-none **:data-[slot=input]:rounded-none",
@@ -38,7 +39,7 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
         )}
       >
         {children}
-      </TableCell >
+      </TableCell>
     );
   return (
     <div
