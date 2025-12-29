@@ -4,6 +4,7 @@ import {
   ColumnFiltersState,
   OnChangeFn,
   PaginationState,
+  Row,
   TableMeta,
 } from "@tanstack/react-table";
 import { ComponentType, JSX } from "react";
@@ -153,7 +154,7 @@ export type TanstackTableColumnIcon = {
 };
 export type TanstackTableColumCell<TData> = {
   conditions?: TanstackTableCellCondition[];
-  content: (row: TData) => JSX.Element | string | null;
+  content: (row: TData, rowModel: Row<TData>) => JSX.Element | string | null;
   showHeader?: boolean;
 };
 export type TanstackTableRowActionsDeleteRow = {

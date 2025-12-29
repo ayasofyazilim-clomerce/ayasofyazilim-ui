@@ -140,7 +140,7 @@ export function createCell<T>(props: {
     })
     .join(" ");
 
-  if (custom) content = custom.content(row.original);
+  if (custom) content = custom.content(row.original, row);
   if (!link || !testConditions(link.conditions, row)) {
     if (expandRowTrigger) {
       return (
