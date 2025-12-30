@@ -96,7 +96,13 @@ export function Combobox<T>(props: ComboboxProps<T>) {
     onValueChange?.(newValue);
   };
 
-  const fieldValue = (list?.find((x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier])?.[props.selectLabel] as string) || emptyValue || (label && `Please select an ${label.toLocaleLowerCase()}`) || "Please select";
+  const fieldValue =
+    (list?.find(
+      (x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier]
+    )?.[props.selectLabel] as string) ||
+    emptyValue ||
+    (label && `Please select an ${label.toLocaleLowerCase()}`) ||
+    "Please select";
   const DesktopContent = (
     <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
@@ -128,7 +134,12 @@ export function Combobox<T>(props: ComboboxProps<T>) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0">
-        <List {...props} setOpen={setOpen} currentValue={currentValue} handleValueChange={handleValueChange} />
+        <List
+          {...props}
+          setOpen={setOpen}
+          currentValue={currentValue}
+          handleValueChange={handleValueChange}
+        />
       </PopoverContent>
     </Popover>
   );
@@ -159,7 +170,12 @@ export function Combobox<T>(props: ComboboxProps<T>) {
       </DrawerTrigger>
       <DrawerContent>
         <div className="mt-4 border-t">
-          <List {...props} setOpen={setOpen} currentValue={currentValue} handleValueChange={handleValueChange} />
+          <List
+            {...props}
+            setOpen={setOpen}
+            currentValue={currentValue}
+            handleValueChange={handleValueChange}
+          />
         </div>
       </DrawerContent>
     </Drawer>
@@ -214,8 +230,6 @@ function List<T>({
     classNames,
     badges,
   } = props;
-
-
 
   return (
     <Command

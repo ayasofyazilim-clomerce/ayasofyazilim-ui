@@ -9,7 +9,10 @@ function Table({
   wrapperClassName,
   wrap = true,
   ...props
-}: React.ComponentProps<"table"> & { wrapperClassName?: string, wrap?: boolean }) {
+}: React.ComponentProps<"table"> & {
+  wrapperClassName?: string;
+  wrap?: boolean;
+}) {
   if (!wrap) {
     return (
       <table
