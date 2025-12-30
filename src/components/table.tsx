@@ -7,8 +7,18 @@ import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 function Table({
   className,
   wrapperClassName,
+  wrap = true,
   ...props
-}: React.ComponentProps<"table"> & { wrapperClassName?: string }) {
+}: React.ComponentProps<"table"> & { wrapperClassName?: string, wrap?: boolean }) {
+  if (!wrap) {
+    return (
+      <table
+        data-slot="table"
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props}
+      />
+    );
+  }
   return (
     <div
       data-slot="table-container"
