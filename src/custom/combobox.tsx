@@ -52,7 +52,7 @@ export type ComboboxProps<T> = {
   };
   label?: string;
   list: Array<T> | null | undefined;
-  onValueChange: (
+  onValueChange?: (
     value: T | null | undefined
   ) => void | Dispatch<SetStateAction<T | null | undefined>>;
   required?: boolean;
@@ -61,6 +61,7 @@ export type ComboboxProps<T> = {
   selectIdentifier: keyof T;
   selectLabel: keyof T;
   value?: T | null | undefined;
+  defaultValue?: T | null | undefined;
   badges?: Partial<Record<keyof T, ComboboxBadgeOptions<T>>>;
 };
 
@@ -68,24 +69,34 @@ export function Combobox<T>(props: ComboboxProps<T>) {
   const {
     label,
     list,
-    value,
+    value: controlledValue,
+    defaultValue,
     disabled,
     selectIdentifier,
     required,
     errorMessage,
     emptyValue,
     classNames,
+    onValueChange,
   } = props;
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [open, setOpen] = useState(false);
 
-  const fieldValue =
-    (list?.find(
-      (x: T) => x[props.selectIdentifier] === value?.[selectIdentifier]
-    )?.[props.selectLabel] as string) ||
-    emptyValue ||
-    (label && `Please select an ${label.toLocaleLowerCase()}`) ||
-    "Please select";
+  const [internalValue, setInternalValue] = useState<T | null | undefined>(
+    defaultValue ?? null
+  );
+
+  const isControlled = controlledValue !== undefined;
+  const currentValue = isControlled ? controlledValue : internalValue;
+
+  const handleValueChange = (newValue: T | null | undefined) => {
+    if (!isControlled) {
+      setInternalValue(newValue);
+    }
+    onValueChange?.(newValue);
+  };
+
+  const fieldValue = (list?.find((x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier])?.[props.selectLabel] as string) || emptyValue || (label && `Please select an ${label.toLocaleLowerCase()}`) || "Please select";
   const DesktopContent = (
     <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
@@ -96,7 +107,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           role="combobox"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
-            value && "text-black",
+            currentValue && "text-black",
             classNames?.trigger?.button
           )}
         >
@@ -117,7 +128,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0">
-        <List {...props} setOpen={setOpen} />
+        <List {...props} setOpen={setOpen} currentValue={currentValue} handleValueChange={handleValueChange} />
       </PopoverContent>
     </Popover>
   );
@@ -131,7 +142,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           variant="outline"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
-            value && "text-black",
+            currentValue && "text-black",
             classNames?.trigger?.button
           )}
         >
@@ -148,7 +159,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
       </DrawerTrigger>
       <DrawerContent>
         <div className="mt-4 border-t">
-          <List {...props} setOpen={setOpen} />
+          <List {...props} setOpen={setOpen} currentValue={currentValue} handleValueChange={handleValueChange} />
         </div>
       </DrawerContent>
     </Drawer>
@@ -185,9 +196,13 @@ export function Combobox<T>(props: ComboboxProps<T>) {
 
 function List<T>({
   setOpen,
+  currentValue,
+  handleValueChange,
   ...props
 }: ComboboxProps<T> & {
   setOpen: (open: boolean) => void;
+  currentValue: T | null | undefined;
+  handleValueChange: (value: T | null | undefined) => void;
 }) {
   const {
     list,
@@ -195,12 +210,12 @@ function List<T>({
     selectLabel,
     searchPlaceholder,
     searchResultLabel,
-    value,
-    onValueChange,
     id,
     classNames,
     badges,
   } = props;
+
+
 
   return (
     <Command
@@ -229,14 +244,14 @@ function List<T>({
           {list?.map((item: T) => (
             <CommandItem
               onSelect={() => {
-                onValueChange(item);
+                handleValueChange(item);
                 setOpen(false);
               }}
               key={JSON.stringify(item[selectIdentifier])}
               value={item[selectIdentifier] as string}
             >
-              {item[selectIdentifier] === value && (
-                <CheckIcon className={cn("ml-auto h-4 w-4")} />
+              {item[selectIdentifier] === currentValue?.[selectIdentifier] && (
+                <CheckIcon className={cn("h-4 w-4")} />
               )}
               <span className={cn(classNames?.list?.label)}>
                 {item[selectLabel] as string}
