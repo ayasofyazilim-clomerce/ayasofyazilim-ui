@@ -46,6 +46,7 @@
     "@rjsf/utils": "6.1.1",
     "@rjsf/validator-ajv8": "6.1.1",
     "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.18",
     "@types/google-libphonenumber": "^7.4.30",
     "@types/lodash": "^4.17.20",
     "ajv": "^8.17.1",
