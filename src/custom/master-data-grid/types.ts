@@ -7,7 +7,7 @@ import type {
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
-import type { Localization } from "../../custom/date-tooltip";
+import type { Localization } from "../date-tooltip";
 import type { LucideIcon } from "lucide-react";
 
 // Re-export Localization for convenience

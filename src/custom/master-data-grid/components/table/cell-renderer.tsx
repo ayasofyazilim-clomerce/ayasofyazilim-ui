@@ -1,24 +1,25 @@
 import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
-import { Badge } from "../../../components/badge";
-import { Input } from "../../../components/input";
+import { Badge } from "../../../../components/badge";
+import { Input } from "../../../../components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../components/select";
+} from "../../../../components/select";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "../../../components/tooltip";
-import { DatePicker } from "../../../custom/date-picker";
-import DateTooltip from "../../../custom/date-tooltip";
-import { cn } from "../../../lib/utils";
-import type { CellRendererProps, JSONSchemaProperty } from "../types";
+} from "../../../../components/tooltip";
+import { DatePicker } from "../../../date-picker";
+import DateTooltip from "../../../date-tooltip";
+import { cn } from "../../../../lib/utils";
+import type { CellRendererProps, JSONSchemaProperty } from "../../types";
+import { getTranslations } from "../../utils/translation-utils";
 
 const DEBOUNCE_DELAY = 150;
 const MAX_STRING_LENGTH = 100;
@@ -47,8 +48,7 @@ function createZodSchema(
   switch (schemaProperty.type) {
     case "string":
       schema = z.string({
-        message:
-          t?.["validation.invalid_string"] ?? "validation.invalid_string",
+        message: getTranslations("validation.invalidString", t),
       });
 
       if (schemaProperty.minLength !== undefined) {
@@ -59,7 +59,7 @@ function createZodSchema(
                 "{min}",
                 String(schemaProperty.minLength)
               )
-            : undefined
+            : `Must be at least ${schemaProperty.minLength} characters`
         );
       }
       if (schemaProperty.maxLength !== undefined) {
@@ -70,31 +70,28 @@ function createZodSchema(
                 "{max}",
                 String(schemaProperty.maxLength)
               )
-            : undefined
+            : `Must be at most ${schemaProperty.maxLength} characters`
         );
       }
 
       if (schemaProperty.format === "email") {
         schema = (schema as z.ZodString).email(
-          t?.["validation.invalid_email"] ?? "validation.invalid_email"
+          t?.["validation.invalid_email"] || "Must be a valid email address"
         );
       }
       if (schemaProperty.format === "uri" || schemaProperty.format === "url") {
-        schema = z.url(
-          t?.["validation.invalid_url"] ?? "validation.invalid_url"
-        );
+        schema = z.url(t?.["validation.invalid_url"] || "Must be a valid URL");
       }
       if (schemaProperty.format === "uuid") {
         schema = z.uuid(
-          t?.["validation.invalid_uuid"] ?? "validation.invalid_uuid"
+          t?.["validation.invalid_uuid"] || "Must be a valid UUID"
         );
       }
       break;
 
     case "number":
       schema = z.number({
-        message:
-          t?.["validation.invalid_number"] ?? "validation.invalid_number",
+        message: t?.["validation.invalid_number"] || "Must be a valid number",
       });
 
       if (schemaProperty.minimum !== undefined) {
@@ -105,7 +102,7 @@ function createZodSchema(
                 "{min}",
                 String(schemaProperty.minimum)
               )
-            : undefined
+            : `Must be at least ${schemaProperty.minimum}`
         );
       }
       if (schemaProperty.maximum !== undefined) {
@@ -116,7 +113,7 @@ function createZodSchema(
                 "{max}",
                 String(schemaProperty.maximum)
               )
-            : undefined
+            : `Must be at most ${schemaProperty.maximum}`
         );
       }
       break;
@@ -125,9 +122,9 @@ function createZodSchema(
       schema = z
         .number({
           message:
-            t?.["validation.invalid_integer"] ?? "validation.invalid_integer",
+            t?.["validation.invalid_integer"] || "Must be a valid integer",
         })
-        .int(t?.["validation.must_be_integer"] ?? "validation.must_be_integer");
+        .int(t?.["validation.must_be_integer"] || "Must be an integer");
 
       if (schemaProperty.minimum !== undefined) {
         schema = (schema as z.ZodNumber).min(
@@ -137,7 +134,7 @@ function createZodSchema(
                 "{min}",
                 String(schemaProperty.minimum)
               )
-            : undefined
+            : `Must be at least ${schemaProperty.minimum}`
         );
       }
       if (schemaProperty.maximum !== undefined) {
@@ -148,15 +145,14 @@ function createZodSchema(
                 "{max}",
                 String(schemaProperty.maximum)
               )
-            : undefined
+            : `Must be at most ${schemaProperty.maximum}`
         );
       }
       break;
 
     case "boolean":
       schema = z.boolean({
-        message:
-          t?.["validation.invalid_boolean"] ?? "validation.invalid_boolean",
+        message: t?.["validation.invalid_boolean"] || "Must be true or false",
       });
       break;
 
@@ -167,7 +163,7 @@ function createZodSchema(
   if (schemaProperty.enum && Array.isArray(schemaProperty.enum)) {
     schema = z.enum(
       schemaProperty.enum as [string, ...string[]],
-      t?.["validation.invalid_enum"] ?? "validation.invalid_enum"
+      t?.["validation.invalid_enum"] || "Invalid value"
     );
   }
 
@@ -518,8 +514,8 @@ export function CellRenderer({
   }
 
   if (schemaProperty?.type === "boolean" || typeof value === "boolean") {
-    const yesLabel = t?.["cell.boolean.yes"] ?? "cell.boolean.yes";
-    const noLabel = t?.["cell.boolean.no"] ?? "cell.boolean.no";
+    const yesLabel = t?.["cell.boolean.yes"] ?? "Yes";
+    const noLabel = t?.["cell.boolean.no"] ?? "No";
     return (
       <Badge variant={value ? "default" : "secondary"} className={className}>
         {value ? yesLabel : noLabel}

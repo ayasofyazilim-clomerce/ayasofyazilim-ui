@@ -1,4 +1,4 @@
-export { MasterDataGrid } from "./components/core";
+export { MasterDataGrid } from "./components/master-data-grid";
 export type {
   MasterDataGridProps,
   MasterDataGridConfig,
