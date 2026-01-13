@@ -1,1 +1,1 @@
-export { ColumnSettingsDialog } from './column-settings-dialog';
+export { ColumnSettingsDialog } from "./column-settings-dialog";

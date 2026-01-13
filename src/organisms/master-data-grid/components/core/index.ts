@@ -1,1 +1,1 @@
-export { MasterDataGrid } from './master-data-grid';
+export { MasterDataGrid } from "./master-data-grid";
