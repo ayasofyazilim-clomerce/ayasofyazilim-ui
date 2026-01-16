@@ -1,5 +1,5 @@
 import type { Column } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -51,57 +51,93 @@ export function InlineColumnFilter<TData>({
   const [value2, setValue2] = useState<string>(
     String(currentFilter?.value2 || "")
   );
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const isRangeOperator = operator === "between" || operator === "inRange";
   const isNumberType =
     schemaProperty?.type === "number" || schemaProperty?.type === "integer";
   const needsNoInput = operator === "isEmpty" || operator === "isNotEmpty";
 
-  const handleValueChange = (newValue: string) => {
-    setValue(newValue);
-
-    if (!newValue && !isRangeOperator) {
-      column.setFilterValue(undefined);
-      return;
-    }
-
-    if (isRangeOperator) {
-      if (
-        newValue &&
-        value2 &&
-        validateFilterValue(operator, newValue, value2)
-      ) {
-        const filter: ColumnFilter = {
-          id: column.id,
-          operator,
-          value: newValue,
-          value2,
-        };
-        column.setFilterValue(filter);
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
       }
-    } else if (validateFilterValue(operator, newValue)) {
-      const filter: ColumnFilter = {
-        id: column.id,
-        operator,
-        value: newValue,
-      };
-      column.setFilterValue(filter);
-    }
-  };
+    };
+  }, []);
 
-  const handleValue2Change = (newValue2: string) => {
-    setValue2(newValue2);
+  const handleValueChange = useCallback(
+    (newValue: string) => {
+      setValue(newValue);
 
-    if (value && newValue2 && validateFilterValue(operator, value, newValue2)) {
-      const filter: ColumnFilter = {
-        id: column.id,
-        operator,
-        value,
-        value2: newValue2,
-      };
-      column.setFilterValue(filter);
-    }
-  };
+      // Clear existing timeout
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      // Set new timeout for debounced update
+      debounceTimerRef.current = setTimeout(() => {
+        if (!newValue && !isRangeOperator) {
+          column.setFilterValue(undefined);
+          return;
+        }
+
+        if (isRangeOperator) {
+          if (
+            newValue &&
+            value2 &&
+            validateFilterValue(operator, newValue, value2)
+          ) {
+            const filter: ColumnFilter = {
+              id: column.id,
+              operator,
+              value: newValue,
+              value2,
+            };
+            column.setFilterValue(filter);
+          }
+        } else if (validateFilterValue(operator, newValue)) {
+          const filter: ColumnFilter = {
+            id: column.id,
+            operator,
+            value: newValue,
+          };
+          column.setFilterValue(filter);
+        }
+      }, 300); // 300ms debounce delay
+    },
+    [column, operator, value2, isRangeOperator]
+  );
+
+  const handleValue2Change = useCallback(
+    (newValue2: string) => {
+      setValue2(newValue2);
+
+      // Clear existing timeout
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      // Set new timeout for debounced update
+      debounceTimerRef.current = setTimeout(() => {
+        if (
+          value &&
+          newValue2 &&
+          validateFilterValue(operator, value, newValue2)
+        ) {
+          const filter: ColumnFilter = {
+            id: column.id,
+            operator,
+            value,
+            value2: newValue2,
+          };
+          column.setFilterValue(filter);
+        }
+      }, 300); // 300ms debounce delay
+    },
+    [column, operator, value]
+  );
 
   const handleSliderChange = (values: number[]) => {
     const [min, max] = values;

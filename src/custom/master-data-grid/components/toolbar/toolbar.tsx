@@ -7,7 +7,7 @@ import {
   RefreshCw,
   RotateCcw,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "../../../../components/button";
 import { ButtonGroup } from "../../../../components/button-group";
 import { Input } from "../../../../components/input";
@@ -49,6 +49,7 @@ export function Toolbar<TData>({
   // Local state for search input to make it responsive
   const [searchValue, setSearchValue] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sync with table state
   useEffect(() => {
@@ -58,10 +59,32 @@ export function Toolbar<TData>({
     }
   }, [table.getState().globalFilter]);
 
-  const handleSearchChange = (value: string) => {
-    setSearchValue(value);
-    table.setGlobalFilter(value);
-  };
+  // Debounced search handler
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchValue(value);
+
+      // Clear existing timeout
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      // Set new timeout for debounced update
+      debounceTimerRef.current = setTimeout(() => {
+        table.setGlobalFilter(value);
+      }, 300); // 300ms debounce delay
+    },
+    [table]
+  );
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   const renderActionButtons = (isMobile = false) => (
     <>
