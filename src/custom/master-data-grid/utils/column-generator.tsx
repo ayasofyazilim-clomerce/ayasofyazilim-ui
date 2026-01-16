@@ -1,4 +1,4 @@
-import type { Column, ColumnDef } from "@tanstack/react-table";
+import type { Column, ColumnDef, Row, Header } from "@tanstack/react-table";
 import { HeaderCell, CellRenderer } from "../components/table";
 import type {
   ColumnConfig,
@@ -26,9 +26,10 @@ export function generateColumnsFromSchema<TData = unknown>(
   },
   cellClassName?: string | ((cell: { row: TData; columnId: string }) => string),
   dateOptions?: Intl.DateTimeFormatOptions,
-  customRenderers?: CustomRenderers,
+  customRenderers?: CustomRenderers<TData>,
   errorDisplayMode?: "tooltip" | "inline" | "both",
-  enableColumnVisibility?: boolean
+  enableColumnVisibility?: boolean,
+  expandOnClickColumns?: string[]
 ): GeneratedColumn<TData>[] {
   if (!schema.properties) return [];
 
@@ -46,7 +47,8 @@ export function generateColumnsFromSchema<TData = unknown>(
       dateOptions,
       customRenderers,
       errorDisplayMode,
-      enableColumnVisibility
+      enableColumnVisibility,
+      expandOnClickColumns
     );
     if (column) {
       columns.push(column);
@@ -72,9 +74,10 @@ function createColumnFromProperty<TData = unknown>(
   },
   cellClassName?: string | ((cell: { row: TData; columnId: string }) => string),
   dateOptions?: Intl.DateTimeFormatOptions,
-  customRenderers?: CustomRenderers,
+  customRenderers?: CustomRenderers<TData>,
   errorDisplayMode?: "tooltip" | "inline" | "both",
-  enableColumnVisibility?: boolean
+  enableColumnVisibility?: boolean,
+  expandOnClickColumns?: string[]
 ): GeneratedColumn<TData> | null {
   // Skip object and array types for now (can be customized)
   if (property.type === "object" || property.type === "array") {
@@ -86,9 +89,16 @@ function createColumnFromProperty<TData = unknown>(
   return {
     id: key,
     accessorKey: key,
-    header: ({ column }: { column: Column<TData> }) => (
+    header: ({
+      column,
+      header,
+    }: {
+      column: Column<TData>;
+      header: Header<TData, unknown>;
+    }) => (
       <HeaderCell<TData>
         column={column}
+        header={header}
         label={getColumnName(key, t, property.title)}
         t={t}
         onFilterClick={onFilterClick}
@@ -97,9 +107,10 @@ function createColumnFromProperty<TData = unknown>(
     cell: ({
       getValue,
       row,
+      column,
     }: {
       getValue: () => unknown;
-      row: { original: TData; index: number };
+      row: Row<TData>;
       column: Column<TData>;
     }) => {
       const rowId =
@@ -118,18 +129,22 @@ function createColumnFromProperty<TData = unknown>(
       return (
         <CellRenderer
           value={displayValue}
+          row={row}
+          column={column}
+          columnId={key}
           schemaProperty={property}
           t={t}
-          editable={isEditing}
+          isEditing={isEditing}
           onUpdate={
             isEditing
-              ? (value) => editingContext?.onCellUpdate(rowId, key, value)
+              ? (value: unknown) =>
+                  editingContext?.onCellUpdate(rowId, key, value)
               : undefined
           }
           className={className}
           dateOptions={dateOptions}
           localization={localization}
-          fieldName={key}
+          fieldName={key as keyof TData & string}
           customRenderers={customRenderers}
           errorDisplayMode={errorDisplayMode}
         />
@@ -142,6 +157,7 @@ function createColumnFromProperty<TData = unknown>(
     meta: {
       schemaProperty: property,
       filterOperators,
+      expandOnClick: expandOnClickColumns?.includes(key),
     },
   } as GeneratedColumn<TData>;
 }
@@ -156,7 +172,9 @@ export function mergeColumns<TData = unknown>(
     readonly editingRows: Record<string, Record<string, unknown>>;
     getRowId: (row: TData, index: number) => string;
   },
-  enableColumnVisibility?: boolean
+  enableColumnVisibility?: boolean,
+  t?: Record<string, string>,
+  onFilterClick?: (columnId: string) => void
 ): ColumnDef<TData>[] {
   if (!customColumns || customColumns.length === 0) {
     return schemaColumns;
@@ -206,9 +224,42 @@ export function mergeColumns<TData = unknown>(
         };
       }
 
+      // Determine header behavior
+      let finalHeader = custom.header || schemaCol.header;
+
+      // If custom header is provided but extendHeader is not explicitly false,
+      // we keep the schema's HeaderCell wrapper with custom label
+      if (
+        custom.header &&
+        custom.extendHeader !== false &&
+        typeof custom.header === "string"
+      ) {
+        // Custom string header with HeaderCell functionality
+        finalHeader = ({
+          column,
+          header,
+        }: {
+          column: Column<TData>;
+          header: Header<TData, unknown>;
+        }) => (
+          <HeaderCell<TData>
+            column={column}
+            header={header}
+            label={custom.header as string}
+            t={t}
+            onFilterClick={onFilterClick}
+          />
+        );
+      } else if (custom.header && custom.extendHeader === false) {
+        // Explicitly override header completely
+        finalHeader = custom.header;
+      }
+      // else: use schema header (which already has HeaderCell)
+
       merged.push({
         ...schemaCol,
         ...custom,
+        header: finalHeader,
         cell: finalCell,
         enableHiding: custom.enableHiding ?? enableColumnVisibility ?? true,
         meta: {
@@ -224,11 +275,51 @@ export function mergeColumns<TData = unknown>(
 
   // Add remaining custom columns that weren't in schema
   customColumnMap.forEach((custom) => {
+    // Determine the header to use
+    let header:
+      | string
+      | ((info: {
+          column: Column<TData>;
+          header: Header<TData, unknown>;
+        }) => React.ReactNode);
+
+    if (custom.extendHeader !== false) {
+      // Default behavior: extend with HeaderCell functionality
+      header = ({
+        column,
+        header: headerObj,
+      }: {
+        column: Column<TData>;
+        header: Header<TData, unknown>;
+      }) => {
+        const label =
+          typeof custom.header === "string"
+            ? custom.header
+            : formatFieldName(custom.id);
+
+        return (
+          <HeaderCell<TData>
+            column={column}
+            header={headerObj}
+            label={label}
+            t={t}
+            onFilterClick={onFilterClick}
+          />
+        );
+      };
+    } else if (typeof custom.header === "function") {
+      // Custom header function provided and extendHeader is explicitly false
+      header = custom.header;
+    } else {
+      // Simple string header and extendHeader is false
+      header = custom.header || formatFieldName(custom.id);
+    }
+
     merged.push({
       id: custom.id,
       accessorKey: custom.accessorKey,
       accessorFn: custom.accessorFn,
-      header: custom.header || formatFieldName(custom.id),
+      header,
       cell: custom.cell,
       enableSorting: custom.enableSorting ?? true,
       enableFiltering: custom.enableFiltering ?? true,
@@ -239,7 +330,6 @@ export function mergeColumns<TData = unknown>(
       size: custom.width,
       minSize: custom.minWidth,
       maxSize: custom.maxWidth,
-      aggregationFn: custom.aggregationFn,
       footer: custom.footer,
       filterFn: masterFilter,
       meta: custom.meta,

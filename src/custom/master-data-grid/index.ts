@@ -8,8 +8,6 @@ export type {
   RowAction,
   TableAction,
   FilterOperator,
-  ColumnFilter,
-  AggregationFunction,
   SelectionConfig,
   VirtualizationConfig,
   GroupingConfig,

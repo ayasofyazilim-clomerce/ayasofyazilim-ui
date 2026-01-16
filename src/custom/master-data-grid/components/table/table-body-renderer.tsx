@@ -45,9 +45,8 @@ export function TableBodyRenderer<TData>({
     <TableBody className={bodyClassName}>
       {rows.length ? (
         rows.map((row) => (
-          <>
+          <React.Fragment key={row.id}>
             <TableRow
-              key={row.id}
               data-state={row.getIsSelected() && "selected"}
               className={cn(
                 typeof rowClassName === "function"
@@ -102,7 +101,7 @@ export function TableBodyRenderer<TData>({
                 </TableCell>
               </TableRow>
             )}
-          </>
+          </React.Fragment>
         ))
       ) : (
         <TableRow>

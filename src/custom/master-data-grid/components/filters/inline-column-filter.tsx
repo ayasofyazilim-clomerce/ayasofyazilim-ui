@@ -176,7 +176,7 @@ export function InlineColumnFilter<TData>({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="w-full px-2 py-1.5 text-xs font-medium hover:bg-accent rounded-md flex items-center justify-between">
-              {getTranslations(`filter.operator.short.${operator}`, t)}{" "}
+              {getTranslations(`filter.operator.${operator}`, t)}{" "}
               <ChevronDown className="size-3" />
             </button>
           </DropdownMenuTrigger>
@@ -187,7 +187,7 @@ export function InlineColumnFilter<TData>({
                 onClick={() => handleOperatorChange(op)}
                 className="text-xs"
               >
-                {getTranslations(`filter.operator.short.${op}`, t)}
+                {getTranslations(`filter.operator.${op}`, t)}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

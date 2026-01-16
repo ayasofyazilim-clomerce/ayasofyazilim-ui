@@ -41,7 +41,7 @@ function createZodSchema(
   schemaProperty?: JSONSchemaProperty,
   t?: Record<string, string>
 ): z.ZodType {
-  if (!schemaProperty) return z.any();
+  if (!schemaProperty) return z.unknown();
 
   let schema: z.ZodType;
 
@@ -157,7 +157,7 @@ function createZodSchema(
       break;
 
     default:
-      schema = z.any();
+      schema = z.unknown();
   }
 
   if (schemaProperty.enum && Array.isArray(schemaProperty.enum)) {
@@ -227,8 +227,10 @@ function ErrorWrapper({ error, mode, children }: ErrorWrapperProps) {
   );
 }
 
-export function CellRenderer({
+export function CellRenderer<TData = unknown>({
   value,
+  row,
+  column,
   schemaProperty,
   editable = false,
   onUpdate,
@@ -240,7 +242,7 @@ export function CellRenderer({
   fieldName,
   customRenderers,
   errorDisplayMode = "tooltip",
-}: CellRendererProps) {
+}: CellRendererProps<TData>) {
   const [localValue, setLocalValue] = useState(value);
   const [validationError, setValidationError] = useState<string | null>(
     error || null
@@ -325,6 +327,8 @@ export function CellRenderer({
         <>
           {customRenderer({
             value: localValue,
+            row,
+            column,
             onUpdate: handleChange,
             error: validationError || undefined,
             schemaProperty,
@@ -343,6 +347,8 @@ export function CellRenderer({
         <>
           {customRenderer({
             value: localValue,
+            row,
+            column,
             onUpdate: handleChange,
             error: validationError || undefined,
             schemaProperty,
@@ -361,6 +367,8 @@ export function CellRenderer({
         <>
           {customRenderer({
             value: localValue,
+            row,
+            column,
             onUpdate: handleChange,
             error: validationError || undefined,
             schemaProperty,
@@ -504,6 +512,61 @@ export function CellRenderer({
           />
         </div>
       </ErrorWrapper>
+    );
+  }
+
+  // Check for custom renderers in non-editable mode
+  if (fieldName && customRenderers?.byField?.[fieldName]) {
+    const customRenderer = customRenderers.byField[fieldName]!;
+    return (
+      <>
+        {customRenderer({
+          value: localValue,
+          row,
+          column,
+          onUpdate: handleChange,
+          error: validationError || undefined,
+          schemaProperty,
+          t,
+        })}
+      </>
+    );
+  }
+
+  if (
+    schemaProperty?.format &&
+    customRenderers?.byFormat?.[schemaProperty.format]
+  ) {
+    const customRenderer = customRenderers.byFormat[schemaProperty.format]!;
+    return (
+      <>
+        {customRenderer({
+          value: localValue,
+          row,
+          column,
+          onUpdate: handleChange,
+          error: validationError || undefined,
+          schemaProperty,
+          t,
+        })}
+      </>
+    );
+  }
+
+  if (schemaProperty?.type && customRenderers?.byType?.[schemaProperty.type]) {
+    const customRenderer = customRenderers.byType[schemaProperty.type]!;
+    return (
+      <>
+        {customRenderer({
+          value: localValue,
+          row,
+          column,
+          onUpdate: handleChange,
+          error: validationError || undefined,
+          schemaProperty,
+          t,
+        })}
+      </>
     );
   }
 

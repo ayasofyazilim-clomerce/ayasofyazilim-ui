@@ -46,13 +46,14 @@ export function getPinningCellStyles<TData>(
   cell: Cell<TData, unknown>
 ): CSSProperties {
   const pinned = cell.column.getIsPinned();
+
   return {
     width: cell.column.getSize(),
     minWidth: pinned
       ? cell.column.getSize()
       : cell.column.columnDef.minSize || cell.column.getSize(),
     maxWidth: pinned
-      ? cell.column.getSize()
+      ? cell.column.columnDef.maxSize // Use defined maxSize or no limit
       : cell.column.columnDef.maxSize || cell.column.getSize(),
     left: pinned === "left" ? `${cell.column.getStart("left")}px` : undefined,
     right:
@@ -72,7 +73,7 @@ export function getPinningCellClassNames<TData>(
   const classes: string[] = [];
 
   if (pinned) {
-    classes.push("bg-background");
+    classes.push("bg-background", "overflow-hidden", "text-ellipsis");
   }
   if (pinned === "left") {
     classes.push("shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]");
