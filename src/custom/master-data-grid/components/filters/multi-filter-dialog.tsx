@@ -277,7 +277,10 @@ export function MultiFilterDialog<TData>({
           const columnMeta = getColumnMeta(row.columnId);
 
           return (
-            <ButtonGroup className="w-full min-w-0 flex-wrap sm:flex-nowrap">
+            <ButtonGroup
+              className="w-full min-w-0 flex-wrap sm:flex-nowrap"
+              key={row.id}
+            >
               {index === 0 ? (
                 <div className="w-12 sm:w-16 rounded-l-md border flex items-center justify-center px-1 sm:px-2 text-xs font-medium text-muted-foreground shrink-0">
                   {getTranslations("filter.where", t)}
@@ -299,7 +302,7 @@ export function MultiFilterDialog<TData>({
                 <SelectContent>
                   {filterableColumns.map((col) => (
                     <SelectItem key={col.id} value={col.id}>
-                      {getColumnName(col)}
+                      {getColumnName(col, t)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -384,6 +387,13 @@ export function MultiFilterDialog<TData>({
             {getTranslations("filter.resetFilters", t)}
           </Button>
         </div>
+        <Button
+          onClick={() => applyFilters()}
+          size="sm"
+          className="text-xs sm:text-sm"
+        >
+          {getTranslations("filter.apply", t)}
+        </Button>
       </div>
     </div>
   );

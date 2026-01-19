@@ -1,4 +1,5 @@
 import type {
+  Column,
   ColumnDef,
   ColumnFiltersState,
   ColumnPinningState,
@@ -6,6 +7,7 @@ import type {
   RowSelectionState,
   SortingState,
   VisibilityState,
+  CellContext,
 } from "@tanstack/react-table";
 import type { Localization } from "../date-tooltip";
 import type { LucideIcon } from "lucide-react";
@@ -20,6 +22,7 @@ export type { Localization };
 export interface JSONSchemaProperty {
   type: "string" | "number" | "integer" | "boolean" | "array" | "object";
   format?:
+    | "int32"
     | "date"
     | "date-time"
     | "email"
@@ -89,26 +92,6 @@ export interface ColumnFilter {
 }
 
 /**
- * Aggregation Function Types
- */
-export type AggregationFunction =
-  | "sum"
-  | "avg"
-  | "min"
-  | "max"
-  | "count"
-  | "countDistinct";
-
-/**
- * Column Aggregation Configuration
- */
-export interface ColumnAggregation {
-  id: string;
-  function: AggregationFunction;
-  label?: string;
-}
-
-/**
  * Cell Editing Configuration
  */
 export interface CellEditConfig<TData = unknown> {
@@ -122,18 +105,13 @@ export interface CellEditConfig<TData = unknown> {
 }
 
 /**
- * Row Action Types
- */
-export type RowActionType = "click" | "dialog" | "sheet" | "drawer" | "custom";
-
-/**
  * Row Action Definition
+ * Actions displayed in a dropdown menu for each row
  */
 export interface RowAction<TData = unknown> {
   id: string;
   label: string | ((row: TData) => string);
   icon?: LucideIcon;
-  type: RowActionType;
   variant?:
     | "default"
     | "destructive"
@@ -144,7 +122,6 @@ export interface RowAction<TData = unknown> {
   onClick?: (row: TData, event: React.MouseEvent) => void | Promise<void>;
   disabled?: boolean | ((row: TData) => boolean);
   hidden?: boolean | ((row: TData) => boolean);
-  component?: React.ComponentType<{ row: TData; onClose: () => void }>;
   className?: string;
 }
 
@@ -171,6 +148,7 @@ export interface RowExpansionConfig<TData = unknown> {
   component?: React.ComponentType<{ row: TData }>;
   renderContent?: (row: TData) => React.ReactNode;
   defaultExpanded?: boolean;
+  expandOnClick?: string | string[]; // Column ID(s) that trigger expansion when clicked
 }
 
 /**
@@ -187,7 +165,13 @@ export interface ColumnMeta {
  */
 export interface ColumnConfig<TData = unknown> {
   id: string;
-  header?: string;
+  header?: string | ((info: { column: Column<TData> }) => React.ReactNode);
+  /**
+   * When true, preserves the default HeaderCell functionality (sorting, filtering, pinning)
+   * even when a custom header function is provided. The custom header will be passed as the label.
+   * Default: true (extends default header functionality)
+   */
+  extendHeader?: boolean;
   accessorKey?: string;
   accessorFn?: (row: TData) => unknown;
   enableSorting?: boolean;
@@ -199,13 +183,13 @@ export interface ColumnConfig<TData = unknown> {
   width?: number;
   minWidth?: number;
   maxWidth?: number;
-  aggregationFn?: AggregationFunction;
   cell?: (info: {
     getValue: () => unknown;
     row: Row<TData>;
   }) => React.ReactNode;
   footer?: (info: { column: { id: string } }) => React.ReactNode;
   meta?: ColumnMeta;
+  expandOnClick?: boolean; // Whether clicking this column should toggle row expansion
 }
 
 /**
@@ -263,7 +247,7 @@ export interface MasterDataGridConfig<TData = unknown> {
   columns?: ColumnConfig<TData>[];
 
   // Translation
-  t?: Record<string, string>;
+  t?: MasterDataGridResources & Record<string, string>;
 
   // Features
   enableSorting?: boolean;
@@ -302,8 +286,6 @@ export interface MasterDataGridConfig<TData = unknown> {
   enablePagination?: boolean;
   pageSize?: number;
   pageSizeOptions?: number[];
-
-  // Loading & Empty States
   loading?: boolean;
   loadingComponent?: React.ReactNode;
   emptyComponent?: React.ReactNode;
@@ -314,7 +296,14 @@ export interface MasterDataGridConfig<TData = unknown> {
   localization: Localization;
 
   // Custom renderers
-  customRenderers?: CustomRenderers;
+  customRenderers?: CustomRenderers<TData>;
+
+  // Column visibility
+  columnVisibility?: {
+    mode: "show" | "hide"; // "show" = only show listed columns, "hide" = hide listed columns
+    columns: Array<keyof TData>; // Column IDs to show or hide based on mode
+  };
+  columnOrder?: Array<keyof TData>; // Array of column IDs to define display order (TData keys + custom column IDs)
 
   // Advanced
   enableMultiSort?: boolean;
@@ -322,6 +311,7 @@ export interface MasterDataGridConfig<TData = unknown> {
   manualSorting?: boolean;
   manualFiltering?: boolean;
   manualPagination?: boolean;
+  rowCount?: number; // Total row count for manual pagination
   onSortingChange?: (sorting: SortingState) => void;
   onFilteringChange?: (filters: ColumnFiltersState) => void;
   onPaginationChange?: (pagination: {
@@ -371,83 +361,38 @@ export interface FilterDialogState {
 }
 
 /**
- * Column Settings Dialog State
- */
-export interface ColumnSettingsDialogState {
-  open: boolean;
-}
-
-/**
- * Action Dialog State
- */
-export interface ActionDialogState<TData = unknown> {
-  open: boolean;
-  type: RowActionType | null;
-  action: RowAction<TData> | null;
-  row: TData | null;
-}
-
-/**
  * Custom Cell Renderer Function Type
  * Allows passing custom components for specific fields with their own validation
  */
-export interface CustomCellRendererProps {
+export interface CustomCellRendererProps<TData = unknown> {
   value: unknown;
+  row: Row<TData>;
+  column: Column<TData>;
   onUpdate?: (value: unknown) => void;
   error?: string;
   schemaProperty?: JSONSchemaProperty;
   t?: Record<string, string>;
 }
 
-export type CustomCellRenderer = (
-  props: CustomCellRendererProps
+export type CustomCellRenderer<TData = unknown> = (
+  props: CustomCellRendererProps<TData>
 ) => React.ReactNode;
 
 /**
  * Custom Renderers Configuration
  * Map field names or types to custom renderer components
  */
-export interface CustomRenderers {
+export interface CustomRenderers<TData = unknown> {
   /** Custom renderers for specific field names */
-  byField?: Record<string, CustomCellRenderer>;
+  byField?: Partial<Record<keyof TData & string, CustomCellRenderer<TData>>>;
   /** Custom renderers for specific JSON Schema types */
-  byType?: Partial<Record<JSONSchemaProperty["type"], CustomCellRenderer>>;
+  byType?: Partial<
+    Record<JSONSchemaProperty["type"], CustomCellRenderer<TData>>
+  >;
   /** Custom renderers for specific formats */
   byFormat?: Partial<
-    Record<NonNullable<JSONSchemaProperty["format"]>, CustomCellRenderer>
+    Record<NonNullable<JSONSchemaProperty["format"]>, CustomCellRenderer<TData>>
   >;
-}
-
-/**
- * Cell Renderer Props
- */
-export interface CellRendererProps {
-  value: unknown;
-  schemaProperty?: JSONSchemaProperty;
-  editable?: boolean;
-  onUpdate?: (value: unknown) => void;
-  t?: Record<string, string>;
-  error?: string;
-  className?: string;
-  dateOptions?: Intl.DateTimeFormatOptions;
-  localization: Localization;
-  /** Field name for custom renderer lookup */
-  fieldName?: string;
-  /** Custom renderers for special cases */
-  customRenderers?: CustomRenderers;
-  /** How to display validation errors */
-  errorDisplayMode?: "tooltip" | "inline" | "both";
-}
-
-/**
- * Toolbar Props
- */
-export interface ToolbarProps<TData = unknown> {
-  table: unknown; // TanStack Table instance
-  config: MasterDataGridConfig<TData>;
-  selectedRows: TData[];
-  onExport?: (format: string) => void;
-  onRefresh?: () => void;
 }
 
 /**
@@ -459,4 +404,138 @@ export type GeneratedColumn<TData = unknown> = ColumnDef<TData> & {
     filterOperators?: FilterOperator[];
     [key: string]: unknown;
   };
+};
+
+/**
+ * Cell Props for custom cell renderers
+ */
+export type CellProps<TData = unknown, TValue = unknown> = CellContext<
+  TData,
+  TValue
+>;
+
+/**
+ * Column Meta with expandOnClick support
+ */
+export interface ExpandableColumnMeta extends ColumnMeta {
+  expandOnClick?: boolean;
+}
+
+/**
+ * Export Column Definition with typed accessors
+ */
+export interface ExportColumnDef<TData = unknown> {
+  accessorKey?: string;
+  accessorFn?: (row: TData, index: number) => unknown;
+  header?: string | ((info: any) => React.ReactNode);
+  id?: string;
+  meta?: ColumnMeta;
+}
+
+/**
+ * Cell Renderer Props
+ */
+export interface CellRendererProps<TData = unknown> {
+  value: unknown;
+  row: Row<TData>;
+  column: Column<TData>;
+  columnId: string;
+  schemaProperty?: JSONSchemaProperty;
+  onUpdate?: (value: unknown) => void;
+  isEditing: boolean;
+  editable?: boolean;
+  error?: string;
+  t?: Record<string, string>;
+  errorDisplayMode?: "tooltip" | "inline" | "both";
+  className?: string;
+  dateOptions?: Intl.DateTimeFormatOptions;
+  localization?: any;
+  fieldName?: keyof TData & string;
+  customRenderers?: CustomRenderers<TData>;
+}
+
+export type MasterDataGridResources = {
+  // Toolbar translations
+  "toolbar.search": string;
+  "toolbar.filters": string;
+  "toolbar.columns": string;
+  "toolbar.export": string;
+  "toolbar.refresh": string;
+  "toolbar.reset": string;
+  "toolbar.selected": string;
+  "toolbar.actions": string;
+
+  // Pagination translations
+  "pagination.rowsPerPage": string;
+  "pagination.page": string;
+  "pagination.of": string;
+  "pagination.rowsSelected": string;
+  "pagination.firstPage": string;
+  "pagination.previousPage": string;
+  "pagination.nextPage": string;
+  "pagination.lastPage": string;
+
+  // Column header translations
+  "column.sortAsc": string;
+  "column.sortDesc": string;
+  "column.pinLeft": string;
+  "column.pinRight": string;
+  "column.unpin": string;
+  "column.filter": string;
+  "column.resetSize": string;
+  "column.hide": string;
+
+  // Filter translations
+  "filter.title": string;
+  "filter.description": string;
+  "filter.where": string;
+  "filter.and": string;
+  "filter.selectColumn": string;
+  "filter.operator": string;
+  "filter.operator.equals": string;
+  "filter.operator.notEquals": string;
+  "filter.operator.contains": string;
+  "filter.operator.notContains": string;
+  "filter.operator.startsWith": string;
+  "filter.operator.endsWith": string;
+  "filter.operator.isEmpty": string;
+  "filter.operator.isNotEmpty": string;
+  "filter.operator.greaterThan": string;
+  "filter.operator.greaterThanOrEqual": string;
+  "filter.operator.lessThan": string;
+  "filter.operator.lessThanOrEqual": string;
+  "filter.operator.between": string;
+  "filter.operator.inRange": string;
+  "filter.operator.before": string;
+  "filter.operator.after": string;
+  "filter.operator.inList": string;
+  "filter.operator.notInList": string;
+  "filter.value": string;
+  "filter.value2": string;
+  "filter.valuePlaceholder": string;
+  "filter.value2Placeholder": string;
+  "filter.addFilter": string;
+  "filter.resetFilters": string;
+  "filter.apply": string;
+  "filter.close": string;
+  "filter.clear": string;
+  "filter.clearFilter": string;
+  "filter.true": string;
+  "filter.false": string;
+  "filter.min": string;
+  "filter.max": string;
+  "filter.to": string;
+
+  // Column settings translations
+  "columnSettings.title": string;
+  "columnSettings.description": string;
+  "columnSettings.showAll": string;
+  "columnSettings.hideAll": string;
+
+  // Table translations
+  "table.empty": string;
+  "table.noResults": string;
+
+  // Validation translations
+  "validation.invalidString": string;
 };

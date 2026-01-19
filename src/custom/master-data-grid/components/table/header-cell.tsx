@@ -1,5 +1,5 @@
 "use no memo";
-import type { Column } from "@tanstack/react-table";
+import type { Column, Header } from "@tanstack/react-table";
 import {
   ArrowDown,
   ArrowUp,
@@ -8,6 +8,7 @@ import {
   FilterIcon,
   PinIcon,
   PinOffIcon,
+  Undo2,
 } from "lucide-react";
 import { Button } from "../../../../components/button";
 import {
@@ -24,6 +25,7 @@ import { InlineColumnFilter } from "../filters";
 
 interface HeaderCellProps<TData> {
   column: Column<TData>;
+  header?: Header<TData, unknown>;
   label: string;
   t?: Record<string, string>;
   onFilterClick?: (columnId: string) => void;
@@ -34,6 +36,7 @@ interface HeaderCellProps<TData> {
  */
 export function HeaderCell<TData>({
   column,
+  header,
   label,
   t,
   onFilterClick,
@@ -42,7 +45,7 @@ export function HeaderCell<TData>({
   const isPinned = column.getIsPinned();
 
   return (
-    <div className="flex items-center size-full">
+    <div className="flex items-center size-full relative">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -106,6 +109,18 @@ export function HeaderCell<TData>({
             </DropdownMenuGroup>
           )}
 
+          {header &&
+            column.getCanResize() &&
+            column.getSize() !== column.columnDef.size && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => header.column.resetSize()}>
+                  <Undo2 className="mr-2 h-4 w-4" />
+                  {getTranslations("column.resetSize", t)}
+                </DropdownMenuItem>
+              </>
+            )}
+
           {column.getCanHide() && (
             <>
               <DropdownMenuSeparator />
@@ -117,6 +132,22 @@ export function HeaderCell<TData>({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Column Resizer */}
+      {header && column.getCanResize() && (
+        <div
+          onMouseDown={header.getResizeHandler()}
+          onTouchStart={header.getResizeHandler()}
+          className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary transition-opacity ${
+            column.getIsResizing()
+              ? "bg-primary opacity-100"
+              : "opacity-0 hover:opacity-50"
+          }`}
+          style={{
+            transform: column.getIsResizing() ? "translateX(0)" : undefined,
+          }}
+        />
+      )}
     </div>
   );
 }
