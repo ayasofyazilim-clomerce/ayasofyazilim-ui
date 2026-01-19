@@ -50,6 +50,7 @@ export function Pagination<TData>({
     : [...pageSizeOptions, pagination.pageSize].sort((a, b) => a - b);
 
   // Sync pagination state with URL params
+  // Only update URL when table pagination state changes, not when URL changes
   useEffect(() => {
     if (!syncWithUrl) return;
 
@@ -57,11 +58,22 @@ export function Pagination<TData>({
     const skipCount = pagination.pageIndex * pagination.pageSize;
     const maxResultCount = pagination.pageSize;
 
+    const currentSkipCount = Number(searchParams?.get("skipCount")) || 0;
+    const currentMaxResultCount =
+      Number(searchParams?.get("maxResultCount")) || 10;
+
+    // Only update URL if values actually changed
+    const needsUpdate =
+      currentSkipCount !== skipCount ||
+      currentMaxResultCount !== maxResultCount;
+
+    if (!needsUpdate) return;
+
     // Update URL params
-    if (Number(searchParams?.get("maxResultCount")) !== maxResultCount) {
+    if (currentMaxResultCount !== maxResultCount) {
       params.set("maxResultCount", maxResultCount.toString());
     }
-    if (Number(searchParams?.get("skipCount")) !== skipCount) {
+    if (currentSkipCount !== skipCount) {
       params.set("skipCount", skipCount.toString());
     }
 
@@ -74,7 +86,14 @@ export function Pagination<TData>({
     }
 
     replace(`${pathname}?${params.toString()}`);
-  }, [pagination, syncWithUrl, pathname, searchParams, replace]);
+  }, [
+    pagination.pageIndex,
+    pagination.pageSize,
+    syncWithUrl,
+    pathname,
+    searchParams,
+    replace,
+  ]);
 
   return (
     <div className="flex items-center flex-wrap gap-4">
