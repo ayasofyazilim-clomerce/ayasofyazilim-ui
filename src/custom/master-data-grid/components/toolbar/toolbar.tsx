@@ -51,6 +51,34 @@ export function Toolbar<TData>({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Store initial table state to detect user changes
+  const initialStateRef = useRef<{
+    globalFilter: string | undefined;
+    columnFilters: any[];
+    sorting: any[];
+    columnVisibility: Record<string, boolean>;
+    columnPinning: { left?: string[]; right?: string[] };
+  } | null>(null);
+
+  // Capture initial state on mount
+  useEffect(() => {
+    if (!initialStateRef.current) {
+      const state = table.getState();
+      initialStateRef.current = {
+        globalFilter: state.globalFilter as string | undefined,
+        columnFilters: [...state.columnFilters],
+        sorting: [...state.sorting],
+        columnVisibility: { ...state.columnVisibility },
+        columnPinning: {
+          left: state.columnPinning?.left ? [...state.columnPinning.left] : [],
+          right: state.columnPinning?.right
+            ? [...state.columnPinning.right]
+            : [],
+        },
+      };
+    }
+  }, []);
+
   // Sync with table state
   useEffect(() => {
     const currentFilter = table.getState().globalFilter as string;
@@ -85,6 +113,53 @@ export function Toolbar<TData>({
       }
     };
   }, []);
+
+  // Check if table has any changes (filters, sorting, search, etc.)
+  const hasTableChanges = () => {
+    if (!initialStateRef.current) return false;
+
+    const state = table.getState();
+    const initial = initialStateRef.current;
+
+    // Check for global filter changes
+    const hasGlobalFilterChanged = state.globalFilter !== initial.globalFilter;
+
+    // Check for column filters changes
+    const hasColumnFiltersChanged =
+      state.columnFilters.length !== initial.columnFilters.length ||
+      JSON.stringify(state.columnFilters) !==
+        JSON.stringify(initial.columnFilters);
+
+    // Check for sorting changes
+    const hasSortingChanged =
+      state.sorting.length !== initial.sorting.length ||
+      JSON.stringify(state.sorting) !== JSON.stringify(initial.sorting);
+
+    // Check for column visibility changes
+    const hasColumnVisibilityChanged =
+      JSON.stringify(state.columnVisibility) !==
+      JSON.stringify(initial.columnVisibility);
+
+    // Check for column pinning changes - normalize before comparing
+    const currentPinning = {
+      left: state.columnPinning?.left || [],
+      right: state.columnPinning?.right || [],
+    };
+    const initialPinning = {
+      left: initial.columnPinning?.left || [],
+      right: initial.columnPinning?.right || [],
+    };
+    const hasColumnPinningChanged =
+      JSON.stringify(currentPinning) !== JSON.stringify(initialPinning);
+
+    return (
+      hasGlobalFilterChanged ||
+      hasColumnFiltersChanged ||
+      hasSortingChanged ||
+      hasColumnVisibilityChanged ||
+      hasColumnPinningChanged
+    );
+  };
 
   const renderActionButtons = (isMobile = false) => (
     <>
@@ -183,7 +258,7 @@ export function Toolbar<TData>({
           <span>{getTranslations("toolbar.refresh", t)}</span>
         </Button>
       )}
-      {onReset && (
+      {onReset && hasTableChanges() && (
         <Button
           variant="outline"
           onClick={() => {
