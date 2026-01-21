@@ -10,12 +10,13 @@ import type {
 } from "../types";
 import { getFilterOperators, masterFilter } from "./filter-fns";
 import { getColumnName } from "./translation-utils";
+import { GenericObjectType } from "@rjsf/utils";
 
 /**
  * Generate TanStack Table columns from JSON Schema
  */
 export function generateColumnsFromSchema<TData = unknown>(
-  schema: JSONSchema,
+  schema: JSONSchema | GenericObjectType,
   localization: Localization,
   t?: Record<string, string>,
   onFilterClick?: (columnId: string) => void,

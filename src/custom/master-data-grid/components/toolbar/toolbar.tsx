@@ -161,7 +161,7 @@ export function Toolbar<TData>({
     );
   };
 
-  const renderActionButtons = (isMobile = false) => (
+  const renderTableButtons = (isMobile = false) => (
     <>
       {config.enableFiltering && (
         <MultiFilterDialog table={table} t={config.t}>
@@ -197,41 +197,6 @@ export function Toolbar<TData>({
           <span>{getTranslations("toolbar.columns", t)}</span>
         </Button>
       )}
-      {tableActions?.map((action) => {
-        const disabled =
-          typeof action.disabled === "function"
-            ? action.disabled(selectedRows)
-            : action.disabled;
-
-        const hidden =
-          typeof action.hidden === "function"
-            ? action.hidden(selectedRows)
-            : action.hidden;
-
-        if (hidden) return null;
-
-        if (action.requiresSelection && selectedRows.length === 0) {
-          return null;
-        }
-
-        const Icon = action.icon;
-
-        return (
-          <Button
-            key={action.id}
-            variant={action.variant}
-            disabled={disabled}
-            onClick={() => {
-              action.onClick?.(selectedRows);
-              if (isMobile) setMobileMenuOpen(false);
-            }}
-            className={isMobile ? "w-full justify-start" : action.className}
-          >
-            {Icon && <Icon className="mr-2 h-4 w-4" />}
-            {action.label}
-          </Button>
-        );
-      })}
       {enableExport && onExport && (
         <Button
           variant="outline"
@@ -274,8 +239,44 @@ export function Toolbar<TData>({
     </>
   );
 
+  const renderTableActions = (isMobile = false) =>
+    tableActions?.map((action) => {
+      const disabled =
+        typeof action.disabled === "function"
+          ? action.disabled(selectedRows)
+          : action.disabled;
+
+      const hidden =
+        typeof action.hidden === "function"
+          ? action.hidden(selectedRows)
+          : action.hidden;
+
+      if (hidden) return null;
+
+      if (action.requiresSelection && selectedRows.length === 0) {
+        return null;
+      }
+
+      const Icon = action.icon;
+
+      return (
+        <Button
+          key={action.id}
+          variant={action.variant}
+          disabled={disabled}
+          onClick={() => {
+            action.onClick?.(selectedRows);
+            if (isMobile) setMobileMenuOpen(false);
+          }}
+          className={isMobile ? "w-full justify-start" : action.className}
+        >
+          {Icon && <Icon className="mr-2 h-4 w-4" />}
+          {action.label}
+        </Button>
+      );
+    });
   return (
-    <div className="flex items-center justify-between gap-2 w-full">
+    <div className="flex items-center gap-2 w-full">
       <Input
         placeholder={getTranslations("toolbar.search", t)}
         value={searchValue}
@@ -289,8 +290,11 @@ export function Toolbar<TData>({
       )}
 
       {/* Desktop: Button Group */}
+      <ButtonGroup className="hidden ml-auto md:flex">
+        {renderTableButtons(false)}
+      </ButtonGroup>
       <ButtonGroup className="hidden md:flex">
-        {renderActionButtons(false)}
+        {renderTableActions(false)}
       </ButtonGroup>
 
       {/* Mobile: Drawer */}
@@ -305,7 +309,8 @@ export function Toolbar<TData>({
             <DrawerTitle>{getTranslations("toolbar.actions", t)}</DrawerTitle>
           </DrawerHeader>
           <div className="flex flex-col gap-2 mt-4">
-            {renderActionButtons(true)}
+            {renderTableButtons(true)}
+            {renderTableActions(true)}
           </div>
         </DrawerContent>
       </Drawer>

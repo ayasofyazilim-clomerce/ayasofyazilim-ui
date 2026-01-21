@@ -11,6 +11,7 @@ import type {
 } from "@tanstack/react-table";
 import type { Localization } from "../date-tooltip";
 import type { LucideIcon } from "lucide-react";
+import { GenericObjectType } from "@rjsf/utils";
 
 // Re-export Localization for convenience
 export type { Localization };
@@ -243,7 +244,7 @@ export interface ExportConfig<TData = unknown> {
  */
 export interface MasterDataGridConfig<TData = unknown> {
   // Schema
-  schema?: JSONSchema;
+  schema?: JSONSchema | GenericObjectType;
   columns?: ColumnConfig<TData>[];
 
   // Translation
@@ -289,7 +290,6 @@ export interface MasterDataGridConfig<TData = unknown> {
   loading?: boolean;
   loadingComponent?: React.ReactNode;
   emptyComponent?: React.ReactNode;
-  emptyMessage?: string;
 
   // Date formatting
   dateOptions?: Intl.DateTimeFormatOptions;

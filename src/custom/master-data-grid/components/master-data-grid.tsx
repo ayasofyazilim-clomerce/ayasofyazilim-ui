@@ -468,8 +468,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       >
         {configWithDefaults.emptyComponent || (
           <div className="text-center text-muted-foreground">
-            {configWithDefaults.emptyMessage ||
-              getTranslations("table.empty", t)}
+            {getTranslations("table.empty", t)}
           </div>
         )}
       </div>
@@ -531,9 +530,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -584,9 +583,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -600,10 +599,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
               editingRows={tableState.editingRows}
               getRowId={getRowId}
               editingEnabled={configWithDefaults.editing?.enabled}
-              emptyMessage={
-                configWithDefaults.emptyMessage ||
-                getTranslations("table.noResults", t)
-              }
+              emptyMessage={getTranslations("table.noResults", t)}
               expansionEnabled={configWithDefaults.expansion?.enabled}
               expansionRenderContent={
                 configWithDefaults.expansion?.renderContent
