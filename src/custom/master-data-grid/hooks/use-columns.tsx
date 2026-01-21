@@ -27,11 +27,12 @@ import {
   generateColumnsFromSchema,
   mergeColumns,
 } from "../utils/column-generator";
+import { GenericObjectType } from "@rjsf/utils";
 
 export interface UseColumnsProps<TData> {
   config: MasterDataGridConfig<TData>;
   configRef: RefObject<MasterDataGridConfig<TData>>;
-  schema?: JSONSchema;
+  schema?: JSONSchema | GenericObjectType;
   customColumns?: ColumnConfig<TData>[];
   enableRowSelection: boolean;
   enableColumnVisibility: boolean;
@@ -81,7 +82,7 @@ export function useColumns<TData>({
       ? Array.isArray(config.expansion.expandOnClick)
         ? config.expansion.expandOnClick
         : [config.expansion.expandOnClick]
-      : [];
+      : [""];
 
     // Generate columns from schema
     const generatedColumns = schema
@@ -121,9 +122,6 @@ export function useColumns<TData>({
     );
 
     // Wrap cells with expandOnClick handlers
-    const hasExpandOnClickConfig =
-      expandOnClickColumns.length > 0 ||
-      customColumns?.some((c) => c.expandOnClick);
 
     const mergedWithExpansion = merged.map((col) => {
       const shouldExpandOnClick =
@@ -160,33 +158,6 @@ export function useColumns<TData>({
 
     const finalColumns: ColumnDef<TData>[] = [];
 
-    // Add expander column if enabled and no specific expandOnClick columns are set
-    if (configRef.current.expansion?.enabled && !hasExpandOnClickConfig) {
-      finalColumns.push({
-        id: "expander",
-        header: () => null,
-        cell: ({ row }) => {
-          return row.getCanExpand() ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={row.getToggleExpandedHandler()}
-              className="p-0 h-6 w-6"
-            >
-              {row.getIsExpanded() ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
-          ) : null;
-        },
-        enableSorting: false,
-        enableHiding: false,
-      });
-    }
-
-    // Add selection column if enabled
     if (enableRowSelection) {
       finalColumns.push({
         id: "select",
