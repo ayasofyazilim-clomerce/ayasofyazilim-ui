@@ -22,6 +22,7 @@ import type {
   ExpandableColumnMeta,
   JSONSchema,
   MasterDataGridConfig,
+  MasterDataGridResources,
 } from "../types";
 import {
   generateColumnsFromSchema,
@@ -39,7 +40,7 @@ export interface UseColumnsProps<TData> {
   editingRowsRef: RefObject<Record<string, Record<string, unknown>>>;
   updateCellValue: (rowId: string, columnId: string, value: unknown) => void;
   getRowId?: (row: TData, index: number) => string;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
   onFilterClick: (columnId: string) => void;
   startEditingRow: (rowId: string, row: TData) => void;
   cancelEditingRow: (rowId: string, row: TData) => void;
@@ -69,12 +70,12 @@ export function useColumns<TData>({
   return useMemo<ColumnDef<TData>[]>(() => {
     const editingContext = config.editing?.enabled
       ? {
-          get editingRows() {
-            return editingRowsRef.current;
-          },
-          onCellUpdate: updateCellValue,
-          getRowId: getRowId || ((row: TData, index: number) => String(index)),
-        }
+        get editingRows() {
+          return editingRowsRef.current;
+        },
+        onCellUpdate: updateCellValue,
+        getRowId: getRowId || ((row: TData, index: number) => String(index)),
+      }
       : undefined;
 
     // Get expandOnClick columns
@@ -87,28 +88,28 @@ export function useColumns<TData>({
     // Generate columns from schema
     const generatedColumns = schema
       ? generateColumnsFromSchema<TData>(
-          schema,
-          configRef.current.localization,
-          t,
-          onFilterClick,
-          editingContext,
-          configRef.current.cellClassName,
-          configRef.current.dateOptions,
-          configRef.current.customRenderers,
-          configRef.current.editing?.errorDisplayMode,
-          enableColumnVisibility,
-          expandOnClickColumns
-        )
+        schema,
+        configRef.current.localization,
+        t,
+        onFilterClick,
+        editingContext,
+        configRef.current.cellClassName,
+        configRef.current.dateOptions,
+        configRef.current.customRenderers,
+        configRef.current.editing?.errorDisplayMode,
+        enableColumnVisibility,
+        expandOnClickColumns
+      )
       : [];
 
     // Create a simpler context for merging (no onCellUpdate needed)
     const mergeContext = editingContext
       ? {
-          get editingRows() {
-            return editingRowsRef.current;
-          },
-          getRowId: editingContext.getRowId,
-        }
+        get editingRows() {
+          return editingRowsRef.current;
+        },
+        getRowId: editingContext.getRowId,
+      }
       : undefined;
 
     // Merge with custom columns
@@ -167,14 +168,14 @@ export function useColumns<TData>({
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)
             }
-            aria-label={t?.["select_all"] || "Select all"}
+            aria-label={t?.["select_all"]}
           />
         ),
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label={t?.["select_row"] || "Select row"}
+            aria-label={t?.["select_row"]}
           />
         ),
         enableSorting: false,
@@ -189,7 +190,7 @@ export function useColumns<TData>({
     if (config.rowActions && config.rowActions.length > 0) {
       finalColumns.push({
         id: "actions",
-        header: t?.["actions"] || "Actions",
+        header: t?.["actions"],
         cell: ({ row }) => {
           const rowActions = config.rowActions?.filter((action) => {
             if (typeof action.hidden === "function") {
@@ -206,7 +207,7 @@ export function useColumns<TData>({
                 <Button
                   variant="ghost"
                   className="h-8 w-8 p-0"
-                  aria-label={t?.["open_menu"] || "Open menu"}
+                  aria-label={t?.["open_menu"]}
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -286,7 +287,7 @@ export function useColumns<TData>({
               size="sm"
               onClick={() => startEditingRow(rowId, row.original)}
               className="h-7 px-2"
-              aria-label={t?.["edit"] || "Edit"}
+              aria-label={t?.["edit"]}
             >
               <Pencil className="h-3.5 w-3.5" />
             </Button>

@@ -1,4 +1,5 @@
 import { ButtonGroup } from "@repo/ayasofyazilim-ui/components/button-group";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ayasofyazilim-ui/components/tabs";
 import type { Table } from "@tanstack/react-table";
 import {
   ArrowUpDown,
@@ -18,7 +19,7 @@ import {
   TextCursorInput,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "../../../../components/button";
 import {
   Drawer,
@@ -39,10 +40,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../components/select";
-import type { ColumnFilter, ColumnMeta, FilterOperator } from "../../types";
+import type { ColumnFilter, ColumnMeta, FilterOperator, MasterDataGridConfig } from "../../types";
 import { getFilterOperators } from "../../utils/filter-fns";
 import { getColumnName, getTranslations } from "../../utils/translation-utils";
 import { FilterInput } from "./filter-input";
+import { ServerFilterContent } from "./server-filter";
 
 interface FilterRow {
   id: string;
@@ -52,11 +54,18 @@ interface FilterRow {
   value2?: string;
 }
 
-interface MultiFilterDialogProps<TData> {
+export interface BaseMultiFilterDialogProps<TData> {
   table: Table<TData>;
-  t?: Record<string, string>;
+  config: MasterDataGridConfig<TData>,
+}
+interface MultiFilterDialogProps<TData> extends BaseMultiFilterDialogProps<TData> {
   children: React.ReactNode;
 }
+
+interface ClientFilterContentProps<TData> extends BaseMultiFilterDialogProps<TData> {
+  setOpen: Dispatch<SetStateAction<boolean>>
+}
+
 
 /**
  * Get icon for filter operator
@@ -90,9 +99,10 @@ function getOperatorIcon(operator: FilterOperator) {
  */
 export function MultiFilterDialog<TData>({
   table,
-  t,
+  config,
   children,
 }: MultiFilterDialogProps<TData>) {
+  const { t } = config;
   const [isMobile, setIsMobile] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -106,6 +116,54 @@ export function MultiFilterDialog<TData>({
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
+  const filterContent = (
+    <Tabs defaultValue="client">
+      <TabsList>
+        <TabsTrigger value="client">{t?.["toolbar.client"]}</TabsTrigger>
+        <TabsTrigger value="server">{t?.["toolbar.server"]}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="client" className="w-full min-w-xl max-w-xl">
+        <ClientFilterContent setOpen={setOpen} table={table} config={config} />
+      </TabsContent>
+      <TabsContent value="server" className="w-full min-w-lg max-w-lg [&>fieldset]:p-0">
+        <ServerFilterContent table={table} config={config} />
+      </TabsContent>
+
+    </Tabs>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={setOpen}>
+        <DrawerTrigger asChild>{children}</DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{getTranslations("filter.title", t)}</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4 max-h-[70vh] overflow-y-auto">
+            {filterContent}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent className="w-auto max-w-3xl" align="end">
+        {filterContent}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function ClientFilterContent<TData>({
+  table,
+  config,
+  setOpen,
+}: ClientFilterContentProps<TData>) {
+  const { t } = config;
   // Initialize filters from current table state
   const currentFilters = table.getState().columnFilters as ColumnFilter[];
   const [filterRows, setFilterRows] = useState<FilterRow[]>(() => {
@@ -128,11 +186,8 @@ export function MultiFilterDialog<TData>({
       },
     ];
   });
-
   // Get filterable columns
-  const filterableColumns = table
-    .getAllColumns()
-    .filter((col) => col.getCanFilter());
+  const filterableColumns = table.getAllColumns().filter((col) => col.getCanFilter());
 
   const addFilter = () => {
     const newId = `filter-${Date.now()}`;
@@ -180,14 +235,6 @@ export function MultiFilterDialog<TData>({
         ? getFilterOperators(schemaProperty.type, schemaProperty.format)
         : ["contains"])
     );
-  };
-
-  const getColumnType = (columnId: string): string | undefined => {
-    if (!columnId) return undefined;
-    const column = table.getColumn(columnId);
-    if (!column) return undefined;
-    const meta = column.columnDef.meta as ColumnMeta | undefined;
-    return meta?.schemaProperty?.type;
   };
 
   const getColumnMeta = (columnId: string): ColumnMeta | undefined => {
@@ -264,162 +311,132 @@ export function MultiFilterDialog<TData>({
     ]);
     setOpen(false);
   };
+  return <div className="space-y-4">
+    <div className="font-semibold text-sm sm:hidden">
+      {getTranslations("filter.title", t)}
+    </div>
+    <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+      {filterRows.map((row, index) => {
+        const availableOps = getAvailableOperators(row.columnId);
+        const columnMeta = getColumnMeta(row.columnId);
 
-  const filterContent = (
-    <div className="space-y-4">
-      <div className="font-semibold text-sm sm:hidden">
-        {getTranslations("filter.title", t)}
-      </div>
-
-      <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-        {filterRows.map((row, index) => {
-          const availableOps = getAvailableOperators(row.columnId);
-          const columnMeta = getColumnMeta(row.columnId);
-
-          return (
-            <ButtonGroup
-              className="w-full min-w-0 flex-wrap sm:flex-nowrap"
-              key={row.id}
+        return (
+          <ButtonGroup
+            className="w-full min-w-0 flex-wrap sm:flex-nowrap"
+            key={row.id}
+          >
+            {index === 0 ? (
+              <div className="w-12 sm:w-16 rounded-l-md border flex items-center justify-center px-1 sm:px-2 text-xs font-medium text-muted-foreground shrink-0">
+                {getTranslations("filter.where", t)}
+              </div>
+            ) : (
+              <div className="w-12 sm:w-16 rounded-l-md border flex items-center justify-center px-1 sm:px-2 text-xs font-medium text-muted-foreground shrink-0">
+                {getTranslations("filter.and", t)}
+              </div>
+            )}
+            <Select
+              value={row.columnId}
+              onValueChange={(value) => handleColumnChange(row.id, value)}
             >
-              {index === 0 ? (
-                <div className="w-12 sm:w-16 rounded-l-md border flex items-center justify-center px-1 sm:px-2 text-xs font-medium text-muted-foreground shrink-0">
-                  {getTranslations("filter.where", t)}
-                </div>
-              ) : (
-                <div className="w-12 sm:w-16 rounded-l-md border flex items-center justify-center px-1 sm:px-2 text-xs font-medium text-muted-foreground shrink-0">
-                  {getTranslations("filter.and", t)}
-                </div>
-              )}
-              <Select
-                value={row.columnId}
-                onValueChange={(value) => handleColumnChange(row.id, value)}
-              >
-                <SelectTrigger className="w-32 sm:w-40 min-w-0">
-                  <SelectValue
-                    placeholder={getTranslations("filter.selectColumn", t)}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {filterableColumns.map((col) => (
-                    <SelectItem key={col.id} value={col.id}>
-                      {getColumnName(col, t)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={row.operator}
-                onValueChange={(value) =>
-                  updateFilter(row.id, { operator: value as FilterOperator })
-                }
-                disabled={!row.columnId}
-              >
-                <SelectTrigger className="w-16 sm:w-40 min-w-0">
-                  <span className="flex items-center gap-2">
-                    <span className="sm:hidden">
-                      {getOperatorIcon(row.operator)}
-                    </span>
-                    <span className="hidden sm:inline">
-                      {getTranslations(`filter.operator.${row.operator}`, t)}
-                    </span>
+              <SelectTrigger className="w-32 sm:w-40 min-w-0">
+                <SelectValue
+                  placeholder={getTranslations("filter.selectColumn", t)}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {filterableColumns.map((col) => (
+                  <SelectItem key={col.id} value={col.id}>
+                    {getColumnName(col, t)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={row.operator}
+              onValueChange={(value) =>
+                updateFilter(row.id, { operator: value as FilterOperator })
+              }
+              disabled={!row.columnId}
+            >
+              <SelectTrigger className="w-16 sm:w-40 min-w-0">
+                <span className="flex items-center gap-2">
+                  <span className="sm:hidden">
+                    {getOperatorIcon(row.operator)}
                   </span>
-                </SelectTrigger>
-                <SelectContent>
-                  {availableOps.map((op) => (
-                    <SelectItem key={op} value={op}>
-                      <span className="flex items-center gap-2">
-                        {getOperatorIcon(op)}
-                        <span>
-                          {getTranslations(`filter.operator.${op}`, t)}
-                        </span>
+                  <span className="hidden sm:inline">
+                    {getTranslations(`filter.operator.${row.operator}`, t)}
+                  </span>
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                {availableOps.map((op) => (
+                  <SelectItem key={op} value={op}>
+                    <span className="flex items-center gap-2">
+                      {getOperatorIcon(op)}
+                      <span>
+                        {getTranslations(`filter.operator.${op}`, t)}
                       </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FilterInput
-                operator={row.operator}
-                value={row.value}
-                value2={row.value2}
-                columnMeta={columnMeta}
-                onValueChange={(value) => updateFilter(row.id, { value })}
-                onValue2Change={(value2) => updateFilter(row.id, { value2 })}
-                onSliderChange={(values) => {
-                  const [min, max] = values;
-                  updateFilter(row.id, {
-                    value: String(min),
-                    value2: String(max),
-                  });
-                }}
-                onClear={() => updateFilter(row.id, { value: "", value2: "" })}
-                t={t}
-                variant="popover"
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => removeFilter(row.id)}
-                className="shrink-0"
-              >
-                <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-            </ButtonGroup>
-          );
-        })}
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-4 border-t">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button
-            onClick={addFilter}
-            variant="outline"
-            size="sm"
-            className="text-xs sm:text-sm"
-          >
-            {getTranslations("filter.addFilter", t)}
-          </Button>
-          <Button
-            onClick={resetFilters}
-            variant="outline"
-            size="sm"
-            className="text-xs sm:text-sm"
-          >
-            {getTranslations("filter.resetFilters", t)}
-          </Button>
-        </div>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FilterInput
+              operator={row.operator}
+              value={row.value}
+              value2={row.value2}
+              columnMeta={columnMeta}
+              onValueChange={(value) => updateFilter(row.id, { value })}
+              onValue2Change={(value2) => updateFilter(row.id, { value2 })}
+              onSliderChange={(values) => {
+                const [min, max] = values;
+                updateFilter(row.id, {
+                  value: String(min),
+                  value2: String(max),
+                });
+              }}
+              onClear={() => updateFilter(row.id, { value: "", value2: "" })}
+              t={t}
+              variant="popover"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => removeFilter(row.id)}
+              className="shrink-0"
+            >
+              <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
+          </ButtonGroup>
+        );
+      })}
+    </div>
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-4 border-t">
+      <div className="flex flex-col sm:flex-row gap-2">
         <Button
-          onClick={() => applyFilters()}
+          onClick={addFilter}
+          variant="outline"
           size="sm"
           className="text-xs sm:text-sm"
         >
-          {getTranslations("filter.apply", t)}
+          {getTranslations("filter.addFilter", t)}
+        </Button>
+        <Button
+          onClick={resetFilters}
+          variant="outline"
+          size="sm"
+          className="text-xs sm:text-sm"
+        >
+          {getTranslations("filter.resetFilters", t)}
         </Button>
       </div>
+      <Button
+        onClick={() => applyFilters()}
+        size="sm"
+        className="text-xs sm:text-sm"
+      >
+        {getTranslations("filter.apply", t)}
+      </Button>
     </div>
-  );
-
-  if (isMobile) {
-    return (
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerTrigger asChild>{children}</DrawerTrigger>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>{getTranslations("filter.title", t)}</DrawerTitle>
-          </DrawerHeader>
-          <div className="px-4 pb-4 max-h-[70vh] overflow-y-auto">
-            {filterContent}
-          </div>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-auto max-w-3xl" align="end">
-        {filterContent}
-      </PopoverContent>
-    </Popover>
-  );
+  </div>
 }

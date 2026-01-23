@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../../../components/dropdown-menu";
-import type { ColumnFilter, FilterOperator, ColumnMeta } from "../../types";
+import type { ColumnFilter, FilterOperator, ColumnMeta, MasterDataGridResources } from "../../types";
 import {
   getFilterOperators,
   validateFilterValue,
@@ -17,7 +17,7 @@ import { FilterInput } from "./filter-input";
 
 interface InlineColumnFilterProps<TData> {
   column: Column<TData, unknown>;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
 }
 
 /**

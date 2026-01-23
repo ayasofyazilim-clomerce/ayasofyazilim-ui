@@ -20,6 +20,7 @@ import type {
   ColumnConfig,
   CellProps,
   ExpandableColumnMeta,
+  MasterDataGridResources,
 } from "../types";
 import {
   generateColumnsFromSchema,
@@ -32,7 +33,7 @@ export interface BuildColumnsOptions<TData> {
   enableRowSelection: boolean;
   enableColumnVisibility: boolean;
   expandOnClickColumns: string[];
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
   handleFilterClick: (columnId: string) => void;
   editingContext?: {
     editingRows: Record<string, Record<string, unknown>>;
@@ -93,28 +94,28 @@ export function buildColumns<TData>({
   // Generate columns from schema
   const generatedColumns = schema
     ? generateColumnsFromSchema<TData>(
-        schema,
-        localization,
-        t,
-        handleFilterClick,
-        editingContext,
-        cellClassName,
-        dateOptions,
-        customRenderers,
-        editing?.errorDisplayMode,
-        enableColumnVisibility,
-        expandOnClickColumns
-      )
+      schema,
+      localization,
+      t,
+      handleFilterClick,
+      editingContext,
+      cellClassName,
+      dateOptions,
+      customRenderers,
+      editing?.errorDisplayMode,
+      enableColumnVisibility,
+      expandOnClickColumns
+    )
     : [];
 
   // Merge with custom columns
   const mergeContext = editingContext
     ? {
-        get editingRows() {
-          return editingContext.editingRows;
-        },
-        getRowId: editingContext.getRowId,
-      }
+      get editingRows() {
+        return editingContext.editingRows;
+      },
+      getRowId: editingContext.getRowId,
+    }
     : undefined;
 
   const merged = mergeColumns<TData>(

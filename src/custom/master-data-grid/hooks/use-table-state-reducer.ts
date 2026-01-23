@@ -20,17 +20,17 @@ type TableStateAction =
   | { type: "SET_GROUPING"; payload: string[] }
   | { type: "SET_EXPANDED"; payload: Record<string, boolean> | true }
   | {
-      type: "SET_PAGINATION";
-      payload: { pageIndex: number; pageSize: number };
-    }
+    type: "SET_PAGINATION";
+    payload: { pageIndex: number; pageSize: number };
+  }
   | {
-      type: "UPDATE_EDITING_ROWS";
-      payload:
-        | Record<string, Record<string, unknown>>
-        | ((
-            prev: Record<string, Record<string, unknown>>
-          ) => Record<string, Record<string, unknown>>);
-    }
+    type: "UPDATE_EDITING_ROWS";
+    payload:
+    | Record<string, Record<string, unknown>>
+    | ((
+      prev: Record<string, Record<string, unknown>>
+    ) => Record<string, Record<string, unknown>>);
+  }
   | { type: "RESET"; payload: TableState };
 
 /**
@@ -93,8 +93,8 @@ function initializeColumnVisibility<TData>(
     // Show only specified columns, hide all others
     // Get all possible column IDs from schema and custom columns
     const allColumnIds: string[] = [
-      ...(config.schema ? Object.keys(config.schema.properties || {}) : []),
       ...(config.columns?.map((c) => c.id) || []),
+      ...(config.schema ? Object.keys(config.schema.properties || {}) : []),
     ];
 
     // Create visibility map: all false except specified ones
@@ -166,8 +166,8 @@ export function useTableStateReducer<TData>(
       payload:
         | Record<string, Record<string, unknown>>
         | ((
-            prev: Record<string, Record<string, unknown>>
-          ) => Record<string, Record<string, unknown>>)
+          prev: Record<string, Record<string, unknown>>
+        ) => Record<string, Record<string, unknown>>)
     ) => dispatch({ type: "UPDATE_EDITING_ROWS", payload }),
     resetToDefaults: () =>
       dispatch({

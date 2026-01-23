@@ -1,5 +1,5 @@
 import type { Column } from "@tanstack/react-table";
-import type { FilterOperator } from "../types";
+import type { FilterOperator, MasterDataGridResources } from "../types";
 
 /**
  * Centralized translation utilities for master-data-grid
@@ -20,7 +20,7 @@ import type { FilterOperator } from "../types";
  */
 export function getTranslations(
   key: string,
-  t?: Record<string, string>,
+  t?: MasterDataGridResources,
   replacements?: Record<string, string>
 ): string {
   // Get translation or use key as fallback
@@ -47,7 +47,7 @@ export function getTranslations(
  */
 export function getColumnName<TData>(
   column: Column<TData> | string,
-  t?: Record<string, string>,
+  t?: MasterDataGridResources,
   fallback?: string
 ): string {
   // Handle string input (schema field name)

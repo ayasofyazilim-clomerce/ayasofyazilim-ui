@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef, FilterFn } from "@tanstack/react-table";
+import type { FilterFn } from "@tanstack/react-table";
 import {
   flexRender,
   getCoreRowModel,
@@ -11,24 +11,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ChevronDown,
-  ChevronRight,
-  MoreHorizontal,
-  Pencil,
-  Save,
-  X,
-} from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 
-import { Button } from "../../../components/button";
-import { Checkbox } from "../../../components/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../../../components/dropdown-menu";
 import { Skeleton } from "../../../components/skeleton";
 import {
   Table,
@@ -37,14 +21,14 @@ import {
   TableRow,
 } from "../../../components/table";
 import { cn } from "../../../lib/utils";
+import { useColumns } from "../hooks/use-columns";
+import { useEditing } from "../hooks/use-editing";
+import { useTableStateReducer } from "../hooks/use-table-state-reducer";
 import type {
-  CellProps,
   ColumnFilter,
-  ExpandableColumnMeta,
   FilterDialogState,
   MasterDataGridConfig,
-  MasterDataGridProps,
-  TableState,
+  MasterDataGridProps
 } from "../types";
 import { exportToCSV } from "../utils/export-utils";
 import {
@@ -57,16 +41,7 @@ import { FilterDialog } from "./filters/filter-dialog";
 import { Pagination } from "./pagination";
 import { TableBodyRenderer, VirtualBody } from "./table";
 import { Toolbar } from "./toolbar";
-import {
-  generateColumnsFromSchema,
-  mergeColumns,
-} from "../utils/column-generator";
-import { useEditing } from "../hooks/use-editing";
-import { useColumns } from "../hooks/use-columns";
-import { useTableStateReducer } from "../hooks/use-table-state-reducer";
-
-/** Default number of skeleton rows to display during loading */
-const DEFAULT_SKELETON_ROWS = 5;
+import { ServerFilterContent } from "./filters/server-filter";
 
 /** Component name for logging */
 const COMPONENT_NAME = "MasterDataGrid";
@@ -147,6 +122,8 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     pageSize = 10,
     pageSizeOptions = [10, 20, 30, 40, 50],
     getRowId,
+    serverFilters,
+    serverFilterLocation = "toolbar"
   } = config;
 
   // Create a config object with defaults applied
@@ -163,6 +140,8 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     enableVirtualization,
     enableExport,
     enablePagination,
+    serverFilters,
+    serverFilterLocation
   };
 
   // Initialize table state with reducer for cleaner state transitions
@@ -229,7 +208,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
    * Case-insensitive search that matches any column containing the search term
    */
   const globalFilterFn = useMemo<FilterFn<TData>>(
-    () => (row, columnId, filterValue) => {
+    () => (row, _, filterValue) => {
       const search = String(filterValue).toLowerCase();
       return Object.values(row.original as Record<string, unknown>).some(
         (value) => {
@@ -487,6 +466,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       {/* Toolbar */}
       <Toolbar
         table={table}
+        serverFilters={serverFilterLocation === "toolbar" ? serverFilters : undefined}
         config={configWithDefaults}
         selectedRows={selectedRows}
         onExport={enableExport ? handleExport : undefined}
@@ -498,7 +478,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       {/* Table */}
       <div
         className={cn(
-          "relative w-full border rounded-md overflow-hidden",
+          "relative w-full border rounded-md overflow-hidden flex",
           configWithDefaults.className
         )}
         style={{ height: enableVirtualization ? "600px" : "auto" }}
@@ -530,9 +510,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -583,9 +563,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -609,6 +589,8 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
             />
           </Table>
         )}
+        {/* ServerFilter */}
+        {serverFilterLocation !== "toolbar" && <div className="border-l hidden lg:block"><ServerFilterContent table={table} config={config} /></div>}
       </div>
 
       {/* Pagination */}

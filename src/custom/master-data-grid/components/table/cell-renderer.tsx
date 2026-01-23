@@ -39,7 +39,7 @@ const BADGE_VARIANT_MAP: Record<
 
 function createZodSchema(
   schemaProperty?: JSONSchemaProperty,
-  t?: Record<string, string>
+  t?: MasterDataGridResources
 ): z.ZodType {
   if (!schemaProperty) return z.unknown();
 
@@ -56,9 +56,9 @@ function createZodSchema(
           schemaProperty.minLength,
           t?.["validation.min_length"]
             ? (t["validation.min_length"] ?? "").replace(
-                "{min}",
-                String(schemaProperty.minLength)
-              )
+              "{min}",
+              String(schemaProperty.minLength)
+            )
             : `Must be at least ${schemaProperty.minLength} characters`
         );
       }
@@ -67,9 +67,9 @@ function createZodSchema(
           schemaProperty.maxLength,
           t?.["validation.max_length"]
             ? (t["validation.max_length"] ?? "").replace(
-                "{max}",
-                String(schemaProperty.maxLength)
-              )
+              "{max}",
+              String(schemaProperty.maxLength)
+            )
             : `Must be at most ${schemaProperty.maxLength} characters`
         );
       }
@@ -99,9 +99,9 @@ function createZodSchema(
           schemaProperty.minimum,
           t?.["validation.min_value"]
             ? (t["validation.min_value"] ?? "").replace(
-                "{min}",
-                String(schemaProperty.minimum)
-              )
+              "{min}",
+              String(schemaProperty.minimum)
+            )
             : `Must be at least ${schemaProperty.minimum}`
         );
       }
@@ -110,9 +110,9 @@ function createZodSchema(
           schemaProperty.maximum,
           t?.["validation.max_value"]
             ? (t["validation.max_value"] ?? "").replace(
-                "{max}",
-                String(schemaProperty.maximum)
-              )
+              "{max}",
+              String(schemaProperty.maximum)
+            )
             : `Must be at most ${schemaProperty.maximum}`
         );
       }
@@ -131,9 +131,9 @@ function createZodSchema(
           schemaProperty.minimum,
           t?.["validation.min_value"]
             ? (t["validation.min_value"] ?? "").replace(
-                "{min}",
-                String(schemaProperty.minimum)
-              )
+              "{min}",
+              String(schemaProperty.minimum)
+            )
             : `Must be at least ${schemaProperty.minimum}`
         );
       }
@@ -142,9 +142,9 @@ function createZodSchema(
           schemaProperty.maximum,
           t?.["validation.max_value"]
             ? (t["validation.max_value"] ?? "").replace(
-                "{max}",
-                String(schemaProperty.maximum)
-              )
+              "{max}",
+              String(schemaProperty.maximum)
+            )
             : `Must be at most ${schemaProperty.maximum}`
         );
       }
@@ -295,11 +295,11 @@ export function CellRenderer<TData = unknown>({
 
       const err = validationSchema
         ? (() => {
-            const result = validationSchema.safeParse(newValue);
-            return result.success
-              ? null
-              : result.error.issues[0]?.message || "Invalid value";
-          })()
+          const result = validationSchema.safeParse(newValue);
+          return result.success
+            ? null
+            : result.error.issues[0]?.message || "Invalid value";
+        })()
         : null;
 
       setValidationError(err);
@@ -321,8 +321,8 @@ export function CellRenderer<TData = unknown>({
   );
 
   if (editable && !schemaProperty?.readOnly) {
-    if (fieldName && customRenderers?.byField?.[fieldName]) {
-      const customRenderer = customRenderers.byField[fieldName]!;
+    if (fieldName && customRenderers?.[fieldName]) {
+      const customRenderer = customRenderers?.[fieldName]!;
       return (
         <>
           {customRenderer({
@@ -338,45 +338,7 @@ export function CellRenderer<TData = unknown>({
       );
     }
 
-    if (
-      schemaProperty?.format &&
-      customRenderers?.byFormat?.[schemaProperty.format]
-    ) {
-      const customRenderer = customRenderers.byFormat[schemaProperty.format]!;
-      return (
-        <>
-          {customRenderer({
-            value: localValue,
-            row,
-            column,
-            onUpdate: handleChange,
-            error: validationError || undefined,
-            schemaProperty,
-            t,
-          })}
-        </>
-      );
-    }
 
-    if (
-      schemaProperty?.type &&
-      customRenderers?.byType?.[schemaProperty.type]
-    ) {
-      const customRenderer = customRenderers.byType[schemaProperty.type]!;
-      return (
-        <>
-          {customRenderer({
-            value: localValue,
-            row,
-            column,
-            onUpdate: handleChange,
-            error: validationError || undefined,
-            schemaProperty,
-            t,
-          })}
-        </>
-      );
-    }
 
     if (schemaProperty?.type === "boolean" || typeof value === "boolean") {
       return (
@@ -516,8 +478,8 @@ export function CellRenderer<TData = unknown>({
   }
 
   // Check for custom renderers in non-editable mode
-  if (fieldName && customRenderers?.byField?.[fieldName]) {
-    const customRenderer = customRenderers.byField[fieldName]!;
+  if (fieldName && customRenderers?.[fieldName]) {
+    const customRenderer = customRenderers?.[fieldName]!;
     return (
       <>
         {customRenderer({
@@ -532,44 +494,6 @@ export function CellRenderer<TData = unknown>({
       </>
     );
   }
-
-  if (
-    schemaProperty?.format &&
-    customRenderers?.byFormat?.[schemaProperty.format]
-  ) {
-    const customRenderer = customRenderers.byFormat[schemaProperty.format]!;
-    return (
-      <>
-        {customRenderer({
-          value: localValue,
-          row,
-          column,
-          onUpdate: handleChange,
-          error: validationError || undefined,
-          schemaProperty,
-          t,
-        })}
-      </>
-    );
-  }
-
-  if (schemaProperty?.type && customRenderers?.byType?.[schemaProperty.type]) {
-    const customRenderer = customRenderers.byType[schemaProperty.type]!;
-    return (
-      <>
-        {customRenderer({
-          value: localValue,
-          row,
-          column,
-          onUpdate: handleChange,
-          error: validationError || undefined,
-          schemaProperty,
-          t,
-        })}
-      </>
-    );
-  }
-
   if (value === null || value === undefined) {
     return (
       <span className={cn("text-muted-foreground italic", className)}>—</span>
@@ -603,18 +527,18 @@ export function CellRenderer<TData = unknown>({
         dateOptions ||
         (schemaProperty.format === "date"
           ? {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            }
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }
           : {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            });
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
 
       return (
         <DateTooltip

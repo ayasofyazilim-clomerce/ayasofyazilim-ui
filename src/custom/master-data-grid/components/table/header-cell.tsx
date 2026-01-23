@@ -22,12 +22,13 @@ import {
 } from "../../../../components/dropdown-menu";
 import { getTranslations } from "../../utils/translation-utils";
 import { InlineColumnFilter } from "../filters";
+import { MasterDataGridResources } from "../../types";
 
 interface HeaderCellProps<TData> {
   column: Column<TData>;
   header?: Header<TData, unknown>;
   label: string;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
   onFilterClick?: (columnId: string) => void;
 }
 
@@ -138,11 +139,10 @@ export function HeaderCell<TData>({
         <div
           onMouseDown={header.getResizeHandler()}
           onTouchStart={header.getResizeHandler()}
-          className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary transition-opacity ${
-            column.getIsResizing()
-              ? "bg-primary opacity-100"
-              : "opacity-0 hover:opacity-50"
-          }`}
+          className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary transition-opacity ${column.getIsResizing()
+            ? "bg-primary opacity-100"
+            : "opacity-0 hover:opacity-50"
+            }`}
           style={{
             transform: column.getIsResizing() ? "translateX(0)" : undefined,
           }}

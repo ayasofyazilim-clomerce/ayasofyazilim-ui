@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "../../../../components/select";
 import { Slider } from "../../../../components/slider";
-import type { FilterOperator, ColumnMeta } from "../../types";
+import type { FilterOperator, ColumnMeta, MasterDataGridResources } from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
 
 interface FilterInputProps {
@@ -27,7 +27,7 @@ interface FilterInputProps {
   onValue2Change?: (value: string) => void;
   onSliderChange?: (values: number[]) => void;
   onClear: () => void;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
   variant?: "inline" | "popover";
 }
 

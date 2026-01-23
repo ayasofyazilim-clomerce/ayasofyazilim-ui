@@ -12,6 +12,7 @@ import type {
 import type { Localization } from "../date-tooltip";
 import type { LucideIcon } from "lucide-react";
 import { GenericObjectType } from "@rjsf/utils";
+import { z } from "@repo/ayasofyazilim-ui/lib/zod";
 
 // Re-export Localization for convenience
 export type { Localization };
@@ -23,15 +24,15 @@ export type { Localization };
 export interface JSONSchemaProperty {
   type: "string" | "number" | "integer" | "boolean" | "array" | "object";
   format?:
-    | "int32"
-    | "date"
-    | "date-time"
-    | "email"
-    | "uri"
-    | "url"
-    | "uuid"
-    | "time"
-    | "badge";
+  | "int32"
+  | "date"
+  | "date-time"
+  | "email"
+  | "uri"
+  | "url"
+  | "uuid"
+  | "time"
+  | "badge";
   enum?: Array<string | number>;
   title?: string;
   description?: string;
@@ -114,12 +115,12 @@ export interface RowAction<TData = unknown> {
   label: string | ((row: TData) => string);
   icon?: LucideIcon;
   variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | "link";
   onClick?: (row: TData, event: React.MouseEvent) => void | Promise<void>;
   disabled?: boolean | ((row: TData) => boolean);
   hidden?: boolean | ((row: TData) => boolean);
@@ -240,6 +241,50 @@ export interface ExportConfig<TData = unknown> {
 }
 
 /**
+ * Server Filter Config
+ */
+interface BaseServerFilterConfig {
+  key: string;
+  label: string;
+  placeholder: string;
+}
+
+interface StringServerFilterConfig extends BaseServerFilterConfig {
+  type: 'string';
+  validator?: z.ZodType<string | undefined>;
+}
+
+interface NumberServerFilterConfig extends BaseServerFilterConfig {
+  type: 'number';
+  validator?: z.ZodType<number | undefined>;
+}
+
+interface SelectServerFilterConfig extends BaseServerFilterConfig {
+  type: 'select';
+  options: { label: string; value: string }[];
+  validator?: z.ZodType<string | undefined>;
+}
+
+interface ArrayServerFilterConfig extends BaseServerFilterConfig {
+  type: 'array';
+  options: { label: string; value: string }[];
+  validator?: z.ZodType<string[] | undefined>;
+}
+
+interface BooleanServerFilterConfig extends BaseServerFilterConfig {
+  type: 'boolean';
+  options: { label: string; value: string }[];
+  validator?: z.ZodType<boolean | undefined>;
+}
+
+// The Final Union Type
+export type ServerFilterConfig =
+  | StringServerFilterConfig
+  | NumberServerFilterConfig
+  | SelectServerFilterConfig
+  | ArrayServerFilterConfig
+  | BooleanServerFilterConfig;
+/**
  * Master Data Grid Configuration
  */
 export interface MasterDataGridConfig<TData = unknown> {
@@ -248,8 +293,10 @@ export interface MasterDataGridConfig<TData = unknown> {
   columns?: ColumnConfig<TData>[];
 
   // Translation
-  t?: MasterDataGridResources & Record<string, string>;
+  t?: MasterDataGridResources;
 
+  serverFilters?: ServerFilterConfig[];
+  serverFilterLocation?: "left" | "right" | "top" | "bottom" | "toolbar"
   // Features
   enableSorting?: boolean;
   enableFiltering?: boolean;
@@ -371,7 +418,7 @@ export interface CustomCellRendererProps<TData = unknown> {
   onUpdate?: (value: unknown) => void;
   error?: string;
   schemaProperty?: JSONSchemaProperty;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
 }
 
 export type CustomCellRenderer<TData = unknown> = (
@@ -382,18 +429,7 @@ export type CustomCellRenderer<TData = unknown> = (
  * Custom Renderers Configuration
  * Map field names or types to custom renderer components
  */
-export interface CustomRenderers<TData = unknown> {
-  /** Custom renderers for specific field names */
-  byField?: Partial<Record<keyof TData & string, CustomCellRenderer<TData>>>;
-  /** Custom renderers for specific JSON Schema types */
-  byType?: Partial<
-    Record<JSONSchemaProperty["type"], CustomCellRenderer<TData>>
-  >;
-  /** Custom renderers for specific formats */
-  byFormat?: Partial<
-    Record<NonNullable<JSONSchemaProperty["format"]>, CustomCellRenderer<TData>>
-  >;
-}
+export type CustomRenderers<TData> = Partial<Record<keyof TData & string, CustomCellRenderer<TData>>>;
 
 /**
  * Column Generator Result
@@ -445,7 +481,7 @@ export interface CellRendererProps<TData = unknown> {
   isEditing: boolean;
   editable?: boolean;
   error?: string;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
   errorDisplayMode?: "tooltip" | "inline" | "both";
   className?: string;
   dateOptions?: Intl.DateTimeFormatOptions;
@@ -454,16 +490,19 @@ export interface CellRendererProps<TData = unknown> {
   customRenderers?: CustomRenderers<TData>;
 }
 
-export type MasterDataGridResources = {
+export interface MasterDataGridResources extends Record<string, string> {
   // Toolbar translations
   "toolbar.search": string;
   "toolbar.filters": string;
+  "toolbar.client": string;
+  "toolbar.server": string;
   "toolbar.columns": string;
   "toolbar.export": string;
   "toolbar.refresh": string;
   "toolbar.reset": string;
   "toolbar.selected": string;
   "toolbar.actions": string;
+
 
   // Pagination translations
   "pagination.rowsPerPage": string;
@@ -538,4 +577,4 @@ export type MasterDataGridResources = {
 
   // Validation translations
   "validation.invalidString": string;
-};
+}

@@ -7,6 +7,7 @@ import type {
   JSONSchema,
   JSONSchemaProperty,
   Localization,
+  MasterDataGridResources,
 } from "../types";
 import { getFilterOperators, masterFilter } from "./filter-fns";
 import { getColumnName } from "./translation-utils";
@@ -18,7 +19,7 @@ import { GenericObjectType } from "@rjsf/utils";
 export function generateColumnsFromSchema<TData = unknown>(
   schema: JSONSchema | GenericObjectType,
   localization: Localization,
-  t?: Record<string, string>,
+  t?: MasterDataGridResources,
   onFilterClick?: (columnId: string) => void,
   editingContext?: {
     editingRows: Record<string, Record<string, unknown>>;
@@ -66,7 +67,7 @@ function createColumnFromProperty<TData = unknown>(
   key: string,
   property: JSONSchemaProperty,
   localization: Localization,
-  t?: Record<string, string>,
+  t?: MasterDataGridResources,
   onFilterClick?: (columnId: string) => void,
   editingContext?: {
     editingRows: Record<string, Record<string, unknown>>;
@@ -139,7 +140,7 @@ function createColumnFromProperty<TData = unknown>(
           onUpdate={
             isEditing
               ? (value: unknown) =>
-                  editingContext?.onCellUpdate(rowId, key, value)
+                editingContext?.onCellUpdate(rowId, key, value)
               : undefined
           }
           className={className}
@@ -174,7 +175,7 @@ export function mergeColumns<TData = unknown>(
     getRowId: (row: TData, index: number) => string;
   },
   enableColumnVisibility?: boolean,
-  t?: Record<string, string>,
+  t?: MasterDataGridResources,
   onFilterClick?: (columnId: string) => void
 ): ColumnDef<TData>[] {
   if (!customColumns || customColumns.length === 0) {
@@ -280,9 +281,9 @@ export function mergeColumns<TData = unknown>(
     let header:
       | string
       | ((info: {
-          column: Column<TData>;
-          header: Header<TData, unknown>;
-        }) => React.ReactNode);
+        column: Column<TData>;
+        header: Header<TData, unknown>;
+      }) => React.ReactNode);
 
     if (custom.extendHeader !== false) {
       // Default behavior: extend with HeaderCell functionality

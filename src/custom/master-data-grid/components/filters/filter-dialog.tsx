@@ -28,6 +28,7 @@ import type {
   FilterOperator,
   JSONSchemaProperty,
   ColumnMeta,
+  MasterDataGridResources,
 } from "../../types";
 
 interface FilterDialogProps<TData> {
@@ -36,7 +37,7 @@ interface FilterDialogProps<TData> {
   column: Column<TData, unknown> | null;
   onApply: (filter: ColumnFilter) => void;
   onClear: () => void;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
 }
 
 /**
@@ -188,7 +189,7 @@ export function FilterDialog<TData>({
                 placeholder={getTranslations("filter.valuePlaceholder", t)}
                 type={
                   schemaProperty?.type === "number" ||
-                  schemaProperty?.type === "integer"
+                    schemaProperty?.type === "integer"
                     ? "number"
                     : "text"
                 }
@@ -206,7 +207,7 @@ export function FilterDialog<TData>({
                 placeholder={getTranslations("filter.value2Placeholder", t)}
                 type={
                   schemaProperty?.type === "number" ||
-                  schemaProperty?.type === "integer"
+                    schemaProperty?.type === "integer"
                     ? "number"
                     : "text"
                 }

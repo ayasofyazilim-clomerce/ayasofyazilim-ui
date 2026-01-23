@@ -17,12 +17,13 @@ import {
   SelectValue,
 } from "../../../../components/select";
 import { getTranslations } from "../../utils/translation-utils";
+import { MasterDataGridResources } from "../../types";
 
 interface PaginationProps<TData> {
   table: Table<TData>;
   pageSizeOptions?: number[];
   syncWithUrl?: boolean;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
 }
 
 /**

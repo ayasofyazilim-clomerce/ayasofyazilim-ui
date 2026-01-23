@@ -15,12 +15,13 @@ import { Separator } from "../../../../components/separator";
 import { Switch } from "../../../../components/switch";
 import { Label } from "../../../../components/label";
 import { getColumnName, getTranslations } from "../../utils/translation-utils";
+import { MasterDataGridResources } from "../../types";
 
 interface ColumnSettingsDialogProps<TData> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   table: TanStackTable<TData>;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
 }
 
 /**

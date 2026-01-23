@@ -18,7 +18,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../../../../components/drawer";
-import type { MasterDataGridConfig } from "../../types";
+import type { MasterDataGridConfig, ServerFilterConfig } from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
 import { MultiFilterDialog } from "../filters";
 
@@ -26,6 +26,7 @@ interface ToolbarProps<TData> {
   table: TanStackTable<TData>;
   config: MasterDataGridConfig<TData>;
   selectedRows: TData[];
+  serverFilters?: ServerFilterConfig[];
   onExport?: (format: string) => void;
   onRefresh?: () => void;
   onReset?: () => void;
@@ -128,7 +129,7 @@ export function Toolbar<TData>({
     const hasColumnFiltersChanged =
       state.columnFilters.length !== initial.columnFilters.length ||
       JSON.stringify(state.columnFilters) !==
-        JSON.stringify(initial.columnFilters);
+      JSON.stringify(initial.columnFilters);
 
     // Check for sorting changes
     const hasSortingChanged =
@@ -164,7 +165,7 @@ export function Toolbar<TData>({
   const renderTableButtons = (isMobile = false) => (
     <>
       {config.enableFiltering && (
-        <MultiFilterDialog table={table} t={config.t}>
+        <MultiFilterDialog table={table} config={config}>
           <Button
             variant="outline"
             className={isMobile ? "w-full justify-start" : ""}
@@ -293,7 +294,7 @@ export function Toolbar<TData>({
       <ButtonGroup className="hidden ml-auto md:flex">
         {renderTableButtons(false)}
       </ButtonGroup>
-      <ButtonGroup className="hidden md:flex">
+      <ButtonGroup className="hidden md:has-first:flex">
         {renderTableActions(false)}
       </ButtonGroup>
 
