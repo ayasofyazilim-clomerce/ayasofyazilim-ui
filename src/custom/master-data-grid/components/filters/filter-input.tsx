@@ -15,7 +15,11 @@ import {
   SelectValue,
 } from "../../../../components/select";
 import { Slider } from "../../../../components/slider";
-import type { FilterOperator, ColumnMeta, MasterDataGridResources } from "../../types";
+import type {
+  FilterOperator,
+  ColumnMeta,
+  MasterDataGridResources,
+} from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
 
 interface FilterInputProps {
@@ -30,11 +34,6 @@ interface FilterInputProps {
   t?: MasterDataGridResources;
   variant?: "inline" | "popover";
 }
-
-/**
- * Centralized filter input component
- * Handles different input types: text, number, boolean, range, etc.
- */
 export function FilterInput({
   operator,
   value,
@@ -56,7 +55,6 @@ export function FilterInput({
   const isBooleanType = schemaProperty?.type === "boolean";
   const showSlider = isRangeOperator && isNumberType;
 
-  // Calculate min/max for slider from schema or data
   const sliderMin = useMemo(
     () => schemaProperty?.minimum ?? 0,
     [schemaProperty?.minimum]
@@ -67,13 +65,9 @@ export function FilterInput({
   );
 
   const inputType = isNumberType ? "number" : "text";
-
-  // No input needed for isEmpty/isNotEmpty
   if (needsNoInput) {
     return null;
   }
-
-  // Boolean type - use select dropdown
   if (isBooleanType && !isRangeOperator) {
     if (variant === "inline") {
       return (
@@ -120,8 +114,6 @@ export function FilterInput({
       </Select>
     );
   }
-
-  // Range operators - two inputs with optional slider
   if (isRangeOperator && onValue2Change) {
     if (variant === "inline") {
       return (
@@ -185,8 +177,6 @@ export function FilterInput({
         </div>
       );
     }
-
-    // Popover variant - separate inputs
     return (
       <InputGroup className="flex-1 min-w-0">
         <InputGroupInput
@@ -227,8 +217,6 @@ export function FilterInput({
       </InputGroup>
     );
   }
-
-  // Single value input
   if (variant === "inline") {
     return (
       <InputGroup className="rounded-none">

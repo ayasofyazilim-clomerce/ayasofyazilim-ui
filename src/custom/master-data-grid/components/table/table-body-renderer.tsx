@@ -24,9 +24,6 @@ interface TableBodyRendererProps<TData> {
   bodyClassName?: string;
 }
 
-/**
- * Reusable table body renderer that handles cell rendering, pinning, and editing
- */
 export function TableBodyRenderer<TData>({
   table,
   rows,

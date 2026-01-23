@@ -18,7 +18,11 @@ import {
 import { DatePicker } from "../../../date-picker";
 import DateTooltip from "../../../date-tooltip";
 import { cn } from "../../../../lib/utils";
-import type { CellRendererProps, JSONSchemaProperty } from "../../types";
+import type {
+  CellRendererProps,
+  JSONSchemaProperty,
+  MasterDataGridResources,
+} from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
 
 const DEBOUNCE_DELAY = 150;
@@ -56,9 +60,9 @@ function createZodSchema(
           schemaProperty.minLength,
           t?.["validation.min_length"]
             ? (t["validation.min_length"] ?? "").replace(
-              "{min}",
-              String(schemaProperty.minLength)
-            )
+                "{min}",
+                String(schemaProperty.minLength)
+              )
             : `Must be at least ${schemaProperty.minLength} characters`
         );
       }
@@ -67,9 +71,9 @@ function createZodSchema(
           schemaProperty.maxLength,
           t?.["validation.max_length"]
             ? (t["validation.max_length"] ?? "").replace(
-              "{max}",
-              String(schemaProperty.maxLength)
-            )
+                "{max}",
+                String(schemaProperty.maxLength)
+              )
             : `Must be at most ${schemaProperty.maxLength} characters`
         );
       }
@@ -99,9 +103,9 @@ function createZodSchema(
           schemaProperty.minimum,
           t?.["validation.min_value"]
             ? (t["validation.min_value"] ?? "").replace(
-              "{min}",
-              String(schemaProperty.minimum)
-            )
+                "{min}",
+                String(schemaProperty.minimum)
+              )
             : `Must be at least ${schemaProperty.minimum}`
         );
       }
@@ -110,9 +114,9 @@ function createZodSchema(
           schemaProperty.maximum,
           t?.["validation.max_value"]
             ? (t["validation.max_value"] ?? "").replace(
-              "{max}",
-              String(schemaProperty.maximum)
-            )
+                "{max}",
+                String(schemaProperty.maximum)
+              )
             : `Must be at most ${schemaProperty.maximum}`
         );
       }
@@ -131,9 +135,9 @@ function createZodSchema(
           schemaProperty.minimum,
           t?.["validation.min_value"]
             ? (t["validation.min_value"] ?? "").replace(
-              "{min}",
-              String(schemaProperty.minimum)
-            )
+                "{min}",
+                String(schemaProperty.minimum)
+              )
             : `Must be at least ${schemaProperty.minimum}`
         );
       }
@@ -142,9 +146,9 @@ function createZodSchema(
           schemaProperty.maximum,
           t?.["validation.max_value"]
             ? (t["validation.max_value"] ?? "").replace(
-              "{max}",
-              String(schemaProperty.maximum)
-            )
+                "{max}",
+                String(schemaProperty.maximum)
+              )
             : `Must be at most ${schemaProperty.maximum}`
         );
       }
@@ -295,11 +299,11 @@ export function CellRenderer<TData = unknown>({
 
       const err = validationSchema
         ? (() => {
-          const result = validationSchema.safeParse(newValue);
-          return result.success
-            ? null
-            : result.error.issues[0]?.message || "Invalid value";
-        })()
+            const result = validationSchema.safeParse(newValue);
+            return result.success
+              ? null
+              : result.error.issues[0]?.message || "Invalid value";
+          })()
         : null;
 
       setValidationError(err);
@@ -337,8 +341,6 @@ export function CellRenderer<TData = unknown>({
         </>
       );
     }
-
-
 
     if (schemaProperty?.type === "boolean" || typeof value === "boolean") {
       return (
@@ -477,7 +479,6 @@ export function CellRenderer<TData = unknown>({
     );
   }
 
-  // Check for custom renderers in non-editable mode
   if (fieldName && customRenderers?.[fieldName]) {
     const customRenderer = customRenderers?.[fieldName]!;
     return (
@@ -527,18 +528,18 @@ export function CellRenderer<TData = unknown>({
         dateOptions ||
         (schemaProperty.format === "date"
           ? {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }
           : {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          });
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            });
 
       return (
         <DateTooltip

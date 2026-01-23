@@ -1,12 +1,6 @@
+import { GenericObjectType } from "@rjsf/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-  ChevronDown,
-  ChevronRight,
-  MoreHorizontal,
-  Pencil,
-  Save,
-  X,
-} from "lucide-react";
+import { MoreHorizontal, Pencil, Save, X } from "lucide-react";
 import { useMemo, type RefObject } from "react";
 import { Button } from "../../../components/button";
 import { Checkbox } from "../../../components/checkbox";
@@ -28,7 +22,6 @@ import {
   generateColumnsFromSchema,
   mergeColumns,
 } from "../utils/column-generator";
-import { GenericObjectType } from "@rjsf/utils";
 
 export interface UseColumnsProps<TData> {
   config: MasterDataGridConfig<TData>;
@@ -41,16 +34,11 @@ export interface UseColumnsProps<TData> {
   updateCellValue: (rowId: string, columnId: string, value: unknown) => void;
   getRowId?: (row: TData, index: number) => string;
   t?: MasterDataGridResources;
-  onFilterClick: (columnId: string) => void;
   startEditingRow: (rowId: string, row: TData) => void;
   cancelEditingRow: (rowId: string, row: TData) => void;
   saveEditingRow: (rowId: string, row: TData) => Promise<void>;
 }
 
-/**
- * Hook for generating and managing table columns
- * Consolidates the complex column generation logic from the main component
- */
 export function useColumns<TData>({
   config,
   configRef,
@@ -62,7 +50,6 @@ export function useColumns<TData>({
   updateCellValue,
   getRowId,
   t,
-  onFilterClick,
   startEditingRow,
   cancelEditingRow,
   saveEditingRow,
@@ -70,59 +57,51 @@ export function useColumns<TData>({
   return useMemo<ColumnDef<TData>[]>(() => {
     const editingContext = config.editing?.enabled
       ? {
-        get editingRows() {
-          return editingRowsRef.current;
-        },
-        onCellUpdate: updateCellValue,
-        getRowId: getRowId || ((row: TData, index: number) => String(index)),
-      }
+          get editingRows() {
+            return editingRowsRef.current;
+          },
+          onCellUpdate: updateCellValue,
+          getRowId: getRowId || ((row: TData, index: number) => String(index)),
+        }
       : undefined;
 
-    // Get expandOnClick columns
     const expandOnClickColumns = config.expansion?.expandOnClick
       ? Array.isArray(config.expansion.expandOnClick)
         ? config.expansion.expandOnClick
         : [config.expansion.expandOnClick]
       : [""];
 
-    // Generate columns from schema
     const generatedColumns = schema
       ? generateColumnsFromSchema<TData>(
-        schema,
-        configRef.current.localization,
-        t,
-        onFilterClick,
-        editingContext,
-        configRef.current.cellClassName,
-        configRef.current.dateOptions,
-        configRef.current.customRenderers,
-        configRef.current.editing?.errorDisplayMode,
-        enableColumnVisibility,
-        expandOnClickColumns
-      )
+          schema,
+          configRef.current.localization,
+          t,
+          editingContext,
+          configRef.current.cellClassName,
+          configRef.current.dateOptions,
+          configRef.current.customRenderers,
+          configRef.current.editing?.errorDisplayMode,
+          enableColumnVisibility,
+          expandOnClickColumns
+        )
       : [];
 
-    // Create a simpler context for merging (no onCellUpdate needed)
     const mergeContext = editingContext
       ? {
-        get editingRows() {
-          return editingRowsRef.current;
-        },
-        getRowId: editingContext.getRowId,
-      }
+          get editingRows() {
+            return editingRowsRef.current;
+          },
+          getRowId: editingContext.getRowId,
+        }
       : undefined;
 
-    // Merge with custom columns
     const merged = mergeColumns<TData>(
       generatedColumns,
       customColumns,
       mergeContext,
       enableColumnVisibility,
-      t,
-      onFilterClick
+      t
     );
-
-    // Wrap cells with expandOnClick handlers
 
     const mergedWithExpansion = merged.map((col) => {
       const shouldExpandOnClick =
@@ -183,10 +162,8 @@ export function useColumns<TData>({
       });
     }
 
-    // Add data columns
     finalColumns.push(...mergedWithExpansion);
 
-    // Add row actions column if enabled
     if (config.rowActions && config.rowActions.length > 0) {
       finalColumns.push({
         id: "actions",
@@ -244,7 +221,6 @@ export function useColumns<TData>({
       });
     }
 
-    // Add edit actions column if inline editing is enabled
     if (config.editing?.enabled && config.editing.mode === "row") {
       finalColumns.push({
         id: "edit-actions",
@@ -298,12 +274,10 @@ export function useColumns<TData>({
       });
     }
 
-    // Apply column order if specified
     if (config.columnOrder && config.columnOrder.length > 0) {
       const orderedColumns: ColumnDef<TData>[] = [];
       const columnMap = new Map(finalColumns.map((col) => [col.id, col]));
 
-      // Add columns in the specified order
       for (const colId of config.columnOrder) {
         const col = columnMap.get(String(colId));
         if (col) {
@@ -311,14 +285,11 @@ export function useColumns<TData>({
           columnMap.delete(String(colId));
         }
       }
-
-      // Add any remaining columns that weren't in the order
       orderedColumns.push(...Array.from(columnMap.values()));
 
       return orderedColumns;
     }
 
-    // If no column order but columnVisibility mode is "show", use show config order
     if (
       !config.columnOrder &&
       config.columnVisibility?.mode === "show" &&
@@ -327,7 +298,6 @@ export function useColumns<TData>({
       const orderedColumns: ColumnDef<TData>[] = [];
       const columnMap = new Map(finalColumns.map((col) => [col.id, col]));
 
-      // Add columns in the visibility show order
       for (const colId of config.columnVisibility.columns) {
         const col = columnMap.get(String(colId));
         if (col) {
@@ -336,7 +306,6 @@ export function useColumns<TData>({
         }
       }
 
-      // Add any remaining columns (system columns like expander, select, actions)
       orderedColumns.push(...Array.from(columnMap.values()));
 
       return orderedColumns;
@@ -361,7 +330,6 @@ export function useColumns<TData>({
     updateCellValue,
     getRowId,
     t,
-    onFilterClick,
     startEditingRow,
     cancelEditingRow,
     saveEditingRow,

@@ -25,9 +25,6 @@ export interface UseEditingReturn<TData> {
   updateCellValue: (rowId: string, columnId: string, value: unknown) => void;
 }
 
-/**
- * Hook for managing row editing state and operations
- */
 export function useEditing<TData>({
   data,
   getRowId,
@@ -36,7 +33,6 @@ export function useEditing<TData>({
   setEditingRows,
   editing,
 }: UseEditingProps<TData>): UseEditingReturn<TData> {
-  // Use ref to access latest editing state without causing re-renders
   const editingRowsRef = useRef<Record<string, Record<string, unknown>>>({});
   editingRowsRef.current = editingRows;
 
@@ -69,8 +65,6 @@ export function useEditing<TData>({
       if (editing?.onRowSave) {
         await editing.onRowSave(row, typedChanges);
       }
-
-      // Apply changes to data
       if (onDataChange && Object.keys(changes).length > 0) {
         const updatedData = data.map((item) => {
           const itemId = getRowId
@@ -81,7 +75,6 @@ export function useEditing<TData>({
         onDataChange(updatedData);
       }
 
-      // Clear editing state
       setEditingRows((prev) => {
         const { [rowId]: removed, ...rest } = prev;
         return rest;

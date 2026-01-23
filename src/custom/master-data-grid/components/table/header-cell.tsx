@@ -29,18 +29,12 @@ interface HeaderCellProps<TData> {
   header?: Header<TData, unknown>;
   label: string;
   t?: MasterDataGridResources;
-  onFilterClick?: (columnId: string) => void;
 }
-
-/**
- * Table header cell with sorting, pinning, and visibility options
- */
 export function HeaderCell<TData>({
   column,
   header,
   label,
   t,
-  onFilterClick,
 }: HeaderCellProps<TData>) {
   const isSorted = column.getIsSorted();
   const isPinned = column.getIsPinned();
@@ -134,15 +128,15 @@ export function HeaderCell<TData>({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Column Resizer */}
       {header && column.getCanResize() && (
         <div
           onMouseDown={header.getResizeHandler()}
           onTouchStart={header.getResizeHandler()}
-          className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary transition-opacity ${column.getIsResizing()
-            ? "bg-primary opacity-100"
-            : "opacity-0 hover:opacity-50"
-            }`}
+          className={`absolute right-0 top-0 h-full w-1 cursor-col-resize select-none touch-none hover:bg-primary transition-opacity ${
+            column.getIsResizing()
+              ? "bg-primary opacity-100"
+              : "opacity-0 hover:opacity-50"
+          }`}
           style={{
             transform: column.getIsResizing() ? "translateX(0)" : undefined,
           }}

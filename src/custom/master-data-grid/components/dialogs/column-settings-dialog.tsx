@@ -1,7 +1,6 @@
 "use no memo";
 
 import type { Column, Table as TanStackTable } from "@tanstack/react-table";
-import { useState } from "react";
 import { Button } from "../../../../components/button";
 import {
   Dialog,
@@ -24,16 +23,12 @@ interface ColumnSettingsDialogProps<TData> {
   t?: MasterDataGridResources;
 }
 
-/**
- * Dialog for managing column visibility, pinning, and order
- */
 export function ColumnSettingsDialog<TData>({
   open,
   onOpenChange,
   table,
   t,
 }: ColumnSettingsDialogProps<TData>) {
-  // Get hideable columns
   const hideableColumns = table
     .getAllLeafColumns()
     .filter((column) => column.getCanHide());
@@ -55,7 +50,6 @@ export function ColumnSettingsDialog<TData>({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Show/Hide All */}
           <div className="flex items-center justify-between">
             <Button
               variant="outline"
@@ -75,7 +69,6 @@ export function ColumnSettingsDialog<TData>({
 
           <Separator />
 
-          {/* Column List */}
           <ScrollArea className="h-[400px] pr-4">
             <div className="space-y-3">
               {hideableColumns.map((column) => (
