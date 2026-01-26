@@ -320,12 +320,6 @@ export interface TableState {
   editingRows?: Record<string, Record<string, unknown>>;
 }
 
-export interface FilterDialogState {
-  open: boolean;
-  columnId: string | null;
-  currentFilter?: ColumnFilter;
-}
-
 export interface CustomCellRendererProps<TData = unknown> {
   value: unknown;
   row: Row<TData>;
@@ -466,7 +460,6 @@ export interface MasterDataGridResources extends Record<string, string> {
   "columnSettings.showAll": string;
   "columnSettings.hideAll": string;
 
-  "table.empty": string;
   "table.noResults": string;
 
   "validation.invalidString": string;

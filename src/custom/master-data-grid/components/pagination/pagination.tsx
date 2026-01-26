@@ -1,4 +1,5 @@
 "use client";
+"use no memo";
 import type { Table } from "@tanstack/react-table";
 import {
   ChevronLeftIcon,
@@ -22,14 +23,12 @@ import { MasterDataGridResources } from "../../types";
 interface PaginationProps<TData> {
   table: Table<TData>;
   pageSizeOptions?: number[];
-  syncWithUrl?: boolean;
   t?: MasterDataGridResources;
 }
 
 export function Pagination<TData>({
   table,
   pageSizeOptions = [10, 20, 30, 40, 50],
-  syncWithUrl = false,
   t,
 }: PaginationProps<TData>) {
   const { replace } = useRouter();
@@ -42,8 +41,6 @@ export function Pagination<TData>({
     : [...pageSizeOptions, pagination.pageSize].sort((a, b) => a - b);
 
   useEffect(() => {
-    if (!syncWithUrl) return;
-
     const params = new URLSearchParams(searchParams.toString());
     const skipCount = pagination.pageIndex * pagination.pageSize;
     const maxResultCount = pagination.pageSize;
@@ -76,7 +73,6 @@ export function Pagination<TData>({
   }, [
     pagination.pageIndex,
     pagination.pageSize,
-    syncWithUrl,
     pathname,
     searchParams,
     replace,
@@ -118,7 +114,8 @@ export function Pagination<TData>({
         </div>
 
         <div className="flex items-center justify-center text-sm font-medium mr-auto">
-          {getTranslations("pagination.page", t)} {pagination.pageIndex + 1}{" "}
+          {getTranslations("pagination.page", t)}{" "}
+          {table.getPageCount() === 0 ? 0 : pagination.pageIndex + 1}{" "}
           {getTranslations("pagination.of", t)} {table.getPageCount()}
         </div>
 

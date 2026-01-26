@@ -24,12 +24,7 @@ import { cn } from "../../../lib/utils";
 import { useColumns } from "../hooks/use-columns";
 import { useEditing } from "../hooks/use-editing";
 import { useTableStateReducer } from "../hooks/use-table-state-reducer";
-import type {
-  ColumnFilter,
-  FilterDialogState,
-  MasterDataGridConfig,
-  MasterDataGridProps,
-} from "../types";
+import type { MasterDataGridConfig, MasterDataGridProps } from "../types";
 import { exportToCSV } from "../utils/export-utils";
 import {
   getPinningHeaderClassNames,
@@ -110,13 +105,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
 
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const [filterDialogState, setFilterDialogState] = useState<FilterDialogState>(
-    {
-      open: false,
-      columnId: null,
-    }
-  );
-
   const [columnSettingsOpen, setColumnSettingsOpen] = useState(false);
 
   const configRef = useRef(configWithDefaults);
@@ -149,10 +137,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     },
     []
   );
-
-  const handleFilterClick = useCallback((columnId: string) => {
-    setFilterDialogState({ open: true, columnId });
-  }, []);
 
   const columns = useColumns({
     config: configWithDefaults,
@@ -279,29 +263,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     [table]
   );
 
-  const handleApplyFilter = useCallback(
-    (filter: ColumnFilter) => {
-      if (!filter.id) {
-        logError("Cannot apply filter: filter.id is required");
-        return;
-      }
-      const column = table.getColumn(filter.id);
-      if (column) {
-        column.setFilterValue(filter);
-      } else {
-        logWarning(`Column not found: ${filter.id}`);
-      }
-    },
-    [table]
-  );
-
-  const handleClearFilter = useCallback(() => {
-    if (filterDialogState.columnId) {
-      const column = table.getColumn(filterDialogState.columnId);
-      column?.setFilterValue(undefined);
-    }
-  }, [table, filterDialogState.columnId]);
-
   const handleExport = useCallback(
     (format: string) => {
       try {
@@ -336,7 +297,11 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     );
   }
 
-  if (data.length === 0 && !configWithDefaults.loading) {
+  if (
+    data.length === 0 &&
+    !configWithDefaults.loading &&
+    configWithDefaults.emptyComponent
+  ) {
     return (
       <div
         className={cn(
@@ -344,11 +309,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
           configWithDefaults.containerClassName
         )}
       >
-        {configWithDefaults.emptyComponent || (
-          <div className="text-center text-muted-foreground">
-            {getTranslations("table.empty", t)}
-          </div>
-        )}
+        {configWithDefaults.emptyComponent}
       </div>
     );
   }
@@ -494,12 +455,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         )}
       </div>
       {enablePagination && (
-        <Pagination
-          table={table}
-          pageSizeOptions={pageSizeOptions}
-          syncWithUrl={true}
-          t={t}
-        />
+        <Pagination table={table} pageSizeOptions={pageSizeOptions} t={t} />
       )}
       <ColumnSettingsDialog
         open={columnSettingsOpen}
