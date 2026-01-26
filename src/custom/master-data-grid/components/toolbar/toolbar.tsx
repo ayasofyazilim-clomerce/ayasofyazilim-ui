@@ -18,7 +18,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../../../../components/drawer";
-import type { MasterDataGridConfig } from "../../types";
+import type { MasterDataGridConfig, ServerFilterConfig } from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
 import { MultiFilterDialog } from "../filters";
 
@@ -26,15 +26,13 @@ interface ToolbarProps<TData> {
   table: TanStackTable<TData>;
   config: MasterDataGridConfig<TData>;
   selectedRows: TData[];
+  serverFilters?: ServerFilterConfig[];
   onExport?: (format: string) => void;
   onRefresh?: () => void;
   onReset?: () => void;
   onOpenColumnSettings?: () => void;
 }
 
-/**
- * Data grid toolbar with actions and global search
- */
 export function Toolbar<TData>({
   table,
   config,
@@ -46,12 +44,10 @@ export function Toolbar<TData>({
 }: ToolbarProps<TData>) {
   const { t, tableActions, enableExport } = config;
 
-  // Local state for search input to make it responsive
   const [searchValue, setSearchValue] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Store initial table state to detect user changes
   const initialStateRef = useRef<{
     globalFilter: string | undefined;
     columnFilters: any[];
@@ -60,7 +56,6 @@ export function Toolbar<TData>({
     columnPinning: { left?: string[]; right?: string[] };
   } | null>(null);
 
-  // Capture initial state on mount
   useEffect(() => {
     if (!initialStateRef.current) {
       const state = table.getState();
@@ -79,7 +74,6 @@ export function Toolbar<TData>({
     }
   }, []);
 
-  // Sync with table state
   useEffect(() => {
     const currentFilter = table.getState().globalFilter as string;
     if (currentFilter !== searchValue) {
@@ -87,25 +81,21 @@ export function Toolbar<TData>({
     }
   }, [table.getState().globalFilter]);
 
-  // Debounced search handler
   const handleSearchChange = useCallback(
     (value: string) => {
       setSearchValue(value);
 
-      // Clear existing timeout
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
 
-      // Set new timeout for debounced update
       debounceTimerRef.current = setTimeout(() => {
         table.setGlobalFilter(value);
-      }, 300); // 300ms debounce delay
+      }, 300);
     },
     [table]
   );
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
@@ -114,33 +104,27 @@ export function Toolbar<TData>({
     };
   }, []);
 
-  // Check if table has any changes (filters, sorting, search, etc.)
   const hasTableChanges = () => {
     if (!initialStateRef.current) return false;
 
     const state = table.getState();
     const initial = initialStateRef.current;
 
-    // Check for global filter changes
     const hasGlobalFilterChanged = state.globalFilter !== initial.globalFilter;
 
-    // Check for column filters changes
     const hasColumnFiltersChanged =
       state.columnFilters.length !== initial.columnFilters.length ||
       JSON.stringify(state.columnFilters) !==
         JSON.stringify(initial.columnFilters);
 
-    // Check for sorting changes
     const hasSortingChanged =
       state.sorting.length !== initial.sorting.length ||
       JSON.stringify(state.sorting) !== JSON.stringify(initial.sorting);
 
-    // Check for column visibility changes
     const hasColumnVisibilityChanged =
       JSON.stringify(state.columnVisibility) !==
       JSON.stringify(initial.columnVisibility);
 
-    // Check for column pinning changes - normalize before comparing
     const currentPinning = {
       left: state.columnPinning?.left || [],
       right: state.columnPinning?.right || [],
@@ -164,7 +148,7 @@ export function Toolbar<TData>({
   const renderTableButtons = (isMobile = false) => (
     <>
       {config.enableFiltering && (
-        <MultiFilterDialog table={table} t={config.t}>
+        <MultiFilterDialog table={table} config={config}>
           <Button
             variant="outline"
             className={isMobile ? "w-full justify-start" : ""}
@@ -289,15 +273,12 @@ export function Toolbar<TData>({
         </div>
       )}
 
-      {/* Desktop: Button Group */}
       <ButtonGroup className="hidden ml-auto md:flex">
         {renderTableButtons(false)}
       </ButtonGroup>
-      <ButtonGroup className="hidden md:flex">
+      <ButtonGroup className="hidden md:has-first:flex">
         {renderTableActions(false)}
       </ButtonGroup>
-
-      {/* Mobile: Drawer */}
       <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <DrawerTrigger asChild>
           <Button variant="outline" size="icon" className="md:hidden">

@@ -17,22 +17,15 @@ import {
   SelectValue,
 } from "../../../../components/select";
 import { getTranslations } from "../../utils/translation-utils";
+import { MasterDataGridResources } from "../../types";
 
 interface PaginationProps<TData> {
   table: Table<TData>;
   pageSizeOptions?: number[];
   syncWithUrl?: boolean;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
 }
 
-/**
- * Pagination component for MasterDataGrid
- * Features:
- * - Page navigation (first, previous, next, last)
- * - Page size selector
- * - URL synchronization (skipCount/maxResultCount)
- * - Row selection display (automatically shown when rows are selected)
- */
 export function Pagination<TData>({
   table,
   pageSizeOptions = [10, 20, 30, 40, 50],
@@ -44,13 +37,10 @@ export function Pagination<TData>({
   const searchParams = useSearchParams();
   const pagination = table.getState().pagination;
 
-  // Ensure current pageSize is in options
   const allPageSizeOptions = pageSizeOptions.includes(pagination.pageSize)
     ? pageSizeOptions
     : [...pageSizeOptions, pagination.pageSize].sort((a, b) => a - b);
 
-  // Sync pagination state with URL params
-  // Only update URL when table pagination state changes, not when URL changes
   useEffect(() => {
     if (!syncWithUrl) return;
 
@@ -62,14 +52,12 @@ export function Pagination<TData>({
     const currentMaxResultCount =
       Number(searchParams?.get("maxResultCount")) || 10;
 
-    // Only update URL if values actually changed
     const needsUpdate =
       currentSkipCount !== skipCount ||
       currentMaxResultCount !== maxResultCount;
 
     if (!needsUpdate) return;
 
-    // Update URL params
     if (currentMaxResultCount !== maxResultCount) {
       params.set("maxResultCount", maxResultCount.toString());
     }
@@ -77,7 +65,6 @@ export function Pagination<TData>({
       params.set("skipCount", skipCount.toString());
     }
 
-    // Remove default values to keep URL clean
     if (maxResultCount === 10) {
       params.delete("maxResultCount");
     }
@@ -97,7 +84,6 @@ export function Pagination<TData>({
 
   return (
     <div className="flex items-center flex-wrap gap-4">
-      {/* Row Selection Display */}
       {table.getIsSomeRowsSelected() && (
         <div className="text-sm text-muted-foreground text-nowrap">
           {table.getFilteredSelectedRowModel().rows.length}{" "}
@@ -107,9 +93,7 @@ export function Pagination<TData>({
         </div>
       )}
 
-      {/* Pagination Controls */}
       <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto ml-auto">
-        {/* Page Size Selector */}
         <div className="flex items-center w-full justify-between gap-2 sm:w-auto md:mr-4">
           <p className="text-sm font-medium">
             {getTranslations("pagination.rowsPerPage", t)}
@@ -133,15 +117,12 @@ export function Pagination<TData>({
           </Select>
         </div>
 
-        {/* Page Display */}
         <div className="flex items-center justify-center text-sm font-medium mr-auto">
           {getTranslations("pagination.page", t)} {pagination.pageIndex + 1}{" "}
           {getTranslations("pagination.of", t)} {table.getPageCount()}
         </div>
 
-        {/* Navigation Buttons */}
         <div className="flex items-center gap-x-2">
-          {/* First Page */}
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
@@ -155,7 +136,6 @@ export function Pagination<TData>({
             <ChevronsLeftIcon className="h-4 w-4" />
           </Button>
 
-          {/* Previous Page */}
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
@@ -169,7 +149,6 @@ export function Pagination<TData>({
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
 
-          {/* Next Page */}
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
@@ -183,7 +162,6 @@ export function Pagination<TData>({
             <ChevronRightIcon className="h-4 w-4" />
           </Button>
 
-          {/* Last Page */}
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"

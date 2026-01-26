@@ -1,5 +1,5 @@
 "use no memo";
-import type { Row, Table as TanStackTable } from "@tanstack/react-table";
+import type { Row } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import React, { useRef } from "react";
@@ -11,7 +11,6 @@ import {
 } from "../../utils/pinning-utils";
 
 interface VirtualBodyProps<TData> {
-  table: TanStackTable<TData>;
   rows: Row<TData>[];
   estimateSize?: number;
   overscan?: number;
@@ -25,11 +24,7 @@ interface VirtualBodyProps<TData> {
   expansionComponent?: React.ComponentType<{ row: TData }>;
 }
 
-/**
- * Virtualized table body for high-performance rendering
- */
 export function VirtualBody<TData>({
-  table,
   rows,
   estimateSize = 53,
   overscan = 10,
@@ -47,7 +42,6 @@ export function VirtualBody<TData>({
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => {
-      // Get the scrollable parent (the div wrapping the table)
       return tableContainerRef.current?.closest(
         ".overflow-auto"
       ) as HTMLElement | null;

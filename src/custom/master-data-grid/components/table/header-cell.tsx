@@ -22,24 +22,19 @@ import {
 } from "../../../../components/dropdown-menu";
 import { getTranslations } from "../../utils/translation-utils";
 import { InlineColumnFilter } from "../filters";
+import { MasterDataGridResources } from "../../types";
 
 interface HeaderCellProps<TData> {
   column: Column<TData>;
   header?: Header<TData, unknown>;
   label: string;
-  t?: Record<string, string>;
-  onFilterClick?: (columnId: string) => void;
+  t?: MasterDataGridResources;
 }
-
-/**
- * Table header cell with sorting, pinning, and visibility options
- */
 export function HeaderCell<TData>({
   column,
   header,
   label,
   t,
-  onFilterClick,
 }: HeaderCellProps<TData>) {
   const isSorted = column.getIsSorted();
   const isPinned = column.getIsPinned();
@@ -133,7 +128,6 @@ export function HeaderCell<TData>({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Column Resizer */}
       {header && column.getCanResize() && (
         <div
           onMouseDown={header.getResizeHandler()}

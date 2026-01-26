@@ -18,7 +18,11 @@ import {
 import { DatePicker } from "../../../date-picker";
 import DateTooltip from "../../../date-tooltip";
 import { cn } from "../../../../lib/utils";
-import type { CellRendererProps, JSONSchemaProperty } from "../../types";
+import type {
+  CellRendererProps,
+  JSONSchemaProperty,
+  MasterDataGridResources,
+} from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
 
 const DEBOUNCE_DELAY = 150;
@@ -39,7 +43,7 @@ const BADGE_VARIANT_MAP: Record<
 
 function createZodSchema(
   schemaProperty?: JSONSchemaProperty,
-  t?: Record<string, string>
+  t?: MasterDataGridResources
 ): z.ZodType {
   if (!schemaProperty) return z.unknown();
 
@@ -321,48 +325,8 @@ export function CellRenderer<TData = unknown>({
   );
 
   if (editable && !schemaProperty?.readOnly) {
-    if (fieldName && customRenderers?.byField?.[fieldName]) {
-      const customRenderer = customRenderers.byField[fieldName]!;
-      return (
-        <>
-          {customRenderer({
-            value: localValue,
-            row,
-            column,
-            onUpdate: handleChange,
-            error: validationError || undefined,
-            schemaProperty,
-            t,
-          })}
-        </>
-      );
-    }
-
-    if (
-      schemaProperty?.format &&
-      customRenderers?.byFormat?.[schemaProperty.format]
-    ) {
-      const customRenderer = customRenderers.byFormat[schemaProperty.format]!;
-      return (
-        <>
-          {customRenderer({
-            value: localValue,
-            row,
-            column,
-            onUpdate: handleChange,
-            error: validationError || undefined,
-            schemaProperty,
-            t,
-          })}
-        </>
-      );
-    }
-
-    if (
-      schemaProperty?.type &&
-      customRenderers?.byType?.[schemaProperty.type]
-    ) {
-      const customRenderer = customRenderers.byType[schemaProperty.type]!;
+    if (fieldName && customRenderers?.[fieldName]) {
+      const customRenderer = customRenderers?.[fieldName]!;
       return (
         <>
           {customRenderer({
@@ -515,9 +479,8 @@ export function CellRenderer<TData = unknown>({
     );
   }
 
-  // Check for custom renderers in non-editable mode
-  if (fieldName && customRenderers?.byField?.[fieldName]) {
-    const customRenderer = customRenderers.byField[fieldName]!;
+  if (fieldName && customRenderers?.[fieldName]) {
+    const customRenderer = customRenderers?.[fieldName]!;
     return (
       <>
         {customRenderer({
@@ -532,44 +495,6 @@ export function CellRenderer<TData = unknown>({
       </>
     );
   }
-
-  if (
-    schemaProperty?.format &&
-    customRenderers?.byFormat?.[schemaProperty.format]
-  ) {
-    const customRenderer = customRenderers.byFormat[schemaProperty.format]!;
-    return (
-      <>
-        {customRenderer({
-          value: localValue,
-          row,
-          column,
-          onUpdate: handleChange,
-          error: validationError || undefined,
-          schemaProperty,
-          t,
-        })}
-      </>
-    );
-  }
-
-  if (schemaProperty?.type && customRenderers?.byType?.[schemaProperty.type]) {
-    const customRenderer = customRenderers.byType[schemaProperty.type]!;
-    return (
-      <>
-        {customRenderer({
-          value: localValue,
-          row,
-          column,
-          onUpdate: handleChange,
-          error: validationError || undefined,
-          schemaProperty,
-          t,
-        })}
-      </>
-    );
-  }
-
   if (value === null || value === undefined) {
     return (
       <span className={cn("text-muted-foreground italic", className)}>—</span>

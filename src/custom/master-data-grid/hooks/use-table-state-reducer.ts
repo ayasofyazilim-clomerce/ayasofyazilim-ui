@@ -8,9 +8,6 @@ import type {
 import { useReducer } from "react";
 import type { MasterDataGridConfig, TableState } from "../types";
 
-/**
- * Actions for table state reducer
- */
 type TableStateAction =
   | { type: "SET_SORTING"; payload: SortingState }
   | { type: "SET_COLUMN_FILTERS"; payload: ColumnFiltersState }
@@ -33,9 +30,6 @@ type TableStateAction =
     }
   | { type: "RESET"; payload: TableState };
 
-/**
- * Reducer function for managing complex table state
- */
 function tableStateReducer(
   state: TableState,
   action: TableStateAction
@@ -72,9 +66,6 @@ function tableStateReducer(
   }
 }
 
-/**
- * Initialize column visibility based on config
- */
 function initializeColumnVisibility<TData>(
   config: MasterDataGridConfig<TData>
 ): VisibilityState {
@@ -83,21 +74,16 @@ function initializeColumnVisibility<TData>(
   }
 
   if (config.columnVisibility.mode === "hide") {
-    // Hide specified columns, show all others
     return Object.fromEntries(
       config.columnVisibility.columns.map((id) => [String(id), false])
     );
   }
 
   if (config.columnVisibility.mode === "show") {
-    // Show only specified columns, hide all others
-    // Get all possible column IDs from schema and custom columns
     const allColumnIds: string[] = [
-      ...(config.schema ? Object.keys(config.schema.properties || {}) : []),
       ...(config.columns?.map((c) => c.id) || []),
+      ...(config.schema ? Object.keys(config.schema.properties || {}) : []),
     ];
-
-    // Create visibility map: all false except specified ones
     return Object.fromEntries(
       allColumnIds.map((id) => [
         String(id),
@@ -109,9 +95,6 @@ function initializeColumnVisibility<TData>(
   return {};
 }
 
-/**
- * Create initial table state from config
- */
 function createInitialState<TData>(
   config: MasterDataGridConfig<TData>,
   pageSize: number
@@ -132,10 +115,6 @@ function createInitialState<TData>(
   };
 }
 
-/**
- * Hook for managing table state with useReducer
- * Provides cleaner state transitions compared to useState
- */
 export function useTableStateReducer<TData>(
   config: MasterDataGridConfig<TData>,
   pageSize: number

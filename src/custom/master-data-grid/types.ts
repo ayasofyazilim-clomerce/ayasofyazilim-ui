@@ -12,14 +12,10 @@ import type {
 import type { Localization } from "../date-tooltip";
 import type { LucideIcon } from "lucide-react";
 import { GenericObjectType } from "@rjsf/utils";
+import { z } from "@repo/ayasofyazilim-ui/lib/zod";
 
-// Re-export Localization for convenience
 export type { Localization };
 
-/**
- * JSON Schema Property Definition
- * Defines the structure and validation rules for a single property
- */
 export interface JSONSchemaProperty {
   type: "string" | "number" | "integer" | "boolean" | "array" | "object";
   format?:
@@ -47,10 +43,6 @@ export interface JSONSchemaProperty {
   readOnly?: boolean;
 }
 
-/**
- * JSON Schema Definition
- * Complete schema structure for data validation and column generation
- */
 export interface JSONSchema {
   type: "object";
   properties: Record<string, JSONSchemaProperty>;
@@ -59,9 +51,6 @@ export interface JSONSchema {
   description?: string;
 }
 
-/**
- * Filter Operators by Data Type
- */
 export type FilterOperator =
   | "equals"
   | "notEquals"
@@ -82,33 +71,23 @@ export type FilterOperator =
   | "inList"
   | "notInList";
 
-/**
- * Column Filter Configuration
- */
 export interface ColumnFilter {
   id: string;
   operator: FilterOperator;
   value: unknown;
-  value2?: unknown; // For 'between' operator
+  value2?: unknown;
 }
 
-/**
- * Cell Editing Configuration
- */
 export interface CellEditConfig<TData = unknown> {
   enabled?: boolean;
-  mode?: "cell" | "row"; // cell = save on blur, row = save with button
-  errorDisplayMode?: "tooltip" | "inline" | "both"; // How to display validation errors
+  mode?: "cell" | "row";
+  errorDisplayMode?: "tooltip" | "inline" | "both";
   onRowSave?: (row: TData, changes: Partial<TData>) => void | Promise<void>;
   onRowCancel?: (row: TData) => void;
   isRowEditable?: (row: TData) => boolean;
   isColumnEditable?: (columnId: string, row: TData) => boolean;
 }
 
-/**
- * Row Action Definition
- * Actions displayed in a dropdown menu for each row
- */
 export interface RowAction<TData = unknown> {
   id: string;
   label: string | ((row: TData) => string);
@@ -126,9 +105,6 @@ export interface RowAction<TData = unknown> {
   className?: string;
 }
 
-/**
- * Table Action Definition (Toolbar actions)
- */
 export interface TableAction<TData = unknown> {
   id: string;
   label: string;
@@ -137,41 +113,27 @@ export interface TableAction<TData = unknown> {
   onClick?: (selectedRows: TData[]) => void | Promise<void>;
   disabled?: boolean | ((selectedRows: TData[]) => boolean);
   hidden?: boolean | ((selectedRows: TData[]) => boolean);
-  requiresSelection?: boolean; // Action only enabled when rows are selected
+  requiresSelection?: boolean;
   className?: string;
 }
 
-/**
- * Row Expansion Configuration
- */
 export interface RowExpansionConfig<TData = unknown> {
   enabled?: boolean;
   component?: React.ComponentType<{ row: TData }>;
   renderContent?: (row: TData) => React.ReactNode;
   defaultExpanded?: boolean;
-  expandOnClick?: string | string[]; // Column ID(s) that trigger expansion when clicked
+  expandOnClick?: string | string[];
 }
 
-/**
- * Column Meta Data
- */
 export interface ColumnMeta {
   schemaProperty?: JSONSchemaProperty;
   filterOperators?: FilterOperator[];
   [key: string]: unknown;
 }
 
-/**
- * Column Configuration
- */
 export interface ColumnConfig<TData = unknown> {
   id: string;
   header?: string | ((info: { column: Column<TData> }) => React.ReactNode);
-  /**
-   * When true, preserves the default HeaderCell functionality (sorting, filtering, pinning)
-   * even when a custom header function is provided. The custom header will be passed as the label.
-   * Default: true (extends default header functionality)
-   */
   extendHeader?: boolean;
   accessorKey?: string;
   accessorFn?: (row: TData) => unknown;
@@ -190,30 +152,21 @@ export interface ColumnConfig<TData = unknown> {
   }) => React.ReactNode;
   footer?: (info: { column: { id: string } }) => React.ReactNode;
   meta?: ColumnMeta;
-  expandOnClick?: boolean; // Whether clicking this column should toggle row expansion
+  expandOnClick?: boolean;
 }
 
-/**
- * Grouping Configuration
- */
 export interface GroupingConfig {
   enabled?: boolean;
   groupBy?: string[];
   expanded?: Record<string, boolean>;
 }
 
-/**
- * Virtualization Configuration
- */
 export interface VirtualizationConfig {
   enabled?: boolean;
-  estimateSize?: number; // Estimated row height in pixels
-  overscan?: number; // Number of items to render outside visible area
+  estimateSize?: number;
+  overscan?: number;
 }
 
-/**
- * Selection Configuration
- */
 export interface SelectionConfig<TData = unknown> {
   enabled?: boolean;
   mode?: "single" | "multiple";
@@ -221,17 +174,11 @@ export interface SelectionConfig<TData = unknown> {
   rowSelectable?: (row: TData) => boolean;
 }
 
-/**
- * Column Pinning Configuration
- */
 export interface PinningConfig {
   left?: string[];
   right?: string[];
 }
 
-/**
- * Export Configuration
- */
 export interface ExportConfig<TData = unknown> {
   enabled?: boolean;
   formats?: Array<"csv" | "excel" | "json" | "pdf">;
@@ -239,18 +186,55 @@ export interface ExportConfig<TData = unknown> {
   customExport?: (data: TData[], format: string) => void | Promise<void>;
 }
 
-/**
- * Master Data Grid Configuration
- */
+interface BaseServerFilterConfig {
+  key: string;
+  label: string;
+  placeholder: string;
+}
+
+interface StringServerFilterConfig extends BaseServerFilterConfig {
+  type: "string";
+  validator?: z.ZodType<string | undefined>;
+}
+
+interface NumberServerFilterConfig extends BaseServerFilterConfig {
+  type: "number";
+  validator?: z.ZodType<number | undefined>;
+}
+
+interface SelectServerFilterConfig extends BaseServerFilterConfig {
+  type: "select";
+  options: { label: string; value: string }[];
+  validator?: z.ZodType<string | undefined>;
+}
+
+interface ArrayServerFilterConfig extends BaseServerFilterConfig {
+  type: "array";
+  options: { label: string; value: string }[];
+  validator?: z.ZodType<string[] | undefined>;
+}
+
+interface BooleanServerFilterConfig extends BaseServerFilterConfig {
+  type: "boolean";
+  options: { label: string; value: string }[];
+  validator?: z.ZodType<boolean | undefined>;
+}
+
+export type ServerFilterConfig =
+  | StringServerFilterConfig
+  | NumberServerFilterConfig
+  | SelectServerFilterConfig
+  | ArrayServerFilterConfig
+  | BooleanServerFilterConfig;
+
 export interface MasterDataGridConfig<TData = unknown> {
-  // Schema
   schema?: JSONSchema | GenericObjectType;
   columns?: ColumnConfig<TData>[];
 
-  // Translation
-  t?: MasterDataGridResources & Record<string, string>;
+  t?: MasterDataGridResources;
 
-  // Features
+  serverFilters?: ServerFilterConfig[];
+  serverFilterLocation?: "left" | "right" | "top" | "bottom" | "toolbar";
   enableSorting?: boolean;
   enableFiltering?: boolean;
   enableGrouping?: boolean;
@@ -261,7 +245,6 @@ export interface MasterDataGridConfig<TData = unknown> {
   enableVirtualization?: boolean;
   enableExport?: boolean;
 
-  // Configuration Objects
   selection?: SelectionConfig<TData>;
   virtualization?: VirtualizationConfig;
   grouping?: GroupingConfig;
@@ -270,11 +253,9 @@ export interface MasterDataGridConfig<TData = unknown> {
   expansion?: RowExpansionConfig<TData>;
   export?: ExportConfig<TData>;
 
-  // Actions
   rowActions?: RowAction<TData>[];
   tableActions?: TableAction<TData>[];
 
-  // Styling
   className?: string;
   containerClassName?: string;
   tableClassName?: string;
@@ -283,7 +264,6 @@ export interface MasterDataGridConfig<TData = unknown> {
   rowClassName?: string | ((row: TData) => string);
   cellClassName?: string | ((cell: { row: TData; columnId: string }) => string);
 
-  // Pagination
   enablePagination?: boolean;
   pageSize?: number;
   pageSizeOptions?: number[];
@@ -291,27 +271,23 @@ export interface MasterDataGridConfig<TData = unknown> {
   loadingComponent?: React.ReactNode;
   emptyComponent?: React.ReactNode;
 
-  // Date formatting
   dateOptions?: Intl.DateTimeFormatOptions;
   localization: Localization;
 
-  // Custom renderers
   customRenderers?: CustomRenderers<TData>;
 
-  // Column visibility
   columnVisibility?: {
-    mode: "show" | "hide"; // "show" = only show listed columns, "hide" = hide listed columns
-    columns: Array<keyof TData>; // Column IDs to show or hide based on mode
+    mode: "show" | "hide";
+    columns: Array<keyof TData>;
   };
-  columnOrder?: Array<keyof TData>; // Array of column IDs to define display order (TData keys + custom column IDs)
+  columnOrder?: Array<keyof TData>;
 
-  // Advanced
   enableMultiSort?: boolean;
   enableMultiFilter?: boolean;
   manualSorting?: boolean;
   manualFiltering?: boolean;
   manualPagination?: boolean;
-  rowCount?: number; // Total row count for manual pagination
+  rowCount?: number;
   onSortingChange?: (sorting: SortingState) => void;
   onFilteringChange?: (filters: ColumnFiltersState) => void;
   onPaginationChange?: (pagination: {
@@ -320,22 +296,15 @@ export interface MasterDataGridConfig<TData = unknown> {
   }) => void;
   onRefresh?: () => void;
 
-  // Row identification
   getRowId?: (row: TData, index: number) => string;
 }
 
-/**
- * Master Data Grid Props
- */
 export interface MasterDataGridProps<TData = unknown> {
   data: TData[];
   config: MasterDataGridConfig<TData>;
   onDataChange?: (data: TData[]) => void;
 }
 
-/**
- * Internal Table State
- */
 export interface TableState {
   sorting: SortingState;
   columnFilters: ColumnFiltersState;
@@ -348,22 +317,15 @@ export interface TableState {
     pageIndex: number;
     pageSize: number;
   };
-  editingRows?: Record<string, Record<string, unknown>>; // rowId -> edited values
+  editingRows?: Record<string, Record<string, unknown>>;
 }
 
-/**
- * Filter Dialog State
- */
 export interface FilterDialogState {
   open: boolean;
   columnId: string | null;
   currentFilter?: ColumnFilter;
 }
 
-/**
- * Custom Cell Renderer Function Type
- * Allows passing custom components for specific fields with their own validation
- */
 export interface CustomCellRendererProps<TData = unknown> {
   value: unknown;
   row: Row<TData>;
@@ -371,33 +333,17 @@ export interface CustomCellRendererProps<TData = unknown> {
   onUpdate?: (value: unknown) => void;
   error?: string;
   schemaProperty?: JSONSchemaProperty;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
 }
 
 export type CustomCellRenderer<TData = unknown> = (
   props: CustomCellRendererProps<TData>
 ) => React.ReactNode;
 
-/**
- * Custom Renderers Configuration
- * Map field names or types to custom renderer components
- */
-export interface CustomRenderers<TData = unknown> {
-  /** Custom renderers for specific field names */
-  byField?: Partial<Record<keyof TData & string, CustomCellRenderer<TData>>>;
-  /** Custom renderers for specific JSON Schema types */
-  byType?: Partial<
-    Record<JSONSchemaProperty["type"], CustomCellRenderer<TData>>
-  >;
-  /** Custom renderers for specific formats */
-  byFormat?: Partial<
-    Record<NonNullable<JSONSchemaProperty["format"]>, CustomCellRenderer<TData>>
-  >;
-}
+export type CustomRenderers<TData> = Partial<
+  Record<keyof TData & string, CustomCellRenderer<TData>>
+>;
 
-/**
- * Column Generator Result
- */
 export type GeneratedColumn<TData = unknown> = ColumnDef<TData> & {
   meta?: {
     schemaProperty?: JSONSchemaProperty;
@@ -406,24 +352,15 @@ export type GeneratedColumn<TData = unknown> = ColumnDef<TData> & {
   };
 };
 
-/**
- * Cell Props for custom cell renderers
- */
 export type CellProps<TData = unknown, TValue = unknown> = CellContext<
   TData,
   TValue
 >;
 
-/**
- * Column Meta with expandOnClick support
- */
 export interface ExpandableColumnMeta extends ColumnMeta {
   expandOnClick?: boolean;
 }
 
-/**
- * Export Column Definition with typed accessors
- */
 export interface ExportColumnDef<TData = unknown> {
   accessorKey?: string;
   accessorFn?: (row: TData, index: number) => unknown;
@@ -432,9 +369,6 @@ export interface ExportColumnDef<TData = unknown> {
   meta?: ColumnMeta;
 }
 
-/**
- * Cell Renderer Props
- */
 export interface CellRendererProps<TData = unknown> {
   value: unknown;
   row: Row<TData>;
@@ -445,7 +379,7 @@ export interface CellRendererProps<TData = unknown> {
   isEditing: boolean;
   editable?: boolean;
   error?: string;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
   errorDisplayMode?: "tooltip" | "inline" | "both";
   className?: string;
   dateOptions?: Intl.DateTimeFormatOptions;
@@ -454,10 +388,11 @@ export interface CellRendererProps<TData = unknown> {
   customRenderers?: CustomRenderers<TData>;
 }
 
-export type MasterDataGridResources = {
-  // Toolbar translations
+export interface MasterDataGridResources extends Record<string, string> {
   "toolbar.search": string;
   "toolbar.filters": string;
+  "toolbar.client": string;
+  "toolbar.server": string;
   "toolbar.columns": string;
   "toolbar.export": string;
   "toolbar.refresh": string;
@@ -465,7 +400,6 @@ export type MasterDataGridResources = {
   "toolbar.selected": string;
   "toolbar.actions": string;
 
-  // Pagination translations
   "pagination.rowsPerPage": string;
   "pagination.page": string;
   "pagination.of": string;
@@ -475,7 +409,6 @@ export type MasterDataGridResources = {
   "pagination.nextPage": string;
   "pagination.lastPage": string;
 
-  // Column header translations
   "column.sortAsc": string;
   "column.sortDesc": string;
   "column.pinLeft": string;
@@ -484,8 +417,10 @@ export type MasterDataGridResources = {
   "column.filter": string;
   "column.resetSize": string;
   "column.hide": string;
+  "column.edit": string;
+  "column.actions": string;
+  "column.openMenu": string;
 
-  // Filter translations
   "filter.title": string;
   "filter.description": string;
   "filter.where": string;
@@ -526,16 +461,13 @@ export type MasterDataGridResources = {
   "filter.max": string;
   "filter.to": string;
 
-  // Column settings translations
   "columnSettings.title": string;
   "columnSettings.description": string;
   "columnSettings.showAll": string;
   "columnSettings.hideAll": string;
 
-  // Table translations
   "table.empty": string;
   "table.noResults": string;
 
-  // Validation translations
   "validation.invalidString": string;
-};
+}

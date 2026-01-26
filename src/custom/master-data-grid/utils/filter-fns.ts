@@ -1,13 +1,9 @@
 import type { FilterFn } from "@tanstack/react-table";
 import type { FilterOperator } from "../types";
 
-/**
- * Get value from row based on column accessor
- */
 function getRowValue(row: unknown, columnId: string): unknown {
   if (!row || typeof row !== "object") return undefined;
 
-  // Handle nested paths (e.g., "details.name")
   const keys = columnId.split(".");
   let value: unknown = row;
 
@@ -22,9 +18,6 @@ function getRowValue(row: unknown, columnId: string): unknown {
   return value;
 }
 
-/**
- * Convert value to string for comparison
- */
 function toString(value: unknown): string {
   if (value === null || value === undefined) return "";
   if (typeof value === "string") return value;
@@ -35,9 +28,6 @@ function toString(value: unknown): string {
   return String(value);
 }
 
-/**
- * Convert value to number for comparison
- */
 function toNumber(value: unknown): number {
   if (typeof value === "number") return value;
   if (typeof value === "string") return parseFloat(value);
@@ -45,9 +35,6 @@ function toNumber(value: unknown): number {
   return NaN;
 }
 
-/**
- * Convert value to date for comparison
- */
 function toDate(value: unknown): Date | null {
   if (value instanceof Date) return value;
   if (typeof value === "string" || typeof value === "number") {
@@ -57,9 +44,6 @@ function toDate(value: unknown): Date | null {
   return null;
 }
 
-/**
- * Custom filter function for all operators
- */
 export const masterFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
   if (!filterValue || typeof filterValue !== "object") return true;
 
@@ -72,7 +56,6 @@ export const masterFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
   const cellValue = getRowValue(row.original, columnId);
 
   switch (operator) {
-    // String operators
     case "equals":
       return (
         toString(cellValue).toLowerCase() === toString(value).toLowerCase()
@@ -109,7 +92,6 @@ export const masterFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
     case "isNotEmpty":
       return Boolean(cellValue) && toString(cellValue).trim() !== "";
 
-    // Numeric operators
     case "greaterThan": {
       const numValue = toNumber(cellValue);
       const numFilter = toNumber(value);
@@ -160,7 +142,6 @@ export const masterFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
       );
     }
 
-    // Date operators
     case "before": {
       const dateValue = toDate(cellValue);
       const dateFilter = toDate(value);
@@ -177,7 +158,6 @@ export const masterFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
       );
     }
 
-    // Array operators
     case "inList": {
       if (!Array.isArray(value)) return false;
       const strValue = toString(cellValue).toLowerCase();
@@ -195,14 +175,10 @@ export const masterFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
   }
 };
 
-/**
- * Get available filter operators based on data type and format
- */
 export function getFilterOperators(
   type?: string,
   format?: string
 ): FilterOperator[] {
-  // Date operators
   if (format === "date" || format === "date-time" || format === "time") {
     return [
       "equals",
@@ -215,7 +191,6 @@ export function getFilterOperators(
     ];
   }
 
-  // Numeric operators
   if (type === "number" || type === "integer") {
     return [
       "equals",
@@ -231,12 +206,10 @@ export function getFilterOperators(
     ];
   }
 
-  // Boolean operators
   if (type === "boolean") {
     return ["equals", "notEquals", "isEmpty", "isNotEmpty"];
   }
 
-  // Enum operators
   if (format === "enum") {
     return [
       "equals",
@@ -248,7 +221,6 @@ export function getFilterOperators(
     ];
   }
 
-  // String operators (default)
   return [
     "equals",
     "notEquals",
@@ -261,22 +233,15 @@ export function getFilterOperators(
   ];
 }
 
-// getOperatorLabel is now imported from translation-utils
-
-/**
- * Validate filter value based on operator
- */
 export function validateFilterValue(
   operator: FilterOperator,
   value: unknown,
   value2?: unknown
 ): boolean {
-  // Operators that don't require a value
   if (operator === "isEmpty" || operator === "isNotEmpty") {
     return true;
   }
 
-  // Operators that require two values
   if (operator === "between" || operator === "inRange") {
     return (
       value !== undefined &&
@@ -288,18 +253,13 @@ export function validateFilterValue(
     );
   }
 
-  // Operators that require array value
   if (operator === "inList" || operator === "notInList") {
     return Array.isArray(value) && value.length > 0;
   }
 
-  // All other operators require at least one value
   return value !== undefined && value !== null && value !== "";
 }
 
-/**
- * Format filter value for display
- */
 export function formatFilterValue(
   value: unknown,
   operator: FilterOperator,
@@ -308,12 +268,10 @@ export function formatFilterValue(
 ): string {
   if (value === null || value === undefined) return "";
 
-  // Array values
   if (Array.isArray(value)) {
     return value.map((v) => toString(v)).join(", ");
   }
 
-  // Date values
   if (schemaFormat === "date" || schemaFormat === "date-time") {
     const date = toDate(value);
     if (date) {
@@ -323,7 +281,6 @@ export function formatFilterValue(
     }
   }
 
-  // Number values
   if (schemaType === "number" || schemaType === "integer") {
     const num = toNumber(value);
     return isNaN(num) ? toString(value) : num.toString();

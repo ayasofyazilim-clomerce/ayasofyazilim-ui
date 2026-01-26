@@ -1,12 +1,6 @@
+import { GenericObjectType } from "@rjsf/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-  ChevronDown,
-  ChevronRight,
-  MoreHorizontal,
-  Pencil,
-  Save,
-  X,
-} from "lucide-react";
+import { MoreHorizontal, Pencil, Save, X } from "lucide-react";
 import { useMemo, type RefObject } from "react";
 import { Button } from "../../../components/button";
 import { Checkbox } from "../../../components/checkbox";
@@ -22,12 +16,12 @@ import type {
   ExpandableColumnMeta,
   JSONSchema,
   MasterDataGridConfig,
+  MasterDataGridResources,
 } from "../types";
 import {
   generateColumnsFromSchema,
   mergeColumns,
 } from "../utils/column-generator";
-import { GenericObjectType } from "@rjsf/utils";
 
 export interface UseColumnsProps<TData> {
   config: MasterDataGridConfig<TData>;
@@ -39,17 +33,12 @@ export interface UseColumnsProps<TData> {
   editingRowsRef: RefObject<Record<string, Record<string, unknown>>>;
   updateCellValue: (rowId: string, columnId: string, value: unknown) => void;
   getRowId?: (row: TData, index: number) => string;
-  t?: Record<string, string>;
-  onFilterClick: (columnId: string) => void;
+  t?: MasterDataGridResources;
   startEditingRow: (rowId: string, row: TData) => void;
   cancelEditingRow: (rowId: string, row: TData) => void;
   saveEditingRow: (rowId: string, row: TData) => Promise<void>;
 }
 
-/**
- * Hook for generating and managing table columns
- * Consolidates the complex column generation logic from the main component
- */
 export function useColumns<TData>({
   config,
   configRef,
@@ -61,7 +50,6 @@ export function useColumns<TData>({
   updateCellValue,
   getRowId,
   t,
-  onFilterClick,
   startEditingRow,
   cancelEditingRow,
   saveEditingRow,
@@ -77,20 +65,17 @@ export function useColumns<TData>({
         }
       : undefined;
 
-    // Get expandOnClick columns
     const expandOnClickColumns = config.expansion?.expandOnClick
       ? Array.isArray(config.expansion.expandOnClick)
         ? config.expansion.expandOnClick
         : [config.expansion.expandOnClick]
       : [""];
 
-    // Generate columns from schema
     const generatedColumns = schema
       ? generateColumnsFromSchema<TData>(
           schema,
           configRef.current.localization,
           t,
-          onFilterClick,
           editingContext,
           configRef.current.cellClassName,
           configRef.current.dateOptions,
@@ -101,7 +86,6 @@ export function useColumns<TData>({
         )
       : [];
 
-    // Create a simpler context for merging (no onCellUpdate needed)
     const mergeContext = editingContext
       ? {
           get editingRows() {
@@ -111,17 +95,13 @@ export function useColumns<TData>({
         }
       : undefined;
 
-    // Merge with custom columns
     const merged = mergeColumns<TData>(
       generatedColumns,
       customColumns,
       mergeContext,
       enableColumnVisibility,
-      t,
-      onFilterClick
+      t
     );
-
-    // Wrap cells with expandOnClick handlers
 
     const mergedWithExpansion = merged.map((col) => {
       const shouldExpandOnClick =
@@ -167,14 +147,14 @@ export function useColumns<TData>({
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)
             }
-            aria-label={t?.["select_all"] || "Select all"}
+            aria-label={t?.["select_all"]}
           />
         ),
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label={t?.["select_row"] || "Select row"}
+            aria-label={t?.["select_row"]}
           />
         ),
         enableSorting: false,
@@ -182,14 +162,12 @@ export function useColumns<TData>({
       });
     }
 
-    // Add data columns
     finalColumns.push(...mergedWithExpansion);
 
-    // Add row actions column if enabled
     if (config.rowActions && config.rowActions.length > 0) {
       finalColumns.push({
         id: "actions",
-        header: t?.["actions"] || "Actions",
+        header: t?.["actions"],
         cell: ({ row }) => {
           const rowActions = config.rowActions?.filter((action) => {
             if (typeof action.hidden === "function") {
@@ -206,7 +184,7 @@ export function useColumns<TData>({
                 <Button
                   variant="ghost"
                   className="h-8 w-8 p-0"
-                  aria-label={t?.["open_menu"] || "Open menu"}
+                  aria-label={t?.["open_menu"]}
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -243,7 +221,6 @@ export function useColumns<TData>({
       });
     }
 
-    // Add edit actions column if inline editing is enabled
     if (config.editing?.enabled && config.editing.mode === "row") {
       finalColumns.push({
         id: "edit-actions",
@@ -286,7 +263,7 @@ export function useColumns<TData>({
               size="sm"
               onClick={() => startEditingRow(rowId, row.original)}
               className="h-7 px-2"
-              aria-label={t?.["edit"] || "Edit"}
+              aria-label={t?.["edit"]}
             >
               <Pencil className="h-3.5 w-3.5" />
             </Button>
@@ -297,12 +274,10 @@ export function useColumns<TData>({
       });
     }
 
-    // Apply column order if specified
     if (config.columnOrder && config.columnOrder.length > 0) {
       const orderedColumns: ColumnDef<TData>[] = [];
       const columnMap = new Map(finalColumns.map((col) => [col.id, col]));
 
-      // Add columns in the specified order
       for (const colId of config.columnOrder) {
         const col = columnMap.get(String(colId));
         if (col) {
@@ -310,14 +285,11 @@ export function useColumns<TData>({
           columnMap.delete(String(colId));
         }
       }
-
-      // Add any remaining columns that weren't in the order
       orderedColumns.push(...Array.from(columnMap.values()));
 
       return orderedColumns;
     }
 
-    // If no column order but columnVisibility mode is "show", use show config order
     if (
       !config.columnOrder &&
       config.columnVisibility?.mode === "show" &&
@@ -326,7 +298,6 @@ export function useColumns<TData>({
       const orderedColumns: ColumnDef<TData>[] = [];
       const columnMap = new Map(finalColumns.map((col) => [col.id, col]));
 
-      // Add columns in the visibility show order
       for (const colId of config.columnVisibility.columns) {
         const col = columnMap.get(String(colId));
         if (col) {
@@ -335,7 +306,6 @@ export function useColumns<TData>({
         }
       }
 
-      // Add any remaining columns (system columns like expander, select, actions)
       orderedColumns.push(...Array.from(columnMap.values()));
 
       return orderedColumns;
@@ -360,7 +330,6 @@ export function useColumns<TData>({
     updateCellValue,
     getRowId,
     t,
-    onFilterClick,
     startEditingRow,
     cancelEditingRow,
     saveEditingRow,

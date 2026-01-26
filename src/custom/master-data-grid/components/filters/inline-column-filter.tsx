@@ -1,13 +1,18 @@
 import type { Column } from "@tanstack/react-table";
-import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../../../components/dropdown-menu";
-import type { ColumnFilter, FilterOperator, ColumnMeta } from "../../types";
+import type {
+  ColumnFilter,
+  ColumnMeta,
+  FilterOperator,
+  MasterDataGridResources,
+} from "../../types";
 import {
   getFilterOperators,
   validateFilterValue,
@@ -17,13 +22,9 @@ import { FilterInput } from "./filter-input";
 
 interface InlineColumnFilterProps<TData> {
   column: Column<TData, unknown>;
-  t?: Record<string, string>;
+  t?: MasterDataGridResources;
 }
 
-/**
- * Inline filter input that appears directly in the column header
- * More intuitive than dialog-based filtering
- */
 export function InlineColumnFilter<TData>({
   column,
   t,
@@ -54,11 +55,7 @@ export function InlineColumnFilter<TData>({
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const isRangeOperator = operator === "between" || operator === "inRange";
-  const isNumberType =
-    schemaProperty?.type === "number" || schemaProperty?.type === "integer";
-  const needsNoInput = operator === "isEmpty" || operator === "isNotEmpty";
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
@@ -71,12 +68,10 @@ export function InlineColumnFilter<TData>({
     (newValue: string) => {
       setValue(newValue);
 
-      // Clear existing timeout
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
 
-      // Set new timeout for debounced update
       debounceTimerRef.current = setTimeout(() => {
         if (!newValue && !isRangeOperator) {
           column.setFilterValue(undefined);
@@ -105,7 +100,7 @@ export function InlineColumnFilter<TData>({
           };
           column.setFilterValue(filter);
         }
-      }, 300); // 300ms debounce delay
+      }, 300);
     },
     [column, operator, value2, isRangeOperator]
   );
@@ -113,13 +108,9 @@ export function InlineColumnFilter<TData>({
   const handleValue2Change = useCallback(
     (newValue2: string) => {
       setValue2(newValue2);
-
-      // Clear existing timeout
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
-
-      // Set new timeout for debounced update
       debounceTimerRef.current = setTimeout(() => {
         if (
           value &&
@@ -134,7 +125,7 @@ export function InlineColumnFilter<TData>({
           };
           column.setFilterValue(filter);
         }
-      }, 300); // 300ms debounce delay
+      }, 300);
     },
     [column, operator, value]
   );
@@ -168,7 +159,6 @@ export function InlineColumnFilter<TData>({
       newOperator === "isEmpty" || newOperator === "isNotEmpty";
 
     if (needsNoInputNew) {
-      // No value needed for isEmpty/isNotEmpty
       const filter: ColumnFilter = {
         id: column.id,
         operator: newOperator,
@@ -176,7 +166,6 @@ export function InlineColumnFilter<TData>({
       };
       column.setFilterValue(filter);
     } else if (isNewRangeOperator) {
-      // Clear filter when switching to range without both values
       if (value && value2 && validateFilterValue(newOperator, value, value2)) {
         const filter: ColumnFilter = {
           id: column.id,
@@ -189,7 +178,6 @@ export function InlineColumnFilter<TData>({
         column.setFilterValue(undefined);
       }
     } else {
-      // Clear filter when switching from no-input operator without value
       if (value && validateFilterValue(newOperator, value)) {
         const filter: ColumnFilter = {
           id: column.id,
@@ -202,8 +190,6 @@ export function InlineColumnFilter<TData>({
       }
     }
   };
-
-  // Show operator dropdown only if multiple operators available
   const showOperatorSelect = availableOperators.length > 1;
 
   return (
@@ -212,7 +198,7 @@ export function InlineColumnFilter<TData>({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="w-full px-2 py-1.5 text-xs font-medium hover:bg-accent rounded-md flex items-center justify-between">
-              {getTranslations(`filter.operator.${operator}`, t)}{" "}
+              {getTranslations(`filter.operator.${operator}`, t)}
               <ChevronDown className="size-3" />
             </button>
           </DropdownMenuTrigger>

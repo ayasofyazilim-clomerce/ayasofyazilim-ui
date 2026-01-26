@@ -1,9 +1,6 @@
 import type { Header, Cell } from "@tanstack/react-table";
 import type { CSSProperties } from "react";
 
-/**
- * Get pinning styles for a table header
- */
 export function getPinningStyles<TData>(
   header: Header<TData, unknown>
 ): CSSProperties {
@@ -17,9 +14,6 @@ export function getPinningStyles<TData>(
   };
 }
 
-/**
- * Get pinning class names for a table header
- */
 export function getPinningHeaderClassNames<TData>(
   header: Header<TData, unknown>
 ): string {
@@ -39,9 +33,6 @@ export function getPinningHeaderClassNames<TData>(
   return classes.join(" ");
 }
 
-/**
- * Get pinning styles for a table cell
- */
 export function getPinningCellStyles<TData>(
   cell: Cell<TData, unknown>
 ): CSSProperties {
@@ -53,7 +44,7 @@ export function getPinningCellStyles<TData>(
       ? cell.column.getSize()
       : cell.column.columnDef.minSize || cell.column.getSize(),
     maxWidth: pinned
-      ? cell.column.columnDef.maxSize // Use defined maxSize or no limit
+      ? cell.column.columnDef.maxSize
       : cell.column.columnDef.maxSize || cell.column.getSize(),
     left: pinned === "left" ? `${cell.column.getStart("left")}px` : undefined,
     right:
@@ -63,9 +54,6 @@ export function getPinningCellStyles<TData>(
   };
 }
 
-/**
- * Get pinning class names for a table cell
- */
 export function getPinningCellClassNames<TData>(
   cell: Cell<TData, unknown>
 ): string {
