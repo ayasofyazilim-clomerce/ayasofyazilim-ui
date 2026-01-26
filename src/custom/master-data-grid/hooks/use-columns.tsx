@@ -183,10 +183,11 @@ export function useColumns<TData>({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-8 w-8 p-0"
+                  size="icon-xs"
+                  className="w-full"
                   aria-label={t?.["open_menu"]}
                 >
-                  <MoreHorizontal className="h-4 w-4" />
+                  <MoreHorizontal />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -207,7 +208,7 @@ export function useColumns<TData>({
                       disabled={disabled}
                       className={action.className}
                     >
-                      {action.icon && <action.icon className="mr-2 h-4 w-4" />}
+                      {action.icon && <action.icon className="size-3.5" />}
                       {label}
                     </DropdownMenuItem>
                   );
@@ -243,18 +244,18 @@ export function useColumns<TData>({
                 size="sm"
                 onClick={() => saveEditingRow(rowId, row.original)}
                 className="h-7 px-2"
-                aria-label={t?.["save"] || "Save"}
+                aria-label={t?.["save"]}
               >
-                <Save className="h-3.5 w-3.5" />
+                <Save className="size-3.5" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => cancelEditingRow(rowId, row.original)}
                 className="h-7 px-2"
-                aria-label={t?.["cancel"] || "Cancel"}
+                aria-label={t?.["cancel"]}
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="size-3.5" />
               </Button>
             </div>
           ) : (
@@ -265,7 +266,7 @@ export function useColumns<TData>({
               className="h-7 px-2"
               aria-label={t?.["edit"]}
             >
-              <Pencil className="h-3.5 w-3.5" />
+              <Pencil className="size-3.5" />
             </Button>
           );
         },

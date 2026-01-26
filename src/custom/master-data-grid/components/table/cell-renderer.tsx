@@ -612,7 +612,7 @@ export function CellRenderer<TData = unknown>({
 
   if (typeof value === "object") {
     return (
-      <code className={cn("text-xs bg-muted  5 rounded", className)}>
+      <code className={cn("text-xs bg-muted rounded", className)}>
         {JSON.stringify(value)}
       </code>
     );

@@ -1,5 +1,5 @@
 export {
-  getPinningStyles,
+  getPinningHeaderStyles,
   getPinningHeaderClassNames,
   getPinningCellStyles,
   getPinningCellClassNames,

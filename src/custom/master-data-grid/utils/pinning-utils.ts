@@ -1,16 +1,18 @@
 import type { Header, Cell } from "@tanstack/react-table";
 import type { CSSProperties } from "react";
 
-export function getPinningStyles<TData>(
+export function getPinningHeaderStyles<TData>(
   header: Header<TData, unknown>
 ): CSSProperties {
   const pinned = header.column.getIsPinned();
+  const isActions = header.column.id === "actions";
   return {
     left: pinned === "left" ? `${header.column.getStart("left")}px` : undefined,
     right:
       pinned === "right" ? `${header.column.getAfter("right")}px` : undefined,
     position: pinned ? "sticky" : "relative",
     zIndex: pinned ? 1 : 0,
+    maxWidth: isActions ? "40px" : undefined,
   };
 }
 
@@ -37,7 +39,19 @@ export function getPinningCellStyles<TData>(
   cell: Cell<TData, unknown>
 ): CSSProperties {
   const pinned = cell.column.getIsPinned();
-
+  const isActions = cell.column.id === "actions";
+  if (isActions) {
+    return {
+      width: "40px",
+      minWidth: "40px",
+      maxWidth: "40px",
+      left: pinned === "left" ? `${cell.column.getStart("left")}px` : undefined,
+      right:
+        pinned === "right" ? `${cell.column.getAfter("right")}px` : undefined,
+      position: pinned ? "sticky" : "relative",
+      zIndex: pinned ? 1 : 0,
+    };
+  }
   return {
     width: cell.column.getSize(),
     minWidth: pinned

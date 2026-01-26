@@ -28,7 +28,7 @@ import type { MasterDataGridConfig, MasterDataGridProps } from "../types";
 import { exportToCSV } from "../utils/export-utils";
 import {
   getPinningHeaderClassNames,
-  getPinningStyles,
+  getPinningHeaderStyles,
 } from "../utils/pinning-utils";
 import { getTranslations } from "../utils/translation-utils";
 import { ColumnSettingsDialog } from "./dialogs/column-settings-dialog";
@@ -71,6 +71,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     getRowId,
     serverFilters,
     serverFilterLocation = "toolbar",
+    pinning = {
+      right: ["actions"],
+    },
   } = config;
 
   const configWithDefaults: MasterDataGridConfig<TData> = {
@@ -87,6 +90,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     enablePagination,
     serverFilters,
     serverFilterLocation,
+    pinning,
   };
 
   const {
@@ -252,7 +256,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     columnResizeMode: "onChange",
     enableHiding: enableColumnVisibility,
     enableRowSelection: Boolean(enableRowSelection),
-    getRowId: getRowId ?? ((row, index) => String(index)),
+    getRowId: getRowId ?? ((_, index) => String(index)),
     getRowCanExpand: configWithDefaults.expansion?.enabled
       ? () => true
       : undefined,
@@ -361,7 +365,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      style={getPinningStyles(header)}
+                      style={getPinningHeaderStyles(header)}
                       className={cn(
                         getPinningHeaderClassNames(header),
                         "border-b border-r"
@@ -413,7 +417,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      style={getPinningStyles(header)}
+                      style={getPinningHeaderStyles(header)}
                       className={cn(
                         getPinningHeaderClassNames(header),
                         "has-[button]:px-0 not-last:border-r"
