@@ -28,7 +28,7 @@ import type { MasterDataGridConfig, MasterDataGridProps } from "../types";
 import { exportToCSV } from "../utils/export-utils";
 import {
   getPinningHeaderClassNames,
-  getPinningStyles,
+  getPinningHeaderStyles,
 } from "../utils/pinning-utils";
 import { getTranslations } from "../utils/translation-utils";
 import { ColumnSettingsDialog } from "./dialogs/column-settings-dialog";
@@ -71,6 +71,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     getRowId,
     serverFilters,
     serverFilterLocation = "toolbar",
+    pinning = {
+      right: ["actions"]
+    }
   } = config;
 
   const configWithDefaults: MasterDataGridConfig<TData> = {
@@ -87,6 +90,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     enablePagination,
     serverFilters,
     serverFilterLocation,
+    pinning
   };
 
   const {
@@ -169,62 +173,42 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       globalFilter,
     },
     onSortingChange: (updater) => {
-      const newSorting =
-        typeof updater === "function" ? updater(tableState.sorting) : updater;
+      const newSorting = typeof updater === "function" ? updater(tableState.sorting) : updater;
       setSorting(newSorting);
       configWithDefaults.onSortingChange?.(newSorting);
     },
     onColumnFiltersChange: (updater) => {
-      const newFilters =
-        typeof updater === "function"
-          ? updater(tableState.columnFilters)
-          : updater;
+      const newFilters = typeof updater === "function" ? updater(tableState.columnFilters) : updater;
       setColumnFilters(newFilters);
       configWithDefaults.onFilteringChange?.(newFilters);
     },
     onColumnVisibilityChange: (updater) => {
-      const newVisibility =
-        typeof updater === "function"
-          ? updater(tableState.columnVisibility)
-          : updater;
+      const newVisibility = typeof updater === "function" ? updater(tableState.columnVisibility) : updater;
       setColumnVisibility(newVisibility);
     },
     onRowSelectionChange: (updater) => {
-      const newSelection =
-        typeof updater === "function"
-          ? updater(tableState.rowSelection)
-          : updater;
+      const newSelection = typeof updater === "function" ? updater(tableState.rowSelection) : updater;
       setRowSelection(newSelection);
 
       if (configWithDefaults.selection?.onSelectionChange) {
-        const selectedRows = table
-          .getSelectedRowModel()
-          .rows.map((row) => row.original);
+        const selectedRows = table.getSelectedRowModel().rows.map((row) => row.original);
         configWithDefaults.selection.onSelectionChange(selectedRows);
       }
     },
     onColumnPinningChange: (updater) => {
-      const newPinning =
-        typeof updater === "function"
-          ? updater(tableState.columnPinning)
-          : updater;
+      const newPinning = typeof updater === "function" ? updater(tableState.columnPinning) : updater;
       setColumnPinning(newPinning);
     },
     onGroupingChange: (updater) => {
-      const newGrouping =
-        typeof updater === "function" ? updater(tableState.grouping) : updater;
+      const newGrouping = typeof updater === "function" ? updater(tableState.grouping) : updater;
       setGrouping(newGrouping);
     },
     onExpandedChange: (updater) => {
-      const newExpanded =
-        typeof updater === "function" ? updater(tableState.expanded) : updater;
+      const newExpanded = typeof updater === "function" ? updater(tableState.expanded) : updater;
       setExpanded(newExpanded);
     },
     onPaginationChange: (updater) => {
-      const newPagination =
-        typeof updater === "function"
-          ? updater(tableState.pagination)
-          : updater;
+      const newPagination = typeof updater === "function" ? updater(tableState.pagination) : updater;
       setPagination(newPagination);
       configWithDefaults.onPaginationChange?.(newPagination);
     },
@@ -233,16 +217,12 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
     getFilteredRowModel: enableFiltering ? getFilteredRowModel() : undefined,
-    getPaginationRowModel: enablePagination
-      ? getPaginationRowModel()
-      : undefined,
+    getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
     getGroupedRowModel: enableGrouping ? getGroupedRowModel() : undefined,
     getExpandedRowModel: getExpandedRowModel(),
     manualSorting: configWithDefaults.manualSorting,
     manualFiltering: configWithDefaults.manualFiltering,
-    manualPagination:
-      configWithDefaults.manualPagination ??
-      configWithDefaults.rowCount != null,
+    manualPagination: configWithDefaults.manualPagination ?? configWithDefaults.rowCount != null,
     rowCount: configWithDefaults.rowCount,
     enableSorting,
     enableFilters: enableFiltering,
@@ -252,10 +232,8 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     columnResizeMode: "onChange",
     enableHiding: enableColumnVisibility,
     enableRowSelection: Boolean(enableRowSelection),
-    getRowId: getRowId ?? ((row, index) => String(index)),
-    getRowCanExpand: configWithDefaults.expansion?.enabled
-      ? () => true
-      : undefined,
+    getRowId: getRowId ?? ((_, index) => String(index)),
+    getRowCanExpand: configWithDefaults.expansion?.enabled ? () => true : undefined,
   });
 
   const selectedRows = useMemo(
@@ -361,7 +339,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      style={getPinningStyles(header)}
+                      style={getPinningHeaderStyles(header)}
                       className={cn(
                         getPinningHeaderClassNames(header),
                         "border-b border-r"
@@ -370,9 +348,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -413,7 +391,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      style={getPinningStyles(header)}
+                      style={getPinningHeaderStyles(header)}
                       className={cn(
                         getPinningHeaderClassNames(header),
                         "has-[button]:px-0 not-last:border-r"
@@ -422,9 +400,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
