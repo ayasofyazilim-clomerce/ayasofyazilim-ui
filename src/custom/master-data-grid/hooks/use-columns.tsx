@@ -57,12 +57,12 @@ export function useColumns<TData>({
   return useMemo<ColumnDef<TData>[]>(() => {
     const editingContext = config.editing?.enabled
       ? {
-        get editingRows() {
-          return editingRowsRef.current;
-        },
-        onCellUpdate: updateCellValue,
-        getRowId: getRowId || ((row: TData, index: number) => String(index)),
-      }
+          get editingRows() {
+            return editingRowsRef.current;
+          },
+          onCellUpdate: updateCellValue,
+          getRowId: getRowId || ((row: TData, index: number) => String(index)),
+        }
       : undefined;
 
     const expandOnClickColumns = config.expansion?.expandOnClick
@@ -73,26 +73,26 @@ export function useColumns<TData>({
 
     const generatedColumns = schema
       ? generateColumnsFromSchema<TData>(
-        schema,
-        configRef.current.localization,
-        t,
-        editingContext,
-        configRef.current.cellClassName,
-        configRef.current.dateOptions,
-        configRef.current.customRenderers,
-        configRef.current.editing?.errorDisplayMode,
-        enableColumnVisibility,
-        expandOnClickColumns
-      )
+          schema,
+          configRef.current.localization,
+          t,
+          editingContext,
+          configRef.current.cellClassName,
+          configRef.current.dateOptions,
+          configRef.current.customRenderers,
+          configRef.current.editing?.errorDisplayMode,
+          enableColumnVisibility,
+          expandOnClickColumns
+        )
       : [];
 
     const mergeContext = editingContext
       ? {
-        get editingRows() {
-          return editingRowsRef.current;
-        },
-        getRowId: editingContext.getRowId,
-      }
+          get editingRows() {
+            return editingRowsRef.current;
+          },
+          getRowId: editingContext.getRowId,
+        }
       : undefined;
 
     const merged = mergeColumns<TData>(
