@@ -1,14 +1,25 @@
 "use client";
 
-import { PhoneInput, PhoneInputProps } from "@repo/ayasofyazilim-ui/custom/phone-input";
+import {
+  PhoneInput,
+  PhoneInputProps,
+} from "@repo/ayasofyazilim-ui/custom/phone-input";
 import { WidgetProps } from "@rjsf/utils";
 
 export function CustomPhoneFieldWithParse<T>(
-  props: Partial<Omit<WidgetProps<T>, "onChange" | "id">> & Omit<PhoneInputProps, "required" | "defaultValue" | "id">
+  props: Partial<Omit<WidgetProps<T>, "onChange" | "id">> &
+    Omit<PhoneInputProps, "required" | "defaultValue" | "id">
 ) {
   const required = props.required || props.uiSchema?.["ui:required"];
-  return <PhoneInput {...props} id={props.id || ""} required={required} defaultValue={undefined} />;
-};
+  return (
+    <PhoneInput
+      {...props}
+      id={props.id || ""}
+      required={required}
+      defaultValue={undefined}
+    />
+  );
+}
 export const PhoneWithParseWidget = CustomPhoneFieldWithParse;
 
 export const PhoneWithValueWidget = function CustomPhoneFieldWithValue(

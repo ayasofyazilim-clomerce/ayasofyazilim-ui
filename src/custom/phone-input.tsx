@@ -16,7 +16,7 @@ import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 export type PhoneInputValues = {
   value: string | undefined;
   parsed: ReturnType<typeof parsePhoneNumber>;
-}
+};
 export type PhoneInputProps = {
   id: string;
   name?: string;
@@ -28,7 +28,7 @@ export type PhoneInputProps = {
   className?: string;
   required?: boolean;
   defaultCountry?: string;
-}
+};
 export function PhoneInput({
   id,
   name,
@@ -82,7 +82,7 @@ const _PhoneInput = React.forwardRef<
     data-slot="phone-input"
     className={cn(
       "-ms-px rounded-s-none rounded-l-none! shadow-none focus-visible:z-10",
-      className,
+      className
     )}
     ref={ref}
     {...props}
