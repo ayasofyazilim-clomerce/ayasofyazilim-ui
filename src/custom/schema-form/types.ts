@@ -1,7 +1,7 @@
 import { FormProps, IChangeEvent } from "@rjsf/core";
-import { GenericObjectType } from "@rjsf/utils";
+import { GenericObjectType as _GenericObjectType } from "@rjsf/utils";
 import { UiSchema as BaseUiSchema } from "@rjsf/utils";
-
+export type GenericObjectType = _GenericObjectType;
 export type {
   FieldProps,
   ArrayFieldItemTemplateProps,
@@ -18,7 +18,7 @@ export type SchemaFormProps<T = any> = Omit<
   FormProps<T>,
   "validator" | "schema" | "uiSchema"
 > & {
-  schema: GenericObjectType;
+  schema: _GenericObjectType;
   validator?: FormProps<T>["validator"];
   uiSchema?: UiSchema | UiSchema<T>;
   filter?: FilterType<T>;
@@ -27,10 +27,10 @@ export type SchemaFormProps<T = any> = Omit<
 export type RJSFChangeEvent<T = any> = IChangeEvent<T>;
 
 export type CreateFieldConfigWithResourceProps = {
-  extend?: GenericObjectType;
+  extend?: _GenericObjectType;
   name?: string;
-  resources: GenericObjectType;
-  schema: GenericObjectType;
+  resources: _GenericObjectType;
+  schema: _GenericObjectType;
 };
 
 export type UiSchema<T = unknown> = BaseUiSchema<T>;
@@ -44,7 +44,7 @@ export type FilterType<T> = CommonFilterType<T> & {
 export type CreateSchemaWithFilters<T> = {
   filter: FilterType<T>;
   name?: string;
-  schema: GenericObjectType;
+  schema: _GenericObjectType;
 };
 
 export type FilteredObject<T> = {

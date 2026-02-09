@@ -13,7 +13,22 @@ import flags from "react-phone-number-input/flags";
 import { Input } from "@repo/ayasofyazilim-ui/components/input";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 // import { FieldErrorTemplate } from "./schema-form/fields";
-
+export type PhoneInputValues = {
+  value: string | undefined;
+  parsed: ReturnType<typeof parsePhoneNumber>;
+};
+export type PhoneInputProps = {
+  id: string;
+  name?: string;
+  placeholder?: string;
+  defaultValue?: string | undefined;
+  value?: string;
+  onChange?: (values: PhoneInputValues) => void;
+  disabled?: boolean;
+  className?: string;
+  required?: boolean;
+  defaultCountry?: string;
+};
 export function PhoneInput({
   id,
   name,
@@ -25,26 +40,12 @@ export function PhoneInput({
   required,
   className,
   defaultCountry = "US",
-}: {
-  id: string;
-  name?: string;
-  placeholder?: string;
-  defaultValue?: string | undefined;
-  value?: string;
-  onChange?: (values: {
-    value: string | undefined;
-    parsed: ReturnType<typeof parsePhoneNumber>;
-  }) => void;
-  disabled?: boolean;
-  className?: string;
-  required?: boolean;
-  defaultCountry?: string;
-}) {
+}: PhoneInputProps) {
   const [value, setValue] = useState(initialValue || defaultValue || "");
   return (
     <>
       <PhoneInputWithCountrySelect
-        className={cn("flex rounded-md shadow-xs", className)}
+        className={cn("flex rounded-r-md shadow-xs", className)}
         international
         flagComponent={FlagComponent}
         defaultCountry={defaultCountry as Country}
@@ -80,7 +81,7 @@ const _PhoneInput = React.forwardRef<
     data-testid={`${props.id}_input`}
     data-slot="phone-input"
     className={cn(
-      "-ms-px rounded-s-none shadow-none focus-visible:z-10",
+      "-ms-px rounded-s-none rounded-l-none! shadow-none focus-visible:z-10",
       className
     )}
     ref={ref}
