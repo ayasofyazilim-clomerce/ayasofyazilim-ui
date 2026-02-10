@@ -65,18 +65,20 @@ export function ChartCard({
         )}
         {header}
       </CardHeader>
-      <CardContent className={cn("pb-0", classNames?.content)}>
-        {emptyState ? <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              {emptyState.icon}
-            </EmptyMedia>
-            <EmptyTitle>{emptyState.title}</EmptyTitle>
-            <EmptyDescription>
-              {emptyState.description}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty> : children}
+      <CardContent className={cn("pb-0 relative", classNames?.content)}>
+        {emptyState && <div className="absolute inset-0 bg-white/50 z-2">
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                {emptyState.icon}
+              </EmptyMedia>
+              <EmptyTitle>{emptyState.title}</EmptyTitle>
+              <EmptyDescription>
+                {emptyState.description}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty></div>}
+        {children}
       </CardContent>
       {(trendText || trendIcon) && (
         <CardFooter
