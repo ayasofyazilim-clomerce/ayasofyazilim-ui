@@ -20,6 +20,7 @@ import { ReactNode } from "react";
 import { CurveType } from "recharts/types/shape/Curve";
 import { BaseAxisProps } from "recharts/types/util/types";
 import { CardClassNames, ChartCard } from "./chart-card";
+import { EmptyConfig } from ".";
 
 export const description = "An area chart with a legend";
 
@@ -56,7 +57,7 @@ export type AreaChartProps = {
   };
   valuePrefix?: string;
   valueSuffix?: string;
-};
+} & EmptyConfig;
 
 export function AreaChart({
   data,
@@ -72,6 +73,7 @@ export function AreaChart({
   classNames,
   valuePrefix,
   valueSuffix,
+  emptyState
 }: AreaChartProps) {
   return (
     <ChartCard
@@ -82,6 +84,7 @@ export function AreaChart({
       trendIcon={trendIcon}
       footer={footer}
       classNames={classNames?.card}
+      emptyState={emptyState}
     >
       <ChartContainer
         config={config}

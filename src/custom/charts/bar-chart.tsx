@@ -18,7 +18,7 @@ import {
   YAxis,
 } from "recharts";
 import { BaseAxisProps } from "recharts/types/util/types";
-import { ChartData } from ".";
+import { ChartData, EmptyConfig } from ".";
 import { CardClassNames, ChartCard } from "./chart-card";
 
 export type BarChartProps = {
@@ -45,7 +45,7 @@ export type BarChartProps = {
     };
     card?: CardClassNames;
   };
-};
+} & EmptyConfig;
 
 export function BarChart({ layout = "vertical", ...props }: BarChartProps) {
   if (layout === "horizontal") {
@@ -70,6 +70,7 @@ function HorizontalBarChart({
   showLegend,
   valuePrefix,
   valueSuffix,
+  emptyState,
 }: BarChartProps) {
   return (
     <ChartCard
@@ -80,6 +81,7 @@ function HorizontalBarChart({
       trendText={trendText}
       trendIcon={trendIcon}
       classNames={classNames?.card}
+      emptyState={emptyState}
     >
       <ChartContainer
         config={config}
@@ -158,6 +160,7 @@ function VerticalBarChart({
   showLegend,
   valuePrefix,
   valueSuffix,
+  emptyState,
 }: BarChartProps) {
   return (
     <ChartCard
@@ -168,6 +171,7 @@ function VerticalBarChart({
       trendText={trendText}
       trendIcon={trendIcon}
       classNames={classNames?.card}
+      emptyState={emptyState}
     >
       <ChartContainer
         config={config}

@@ -18,7 +18,7 @@ import {
 } from "@repo/ayasofyazilim-ui/components/chart";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { ChartCard, CardClassNames } from "./chart-card";
-import { ChartData } from ".";
+import { ChartData, EmptyConfig } from ".";
 
 export type RadarChartProps = {
   data: ChartData;
@@ -43,7 +43,7 @@ export type RadarChartProps = {
     };
     card?: CardClassNames;
   };
-};
+} & EmptyConfig;
 
 export function RadarChart({
   data,
@@ -60,6 +60,7 @@ export function RadarChart({
   classNames,
   valuePrefix,
   valueSuffix,
+  emptyState,
 }: RadarChartProps) {
   return (
     <ChartCard
@@ -70,6 +71,7 @@ export function RadarChart({
       trendText={trendText}
       trendIcon={trendIcon}
       classNames={classNames?.card}
+      emptyState={emptyState}
     >
       <ChartContainer
         config={config}

@@ -11,9 +11,9 @@ import {
 } from "@repo/ayasofyazilim-ui/components/chart";
 import { CardClassNames, ChartCard } from "./chart-card";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { ChartData } from ".";
+import { ChartData, EmptyConfig } from ".";
 
-export interface PieChartProps {
+export type PieChartProps = {
   data: ChartData;
   config: ChartConfig;
   valueKey: string;
@@ -40,7 +40,7 @@ export interface PieChartProps {
     };
     card?: CardClassNames;
   };
-}
+} & EmptyConfig;
 
 export function PieChart({
   data,
@@ -61,6 +61,7 @@ export function PieChart({
   valuePrefix,
   valueSuffix,
   showLegend = true,
+  emptyState,
 }: PieChartProps) {
   const totalCount = useMemo(
     () => data.reduce((acc, curr) => acc + (Number(curr[valueKey]) || 0), 0),
@@ -110,6 +111,7 @@ export function PieChart({
       trendText={trendText}
       trendIcon={trendIcon}
       classNames={classNames?.card}
+      emptyState={emptyState}
     >
       <ChartContainer
         config={config}

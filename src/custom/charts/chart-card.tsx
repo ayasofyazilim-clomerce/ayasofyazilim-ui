@@ -6,8 +6,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ayasofyazilim-ui/components/card";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ayasofyazilim-ui/components/empty";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { ReactNode } from "react";
+import { EmptyConfig } from ".";
 
 export type CardClassNames = {
   container?: string;
@@ -16,6 +18,7 @@ export type CardClassNames = {
   title?: string;
   description?: string;
   footer?: string;
+  isEmpty?: string;
 };
 
 export function ChartCard({
@@ -28,6 +31,7 @@ export function ChartCard({
   trendIcon,
   children,
   classNames,
+  emptyState,
 }: {
   title?: ReactNode;
   description?: ReactNode;
@@ -38,7 +42,7 @@ export function ChartCard({
   trendIcon?: ReactNode;
   children: ReactNode;
   classNames?: CardClassNames;
-}) {
+} & EmptyConfig) {
   return (
     <Card className={cn(classNames?.container)}>
       <CardHeader
@@ -62,7 +66,17 @@ export function ChartCard({
         {header}
       </CardHeader>
       <CardContent className={cn("pb-0", classNames?.content)}>
-        {children}
+        {emptyState ? <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              {emptyState.icon}
+            </EmptyMedia>
+            <EmptyTitle>{emptyState.title}</EmptyTitle>
+            <EmptyDescription>
+              {emptyState.description}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty> : children}
       </CardContent>
       {(trendText || trendIcon) && (
         <CardFooter
