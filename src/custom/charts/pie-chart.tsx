@@ -2,6 +2,7 @@ import * as React from "react";
 import { useMemo } from "react";
 import { Label, LabelProps, Pie, PieChart as RechartsPieChart } from "recharts";
 import {
+  ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
@@ -10,17 +11,13 @@ import {
 } from "@repo/ayasofyazilim-ui/components/chart";
 import { CardClassNames, ChartCard } from "./chart-card";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { ChartData } from ".";
 
-export type PieChartData = Record<
-  string,
-  {
-    value: number;
-    label: string;
-    color?: string;
-  }
->;
 export interface PieChartProps {
-  data: PieChartData;
+  data: ChartData;
+  config: ChartConfig;
+  valueKey: string;
+  nameKey: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
   period?: React.ReactNode;
@@ -47,6 +44,9 @@ export interface PieChartProps {
 
 export function PieChart({
   data,
+  config,
+  valueKey,
+  nameKey,
   title,
   description,
   period,
@@ -63,8 +63,8 @@ export function PieChart({
   showLegend = true,
 }: PieChartProps) {
   const totalCount = useMemo(
-    () => Object.values(data).reduce((acc, curr) => acc + curr.value, 0),
-    [data]
+    () => data.reduce((acc, curr) => acc + (Number(curr[valueKey]) || 0), 0),
+    [data, valueKey]
   );
 
   // Transform data to ChartConfig shape for ChartContainer
@@ -112,7 +112,7 @@ export function PieChart({
       classNames={classNames?.card}
     >
       <ChartContainer
-        config={data}
+        config={config}
         className={cn("max-h-[300px]", classNames?.chart?.container)}
       >
         <RechartsPieChart className={cn("relative", classNames?.chart?.pie)}>
@@ -126,16 +126,15 @@ export function PieChart({
             }
           />
           <Pie
-            data={Object.entries(data).map(([key, value]) => ({
-              key,
-              ...value,
+            data={data.map((item, index) => ({
+              ...item,
               fill:
-                value.color ||
-                `var(--chart-${Object.keys(data).indexOf(key) + 1})`,
+                config[String(item[nameKey])]?.color ||
+                `var(--chart-${index + 1})`,
             }))}
             className="fixed"
-            dataKey="value"
-            nameKey="key"
+            dataKey={valueKey}
+            nameKey={nameKey}
             innerRadius={innerRadius || (chartStyle === "donut" ? 60 : 0)}
             strokeWidth={
               strokeWidth || (chartStyle === "donut" ? 0 : undefined)
