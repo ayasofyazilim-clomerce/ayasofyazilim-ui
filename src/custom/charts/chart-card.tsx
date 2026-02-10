@@ -42,7 +42,7 @@ export function ChartCard({
   trendIcon?: ReactNode;
   children: ReactNode;
   classNames?: CardClassNames;
-} & EmptyConfig) {
+} & Partial<EmptyConfig>) {
   return (
     <Card className={cn(classNames?.container)}>
       <CardHeader

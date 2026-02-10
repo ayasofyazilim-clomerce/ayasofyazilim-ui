@@ -84,7 +84,8 @@ export function AreaChart({
       trendIcon={trendIcon}
       footer={footer}
       classNames={classNames?.card}
-      emptyState={emptyState}
+      emptyState={data.length === 0 ? emptyState : undefined}
+
     >
       <ChartContainer
         config={config}

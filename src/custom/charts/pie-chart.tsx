@@ -111,7 +111,7 @@ export function PieChart({
       trendText={trendText}
       trendIcon={trendIcon}
       classNames={classNames?.card}
-      emptyState={emptyState}
+      emptyState={data.length === 0 ? emptyState : undefined}
     >
       <ChartContainer
         config={config}
