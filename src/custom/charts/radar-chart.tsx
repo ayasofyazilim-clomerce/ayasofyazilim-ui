@@ -72,7 +72,6 @@ export function RadarChart({
       trendIcon={trendIcon}
       classNames={classNames?.card}
       emptyState={data.length === 0 ? emptyState : undefined}
-
     >
       <ChartContainer
         config={config}

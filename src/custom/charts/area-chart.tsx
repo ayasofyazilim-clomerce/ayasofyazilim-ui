@@ -73,7 +73,7 @@ export function AreaChart({
   classNames,
   valuePrefix,
   valueSuffix,
-  emptyState
+  emptyState,
 }: AreaChartProps) {
   return (
     <ChartCard
@@ -85,7 +85,6 @@ export function AreaChart({
       footer={footer}
       classNames={classNames?.card}
       emptyState={data.length === 0 ? emptyState : undefined}
-
     >
       <ChartContainer
         config={config}

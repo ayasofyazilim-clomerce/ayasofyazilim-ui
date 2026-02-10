@@ -13,4 +13,4 @@ export type EmptyConfig = {
     title: string;
     description: string;
   };
-}
+};

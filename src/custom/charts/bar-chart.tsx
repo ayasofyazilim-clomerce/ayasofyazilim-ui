@@ -82,7 +82,6 @@ function HorizontalBarChart({
       trendIcon={trendIcon}
       classNames={classNames?.card}
       emptyState={data.length === 0 ? emptyState : undefined}
-
     >
       <ChartContainer
         config={config}
@@ -173,7 +172,6 @@ function VerticalBarChart({
       trendIcon={trendIcon}
       classNames={classNames?.card}
       emptyState={data.length === 0 ? emptyState : undefined}
-
     >
       <ChartContainer
         config={config}
