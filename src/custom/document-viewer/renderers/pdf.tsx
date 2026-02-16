@@ -6,7 +6,8 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { Controllers } from "../controllers";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
 type CustomDocRendererProps = {} & DocRendererProps;
 
 const CustomPDFRenderer = (props: CustomDocRendererProps) => {
@@ -64,9 +65,9 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
               customTextRenderer={({ str }) =>
                 searchValue
                   ? str.replace(
-                      new RegExp(searchValue, "gi"),
-                      (value) => `<mark>${value}</mark>`
-                    )
+                    new RegExp(searchValue, "gi"),
+                    (value) => `<mark>${value}</mark>`
+                  )
                   : str
               }
               className="border shadow-sm max-w-max overflow-hidden rounded-md mb-2"

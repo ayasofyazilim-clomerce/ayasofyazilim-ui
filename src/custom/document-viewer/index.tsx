@@ -1,7 +1,7 @@
 "use client";
 
-import DocViewer, { DocRenderer } from "react-doc-viewer";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import DocViewer, { DocRenderer, DocViewerRenderers } from "react-doc-viewer";
 import CustomImageRenderer from "./renderers/image";
 import CustomPDFRenderer from "./renderers/pdf";
 
@@ -11,6 +11,7 @@ export type DocumentType = {
   uri: string;
   fileType?: string;
   fileName?: string;
+  fileData?: string | ArrayBuffer;
 };
 export default function DocumentViewer({
   document,
@@ -30,7 +31,7 @@ export default function DocumentViewer({
         },
       }}
       className={cn("h-full rounded-md border relative", className)}
-      pluginRenderers={[CustomPDFRenderer, CustomImageRenderer, ...renderers]}
+      pluginRenderers={[...DocViewerRenderers, CustomPDFRenderer, CustomImageRenderer, ...renderers]}
       documents={[document]}
     />
   );

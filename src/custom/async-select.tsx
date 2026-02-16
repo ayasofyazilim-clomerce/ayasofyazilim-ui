@@ -53,7 +53,7 @@ function CommandGroupItem({
             }
             return onChange([currentItem]);
           }}
-          value={currentItem.name}
+          value={`${currentItem.id}__${currentItem.name}`}
         >
           {currentItem.name}
           {value.find((i) => i.id === currentItem.id) && (
@@ -111,7 +111,6 @@ export function AsyncSelectBase({
   const showableSuggestions = suggestions.filter(
     (item) => !value.find((i) => i.id === item.id)
   );
-
   function onSearch(search: string) {
     setSearchInput(search);
     setLoading(true);
