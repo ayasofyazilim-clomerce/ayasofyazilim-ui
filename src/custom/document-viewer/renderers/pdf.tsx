@@ -65,9 +65,9 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
               customTextRenderer={({ str }) =>
                 searchValue
                   ? str.replace(
-                    new RegExp(searchValue, "gi"),
-                    (value) => `<mark>${value}</mark>`
-                  )
+                      new RegExp(searchValue, "gi"),
+                      (value) => `<mark>${value}</mark>`
+                    )
                   : str
               }
               className="border shadow-sm max-w-max overflow-hidden rounded-md mb-2"

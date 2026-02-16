@@ -31,7 +31,12 @@ export default function DocumentViewer({
         },
       }}
       className={cn("h-full rounded-md border relative", className)}
-      pluginRenderers={[...DocViewerRenderers, CustomPDFRenderer, CustomImageRenderer, ...renderers]}
+      pluginRenderers={[
+        ...DocViewerRenderers,
+        CustomPDFRenderer,
+        CustomImageRenderer,
+        ...renderers,
+      ]}
       documents={[document]}
     />
   );
