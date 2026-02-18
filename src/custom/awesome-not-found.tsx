@@ -101,7 +101,7 @@ export function AwesomeNotFound({
                   buttonVariants({
                     variant: action.variant || "default",
                     size: action.size || "default",
-                  }),
+                  })
                 )}
                 key={action.label}
               >
