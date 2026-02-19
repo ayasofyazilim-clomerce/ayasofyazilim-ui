@@ -119,10 +119,9 @@ export interface TableAction<TData = unknown> {
 
 export interface RowExpansionConfig<TData = unknown> {
   enabled?: boolean;
-  component?: React.ComponentType<{ row: TData }>;
   renderContent?: (row: TData) => React.ReactNode;
   defaultExpanded?: boolean;
-  expandOnClick?: string | string[];
+  expanderColumns?: Array<keyof TData> | Array<string>;
 }
 
 export interface ColumnMeta {
@@ -152,7 +151,7 @@ export interface ColumnConfig<TData = unknown> {
   }) => React.ReactNode;
   footer?: (info: { column: { id: string } }) => React.ReactNode;
   meta?: ColumnMeta;
-  expandOnClick?: boolean;
+  isExpanderColumn?: boolean;
 }
 
 export interface GroupingConfig {
@@ -244,6 +243,7 @@ export interface MasterDataGridConfig<TData = unknown> {
   enableRowSelection?: boolean;
   enableVirtualization?: boolean;
   enableExport?: boolean;
+  enableSearch?: boolean;
 
   selection?: SelectionConfig<TData>;
   virtualization?: VirtualizationConfig;
@@ -352,7 +352,7 @@ export type CellProps<TData = unknown, TValue = unknown> = CellContext<
 >;
 
 export interface ExpandableColumnMeta extends ColumnMeta {
-  expandOnClick?: boolean;
+  isExpanderColumn?: boolean;
 }
 
 export interface ExportColumnDef<TData = unknown> {

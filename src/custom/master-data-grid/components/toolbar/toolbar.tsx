@@ -259,14 +259,28 @@ export function Toolbar<TData>({
         </Button>
       );
     });
+
+  const hasAnyEnabledFeature =
+    config.enableSearch ||
+    config.enableFiltering ||
+    config.enableColumnVisibility ||
+    enableExport ||
+    onRefresh ||
+    (tableActions && tableActions.length > 0);
+
+  if (!hasAnyEnabledFeature) {
+    return null;
+  }
   return (
     <div className="flex items-center gap-2 w-full">
-      <Input
-        placeholder={getTranslations("toolbar.search", t)}
-        value={searchValue}
-        onChange={(event) => handleSearchChange(event.target.value)}
-        className="md:max-w-sm"
-      />
+      {config.enableSearch && (
+        <Input
+          placeholder={getTranslations("toolbar.search", t)}
+          value={searchValue}
+          onChange={(event) => handleSearchChange(event.target.value)}
+          className="md:max-w-sm"
+        />
+      )}
       {selectedRows.length > 0 && (
         <div className="text-sm text-muted-foreground">
           {selectedRows.length} {getTranslations("toolbar.selected", t)}

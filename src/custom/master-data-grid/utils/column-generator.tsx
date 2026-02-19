@@ -27,7 +27,7 @@ export function generateColumnsFromSchema<TData = unknown>(
   customRenderers?: CustomRenderers<TData>,
   errorDisplayMode?: "tooltip" | "inline" | "both",
   enableColumnVisibility?: boolean,
-  expandOnClickColumns?: string[]
+  expanderColumns?: Array<keyof TData> | Array<string>
 ): GeneratedColumn<TData>[] {
   if (!schema.properties) return [];
 
@@ -45,7 +45,7 @@ export function generateColumnsFromSchema<TData = unknown>(
       customRenderers,
       errorDisplayMode,
       enableColumnVisibility,
-      expandOnClickColumns
+      expanderColumns
     );
     if (column) {
       columns.push(column);
@@ -70,7 +70,7 @@ function createColumnFromProperty<TData = unknown>(
   customRenderers?: CustomRenderers<TData>,
   errorDisplayMode?: "tooltip" | "inline" | "both",
   enableColumnVisibility?: boolean,
-  expandOnClickColumns?: string[]
+  expanderColumns?: Array<keyof TData> | Array<string>
 ): GeneratedColumn<TData> | null {
   if (property.type === "object" || property.type === "array") {
     return null;
@@ -147,7 +147,8 @@ function createColumnFromProperty<TData = unknown>(
     meta: {
       schemaProperty: property,
       filterOperators,
-      expandOnClick: expandOnClickColumns?.includes(key),
+      isExpanderColumn:
+        expanderColumns?.includes(key as keyof TData & string) ?? false,
     },
   } as GeneratedColumn<TData>;
 }

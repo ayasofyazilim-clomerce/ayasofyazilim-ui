@@ -56,6 +56,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     schema,
     columns: customColumns,
     t,
+    enableSearch = true,
     enableSorting = true,
     enableFiltering = true,
     enableGrouping = true,
@@ -78,6 +79,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
 
   const configWithDefaults: MasterDataGridConfig<TData> = {
     ...config,
+    enableSearch,
     enableSorting,
     enableFiltering,
     enableGrouping,
@@ -395,7 +397,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
               expansionRenderContent={
                 configWithDefaults.expansion?.renderContent
               }
-              expansionComponent={configWithDefaults.expansion?.component}
             />
           </Table>
         ) : (
@@ -447,7 +448,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
               expansionRenderContent={
                 configWithDefaults.expansion?.renderContent
               }
-              expansionComponent={configWithDefaults.expansion?.component}
               bodyClassName={configWithDefaults.bodyClassName}
             />
           </Table>

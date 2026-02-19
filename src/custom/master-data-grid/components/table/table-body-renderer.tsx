@@ -20,7 +20,6 @@ interface TableBodyRendererProps<TData> {
   emptyMessage?: string;
   expansionEnabled?: boolean;
   expansionRenderContent?: (row: TData) => React.ReactNode;
-  expansionComponent?: React.ComponentType<{ row: TData }>;
   bodyClassName?: string;
 }
 
@@ -35,7 +34,6 @@ export function TableBodyRenderer<TData>({
   emptyMessage,
   expansionEnabled,
   expansionRenderContent,
-  expansionComponent,
   bodyClassName,
 }: TableBodyRendererProps<TData>) {
   return (
@@ -86,18 +84,18 @@ export function TableBodyRenderer<TData>({
                 );
               })}
             </TableRow>
-            {row.getIsExpanded() && expansionEnabled && (
-              <TableRow>
-                <TableCell colSpan={row.getVisibleCells().length}>
-                  {expansionRenderContent?.(row.original)}
-                  {!expansionRenderContent &&
-                    expansionComponent &&
-                    React.createElement(expansionComponent, {
-                      row: row.original,
-                    })}
-                </TableCell>
-              </TableRow>
-            )}
+            {row.getIsExpanded() &&
+              expansionEnabled &&
+              expansionRenderContent && (
+                <TableRow>
+                  <TableCell
+                    className="has-[.pp-0]:p-0"
+                    colSpan={row.getVisibleCells().length}
+                  >
+                    {expansionRenderContent(row.original)}
+                  </TableCell>
+                </TableRow>
+              )}
           </React.Fragment>
         ))
       ) : (

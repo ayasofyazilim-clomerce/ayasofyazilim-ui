@@ -74,16 +74,39 @@ export function ClientFilterContent<TData>({
   setOpen,
 }: ClientFilterContentProps<TData>) {
   const { t } = config;
-  const currentFilters = table.getState().columnFilters as ColumnFilter[];
+  const currentFilters = table.getState().columnFilters;
   const [filterRows, setFilterRows] = useState<FilterRow[]>(() => {
     if (currentFilters.length > 0) {
-      return currentFilters.map((filter, index) => ({
-        id: `filter-${index}`,
-        columnId: filter.id,
-        operator: filter.operator,
-        value: String(filter.value || ""),
-        value2: String(filter.value2 || ""),
-      }));
+      return currentFilters.map((tableFilter, index) => {
+        // TanStack Table stores the entire ColumnFilter object in the value property
+        const filterValue = tableFilter.value as ColumnFilter;
+
+        // Handle different value types
+        let parsedValue = "";
+        let parsedValue2 = "";
+
+        if (filterValue?.value !== null && filterValue?.value !== undefined) {
+          parsedValue =
+            typeof filterValue.value === "object"
+              ? JSON.stringify(filterValue.value)
+              : String(filterValue.value);
+        }
+
+        if (filterValue?.value2 !== null && filterValue?.value2 !== undefined) {
+          parsedValue2 =
+            typeof filterValue.value2 === "object"
+              ? JSON.stringify(filterValue.value2)
+              : String(filterValue.value2);
+        }
+
+        return {
+          id: `filter-${index}`,
+          columnId: tableFilter.id,
+          operator: filterValue?.operator || "contains",
+          value: parsedValue,
+          value2: parsedValue2,
+        };
+      });
     }
     return [
       {
