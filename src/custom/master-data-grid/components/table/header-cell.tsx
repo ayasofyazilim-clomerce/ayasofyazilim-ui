@@ -39,6 +39,21 @@ export function HeaderCell<TData>({
   const isSorted = column.getIsSorted();
   const isPinned = column.getIsPinned();
 
+  const hasAnyAction =
+    column.getCanSort() ||
+    column.getCanPin() ||
+    column.getCanFilter() ||
+    column.getCanResize() ||
+    column.getCanHide();
+
+  if (!hasAnyAction) {
+    return (
+      <div className="flex items-center size-full">
+        <span className="font-semibold truncate">{label}</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center size-full relative">
       <DropdownMenu>

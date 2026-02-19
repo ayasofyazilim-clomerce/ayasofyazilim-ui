@@ -554,18 +554,20 @@ export function CellRenderer<TData = unknown>({
   }
 
   if (schemaProperty?.enum && Array.isArray(schemaProperty.enum)) {
+    const label = String(value);
     return (
       <Badge variant="outline" className={cn("font-normal", className)}>
-        {String(value)}
+        {t?.[`column.${fieldName}.${label}`] || label}
       </Badge>
     );
   }
 
   if (schemaProperty?.format === "badge") {
     const variant = BADGE_VARIANT_MAP[String(value).toLowerCase()] || "outline";
+    const label = String(value);
     return (
       <Badge variant={variant} className={className}>
-        {String(value)}
+        {t?.[`column.${fieldName}.${label}`] || label}
       </Badge>
     );
   }

@@ -21,7 +21,6 @@ interface VirtualBodyProps<TData> {
   editingEnabled?: boolean;
   expansionEnabled?: boolean;
   expansionRenderContent?: (row: TData) => React.ReactNode;
-  expansionComponent?: React.ComponentType<{ row: TData }>;
 }
 
 export function VirtualBody<TData>({
@@ -35,7 +34,6 @@ export function VirtualBody<TData>({
   editingEnabled,
   expansionEnabled,
   expansionRenderContent,
-  expansionComponent,
 }: VirtualBodyProps<TData>) {
   const tableContainerRef = useRef<HTMLTableSectionElement>(null);
 
@@ -117,18 +115,15 @@ export function VirtualBody<TData>({
                 );
               })}
             </TableRow>
-            {row.getIsExpanded() && expansionEnabled && (
-              <TableRow>
-                <TableCell colSpan={row.getVisibleCells().length}>
-                  {expansionRenderContent?.(row.original)}
-                  {!expansionRenderContent &&
-                    expansionComponent &&
-                    React.createElement(expansionComponent, {
-                      row: row.original,
-                    })}
-                </TableCell>
-              </TableRow>
-            )}
+            {row.getIsExpanded() &&
+              expansionEnabled &&
+              expansionRenderContent && (
+                <TableRow>
+                  <TableCell colSpan={row.getVisibleCells().length}>
+                    {expansionRenderContent(row.original)}
+                  </TableCell>
+                </TableRow>
+              )}
           </React.Fragment>
         );
       })}

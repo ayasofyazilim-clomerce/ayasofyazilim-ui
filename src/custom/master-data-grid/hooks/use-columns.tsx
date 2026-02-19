@@ -65,12 +65,6 @@ export function useColumns<TData>({
         }
       : undefined;
 
-    const expandOnClickColumns = config.expansion?.expandOnClick
-      ? Array.isArray(config.expansion.expandOnClick)
-        ? config.expansion.expandOnClick
-        : [config.expansion.expandOnClick]
-      : [""];
-
     const generatedColumns = schema
       ? generateColumnsFromSchema<TData>(
           schema,
@@ -82,7 +76,7 @@ export function useColumns<TData>({
           configRef.current.customRenderers,
           configRef.current.editing?.errorDisplayMode,
           enableColumnVisibility,
-          expandOnClickColumns
+          config.expansion?.expanderColumns
         )
       : [];
 
@@ -105,8 +99,8 @@ export function useColumns<TData>({
 
     const mergedWithExpansion = merged.map((col) => {
       const shouldExpandOnClick =
-        (col.meta as ExpandableColumnMeta)?.expandOnClick ||
-        customColumns?.find((c) => c.id === col.id)?.expandOnClick;
+        (col.meta as ExpandableColumnMeta)?.isExpanderColumn ||
+        customColumns?.find((c) => c.id === col.id)?.isExpanderColumn;
 
       if (!shouldExpandOnClick || !configRef.current.expansion?.enabled) {
         return col;
