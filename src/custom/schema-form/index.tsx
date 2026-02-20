@@ -20,6 +20,7 @@ import {
   isValueEmpty,
   cleanFormDataForSubmit,
   createRuntimeValidator,
+  createDynamicSchema,
 } from "./utils";
 import {
   CheckboxWidget,
@@ -91,6 +92,16 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
 
   const processedSchema = useMemo(() => {
     let schema = originalSchema;
+
+    // Apply dynamic required fields based on form data if runtimeDependencyConfig is provided
+    if (runtimeDependencyConfig && formData) {
+      schema = createDynamicSchema(
+        schema,
+        runtimeDependencyConfig,
+        formData as Record<string, unknown>
+      );
+    }
+
     if (filter) {
       schema = createSchemaWithFilters({
         filter,
@@ -98,14 +109,17 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       });
     }
     return removeFieldsfromGenericSchema(schema, FIELDS_TO_REMOVE);
-  }, [originalSchema, filter]);
+  }, [originalSchema, filter, runtimeDependencyConfig, formData]);
 
-  // Built-in transform to filter format errors for empty values
+  // Built-in transform to filter format/minLength errors for empty values
   const transformErrors = useCallback(
     (errors: RJSFValidationError[]): RJSFValidationError[] => {
+      // Error types to filter when value is empty
+      const errorsToFilterWhenEmpty = ["format", "minLength", "pattern"];
+
       let filteredErrors = errors.filter((error) => {
-        // Only filter format errors
-        if (error.name !== "format") return true;
+        // Only filter specific error types
+        if (!error.name || !errorsToFilterWhenEmpty.includes(error.name)) return true;
 
         // Get the field path from the property
         const path = (error.property || "")
@@ -125,7 +139,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
           }
         }
 
-        // If value is empty, filter out the format error
+        // If value is empty, filter out the error
         return !isValueEmpty(value);
       });
 
