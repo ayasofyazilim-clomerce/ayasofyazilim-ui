@@ -152,7 +152,12 @@ export function PieChart({
                 bottom: 0,
               }}
               content={
-                <ChartLegendContent className="flex-col absolute size-full inset-0 items-start justify-end w-full text-nowrap gap-1 p-0" />
+                <ChartLegendContent
+                  className={cn(
+                    "flex-col absolute size-full inset-0 items-start justify-end w-full text-nowrap gap-1 p-0",
+                    classNames?.chart?.legend
+                  )}
+                />
               }
             />
           )}

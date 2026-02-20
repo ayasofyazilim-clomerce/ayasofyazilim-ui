@@ -3,7 +3,8 @@
 import { lodash } from "@repo/ayasofyazilim-ui/lib/utils";
 import { Form } from "@rjsf/shadcn";
 import { customizeValidator } from "@rjsf/validator-ajv8";
-import { useMemo } from "react";
+import type { RJSFValidationError, FormValidation } from "@rjsf/utils";
+import { useCallback, useMemo } from "react";
 import {
   ArrayFieldItemTemplate,
   ArrayFieldTemplate,
@@ -16,6 +17,9 @@ import { SchemaFormProps } from "./types";
 import {
   createSchemaWithFilters,
   removeFieldsfromGenericSchema,
+  isValueEmpty,
+  cleanFormDataForSubmit,
+  createRuntimeValidator,
 } from "./utils";
 import {
   CheckboxWidget,
@@ -67,6 +71,11 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
     templates,
     filter,
     useTableForArrayFields = false,
+    formData,
+    transformErrors: userTransformErrors,
+    runtimeDependencyConfig,
+    onSubmit: userOnSubmit,
+    customValidate: userCustomValidate,
     ...restProps
   } = props;
 
@@ -90,6 +99,67 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
     }
     return removeFieldsfromGenericSchema(schema, FIELDS_TO_REMOVE);
   }, [originalSchema, filter]);
+
+  // Built-in transform to filter format errors for empty values
+  const transformErrors = useCallback(
+    (errors: RJSFValidationError[]): RJSFValidationError[] => {
+      let filteredErrors = errors.filter((error) => {
+        // Only filter format errors
+        if (error.name !== "format") return true;
+
+        // Get the field path from the property
+        const path = (error.property || "")
+          .replace(/^\./, "")
+          .split(".")
+          .filter(Boolean);
+
+        if (path.length === 0 || !formData) return true;
+
+        // Navigate to get the value
+        let value: unknown = formData;
+        for (const key of path) {
+          if (value && typeof value === "object" && key in value) {
+            value = (value as Record<string, unknown>)[key];
+          } else {
+            return true;
+          }
+        }
+
+        // If value is empty, filter out the format error
+        return !isValueEmpty(value);
+      });
+
+      // Apply user's transformErrors if provided
+      if (userTransformErrors) {
+        filteredErrors = userTransformErrors(filteredErrors, {} as any);
+      }
+
+      return filteredErrors;
+    },
+    [formData, userTransformErrors]
+  );
+
+  // Combined customValidate: runtime dependency validation + user's custom validation
+  const combinedCustomValidate = useCallback(
+    (formDataToValidate: T, errors: FormValidation<T>): FormValidation<T> => {
+      let validationErrors = errors;
+
+      // Apply runtime dependency validation if config provided
+      if (runtimeDependencyConfig) {
+        const runtimeValidator = createRuntimeValidator(runtimeDependencyConfig);
+        validationErrors = runtimeValidator(formDataToValidate as Record<string, unknown>, validationErrors as FormValidation<Record<string, unknown>>) as FormValidation<T>;
+      }
+
+      // Apply user's custom validation if provided
+      if (userCustomValidate) {
+        validationErrors = userCustomValidate(formDataToValidate, validationErrors);
+      }
+
+      return validationErrors;
+    },
+    [runtimeDependencyConfig, userCustomValidate]
+  );
+
   const memoizedWidgets = useMemo(
     () => lodash.merge(INTERNAL_WIDGETS, widgets),
     [widgets]
@@ -105,13 +175,40 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
     );
   }, [templates]);
 
+  // Wrap onSubmit to clean form data when runtimeDependencyConfig is provided
+  const handleSubmit = useCallback(
+    (data: Parameters<NonNullable<typeof userOnSubmit>>[0], event: React.FormEvent<HTMLFormElement>) => {
+      if (!userOnSubmit) return;
+
+      let submitData = data;
+      if (runtimeDependencyConfig && data.formData) {
+        const cleanedFormData = cleanFormDataForSubmit(
+          data.formData as Record<string, unknown>,
+          runtimeDependencyConfig
+        ) as T;
+        submitData = { ...data, formData: cleanedFormData };
+      }
+
+      userOnSubmit(submitData, event);
+    },
+    [userOnSubmit, runtimeDependencyConfig]
+  );
+
   return (
     <Form
       {...restProps}
+      customValidate={
+        runtimeDependencyConfig || userCustomValidate
+          ? combinedCustomValidate
+          : undefined
+      }
       formContext={{
         useTableForArrayFields,
       }}
+      formData={formData}
+      onSubmit={handleSubmit}
       schema={processedSchema}
+      transformErrors={transformErrors}
       validator={validatorToUse}
       widgets={memoizedWidgets}
       fields={memoizedFields}
