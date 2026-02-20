@@ -43,9 +43,9 @@ function SelectTrigger({
       {...props}
     >
       {children}
-      {/* {!props.asChild && <SelectPrimitive.Icon asChild>
+      {!props.asChild && <SelectPrimitive.Icon asChild>
         <ChevronDownIcon className="size-4 opacity-50" />
-      </SelectPrimitive.Icon>} */}
+      </SelectPrimitive.Icon>}
     </SelectPrimitive.Trigger>
   );
 }
