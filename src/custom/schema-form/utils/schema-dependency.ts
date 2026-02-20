@@ -1,4 +1,8 @@
-import { FormValidation, GenericObjectType, RJSFValidationError } from "@rjsf/utils";
+import {
+  FormValidation,
+  GenericObjectType,
+  RJSFValidationError,
+} from "@rjsf/utils";
 
 interface JSONSchema {
   type?: string;
@@ -291,9 +295,9 @@ function applyRuntimeDependencies<T extends GenericObjectType>(
 
 /**
  * Creates a customValidate function for runtime conditional requirements.
- * 
+ *
  * Logic: If ANY trigger field is filled, ALL required fields become required.
- * 
+ *
  * @example
  * // Address validation: if countryId filled AND any other field filled, all required
  * const validateAddress = createRuntimeValidator({
@@ -357,7 +361,7 @@ function createRuntimeValidator<TData extends GenericObjectType>(
 /**
  * Convenience function that applies both schema modifications and returns a validator.
  * Use this for the complete solution.
- * 
+ *
  * @typeParam TSchema - The schema object type
  * @typeParam TData - The form data type (optional, defaults to GenericObjectType)
  */
@@ -409,7 +413,7 @@ function shouldRequireFields<TData extends GenericObjectType>(
 /**
  * Creates a schema with required fields dynamically based on current form state.
  * Use this in useMemo to recompute schema when form data changes.
- * 
+ *
  * @param originalSchema - The original schema
  * @param config - The runtime dependency configuration
  * @param formData - Current form data to determine required state
@@ -547,7 +551,11 @@ function cleanFormDataForSubmit<TData extends GenericObjectType>(
     if (!fieldConfig.removeFromSubmit) continue;
 
     // Check if requirements are triggered
-    const requirementsActive = shouldRequireFields(formData, objectPath, fieldConfig);
+    const requirementsActive = shouldRequireFields(
+      formData,
+      objectPath,
+      fieldConfig
+    );
 
     // If requirements are NOT active and removeFromSubmit is true, remove the object
     if (!requirementsActive) {
