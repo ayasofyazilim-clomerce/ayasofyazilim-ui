@@ -119,7 +119,8 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
 
       let filteredErrors = errors.filter((error) => {
         // Only filter specific error types
-        if (!error.name || !errorsToFilterWhenEmpty.includes(error.name)) return true;
+        if (!error.name || !errorsToFilterWhenEmpty.includes(error.name))
+          return true;
 
         // Get the field path from the property
         const path = (error.property || "")
@@ -160,13 +161,21 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
 
       // Apply runtime dependency validation if config provided
       if (runtimeDependencyConfig) {
-        const runtimeValidator = createRuntimeValidator(runtimeDependencyConfig);
-        validationErrors = runtimeValidator(formDataToValidate as Record<string, unknown>, validationErrors as FormValidation<Record<string, unknown>>) as FormValidation<T>;
+        const runtimeValidator = createRuntimeValidator(
+          runtimeDependencyConfig
+        );
+        validationErrors = runtimeValidator(
+          formDataToValidate as Record<string, unknown>,
+          validationErrors as FormValidation<Record<string, unknown>>
+        ) as FormValidation<T>;
       }
 
       // Apply user's custom validation if provided
       if (userCustomValidate) {
-        validationErrors = userCustomValidate(formDataToValidate, validationErrors);
+        validationErrors = userCustomValidate(
+          formDataToValidate,
+          validationErrors
+        );
       }
 
       return validationErrors;
@@ -191,7 +200,10 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
 
   // Wrap onSubmit to clean form data when runtimeDependencyConfig is provided
   const handleSubmit = useCallback(
-    (data: Parameters<NonNullable<typeof userOnSubmit>>[0], event: React.FormEvent<HTMLFormElement>) => {
+    (
+      data: Parameters<NonNullable<typeof userOnSubmit>>[0],
+      event: React.FormEvent<HTMLFormElement>
+    ) => {
       if (!userOnSubmit) return;
 
       let submitData = data;
