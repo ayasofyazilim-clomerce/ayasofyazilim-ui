@@ -189,7 +189,59 @@ function applyFieldDependencies(
   return schema;
 }
 
-export { applyFieldDependencies };
+function getFormDataValue(formData: Record<string, unknown>, path: string): unknown {
+  const parts = path.split(".");
+  let current: unknown = formData;
+  for (const part of parts) {
+    if (current === null || current === undefined) return undefined;
+    current = (current as Record<string, unknown>)[part];
+  }
+  return current;
+}
+
+function deleteFormDataProperty(formData: Record<string, unknown>, path: string): void {
+  const parts = path.split(".");
+  if (parts.length === 1) {
+    delete formData[path];
+    return;
+  }
+  const parentPath = parts.slice(0, -1);
+  const fieldName = parts.at(-1);
+  if (!fieldName) return;
+  let current: unknown = formData;
+  for (const part of parentPath) {
+    if (current === null || current === undefined) return;
+    current = (current as Record<string, unknown>)[part];
+  }
+  if (current && typeof current === "object") {
+    delete (current as Record<string, unknown>)[fieldName];
+  }
+}
+
+function cleanHiddenFieldsFromFormData<T extends Record<string, unknown>>(
+  formData: T,
+  dependencies: DependencyConfig
+): T {
+  const cleanedData = JSON.parse(JSON.stringify(formData)) as T;
+
+  for (const [fieldPath, fieldDeps] of Object.entries(dependencies)) {
+    if (!fieldDeps.HIDES) continue;
+
+    const controllingValue = getFormDataValue(cleanedData, fieldPath);
+
+    for (const rule of fieldDeps.HIDES) {
+      if (rule.when(controllingValue)) {
+        for (const target of rule.targets) {
+          deleteFormDataProperty(cleanedData, target);
+        }
+      }
+    }
+  }
+
+  return cleanedData;
+}
+
+export { applyFieldDependencies, cleanHiddenFieldsFromFormData };
 export type {
   JSONSchema,
   DependencyConfig,
