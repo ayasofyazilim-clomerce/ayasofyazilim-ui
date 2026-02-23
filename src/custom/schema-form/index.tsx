@@ -19,8 +19,10 @@ import {
   removeFieldsfromGenericSchema,
   isValueEmpty,
   cleanFormDataForSubmit,
+  cleanHiddenFieldsFromFormData,
   createRuntimeValidator,
   createDynamicSchema,
+  applyFieldDependencies,
 } from "./utils";
 import {
   CheckboxWidget,
@@ -75,6 +77,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
     formData,
     transformErrors: userTransformErrors,
     runtimeDependencyConfig,
+    fieldDependencies,
     onSubmit: userOnSubmit,
     customValidate: userCustomValidate,
     ...restProps
@@ -93,7 +96,10 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
   const processedSchema = useMemo(() => {
     let schema = originalSchema;
 
-    // Apply dynamic required fields based on form data if runtimeDependencyConfig is provided
+    if (fieldDependencies) {
+      schema = applyFieldDependencies(schema, fieldDependencies);
+    }
+
     if (runtimeDependencyConfig && formData) {
       schema = createDynamicSchema(
         schema,
@@ -109,20 +115,22 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       });
     }
     return removeFieldsfromGenericSchema(schema, FIELDS_TO_REMOVE);
-  }, [originalSchema, filter, runtimeDependencyConfig, formData]);
+  }, [
+    originalSchema,
+    filter,
+    runtimeDependencyConfig,
+    formData,
+    fieldDependencies,
+  ]);
 
-  // Built-in transform to filter format/minLength errors for empty values
   const transformErrors = useCallback(
     (errors: RJSFValidationError[]): RJSFValidationError[] => {
-      // Error types to filter when value is empty
       const errorsToFilterWhenEmpty = ["format", "minLength", "pattern"];
 
       let filteredErrors = errors.filter((error) => {
-        // Only filter specific error types
         if (!error.name || !errorsToFilterWhenEmpty.includes(error.name))
           return true;
 
-        // Get the field path from the property
         const path = (error.property || "")
           .replace(/^\./, "")
           .split(".")
@@ -130,7 +138,6 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
 
         if (path.length === 0 || !formData) return true;
 
-        // Navigate to get the value
         let value: unknown = formData;
         for (const key of path) {
           if (value && typeof value === "object" && key in value) {
@@ -140,11 +147,9 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
           }
         }
 
-        // If value is empty, filter out the error
         return !isValueEmpty(value);
       });
 
-      // Apply user's transformErrors if provided
       if (userTransformErrors) {
         filteredErrors = userTransformErrors(filteredErrors, {} as any);
       }
@@ -154,12 +159,10 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
     [formData, userTransformErrors]
   );
 
-  // Combined customValidate: runtime dependency validation + user's custom validation
   const combinedCustomValidate = useCallback(
     (formDataToValidate: T, errors: FormValidation<T>): FormValidation<T> => {
       let validationErrors = errors;
 
-      // Apply runtime dependency validation if config provided
       if (runtimeDependencyConfig) {
         const runtimeValidator = createRuntimeValidator(
           runtimeDependencyConfig
@@ -170,7 +173,6 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
         ) as FormValidation<T>;
       }
 
-      // Apply user's custom validation if provided
       if (userCustomValidate) {
         validationErrors = userCustomValidate(
           formDataToValidate,
@@ -198,7 +200,6 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
     );
   }, [templates]);
 
-  // Wrap onSubmit to clean form data when runtimeDependencyConfig is provided
   const handleSubmit = useCallback(
     (
       data: Parameters<NonNullable<typeof userOnSubmit>>[0],
@@ -207,17 +208,29 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       if (!userOnSubmit) return;
 
       let submitData = data;
-      if (runtimeDependencyConfig && data.formData) {
-        const cleanedFormData = cleanFormDataForSubmit(
-          data.formData as Record<string, unknown>,
+      let cleanedFormData = data.formData as T;
+
+      if (fieldDependencies && cleanedFormData) {
+        cleanedFormData = cleanHiddenFieldsFromFormData(
+          cleanedFormData as Record<string, unknown>,
+          fieldDependencies
+        ) as T;
+      }
+
+      if (runtimeDependencyConfig && cleanedFormData) {
+        cleanedFormData = cleanFormDataForSubmit(
+          cleanedFormData as Record<string, unknown>,
           runtimeDependencyConfig
         ) as T;
+      }
+
+      if (fieldDependencies || runtimeDependencyConfig) {
         submitData = { ...data, formData: cleanedFormData };
       }
 
       userOnSubmit(submitData, event);
     },
-    [userOnSubmit, runtimeDependencyConfig]
+    [userOnSubmit, runtimeDependencyConfig, fieldDependencies]
   );
 
   return (

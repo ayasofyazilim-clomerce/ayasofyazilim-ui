@@ -1,7 +1,10 @@
 import { FormProps, IChangeEvent } from "@rjsf/core";
 import { GenericObjectType as _GenericObjectType } from "@rjsf/utils";
 import { UiSchema as BaseUiSchema } from "@rjsf/utils";
-import type { RuntimeDependencyConfig } from "./utils/schema-dependency";
+import type {
+  RuntimeDependencyConfig,
+  DependencyConfig,
+} from "./utils/schema-dependency";
 export type GenericObjectType = _GenericObjectType;
 export type {
   FieldProps,
@@ -24,8 +27,8 @@ export type SchemaFormProps<T = any> = Omit<
   uiSchema?: UiSchema | UiSchema<T>;
   filter?: FilterType<T>;
   useTableForArrayFields?: boolean;
-  /** Runtime dependency config for conditional requirements - also used to clean form data on submit */
   runtimeDependencyConfig?: RuntimeDependencyConfig;
+  fieldDependencies?: DependencyConfig;
 };
 export type RJSFChangeEvent<T = any> = IChangeEvent<T>;
 
