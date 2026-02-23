@@ -1,7 +1,10 @@
 import { FormProps, IChangeEvent } from "@rjsf/core";
 import { GenericObjectType as _GenericObjectType } from "@rjsf/utils";
 import { UiSchema as BaseUiSchema } from "@rjsf/utils";
-import type { RuntimeDependencyConfig, DependencyConfig } from "./utils/schema-dependency";
+import type {
+  RuntimeDependencyConfig,
+  DependencyConfig,
+} from "./utils/schema-dependency";
 export type GenericObjectType = _GenericObjectType;
 export type {
   FieldProps,
@@ -52,10 +55,10 @@ export type CreateSchemaWithFilters<T> = {
 
 export type FilteredObject<T> = {
   [K in keyof T]: T[K] extends object
-  ? T[K] extends Array<any>
-  ? T[K] // Keep arrays as they are
-  : FilteredObject<T[K]>
-  : T[K] extends undefined
-  ? never
-  : T[K];
+    ? T[K] extends Array<any>
+      ? T[K] // Keep arrays as they are
+      : FilteredObject<T[K]>
+    : T[K] extends undefined
+      ? never
+      : T[K];
 };

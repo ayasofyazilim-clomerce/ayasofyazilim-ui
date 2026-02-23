@@ -189,7 +189,10 @@ function applyFieldDependencies(
   return schema;
 }
 
-function getFormDataValue(formData: Record<string, unknown>, path: string): unknown {
+function getFormDataValue(
+  formData: Record<string, unknown>,
+  path: string
+): unknown {
   const parts = path.split(".");
   let current: unknown = formData;
   for (const part of parts) {
@@ -199,7 +202,10 @@ function getFormDataValue(formData: Record<string, unknown>, path: string): unkn
   return current;
 }
 
-function deleteFormDataProperty(formData: Record<string, unknown>, path: string): void {
+function deleteFormDataProperty(
+  formData: Record<string, unknown>,
+  path: string
+): void {
   const parts = path.split(".");
   if (parts.length === 1) {
     delete formData[path];

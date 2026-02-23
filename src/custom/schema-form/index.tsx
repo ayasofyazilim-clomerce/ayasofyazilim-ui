@@ -115,7 +115,13 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       });
     }
     return removeFieldsfromGenericSchema(schema, FIELDS_TO_REMOVE);
-  }, [originalSchema, filter, runtimeDependencyConfig, formData, fieldDependencies]);
+  }, [
+    originalSchema,
+    filter,
+    runtimeDependencyConfig,
+    formData,
+    fieldDependencies,
+  ]);
 
   const transformErrors = useCallback(
     (errors: RJSFValidationError[]): RJSFValidationError[] => {
