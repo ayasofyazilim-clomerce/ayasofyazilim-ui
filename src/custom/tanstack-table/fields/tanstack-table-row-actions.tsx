@@ -49,7 +49,7 @@ export const TanstackTableRowActions = <TData,>({
         <Button
           variant="ghost"
           type="button"
-          className="flex bg-white rounded-none"
+          className="flex bg-background rounded-none"
         >
           Actions
           <span className="sr-only">Open Menu</span>

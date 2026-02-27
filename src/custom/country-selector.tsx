@@ -19,6 +19,7 @@ import {
 } from "@repo/ayasofyazilim-ui/components/popover";
 import { ScrollArea } from "@repo/ayasofyazilim-ui/components/scroll-area";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Globe } from "lucide-react";
 
 export const lang = {
   searchText: "Find",
@@ -90,14 +91,14 @@ export function CountrySelector({
   searchEmptyValue,
   defaultValue,
   menuAlign = "end",
-  showLabel = false,
+  showLabel = true,
   showFlag = false,
   countries = [],
   onValueChange,
   className,
 }: CountrySelectorProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState<string>("");
+  const [value, setValue] = React.useState<string>(defaultValue || "");
 
   function onSelect(currentValue: string) {
     setValue(currentValue);
@@ -111,28 +112,9 @@ export function CountrySelector({
           role="combobox"
           variant="ghost"
           aria-expanded={open}
-          className={cn(
-            "justify-between border-none bg-transparent! p-0 gap-2 rtl:flex-row-reverse h-auto",
-            className
-          )}
+          className={cn(className)}
         >
-          {value ? (
-            <SelectedCountry
-              {...countries.find(
-                (country) => country.cultureName?.toLowerCase() === value
-              )}
-              showFlag={showFlag}
-              showLabel={showLabel}
-            />
-          ) : (
-            <SelectedCountry
-              {...countries.find(
-                (country) => country.cultureName?.toLowerCase() === defaultValue
-              )}
-              showFlag={showFlag}
-              showLabel={showLabel}
-            />
-          )}
+          <Globe />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-40 p-0" align={menuAlign}>
@@ -164,7 +146,11 @@ export function CountrySelector({
                     value={`${country.cultureName}` || ""}
                     onSelect={(currentValue: string) => onSelect(currentValue)}
                   >
-                    <SelectedCountry {...country} />
+                    <SelectedCountry
+                      {...country}
+                      showFlag={showFlag}
+                      showLabel={showLabel}
+                    />
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -190,7 +176,9 @@ const SelectedCountry = ({
   <div
     className={`${direction === "rtl" && "flex-row-reverse"} rtl:flex-row-reverse flex w-full justify-between gap-2 overflow-hidden items-center`}
   >
-    {showLabel && <span className="text-xs text-black">{displayName}</span>}
+    {showLabel && (
+      <span className="text-xs text-foreground">{displayName}</span>
+    )}
     <div className="h-auto">
       {showFlag && (
         <img

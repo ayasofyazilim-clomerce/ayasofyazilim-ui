@@ -409,7 +409,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
           >
             <TableHeader
               className={cn(
-                "sticky top-0 z-10 bg-white",
+                "sticky top-0 z-10 bg-background",
                 configWithDefaults.headerClassName
               )}
             >

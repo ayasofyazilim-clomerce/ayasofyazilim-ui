@@ -12,6 +12,13 @@ import flags from "react-phone-number-input/flags";
 
 import { Input } from "@repo/ayasofyazilim-ui/components/input";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/select";
 // import { FieldErrorTemplate } from "./schema-form/fields";
 export type PhoneInputValues = {
   value: string | undefined;
@@ -106,9 +113,9 @@ const CountrySelect = ({
   onChange,
   options,
 }: CountrySelectProps) => {
-  const handleSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSelect = (value: Country) => {
     if (!onChange) return;
-    onChange(event.target.value as Country);
+    onChange(value);
   };
   return (
     <div className="border-input bg-background text-muted-foreground focus-within:border-ring focus-within:ring-ring/50 hover:bg-accent hover:text-foreground has-aria-invalid:border-destructive/60 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 relative inline-flex items-center self-stretch rounded-s-md border py-2 ps-3 pe-2 transition-[color,box-shadow] outline-none focus-within:z-10 focus-within:ring-[3px] has-disabled:pointer-events-none has-disabled:opacity-50">
@@ -118,31 +125,34 @@ const CountrySelect = ({
           <ChevronDownIcon size={16} aria-hidden="true" />
         </span>
       </div>
-      <select
+      <Select
         disabled={disabled}
         value={value}
-        id={`${id}_select`}
         data-testid={`${id}_select`}
-        onChange={handleSelect}
-        className="absolute inset-0 text-sm opacity-0"
+        onValueChange={handleSelect}
         aria-label="Select country"
       >
-        <option key="default" value="" data-testid={`${id}_default`}>
-          Select a country
-        </option>
-        {options
-          .filter((x) => x.value)
-          .map((option, i) => (
-            <option
-              key={option.value ?? `empty-${i}`}
-              value={option.value}
-              data-testid={`${id}_${option.value}`}
-            >
-              {option.label}{" "}
-              {option.value && `+${getCountryCallingCode(option.value)}`}
-            </option>
-          ))}
-      </select>
+        <SelectTrigger className="absolute inset-0 text-sm opacity-0">
+          <SelectValue placeholder="Select a country" />
+        </SelectTrigger>
+        <SelectContent>
+          {options
+            .filter((x) => x.value)
+            .map((option, i) => {
+              if (!option.value) return null;
+              return (
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  data-testid={`${id}_${option.value}`}
+                >
+                  {option.label}
+                  {option.value && `+${getCountryCallingCode(option.value)}`}
+                </SelectItem>
+              );
+            })}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

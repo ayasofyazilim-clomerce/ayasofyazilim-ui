@@ -71,7 +71,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           role="combobox"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white overflow-hidden",
-            fieldValueDisplayName && "text-black",
+            fieldValueDisplayName && "text-foreground",
             disabled &&
               "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground"
           )}
