@@ -138,10 +138,10 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         (value) => {
           if (value == null) return false;
           return String(value).toLowerCase().includes(search);
-        }
+        },
       );
     },
-    []
+    [],
   );
 
   const columns = useColumns({
@@ -266,7 +266,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
 
   const selectedRows = useMemo(
     () => table.getSelectedRowModel().rows.map((row) => row.original),
-    [table]
+    [table],
   );
 
   const handleExport = useCallback(
@@ -283,7 +283,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         logError("Export failed:", error);
       }
     },
-    [table, data, configWithDefaults.export]
+    [table, data, configWithDefaults.export],
   );
 
   const handleReset = useCallback(() => {
@@ -312,7 +312,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       <div
         className={cn(
           "flex items-center justify-center h-96",
-          configWithDefaults.containerClassName
+          configWithDefaults.containerClassName,
         )}
       >
         {configWithDefaults.emptyComponent}
@@ -326,7 +326,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     <div
       className={cn(
         "flex flex-col gap-2 h-full",
-        configWithDefaults.containerClassName
+        configWithDefaults.containerClassName,
       )}
     >
       <Toolbar
@@ -345,7 +345,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       <div
         className={cn(
           "relative w-full border rounded-md overflow-hidden flex",
-          configWithDefaults.className
+          configWithDefaults.className,
         )}
         style={{ height: enableVirtualization ? "600px" : "auto" }}
       >
@@ -353,13 +353,13 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
           <Table
             className={cn(
               "border-separate border-spacing-0",
-              configWithDefaults.tableClassName
+              configWithDefaults.tableClassName,
             )}
           >
             <TableHeader
               className={cn(
                 "sticky top-0 z-10 bg-background",
-                configWithDefaults.headerClassName
+                configWithDefaults.headerClassName,
               )}
             >
               {table.getHeaderGroups().map((headerGroup) => (
@@ -370,14 +370,14 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       style={getPinningHeaderStyles(header)}
                       className={cn(
                         getPinningHeaderClassNames(header),
-                        "border-b border-r"
+                        "border-b border-r",
                       )}
                     >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   ))}
@@ -403,14 +403,14 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
           <Table
             className={cn(
               "border-spacing-0",
-              configWithDefaults.tableClassName
+              configWithDefaults.tableClassName,
             )}
             wrapperClassName="overflow-auto size-full"
           >
             <TableHeader
               className={cn(
-                "sticky top-0 z-10 bg-white",
-                configWithDefaults.headerClassName
+                "sticky top-0 z-10 bg-background",
+                configWithDefaults.headerClassName,
               )}
             >
               {table.getHeaderGroups().map((headerGroup) => (
@@ -421,14 +421,14 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       style={getPinningHeaderStyles(header)}
                       className={cn(
                         getPinningHeaderClassNames(header),
-                        "has-[button]:px-0 not-last:border-r"
+                        "has-[button]:px-0 not-last:border-r",
                       )}
                     >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   ))}

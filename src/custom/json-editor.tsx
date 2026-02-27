@@ -1,5 +1,5 @@
-import { JsonEditor, JsonEditorProps, githubLightTheme } from "json-edit-react";
-
+import { githubDarkTheme, JsonEditor, JsonEditorProps } from "json-edit-react";
+export { githubDarkTheme, githubLightTheme } from "json-edit-react";
 export function JSONEditor({ config }: { config: JsonEditorProps }) {
   return (
     <JsonEditor
@@ -14,7 +14,7 @@ export function JSONEditor({ config }: { config: JsonEditorProps }) {
         restrictTypeSelection: true,
         restrictDrag: true,
         keySort: true,
-        theme: githubLightTheme,
+        theme: githubDarkTheme,
         ...config,
       }}
     />
