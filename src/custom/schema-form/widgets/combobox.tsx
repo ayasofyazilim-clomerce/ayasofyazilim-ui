@@ -54,7 +54,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const fieldValue = value || defaultValue;
   const fieldValueDisplayName = list?.find(
-    (x) => x[selectIdentifier] === fieldValue,
+    (x) => x[selectIdentifier] === fieldValue
   )?.[selectLabel];
   const DesktopContent = (
     <Popover open={open} onOpenChange={setOpen} modal>
@@ -73,7 +73,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
             "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white overflow-hidden",
             fieldValueDisplayName && "text-foreground",
             disabled &&
-              "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground",
+              "disabled:pointer-events-auto hover:bg-background hover:text-muted-foreground"
           )}
         >
           <span className="truncate has-[role=dialog]:max-w-xs">
@@ -101,7 +101,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           variant="outline"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white",
-            fieldValueDisplayName && "text-black",
+            fieldValueDisplayName && "text-black"
           )}
         >
           {fieldValueDisplayName
@@ -147,7 +147,7 @@ function List<T>({
         const filterResult = list?.find(
           (i) =>
             (i[selectIdentifier] as string).toString()?.toLocaleLowerCase() ===
-            value.toLocaleLowerCase(),
+            value.toLocaleLowerCase()
         )?.[selectLabel] as string;
         if (
           value.includes(search) ||
@@ -175,11 +175,11 @@ function List<T>({
                     ? item[selectIdentifier] === value
                       ? undefined
                       : item[selectIdentifier]
-                    : item[selectIdentifier],
+                    : item[selectIdentifier]
                 );
                 if (onValueChange)
                   onValueChange(
-                    list.find((i) => i[selectIdentifier] === value),
+                    list.find((i) => i[selectIdentifier] === value)
                   );
                 setOpen(false);
               }}

@@ -126,7 +126,7 @@ export function CountrySelector({
                 .find(
                   (i) =>
                     i.cultureName?.toLocaleLowerCase() ===
-                    commandValue.toLocaleLowerCase(),
+                    commandValue.toLocaleLowerCase()
                 )
                 ?.displayName?.toLocaleLowerCase()
                 ?.includes(search.toLocaleLowerCase())
