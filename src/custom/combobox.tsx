@@ -113,7 +113,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           role="combobox"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
-            currentValue && "text-black",
+            currentValue && "text-foreground",
             classNames?.trigger?.button
           )}
         >
@@ -153,7 +153,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           variant="outline"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
-            currentValue && "text-black",
+            currentValue && "text-foreground",
             classNames?.trigger?.button
           )}
         >
