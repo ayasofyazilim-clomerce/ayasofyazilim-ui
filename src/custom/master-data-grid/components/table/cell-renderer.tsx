@@ -27,7 +27,6 @@ import { getTranslations } from "../../utils/translation-utils";
 
 const DEBOUNCE_DELAY = 150;
 const MAX_STRING_LENGTH = 100;
-const MAX_ARRAY_DISPLAY = 3;
 
 const BADGE_VARIANT_MAP: Record<
   string,
@@ -596,20 +595,8 @@ export function CellRenderer<TData = unknown>({
   }
 
   if (Array.isArray(value)) {
-    return (
-      <div className="flex flex-wrap gap-1">
-        {value.slice(0, MAX_ARRAY_DISPLAY).map((item, idx) => (
-          <Badge key={idx} variant="secondary" className="text-xs">
-            {String(item)}
-          </Badge>
-        ))}
-        {value.length > MAX_ARRAY_DISPLAY && (
-          <Badge variant="outline" className="text-xs">
-            +{value.length - MAX_ARRAY_DISPLAY}
-          </Badge>
-        )}
-      </div>
-    );
+    const arrayString = value.map((item) => String(item)).join(", ");
+    return <span className={className}>{arrayString}</span>;
   }
 
   if (typeof value === "object") {

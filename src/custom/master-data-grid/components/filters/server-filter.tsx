@@ -26,7 +26,12 @@ import {
 } from "@repo/ayasofyazilim-ui/components/scroll-area";
 import { getTranslations } from "../../utils";
 
-type FilterValue = string | number | boolean | string[] | undefined;
+type FilterValue =
+  | string
+  | number
+  | boolean
+  | Array<string | boolean>
+  | undefined;
 
 export function ServerFilterContent<TData>({
   config,
@@ -173,10 +178,14 @@ export function ServerFilterContent<TData>({
                     options={filter.options}
                     defaultValue={filter.options.filter((opt) =>
                       Array.isArray(value)
-                        ? value.includes(opt.value)
-                        : String(value) === opt.value
+                        ? value.some(
+                            (v) =>
+                              v === opt.value || String(v) === String(opt.value)
+                          )
+                        : value === opt.value ||
+                          String(value) === String(opt.value)
                     )}
-                    getKey={(opt) => opt.value}
+                    getKey={(opt) => String(opt.value)}
                     getLabel={(opt) => opt.label}
                     onChange={(selected) => {
                       const values = selected.map((s) => s.value);
@@ -184,7 +193,7 @@ export function ServerFilterContent<TData>({
                         filter,
                         filter.type === "array"
                           ? values
-                          : values[0] || undefined
+                          : values[0] ?? undefined
                       );
                     }}
                     searchPlaceholderText={filter.placeholder}

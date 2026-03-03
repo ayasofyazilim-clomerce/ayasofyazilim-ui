@@ -27,13 +27,31 @@ export function generateColumnsFromSchema<TData = unknown>(
   customRenderers?: CustomRenderers<TData>,
   errorDisplayMode?: "tooltip" | "inline" | "both",
   enableColumnVisibility?: boolean,
-  expanderColumns?: Array<keyof TData> | Array<string>
+  expanderColumns?: Array<keyof TData> | Array<string>,
+  schemaColumns?: {
+    mode: "include" | "exclude";
+    columns: Array<keyof TData> | Array<string>;
+  }
 ): GeneratedColumn<TData>[] {
   if (!schema.properties) return [];
 
   const columns: GeneratedColumn<TData>[] = [];
 
   Object.entries(schema.properties).forEach(([key, property]) => {
+    // Handle schema column filtering
+    if (schemaColumns) {
+      const isInList = schemaColumns.columns.includes(
+        key as keyof TData & string
+      );
+      const shouldSkip =
+        (schemaColumns.mode === "include" && !isInList) ||
+        (schemaColumns.mode === "exclude" && isInList);
+
+      if (shouldSkip) {
+        return;
+      }
+    }
+
     const column = createColumnFromProperty<TData>(
       key,
       property as JSONSchemaProperty,
@@ -72,7 +90,7 @@ function createColumnFromProperty<TData = unknown>(
   enableColumnVisibility?: boolean,
   expanderColumns?: Array<keyof TData> | Array<string>
 ): GeneratedColumn<TData> | null {
-  if (property.type === "object" || property.type === "array") {
+  if (property.type === "object") {
     return null;
   }
 

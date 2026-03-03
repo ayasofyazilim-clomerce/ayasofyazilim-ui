@@ -1,4 +1,7 @@
+import { z } from "@repo/ayasofyazilim-ui/lib/zod";
+import { GenericObjectType } from "@rjsf/utils";
 import type {
+  CellContext,
   Column,
   ColumnDef,
   ColumnFiltersState,
@@ -7,12 +10,9 @@ import type {
   RowSelectionState,
   SortingState,
   VisibilityState,
-  CellContext,
 } from "@tanstack/react-table";
-import type { Localization } from "../date-tooltip";
 import type { LucideIcon } from "lucide-react";
-import { GenericObjectType } from "@rjsf/utils";
-import { z } from "@repo/ayasofyazilim-ui/lib/zod";
+import type { Localization } from "../date-tooltip";
 
 export type { Localization };
 
@@ -88,10 +88,8 @@ export interface CellEditConfig<TData = unknown> {
   isColumnEditable?: (columnId: string, row: TData) => boolean;
 }
 
-export interface RowAction<TData = unknown> {
+interface BaseRowAction<TData = unknown> {
   id: string;
-  label: string | ((row: TData) => string);
-  icon?: LucideIcon;
   variant?:
     | "default"
     | "destructive"
@@ -99,11 +97,29 @@ export interface RowAction<TData = unknown> {
     | "secondary"
     | "ghost"
     | "link";
-  onClick?: (row: TData, event: React.MouseEvent) => void | Promise<void>;
   disabled?: boolean | ((row: TData) => boolean);
   hidden?: boolean | ((row: TData) => boolean);
   className?: string;
 }
+
+export interface StandardRowAction<TData = unknown>
+  extends BaseRowAction<TData> {
+  label: string | ((row: TData) => string);
+  icon?: LucideIcon;
+  onClick?: (row: TData, event: React.MouseEvent) => void | Promise<void>;
+  render?: never;
+}
+
+export interface CustomRowAction<TData = unknown> extends BaseRowAction<TData> {
+  render: (row: TData) => React.ReactNode;
+  onClick?: (row: TData, event: React.MouseEvent) => void | Promise<void>;
+  label?: never;
+  icon?: never;
+}
+
+export type RowAction<TData = unknown> =
+  | StandardRowAction<TData>
+  | CustomRowAction<TData>;
 
 export interface TableAction<TData = unknown> {
   id: string;
@@ -215,7 +231,7 @@ interface ArrayServerFilterConfig extends BaseServerFilterConfig {
 
 interface BooleanServerFilterConfig extends BaseServerFilterConfig {
   type: "boolean";
-  options: { label: string; value: string }[];
+  options: { label: string; value: boolean }[];
   validator?: z.ZodType<boolean | undefined>;
 }
 
@@ -281,6 +297,10 @@ export interface MasterDataGridConfig<TData = unknown> {
     columns: Array<keyof TData>;
   };
   columnOrder?: Array<keyof TData>;
+  schemaColumns?: {
+    mode: "include" | "exclude";
+    columns: Array<keyof TData>;
+  };
 
   enableMultiSort?: boolean;
   enableMultiFilter?: boolean;

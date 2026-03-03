@@ -1,3 +1,4 @@
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { GenericObjectType } from "@rjsf/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Save, X } from "lucide-react";
@@ -76,7 +77,8 @@ export function useColumns<TData>({
           configRef.current.customRenderers,
           configRef.current.editing?.errorDisplayMode,
           enableColumnVisibility,
-          config.expansion?.expanderColumns
+          config.expansion?.expanderColumns,
+          config.schemaColumns
         )
       : [];
 
@@ -121,7 +123,7 @@ export function useColumns<TData>({
                 e.stopPropagation();
                 props.row.toggleExpanded();
               }}
-              className="cursor-pointer hover:bg-muted/50"
+              className="cursor-pointer hover:bg-muted/50 h-full flex items-center"
             >
               {content}
             </div>
@@ -186,26 +188,44 @@ export function useColumns<TData>({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {rowActions.map((action) => {
-                  const label =
-                    typeof action.label === "function"
-                      ? action.label(row.original)
-                      : action.label;
                   const disabled =
                     typeof action.disabled === "function"
                       ? action.disabled(row.original)
                       : action.disabled;
 
-                  return (
-                    <DropdownMenuItem
-                      key={action.id}
-                      onClick={(e) => action.onClick?.(row.original, e)}
-                      disabled={disabled}
-                      className={action.className}
-                    >
-                      {action.icon && <action.icon className="size-3.5" />}
-                      {label}
-                    </DropdownMenuItem>
-                  );
+                  // For custom render, let the rendered content handle onClick
+                  if ("render" in action && action.render) {
+                    return (
+                      <DropdownMenuItem
+                        key={action.id}
+                        disabled={disabled}
+                        className={cn("w-full", action.className)}
+                        onSelect={(e) => e.preventDefault()}
+                        asChild
+                      >
+                        {action.render(row.original)}
+                      </DropdownMenuItem>
+                    );
+                  }
+
+                  // For standard label action, handle onClick at DropdownMenuItem level
+                  if ("label" in action) {
+                    return (
+                      <DropdownMenuItem
+                        key={action.id}
+                        onClick={(e) => action.onClick?.(row.original, e)}
+                        disabled={disabled}
+                        className={action.className}
+                      >
+                        {action.icon && <action.icon className="size-3.5" />}
+                        {typeof action.label === "function"
+                          ? action.label(row.original)
+                          : action.label}
+                      </DropdownMenuItem>
+                    );
+                  }
+
+                  return null;
                 })}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -317,6 +337,7 @@ export function useColumns<TData>({
     config.editing,
     config.columnOrder,
     config.columnVisibility,
+    config.schemaColumns,
     config.cellClassName,
     config.dateOptions,
     config.customRenderers,
