@@ -242,7 +242,7 @@ export function Selectable<T>({
                 <Skeleton className="h-7 w-full mb-1" />
               </div>
             )}
-            {!searching && !!selectedOptions?.length && (
+            {!searching && !!selectedOptions?.length && !singular && (
               <Collapsible className="border-b">
                 <CollapsibleTrigger asChild>
                   <CommandGroup

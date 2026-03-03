@@ -13,6 +13,7 @@ import {
 } from "@repo/ayasofyazilim-ui/components/dialog";
 import { Button, ButtonProps } from "@repo/ayasofyazilim-ui/components/button";
 import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
+import { cn } from "../lib/utils";
 
 export type ConfirmDialogProps = {
   closeProps?: ButtonProps;
@@ -25,7 +26,7 @@ export type ConfirmDialogProps = {
   title: string | JSX.Element;
 } & (WithTriggerConfirmDialogProps | WithoutTriggerConfirmDialogProps);
 type WithTriggerConfirmDialogProps = {
-  triggerProps: ButtonProps & { "data-testid"?: string };
+  triggerProps: ButtonProps & { "data-testid"?: string; label?: string };
   type: "with-trigger";
 };
 type WithoutTriggerConfirmDialogProps = {
@@ -34,23 +35,32 @@ type WithoutTriggerConfirmDialogProps = {
 };
 export default function ConfirmDialog(props: ConfirmDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const isWithTrigger = props.type === "with-trigger";
   const { title, description, loading, confirmProps } = props;
   const { closeAfterConfirm, onConfirm, ...confirmButtonProps } =
     confirmProps || {};
   return (
-    <Dialog open={open && loading ? true : open} onOpenChange={setOpen}>
+    <Dialog
+      open={open || loading || isConfirming}
+      onOpenChange={(newOpen) => {
+        if (!loading && !isConfirming) {
+          setOpen(newOpen);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         {isWithTrigger ? (
           <Button
             type="button"
             {...props.triggerProps}
+            className={cn("w-full", props.triggerProps.className)}
             onClick={(e) => {
               setOpen(true);
               if (props.triggerProps?.onClick) props.triggerProps.onClick(e);
             }}
           >
-            {props.triggerProps.children}
+            {props.triggerProps.children || props.triggerProps.label}
           </Button>
         ) : (
           props.children
@@ -62,21 +72,21 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          {loading ? (
+          {loading || isConfirming ? (
             <Skeleton className="w-20 h-9" />
           ) : (
-            <DialogClose asChild disabled={loading}>
+            <DialogClose asChild disabled={loading || isConfirming}>
               <Button
                 variant="outline"
                 type="button"
                 {...props.closeProps}
-                disabled={loading}
+                disabled={loading || isConfirming}
               >
                 {props.closeProps?.children || "Cancel"}
               </Button>
             </DialogClose>
           )}
-          {loading ? (
+          {loading || isConfirming ? (
             <Skeleton className="w-20 h-9" />
           ) : (
             <Button
@@ -87,7 +97,9 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
                   props.confirmProps.onClick(e);
                 }
                 if (onConfirm) {
+                  setIsConfirming(true);
                   await onConfirm();
+                  setIsConfirming(false);
                   if (closeAfterConfirm) setOpen(false);
                 }
               }}

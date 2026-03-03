@@ -67,11 +67,21 @@ export const masterFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
       );
 
     case "contains":
+      if (Array.isArray(cellValue)) {
+        return cellValue.some((item) =>
+          toString(item).toLowerCase().includes(toString(value).toLowerCase())
+        );
+      }
       return toString(cellValue)
         .toLowerCase()
         .includes(toString(value).toLowerCase());
 
     case "notContains":
+      if (Array.isArray(cellValue)) {
+        return !cellValue.some((item) =>
+          toString(item).toLowerCase().includes(toString(value).toLowerCase())
+        );
+      }
       return !toString(cellValue)
         .toLowerCase()
         .includes(toString(value).toLowerCase());
@@ -87,9 +97,15 @@ export const masterFilter: FilterFn<unknown> = (row, columnId, filterValue) => {
         .endsWith(toString(value).toLowerCase());
 
     case "isEmpty":
+      if (Array.isArray(cellValue)) {
+        return cellValue.length === 0;
+      }
       return !cellValue || toString(cellValue).trim() === "";
 
     case "isNotEmpty":
+      if (Array.isArray(cellValue)) {
+        return cellValue.length > 0;
+      }
       return Boolean(cellValue) && toString(cellValue).trim() !== "";
 
     case "greaterThan": {
@@ -208,6 +224,10 @@ export function getFilterOperators(
 
   if (type === "boolean") {
     return ["equals", "notEquals", "isEmpty", "isNotEmpty"];
+  }
+
+  if (type === "array") {
+    return ["contains", "notContains", "isEmpty", "isNotEmpty"];
   }
 
   if (format === "enum") {
