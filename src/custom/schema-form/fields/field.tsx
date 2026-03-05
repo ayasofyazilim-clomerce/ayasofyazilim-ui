@@ -1,5 +1,5 @@
-import { TableCell } from "@repo/ayasofyazilim-ui/components/table";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { TableCell } from "@ayasofyazilim/ui/components/table";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { FieldTemplateProps } from "@rjsf/utils";
 import { FieldLabel } from "../custom";
 
@@ -35,7 +35,7 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
           "**:[[role=combobox]]:border-0 **:[[role=combobox]]:shadow-none **:[[role=combobox]]:rounded-none",
           "**:data-[slot=input]:border-0 **:data-[slot=input]:shadow-none **:data-[slot=input]:rounded-none",
           "**:data-rac:border-0 **:data-rac:shadow-none **:data-rac:rounded-none",
-          "*:data-[slot=drawer-trigger]:border-0"
+          "*:data-[slot=drawer-trigger]:border-0",
         )}
       >
         {children}
@@ -47,7 +47,7 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
         "flex flex-col gap-1.5 h-max",
         props.schema.type === "object" && "gap-3",
         classNames,
-        label
+        label,
       )}
       style={style}
     >

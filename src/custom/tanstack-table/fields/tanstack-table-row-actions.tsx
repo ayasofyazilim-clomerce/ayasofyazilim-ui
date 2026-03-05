@@ -2,21 +2,21 @@
 
 import { ArrowDown, ArrowUp, Copy, Trash2 } from "lucide-react";
 import { Row, Table } from "@tanstack/react-table";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@repo/ayasofyazilim-ui/components/dropdown-menu";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/dropdown-menu";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { TanstackTableRowActionsType } from "../types";
 
 interface TanstackTableRowActionsProps<TData> {
   actions: TanstackTableRowActionsType<TData>[];
   row: Row<TData>;
   setRowAction: (
-    actions: TanstackTableRowActionsType<TData> & { row: TData }
+    actions: TanstackTableRowActionsType<TData> & { row: TData },
   ) => void;
   table: Table<TData>;
 }
@@ -28,7 +28,7 @@ export const TanstackTableRowActions = <TData,>({
   table,
 }: TanstackTableRowActionsProps<TData>) => {
   const availableActions = actions.filter(
-    (i) => !i.condition || (i.condition && i.condition?.(row.original))
+    (i) => !i.condition || (i.condition && i.condition?.(row.original)),
   );
   if (availableActions.length === 0) return null;
 
@@ -92,7 +92,7 @@ function ActionButton<TData>({
   className?: string;
   row: Row<TData>;
   setRowAction: (
-    actions: TanstackTableRowActionsType<TData> & { row: TData }
+    actions: TanstackTableRowActionsType<TData> & { row: TData },
   ) => void;
   table: Table<TData>;
 }) {

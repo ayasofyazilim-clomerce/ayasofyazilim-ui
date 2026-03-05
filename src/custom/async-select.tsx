@@ -2,23 +2,23 @@
 
 import { CheckIcon, ChevronDown, XCircle, XIcon } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Badge } from "@ayasofyazilim/ui/components/badge";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Command as Cmd,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
-import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/popover";
+import { Separator } from "@ayasofyazilim/ui/components/separator";
+import { Skeleton } from "@ayasofyazilim/ui/components/skeleton";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { useDebounce } from "../hooks/use-debounce";
 
 type SearchItem = { id: string; name: string };
@@ -106,10 +106,10 @@ export function AsyncSelectBase({
 
   const [items, setItems] = useState<SearchItem[]>(data || []);
   const showableItems = items.filter(
-    (item) => !value.find((i) => i.id === item.id)
+    (item) => !value.find((i) => i.id === item.id),
   );
   const showableSuggestions = suggestions.filter(
-    (item) => !value.find((i) => i.id === item.id)
+    (item) => !value.find((i) => i.id === item.id),
   );
   function onSearch(search: string) {
     setSearchInput(search);
@@ -220,7 +220,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
           onClick={() => setIsPopoverOpen(true)}
           className={cn(
             "flex w-full p-1 rounded-md border items-center justify-between bg-inherit hover:bg-inherit",
-            props.classNames?.trigger
+            props.classNames?.trigger,
           )}
         >
           {props.value.length > 0 ? (
@@ -233,7 +233,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
                     className="m-1 transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 duration-300 border-foreground/10 text-foreground bg-card hover:bg-card/80"
                     onClick={() => {
                       props.onChange(
-                        props.value.filter((i) => i.id !== value.id)
+                        props.value.filter((i) => i.id !== value.id),
                       );
                     }}
                   >
@@ -244,7 +244,7 @@ export default function AsyncSelect(props: AsyncSelectType) {
                 {props.value.length > 3 && (
                   <Badge
                     className={cn(
-                      "bg-transparent text-foreground border-foreground/1 hover:bg-transparent"
+                      "bg-transparent text-foreground border-foreground/1 hover:bg-transparent",
                     )}
                   >
                     {props.value.length - 3} more

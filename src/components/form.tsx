@@ -14,8 +14,8 @@ import {
 } from "react-hook-form";
 export * from "react-hook-form";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Label } from "@ayasofyazilim/ui/components/label";
 
 const Form = FormProvider;
 
@@ -27,7 +27,7 @@ type FormFieldContextValue<
 };
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue
+  {} as FormFieldContextValue,
 );
 
 const FormField = <
@@ -71,7 +71,7 @@ type FormItemContextValue = {
 };
 
 const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue
+  {} as FormItemContextValue,
 );
 
 function FormItem({ className, ...props }: React.ComponentProps<"div">) {

@@ -5,7 +5,7 @@ import {
   FilterType,
   UiSchema,
 } from "../types";
-import { lodash } from "@repo/ayasofyazilim-ui/lib/utils";
+import { lodash } from "@ayasofyazilim/ui/lib/utils";
 
 /**
  *
@@ -69,7 +69,7 @@ export function createSchemaWithFilters<T = string>({
 
   const filterRecursive = (
     currentObj: GenericObjectType,
-    parentPath: string = ""
+    parentPath: string = "",
   ): void => {
     if (!currentObj.properties && !currentObj.items) return;
 
@@ -111,14 +111,14 @@ export function createSchemaWithFilters<T = string>({
             }
           }
         },
-        {} as GenericObjectType["properties"]
+        {} as GenericObjectType["properties"],
       );
 
       // Update or Remove 'required' array based on kept keys
       if (currentObj.required) {
         currentObj.required = lodash.intersection(
           currentObj.required,
-          keptKeys
+          keptKeys,
         );
         if (lodash.isEmpty(currentObj.required)) {
           delete currentObj.required;
@@ -136,7 +136,7 @@ export function createSchemaWithFilters<T = string>({
  */
 export function removeFieldsfromGenericSchema<T>(
   obj: T,
-  keysToRemove: string | string[]
+  keysToRemove: string | string[],
 ): T {
   const keysArray = lodash.castArray(keysToRemove);
 
@@ -153,7 +153,7 @@ export function removeFieldsfromGenericSchema<T>(
             result[key] = transform(val);
           }
         },
-        {} as Record<string, unknown>
+        {} as Record<string, unknown>,
       );
     }
 
@@ -223,7 +223,7 @@ function uiSchemaFromSchema({
         });
         return lodash.merge(acc, nested);
       },
-      {}
+      {},
     );
 
     Object.assign(uiSchema[name], {
@@ -244,7 +244,7 @@ function uiSchemaFromSchema({
 
     if (object.enum) {
       uiSchemaItem["ui:enumNames"] = object.enum.map(
-        (key: string) => resources[`${constantKey}.${key}`] || key
+        (key: string) => resources[`${constantKey}.${key}`] || key,
       );
       uiSchemaItem["ui:options"] = {
         label: true,
@@ -282,7 +282,7 @@ function filterUndefinedAndEmpty<T>(obj: T): FilteredObject<T> {
         acc[key] = filteredValue;
       }
     },
-    {}
+    {},
   );
 
   return result as FilteredObject<T>;

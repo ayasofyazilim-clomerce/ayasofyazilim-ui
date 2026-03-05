@@ -4,8 +4,8 @@ import { cva, VariantProps } from "class-variance-authority";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ComponentType, ReactNode, Suspense } from "react";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Skeleton } from "@ayasofyazilim/ui/components/skeleton";
 
 type DeepPartial<T> = T extends object
   ? {
@@ -83,7 +83,7 @@ const tabTriggerVariants = cva(
       orientation: "horizontal",
       variant: "default",
     },
-  }
+  },
 );
 
 const tabContentVariants = cva("", {
@@ -122,7 +122,7 @@ function findActiveTab(tabList: { href: string }[], path: string) {
     return tabList.find((i) => i.href === path)?.href;
   }
   return tabList.find(
-    (i) => i.href === path.split("/").slice(0, -indexOfActiveTab).join("/")
+    (i) => i.href === path.split("/").slice(0, -indexOfActiveTab).join("/"),
   )?.href;
 }
 
@@ -178,7 +178,7 @@ export function TabLayout({
             className={cn(
               tabTriggerClassNames,
               classNames?.[orientation]?.tabTrigger,
-              tab.disabled && "text-muted-foreground cursor-not-allowed"
+              tab.disabled && "text-muted-foreground cursor-not-allowed",
             )}
           >
             {tab.disabled ? (
@@ -201,7 +201,7 @@ export function TabLayout({
       <div
         className={cn(
           tabContentClassNames,
-          classNames?.[orientation]?.tabContent
+          classNames?.[orientation]?.tabContent,
         )}
       >
         <Suspense fallback={<Skeleton className="flex-1 size-full" />}>

@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Badge } from "@ayasofyazilim/ui/components/badge";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -11,14 +11,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { ScrollArea } from "@repo/ayasofyazilim-ui/components/scroll-area";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/popover";
+import { ScrollArea } from "@ayasofyazilim/ui/components/scroll-area";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { Globe } from "lucide-react";
 
 export const lang = {
@@ -126,7 +126,7 @@ export function CountrySelector({
                 .find(
                   (i) =>
                     i.cultureName?.toLocaleLowerCase() ===
-                    commandValue.toLocaleLowerCase()
+                    commandValue.toLocaleLowerCase(),
                 )
                 ?.displayName?.toLocaleLowerCase()
                 ?.includes(search.toLocaleLowerCase())

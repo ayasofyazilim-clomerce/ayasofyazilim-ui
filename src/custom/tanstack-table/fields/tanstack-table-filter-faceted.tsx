@@ -2,8 +2,8 @@ import { CheckIcon, CirclePlusIcon } from "lucide-react";
 import { Column } from "@tanstack/react-table";
 
 import { useEffect, useState } from "react";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Badge } from "@ayasofyazilim/ui/components/badge";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -12,14 +12,14 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/popover";
+import { Separator } from "@ayasofyazilim/ui/components/separator";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { TanstackTableFacetedFilterType } from "../types";
 
 interface DataTableFacetedFilterProps<TData, TValue> {
@@ -41,7 +41,7 @@ export function TanstackTableFacetedFilter<TData, TValue>({
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues();
   const [selectedValues, setSelectedValues] = useState(
-    new Set(params?.get(accessorKey)?.split(",") || [])
+    new Set(params?.get(accessorKey)?.split(",") || []),
   );
   useEffect(() => {
     setSelectedValues(new Set(params?.get(accessorKey)?.split(",") || []));
@@ -104,7 +104,7 @@ export function TanstackTableFacetedFilter<TData, TValue>({
                       if (isSelected) {
                         current.splice(
                           current.findIndex((i) => i === option.value),
-                          1
+                          1,
                         );
                       } else {
                         current.push(option.value);
@@ -119,7 +119,7 @@ export function TanstackTableFacetedFilter<TData, TValue>({
                         "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                         isSelected
                           ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible"
+                          : "opacity-50 [&_svg]:invisible",
                       )}
                     >
                       <CheckIcon className={cn("h-4 w-4")} />

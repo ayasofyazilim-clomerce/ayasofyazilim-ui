@@ -1,17 +1,17 @@
-import { ButtonProps } from "@repo/ayasofyazilim-ui/components/button";
+import { ButtonProps } from "@ayasofyazilim/ui/components/button";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
   InputGroupText,
-} from "@repo/ayasofyazilim-ui/components/input-group";
+} from "@ayasofyazilim/ui/components/input-group";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@repo/ayasofyazilim-ui/components/tooltip";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/tooltip";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { WidgetProps } from "@rjsf/utils";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useState } from "react";
@@ -52,7 +52,7 @@ interface StringArrayWidgetConfig {
   renderItem?: (
     value: string,
     index: number,
-    onRemove: () => void
+    onRemove: () => void,
   ) => React.ReactNode;
   emptyState?: React.ReactNode;
   placeholder?: string;
@@ -149,21 +149,21 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
           onAdd(finalValue);
         }
       },
-      [currentValues, props]
+      [currentValues, props],
     );
 
     const handleRemove = useCallback(
       (index: number) => {
         const valueToRemove = currentValues[index];
         const newValues = currentValues.filter(
-          (_: string, i: number) => i !== index
+          (_: string, i: number) => i !== index,
         );
         props.onChange(newValues);
         if (onRemove) {
           onRemove(valueToRemove, index);
         }
       },
-      [currentValues, props, onRemove]
+      [currentValues, props, onRemove],
     );
 
     const isDisabled = disabled || props.disabled;
@@ -174,7 +174,7 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
         className={cn(
           "p-1.5",
           currentValues.length === 0 && "p-0",
-          classNames.container
+          classNames.container,
         )}
       >
         <InputGroupAddon
@@ -183,7 +183,7 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
             "flex-col gap-1.5",
             maxHeight,
             "overflow-auto p-0",
-            classNames.listContainer || ""
+            classNames.listContainer || "",
           )}
         >
           {currentValues.length === 0 && emptyState
@@ -197,14 +197,14 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
                   <InputGroupText
                     className={cn(
                       "bg-accent relative w-full overflow-hidden pl-2 pr-1 min-h-8 h-8 rounded-md",
-                      classNames.listItem || ""
+                      classNames.listItem || "",
                     )}
                     key={`${value}-${index}`}
                   >
                     <span
                       className={cn(
                         "truncate text-ellipsis",
-                        classNames.listItemText || ""
+                        classNames.listItemText || "",
                       )}
                     >
                       {value}
@@ -212,7 +212,7 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
                     <InputGroupButton
                       className={cn(
                         "rounded-md ml-auto",
-                        classNames.removeButton || ""
+                        classNames.removeButton || "",
                       )}
                       variant={buttonVariants.remove}
                       size={buttonSizes.remove}
@@ -231,7 +231,7 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
           className={cn(
             "p-0 justify-between",
             currentValues.length === 0 && "pr-1.5 ",
-            classNames.inputContainer || ""
+            classNames.inputContainer || "",
           )}
         >
           <Tooltip open={!!error}>
@@ -241,7 +241,7 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
                   className={cn(
                     "pl-2",
                     error && "text-destructive",
-                    classNames.input || ""
+                    classNames.input || "",
                   )}
                   placeholder={placeholder || props.options.placeholder}
                   value={inputValue}
@@ -269,7 +269,7 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
                   variant={buttonVariants.add}
                   className={cn(
                     "rounded-md ml-auto",
-                    classNames.addButton || ""
+                    classNames.addButton || "",
                   )}
                   size={buttonSizes.add}
                   onClick={() => handleValue(inputValue)}

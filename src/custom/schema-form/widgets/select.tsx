@@ -11,9 +11,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ayasofyazilim-ui/components/select";
-import { Selectable } from "@repo/ayasofyazilim-ui/custom/selectable";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/select";
+import { Selectable } from "@ayasofyazilim/ui/custom/selectable";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 
 /** The `SelectWidget` is a widget for rendering dropdowns.
  *  It is typically used with string properties constrained with enum options.
@@ -57,12 +57,12 @@ export function SelectWidget<
         label,
         disabled: Array.isArray(enumDisabled) && enumDisabled.includes(value),
       };
-    }
+    },
   );
   const cnClassName = cn(
     "w-full",
     { "border-destructive": rawErrors.length > 0 },
-    className
+    className,
   );
   return !multiple ? (
     <Select

@@ -1,4 +1,4 @@
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { GenericObjectType } from "@rjsf/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Save, X } from "lucide-react";
@@ -78,7 +78,7 @@ export function useColumns<TData>({
           configRef.current.editing?.errorDisplayMode,
           enableColumnVisibility,
           config.expansion?.expanderColumns,
-          config.schemaColumns
+          config.schemaColumns,
         )
       : [];
 
@@ -96,7 +96,7 @@ export function useColumns<TData>({
       customColumns,
       mergeContext,
       enableColumnVisibility,
-      t
+      t,
     );
 
     const mergedWithExpansion = merged.map((col) => {

@@ -9,14 +9,14 @@ import { Table } from "@tanstack/react-table";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ayasofyazilim-ui/components/select";
+} from "@ayasofyazilim/ui/components/select";
 
 interface TanstackTablePaginationProps<TData> {
   pagination: {
@@ -27,7 +27,7 @@ interface TanstackTablePaginationProps<TData> {
 }
 
 export function TanstackTablePagination<TData>(
-  props: TanstackTablePaginationProps<TData>
+  props: TanstackTablePaginationProps<TData>,
 ) {
   const { table, pagination } = props;
   const { replace } = useRouter();
@@ -46,7 +46,7 @@ export function TanstackTablePagination<TData>(
     ) {
       params.set(
         "skipCount",
-        (pagination.pageIndex * pagination.pageSize).toString()
+        (pagination.pageIndex * pagination.pageSize).toString(),
       );
     }
     if (Number(params?.get("maxResultCount")) === 10) {

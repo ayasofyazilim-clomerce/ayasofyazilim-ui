@@ -8,9 +8,9 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@repo/ayasofyazilim-ui/components/chart";
+} from "@ayasofyazilim/ui/components/chart";
 import { CardClassNames, ChartCard } from "./chart-card";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { ChartData, EmptyConfig } from ".";
 
 export type PieChartProps = {
@@ -65,7 +65,7 @@ export function PieChart({
 }: PieChartProps) {
   const totalCount = useMemo(
     () => data.reduce((acc, curr) => acc + (Number(curr[valueKey]) || 0), 0),
-    [data, valueKey]
+    [data, valueKey],
   );
 
   // Transform data to ChartConfig shape for ChartContainer
@@ -155,7 +155,7 @@ export function PieChart({
                 <ChartLegendContent
                   className={cn(
                     "flex-col absolute size-full inset-0 items-start justify-end w-full text-nowrap gap-1 p-0",
-                    classNames?.chart?.legend
+                    classNames?.chart?.legend,
                   )}
                 />
               }

@@ -1,11 +1,25 @@
 {
-  "extends": "@workspace/typescript-config/react-library.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "React Library",
   "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "incremental": false,
+    "isolatedModules": true,
+    "lib": ["es2022", "DOM", "DOM.Iterable"],
     "module": "preserve",
+    "moduleDetection": "force",
     "moduleResolution": "bundler",
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@repo/ayasofyazilim-ui/*": ["./src/*"]
+      "@ayasofyazilim/ui/*": ["./src/*"]
     }
   },
   "include": ["."],

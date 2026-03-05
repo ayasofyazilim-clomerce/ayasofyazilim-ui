@@ -2,7 +2,7 @@
 
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import React, { Dispatch, SetStateAction, useState } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -10,21 +10,21 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim/ui/components/command";
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
-} from "@repo/ayasofyazilim-ui/components/drawer";
+} from "@ayasofyazilim/ui/components/drawer";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { useMediaQuery } from "@repo/ayasofyazilim-ui/hooks/use-media-query";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+} from "@ayasofyazilim/ui/components/popover";
+import { useMediaQuery } from "@ayasofyazilim/ui/hooks/use-media-query";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Label } from "@ayasofyazilim/ui/components/label";
+import { Badge } from "@ayasofyazilim/ui/components/badge";
 
 export type ComboboxBadgeOptions<T> = {
   className?: string;
@@ -53,7 +53,7 @@ export type ComboboxProps<T> = {
   label?: string;
   list: Array<T> | null | undefined;
   onValueChange?: (
-    value: T | null | undefined
+    value: T | null | undefined,
   ) => void | Dispatch<SetStateAction<T | null | undefined>>;
   required?: boolean;
   searchPlaceholder?: string;
@@ -83,7 +83,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
   const [open, setOpen] = useState(false);
 
   const [internalValue, setInternalValue] = useState<T | null | undefined>(
-    defaultValue ?? null
+    defaultValue ?? null,
   );
 
   const isControlled = controlledValue !== undefined;
@@ -98,7 +98,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
 
   const fieldValue =
     (list?.find(
-      (x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier]
+      (x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier],
     )?.[props.selectLabel] as string) ||
     emptyValue ||
     (label && `Please select an ${label.toLocaleLowerCase()}`) ||
@@ -114,13 +114,13 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
             currentValue && "text-foreground",
-            classNames?.trigger?.button
+            classNames?.trigger?.button,
           )}
         >
           <span
             className={cn(
               "overflow-hidden truncate has-[role=dialog]:max-w-xs",
-              classNames?.trigger?.label
+              classNames?.trigger?.label,
             )}
           >
             {fieldValue}
@@ -128,7 +128,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           <ChevronsUpDown
             className={cn(
               "ml-2 h-4 w-4 shrink-0 opacity-50",
-              classNames?.trigger?.icon
+              classNames?.trigger?.icon,
             )}
           />
         </Button>
@@ -154,7 +154,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           className={cn(
             "text-muted-foreground w-full justify-between font-normal",
             currentValue && "text-foreground",
-            classNames?.trigger?.button
+            classNames?.trigger?.button,
           )}
         >
           <span className={cn("truncate", classNames?.trigger?.label)}>
@@ -163,7 +163,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
           <ChevronsUpDown
             className={cn(
               "ml-2 h-4 w-4 shrink-0 opacity-50",
-              classNames?.trigger?.icon
+              classNames?.trigger?.icon,
             )}
           />
         </Button>
@@ -200,7 +200,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
         <span
           className={cn(
             "text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive",
-            classNames?.error
+            classNames?.error,
           )}
         >
           {errorMessage}
@@ -238,7 +238,7 @@ function List<T>({
         const filterResult = list?.find(
           (i) =>
             (i[selectIdentifier] as string)?.toLocaleLowerCase() ===
-            value.toLocaleLowerCase()
+            value.toLocaleLowerCase(),
         )?.[selectLabel] as string;
         if (
           value.includes(search) ||

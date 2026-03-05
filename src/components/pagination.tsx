@@ -5,11 +5,8 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import {
-  Button,
-  buttonVariants,
-} from "@repo/ayasofyazilim-ui/components/button";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Button, buttonVariants } from "@ayasofyazilim/ui/components/button";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -61,7 +58,7 @@ function PaginationLink({
           variant: isActive ? "outline" : "ghost",
           size,
         }),
-        className
+        className,
       )}
       {...props}
     />

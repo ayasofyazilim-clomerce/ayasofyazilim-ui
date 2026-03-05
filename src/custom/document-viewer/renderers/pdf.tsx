@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { DocRenderer, DocRendererProps } from "react-doc-viewer";
 import { Document, Page, pdfjs, Thumbnail } from "react-pdf";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { Controllers } from "../controllers";
@@ -50,7 +50,7 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
                 }}
                 className={cn(
                   "rounded-md border bg-white p-1 flex justify-center",
-                  activePage === index + 1 && "border-primary"
+                  activePage === index + 1 && "border-primary",
                 )}
                 pageNumber={index + 1}
                 width={100}
@@ -66,7 +66,7 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
                 searchValue
                   ? str.replace(
                       new RegExp(searchValue, "gi"),
-                      (value) => `<mark>${value}</mark>`
+                      (value) => `<mark>${value}</mark>`,
                     )
                   : str
               }

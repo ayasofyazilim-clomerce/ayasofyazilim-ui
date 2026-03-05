@@ -2,19 +2,19 @@ import { CirclePlusIcon } from "lucide-react";
 import { Column } from "@tanstack/react-table";
 
 import { useEffect, useState } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
+} from "@ayasofyazilim/ui/components/popover";
+import { Separator } from "@ayasofyazilim/ui/components/separator";
 import { TanstackTableDateFilterType } from "../types";
 import {
   DatePicker,
   DateRangePicker,
-} from "@repo/ayasofyazilim-ui/custom/date-picker";
-import { DateRange } from "@repo/ayasofyazilim-ui/custom/date-picker/types";
+} from "@ayasofyazilim/ui/custom/date-picker";
+import { DateRange } from "@ayasofyazilim/ui/custom/date-picker/types";
 
 interface TanstackTableDateFilterProps<TData, TValue> {
   accessorKey: string;
@@ -25,7 +25,7 @@ interface TanstackTableDateFilterProps<TData, TValue> {
     filter: {
       accessorKey: string;
       selectedValues: string;
-    }[]
+    }[],
   ) => void;
   params: URLSearchParams;
 }
@@ -53,7 +53,7 @@ export function TanstackTableDateFilter<TData, TValue>({
         }
       : params?.get(dateItem.startAccessorKey)
         ? new Date(params?.get(dateItem.startAccessorKey) as string)
-        : undefined
+        : undefined,
   );
 
   useEffect(() => {

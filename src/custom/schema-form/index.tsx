@@ -1,6 +1,6 @@
 "use client";
 
-import { lodash } from "@repo/ayasofyazilim-ui/lib/utils";
+import { lodash } from "@ayasofyazilim/ui/lib/utils";
 import { Form } from "@rjsf/shadcn";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import type { RJSFValidationError, FormValidation } from "@rjsf/utils";
@@ -104,7 +104,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       schema = createDynamicSchema(
         schema,
         runtimeDependencyConfig,
-        formData as Record<string, unknown>
+        formData as Record<string, unknown>,
       );
     }
 
@@ -156,7 +156,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
 
       return filteredErrors;
     },
-    [formData, userTransformErrors]
+    [formData, userTransformErrors],
   );
 
   const combinedCustomValidate = useCallback(
@@ -165,29 +165,29 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
 
       if (runtimeDependencyConfig) {
         const runtimeValidator = createRuntimeValidator(
-          runtimeDependencyConfig
+          runtimeDependencyConfig,
         );
         validationErrors = runtimeValidator(
           formDataToValidate as Record<string, unknown>,
-          validationErrors as FormValidation<Record<string, unknown>>
+          validationErrors as FormValidation<Record<string, unknown>>,
         ) as FormValidation<T>;
       }
 
       if (userCustomValidate) {
         validationErrors = userCustomValidate(
           formDataToValidate,
-          validationErrors
+          validationErrors,
         );
       }
 
       return validationErrors;
     },
-    [runtimeDependencyConfig, userCustomValidate]
+    [runtimeDependencyConfig, userCustomValidate],
   );
 
   const memoizedWidgets = useMemo(
     () => lodash.merge(INTERNAL_WIDGETS, widgets),
-    [widgets]
+    [widgets],
   );
   const memoizedFields = useMemo(() => fields, [fields]);
   const memoizedTemplates = useMemo(() => {
@@ -196,14 +196,14 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       templates,
       useTableForArrayFields
         ? { ArrayFieldItemTemplate, ArrayFieldTemplate }
-        : {}
+        : {},
     );
   }, [templates]);
 
   const handleSubmit = useCallback(
     (
       data: Parameters<NonNullable<typeof userOnSubmit>>[0],
-      event: React.FormEvent<HTMLFormElement>
+      event: React.FormEvent<HTMLFormElement>,
     ) => {
       if (!userOnSubmit) return;
 
@@ -213,14 +213,14 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       if (fieldDependencies && cleanedFormData) {
         cleanedFormData = cleanHiddenFieldsFromFormData(
           cleanedFormData as Record<string, unknown>,
-          fieldDependencies
+          fieldDependencies,
         ) as T;
       }
 
       if (runtimeDependencyConfig && cleanedFormData) {
         cleanedFormData = cleanFormDataForSubmit(
           cleanedFormData as Record<string, unknown>,
-          runtimeDependencyConfig
+          runtimeDependencyConfig,
         ) as T;
       }
 
@@ -230,7 +230,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
 
       userOnSubmit(submitData, event);
     },
-    [userOnSubmit, runtimeDependencyConfig, fieldDependencies]
+    [userOnSubmit, runtimeDependencyConfig, fieldDependencies],
   );
 
   return (

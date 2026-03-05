@@ -14,8 +14,8 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@repo/ayasofyazilim-ui/components/chart";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/chart";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { ReactNode } from "react";
 import { CurveType } from "recharts/types/shape/Curve";
 import { BaseAxisProps } from "recharts/types/util/types";

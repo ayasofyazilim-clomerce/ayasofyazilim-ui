@@ -7,8 +7,8 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@repo/ayasofyazilim-ui/components/chart";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/chart";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import * as React from "react";
 import {
   Bar,

@@ -3,10 +3,10 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@repo/ayasofyazilim-ui/components/tabs";
+} from "@ayasofyazilim/ui/components/tabs";
 import type { Table } from "@tanstack/react-table";
 
-import { useIsMobile } from "@repo/ayasofyazilim-ui/hooks/use-mobile";
+import { useIsMobile } from "@ayasofyazilim/ui/hooks/use-mobile";
 import { useState } from "react";
 import {
   Drawer,
@@ -29,8 +29,9 @@ export interface BaseMultiFilterDialogProps<TData> {
   table: Table<TData>;
   config: MasterDataGridConfig<TData>;
 }
-interface MultiFilterDialogProps<TData>
-  extends BaseMultiFilterDialogProps<TData> {
+interface MultiFilterDialogProps<
+  TData,
+> extends BaseMultiFilterDialogProps<TData> {
   children: React.ReactNode;
 }
 

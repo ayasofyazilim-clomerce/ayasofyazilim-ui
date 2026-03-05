@@ -1,4 +1,4 @@
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Table,
   TableBody,
@@ -6,8 +6,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ayasofyazilim-ui/components/table";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/table";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import {
   ArrayFieldTemplateProps,
   buttonId,
@@ -35,12 +35,12 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
   const ArrayFieldDescriptionTemplate = getTemplate(
     "ArrayFieldDescriptionTemplate",
     registry,
-    uiOptions
+    uiOptions,
   );
   const ArrayFieldTitleTemplate = getTemplate(
     "ArrayFieldTitleTemplate",
     registry,
-    uiOptions
+    uiOptions,
   );
   const showOptionalDataControlInTitle = !readonly && !disabled;
 
@@ -72,7 +72,7 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
           <TableRow className="divide-x">
             {Object.keys(
               (schema?.items as { properties: Record<string, string> })
-                ?.properties || {}
+                ?.properties || {},
             ).map((item) => {
               const itemsUiSchema =
                 typeof uiSchema?.items === "function"

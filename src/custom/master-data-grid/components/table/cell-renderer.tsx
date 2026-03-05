@@ -1,4 +1,4 @@
-import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
+import { Switch } from "@ayasofyazilim/ui/components/switch";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { Badge } from "../../../../components/badge";
@@ -42,7 +42,7 @@ const BADGE_VARIANT_MAP: Record<
 
 function createZodSchema(
   schemaProperty?: JSONSchemaProperty,
-  t?: MasterDataGridResources
+  t?: MasterDataGridResources,
 ): z.ZodType {
   if (!schemaProperty) return z.unknown();
 
@@ -60,9 +60,9 @@ function createZodSchema(
           t?.["validation.min_length"]
             ? (t["validation.min_length"] ?? "").replace(
                 "{min}",
-                String(schemaProperty.minLength)
+                String(schemaProperty.minLength),
               )
-            : `Must be at least ${schemaProperty.minLength} characters`
+            : `Must be at least ${schemaProperty.minLength} characters`,
         );
       }
       if (schemaProperty.maxLength !== undefined) {
@@ -71,15 +71,15 @@ function createZodSchema(
           t?.["validation.max_length"]
             ? (t["validation.max_length"] ?? "").replace(
                 "{max}",
-                String(schemaProperty.maxLength)
+                String(schemaProperty.maxLength),
               )
-            : `Must be at most ${schemaProperty.maxLength} characters`
+            : `Must be at most ${schemaProperty.maxLength} characters`,
         );
       }
 
       if (schemaProperty.format === "email") {
         schema = (schema as z.ZodString).email(
-          t?.["validation.invalid_email"] || "Must be a valid email address"
+          t?.["validation.invalid_email"] || "Must be a valid email address",
         );
       }
       if (schemaProperty.format === "uri" || schemaProperty.format === "url") {
@@ -87,7 +87,7 @@ function createZodSchema(
       }
       if (schemaProperty.format === "uuid") {
         schema = z.uuid(
-          t?.["validation.invalid_uuid"] || "Must be a valid UUID"
+          t?.["validation.invalid_uuid"] || "Must be a valid UUID",
         );
       }
       break;
@@ -103,9 +103,9 @@ function createZodSchema(
           t?.["validation.min_value"]
             ? (t["validation.min_value"] ?? "").replace(
                 "{min}",
-                String(schemaProperty.minimum)
+                String(schemaProperty.minimum),
               )
-            : `Must be at least ${schemaProperty.minimum}`
+            : `Must be at least ${schemaProperty.minimum}`,
         );
       }
       if (schemaProperty.maximum !== undefined) {
@@ -114,9 +114,9 @@ function createZodSchema(
           t?.["validation.max_value"]
             ? (t["validation.max_value"] ?? "").replace(
                 "{max}",
-                String(schemaProperty.maximum)
+                String(schemaProperty.maximum),
               )
-            : `Must be at most ${schemaProperty.maximum}`
+            : `Must be at most ${schemaProperty.maximum}`,
         );
       }
       break;
@@ -135,9 +135,9 @@ function createZodSchema(
           t?.["validation.min_value"]
             ? (t["validation.min_value"] ?? "").replace(
                 "{min}",
-                String(schemaProperty.minimum)
+                String(schemaProperty.minimum),
               )
-            : `Must be at least ${schemaProperty.minimum}`
+            : `Must be at least ${schemaProperty.minimum}`,
         );
       }
       if (schemaProperty.maximum !== undefined) {
@@ -146,9 +146,9 @@ function createZodSchema(
           t?.["validation.max_value"]
             ? (t["validation.max_value"] ?? "").replace(
                 "{max}",
-                String(schemaProperty.maximum)
+                String(schemaProperty.maximum),
               )
-            : `Must be at most ${schemaProperty.maximum}`
+            : `Must be at most ${schemaProperty.maximum}`,
         );
       }
       break;
@@ -166,7 +166,7 @@ function createZodSchema(
   if (schemaProperty.enum && Array.isArray(schemaProperty.enum)) {
     schema = z.enum(
       schemaProperty.enum as [string, ...string[]],
-      t?.["validation.invalid_enum"] || "Invalid value"
+      t?.["validation.invalid_enum"] || "Invalid value",
     );
   }
 
@@ -248,19 +248,19 @@ export function CellRenderer<TData = unknown>({
 }: CellRendererProps<TData>) {
   const [localValue, setLocalValue] = useState(value);
   const [validationError, setValidationError] = useState<string | null>(
-    error || null
+    error || null,
   );
   const inputRef = useRef<HTMLInputElement>(null);
   const updateTimeoutRef = useRef<NodeJS.Timeout>(null);
   const datePickerIdRef = useRef<string>(
-    `date-${schemaProperty?.title || "field"}-${Date.now()}`
+    `date-${schemaProperty?.title || "field"}-${Date.now()}`,
   );
   const datePickerMountedRef = useRef<boolean>(false);
   const handleDateChangeRef = useRef<((date: Date) => void) | null>(null);
 
   const validationSchema = useMemo(
     () => (schemaProperty ? createZodSchema(schemaProperty, t) : null),
-    [schemaProperty, t]
+    [schemaProperty, t],
   );
 
   useEffect(() => {
@@ -289,7 +289,7 @@ export function CellRenderer<TData = unknown>({
         }
       }, DEBOUNCE_DELAY);
     },
-    [onUpdate]
+    [onUpdate],
   );
 
   const handleChange = useCallback(
@@ -311,16 +311,16 @@ export function CellRenderer<TData = unknown>({
         debouncedUpdate(newValue);
       }
     },
-    [validationSchema, debouncedUpdate]
+    [validationSchema, debouncedUpdate],
   );
 
   const inputClassName = useMemo(
     () =>
       cn(
         "h-full px-2 shadow-none border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0",
-        validationError && "border border-destructive"
+        validationError && "border border-destructive",
       ),
-    [validationError]
+    [validationError],
   );
 
   if (editable && !schemaProperty?.readOnly) {
@@ -364,7 +364,7 @@ export function CellRenderer<TData = unknown>({
                 size="sm"
                 className={cn(
                   "h-[35px]! px-2 w-full shadow-none border-0 rounded-none focus:ring-0 focus:ring-offset-0",
-                  validationError && "border border-destructive"
+                  validationError && "border border-destructive",
                 )}
               >
                 <SelectValue />
@@ -452,7 +452,7 @@ export function CellRenderer<TData = unknown>({
             classNames={{
               dateInput: cn(
                 "shadow-none border-0 h-8! rounded-none",
-                validationError && "border border-destructive"
+                validationError && "border border-destructive",
               ),
             }}
             useTime={isDateTime}

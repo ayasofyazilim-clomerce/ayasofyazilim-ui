@@ -1,14 +1,14 @@
 "use client";
 
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
   FieldSet,
-} from "@repo/ayasofyazilim-ui/components/field";
-import { Selectable } from "@repo/ayasofyazilim-ui/custom/selectable";
+} from "@ayasofyazilim/ui/components/field";
+import { Selectable } from "@ayasofyazilim/ui/custom/selectable";
 import { Loader2, RotateCcw, Search, XCircle } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";
@@ -19,11 +19,11 @@ import {
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from "@repo/ayasofyazilim-ui/components/input-group";
+} from "@ayasofyazilim/ui/components/input-group";
 import {
   ScrollArea,
   ScrollBar,
-} from "@repo/ayasofyazilim-ui/components/scroll-area";
+} from "@ayasofyazilim/ui/components/scroll-area";
 import { getTranslations } from "../../utils";
 
 type FilterValue =
@@ -63,7 +63,7 @@ export function ServerFilterContent<TData>({
         }
       });
       return initial;
-    }
+    },
   );
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -90,7 +90,7 @@ export function ServerFilterContent<TData>({
 
       setLocalValues((prev) => ({ ...prev, [filter.key]: processedValue }));
     },
-    []
+    [],
   );
 
   const handleApply = () => {
@@ -180,10 +180,11 @@ export function ServerFilterContent<TData>({
                       Array.isArray(value)
                         ? value.some(
                             (v) =>
-                              v === opt.value || String(v) === String(opt.value)
+                              v === opt.value ||
+                              String(v) === String(opt.value),
                           )
                         : value === opt.value ||
-                          String(value) === String(opt.value)
+                          String(value) === String(opt.value),
                     )}
                     getKey={(opt) => String(opt.value)}
                     getLabel={(opt) => opt.label}
@@ -193,7 +194,7 @@ export function ServerFilterContent<TData>({
                         filter,
                         filter.type === "array"
                           ? values
-                          : values[0] ?? undefined
+                          : (values[0] ?? undefined),
                       );
                     }}
                     searchPlaceholderText={filter.placeholder}
@@ -215,7 +216,7 @@ export function ServerFilterContent<TData>({
                     value={
                       typeof value === "boolean" || typeof value === "object"
                         ? ""
-                        : value ?? ""
+                        : (value ?? "")
                     }
                     placeholder={filter.placeholder}
                     onKeyDown={(e) => e.key === "Enter" && handleApply()}

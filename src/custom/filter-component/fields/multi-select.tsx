@@ -1,6 +1,6 @@
 "use client";
 
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
+import { Label } from "@ayasofyazilim/ui/components/label";
 
 import { MultiSelect } from "../../multi-select";
 import type { MultiSelectType } from "..";

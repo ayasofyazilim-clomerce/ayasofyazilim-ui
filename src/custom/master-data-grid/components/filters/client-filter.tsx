@@ -11,8 +11,8 @@ import { getFilterOperators } from "../../utils/filter-fns";
 import { getColumnName, getTranslations } from "../../utils/translation-utils";
 import { FilterInput } from "./filter-input";
 import { BaseMultiFilterDialogProps } from "./multi-filter-dialog";
-import { ButtonGroup } from "@repo/ayasofyazilim-ui/components/button-group";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { ButtonGroup } from "@ayasofyazilim/ui/components/button-group";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Trash2,
   ArrowUpDown,
@@ -39,8 +39,9 @@ interface FilterRow {
   value: string;
   value2?: string;
 }
-interface ClientFilterContentProps<TData>
-  extends BaseMultiFilterDialogProps<TData> {
+interface ClientFilterContentProps<
+  TData,
+> extends BaseMultiFilterDialogProps<TData> {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -148,7 +149,7 @@ export function ClientFilterContent<TData>({
 
   const updateFilter = (id: string, updates: Partial<FilterRow>) => {
     setFilterRows(
-      filterRows.map((row) => (row.id === id ? { ...row, ...updates } : row))
+      filterRows.map((row) => (row.id === id ? { ...row, ...updates } : row)),
     );
   };
 

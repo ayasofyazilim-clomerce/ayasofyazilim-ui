@@ -11,15 +11,15 @@ import {
   WandSparkles,
 } from "lucide-react";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Separator } from "@ayasofyazilim/ui/components/separator";
+import { Button } from "@ayasofyazilim/ui/components/button";
+import { Badge } from "@ayasofyazilim/ui/components/badge";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
+} from "@ayasofyazilim/ui/components/popover";
 import {
   Command,
   CommandEmpty,
@@ -28,7 +28,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim/ui/components/command";
 
 /**
  * Variants for the multi-select component to handle different styles.
@@ -51,14 +51,15 @@ const multiSelectVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 /**
  * Props for MultiSelect component
  */
 export interface MultiSelectProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof multiSelectVariants> {
   /**
    * Animation duration in seconds for the visual effects (e.g., bouncing badges).
@@ -154,7 +155,7 @@ export const MultiSelect = React.forwardRef<
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [selectedValues, setSelectedValues] =
       React.useState<string[]>(defaultValue);
@@ -172,7 +173,7 @@ export const MultiSelect = React.forwardRef<
     const [isAnimating, setIsAnimating] = React.useState(false);
 
     const handleInputKeyDown = (
-      event: React.KeyboardEvent<HTMLInputElement>
+      event: React.KeyboardEvent<HTMLInputElement>,
     ) => {
       if (event.key === "Enter") {
         setIsPopoverOpen(true);
@@ -195,8 +196,9 @@ export const MultiSelect = React.forwardRef<
     const handleClear = () => {
       setSelectedValues(
         selectedValues.filter(
-          (value) => !options.map((o) => !o.disabled && o.value).includes(value)
-        )
+          (value) =>
+            !options.map((o) => !o.disabled && o.value).includes(value),
+        ),
       );
       if (onValueChange) onValueChange([]);
     };
@@ -236,7 +238,7 @@ export const MultiSelect = React.forwardRef<
             onClick={handleTogglePopover}
             className={cn(
               "flex w-full p-1 rounded-md border min-h-9 h-auto items-center justify-between bg-inherit hover:bg-inherit",
-              className
+              className,
             )}
           >
             {selectedValues.length > 0 ? (
@@ -250,7 +252,7 @@ export const MultiSelect = React.forwardRef<
                         key={value}
                         className={cn(
                           isAnimating ? "animate-bounce" : "",
-                          multiSelectVariants({ variant })
+                          multiSelectVariants({ variant }),
                         )}
                         style={{ animationDuration: `${animation}s` }}
                       >
@@ -275,7 +277,7 @@ export const MultiSelect = React.forwardRef<
                       className={cn(
                         "bg-transparent text-foreground border-foreground/1 hover:bg-transparent",
                         isAnimating ? "animate-bounce" : "",
-                        multiSelectVariants({ variant })
+                        multiSelectVariants({ variant }),
                       )}
                       style={{ animationDuration: `${animation}s` }}
                     >
@@ -345,7 +347,7 @@ export const MultiSelect = React.forwardRef<
                       "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                       selectedValues.length === options.length
                         ? "bg-primary text-primary-foreground"
-                        : "opacity-50 [&_svg]:invisible"
+                        : "opacity-50 [&_svg]:invisible",
                     )}
                   >
                     <CheckIcon className="h-4 w-4" />
@@ -367,7 +369,7 @@ export const MultiSelect = React.forwardRef<
                           "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                           isSelected
                             ? "bg-primary text-primary-foreground"
-                            : "opacity-50 [&_svg]:invisible"
+                            : "opacity-50 [&_svg]:invisible",
                         )}
                       >
                         <CheckIcon className="h-4 w-4" />
@@ -419,14 +421,14 @@ export const MultiSelect = React.forwardRef<
           <WandSparkles
             className={cn(
               "cursor-pointer my-2 text-foreground bg-background w-3 h-3",
-              isAnimating ? "" : "text-muted-foreground"
+              isAnimating ? "" : "text-muted-foreground",
             )}
             onClick={() => setIsAnimating(!isAnimating)}
           />
         )}
       </Popover>
     );
-  }
+  },
 );
 
 MultiSelect.displayName = "MultiSelect";

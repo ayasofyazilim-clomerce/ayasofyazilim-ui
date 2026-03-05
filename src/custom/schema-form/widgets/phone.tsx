@@ -3,12 +3,12 @@
 import {
   PhoneInput,
   PhoneInputProps,
-} from "@repo/ayasofyazilim-ui/custom/phone-input";
+} from "@ayasofyazilim/ui/custom/phone-input";
 import { WidgetProps } from "@rjsf/utils";
 
 export function CustomPhoneFieldWithParse<T>(
   props: Partial<Omit<WidgetProps<T>, "onChange" | "id">> &
-    Omit<PhoneInputProps, "required" | "defaultValue" | "id">
+    Omit<PhoneInputProps, "required" | "defaultValue" | "id">,
 ) {
   const required = props.required || props.uiSchema?.["ui:required"];
   return (
@@ -23,7 +23,7 @@ export function CustomPhoneFieldWithParse<T>(
 export const PhoneWithParseWidget = CustomPhoneFieldWithParse;
 
 export const PhoneWithValueWidget = function CustomPhoneFieldWithValue(
-  props: WidgetProps & { defaultCountry?: string }
+  props: WidgetProps & { defaultCountry?: string },
 ) {
   const { onChange, uiSchema } = props;
   const required = uiSchema?.["ui:required"] || props.required;

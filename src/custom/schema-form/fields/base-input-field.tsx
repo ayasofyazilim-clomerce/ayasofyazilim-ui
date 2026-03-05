@@ -1,5 +1,5 @@
-import { Input } from "@repo/ayasofyazilim-ui/components/input";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Input } from "@ayasofyazilim/ui/components/input";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import {
   ariaDescribedByIds,
   BaseInputTemplateProps,
@@ -53,7 +53,7 @@ export function BaseInputTemplate({
         readOnly={readonly}
         className={cn(
           { "border-destructive focus-visible:ring-0": rawErrors.length > 0 },
-          className
+          className,
         )}
         list={schema.examples ? examplesId(id) : undefined}
         {...inputProps}
@@ -70,7 +70,7 @@ export function BaseInputTemplate({
             .concat(
               schema.default && !schema.examples.includes(schema.default)
                 ? ([schema.default] as string[])
-                : []
+                : [],
             )
             .map((example: any) => {
               return <option key={example} value={example} />;

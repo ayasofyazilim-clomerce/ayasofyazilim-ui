@@ -1,4 +1,4 @@
-import { z } from "@repo/ayasofyazilim-ui/lib/zod";
+import { z } from "@ayasofyazilim/ui/lib/zod";
 import { GenericObjectType } from "@rjsf/utils";
 import type {
   CellContext,
@@ -102,8 +102,9 @@ interface BaseRowAction<TData = unknown> {
   className?: string;
 }
 
-export interface StandardRowAction<TData = unknown>
-  extends BaseRowAction<TData> {
+export interface StandardRowAction<
+  TData = unknown,
+> extends BaseRowAction<TData> {
   label: string | ((row: TData) => string);
   icon?: LucideIcon;
   onClick?: (row: TData, event: React.MouseEvent) => void | Promise<void>;
@@ -351,7 +352,7 @@ export interface CustomCellRendererProps<TData = unknown> {
 }
 
 export type CustomCellRenderer<TData = unknown> = (
-  props: CustomCellRendererProps<TData>
+  props: CustomCellRendererProps<TData>,
 ) => React.ReactNode;
 
 export type CustomRenderers<TData> = Partial<

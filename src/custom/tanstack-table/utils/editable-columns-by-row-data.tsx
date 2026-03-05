@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
-import { Input } from "@repo/ayasofyazilim-ui/components/input";
+import { Input } from "@ayasofyazilim/ui/components/input";
 import {
   Select,
   SelectContent,
@@ -10,20 +10,20 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ayasofyazilim-ui/components/select";
-import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/select";
+import { Switch } from "@ayasofyazilim/ui/components/switch";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { createCell, tanstackTableCreateTitleWithLanguageData } from ".";
 import { TanstackTableColumnHeader } from "../fields";
 import {
   TanstackTableCreateColumnsByRowId,
   TanstacktableEditableColumnsByRowId,
 } from "../types";
-import { DatePicker } from "@repo/ayasofyazilim-ui/custom/date-picker";
+import { DatePicker } from "@ayasofyazilim/ui/custom/date-picker";
 
 export function tanstackTableEditableColumnsByRowData<T>(
   params: TanstacktableEditableColumnsByRowId<T> &
-    Omit<TanstackTableCreateColumnsByRowId<T>, "rows" | "selectableRows">
+    Omit<TanstackTableCreateColumnsByRowId<T>, "rows" | "selectableRows">,
 ) {
   const {
     rows,
@@ -134,7 +134,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
                   className={cn(
                     "w-[180px] min-w-max border-none rounded-none focus-visible:border-none focus-within:border-none ring-0 focus-visible:ring-0 focus-within:ring-0 ring-transparent shadow-none",
                     isRowSelected ? "font-medium italic" : "",
-                    !value && "text-muted-foreground"
+                    !value && "text-muted-foreground",
                   )}
                 >
                   <SelectValue
@@ -202,7 +202,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
               value={value as string}
               className={cn(
                 "w-full border-none rounded-none focus-visible:border-none focus-within:border-none ring-0 focus-visible:ring-0 focus-within:ring-0 ring-transparent shadow-none",
-                isRowSelected ? "font-medium italic" : ""
+                isRowSelected ? "font-medium italic" : "",
               )}
               placeholder={accessorKey}
               onChange={(e) => {

@@ -1,4 +1,4 @@
-import { SchemaFormProps } from "@repo/ayasofyazilim-ui/custom/schema-form";
+import { SchemaFormProps } from "@ayasofyazilim/ui/custom/schema-form";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -42,7 +42,7 @@ export type TanstackBaseProps<TData, TValue> = {
   showPagination?: boolean;
   expandedRowComponent?: (
     row: TData,
-    toggleExpanded: () => void
+    toggleExpanded: () => void,
   ) => JSX.Element;
   fillerColumn?: keyof TData;
   editable: boolean;
