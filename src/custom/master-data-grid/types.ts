@@ -243,7 +243,7 @@ export type ServerFilterConfig =
   | BooleanServerFilterConfig;
 
 export interface MasterDataGridConfig<TData = unknown> {
-  schema?: JSONSchema | GenericObjectType;
+  schema: JSONSchema | GenericObjectType;
   columns?: ColumnConfig<TData>[];
 
   t?: MasterDataGridResources;
@@ -297,10 +297,7 @@ export interface MasterDataGridConfig<TData = unknown> {
     columns: Array<keyof TData>;
   };
   columnOrder?: Array<keyof TData>;
-  schemaColumns?: {
-    mode: "include" | "exclude";
-    columns: Array<keyof TData>;
-  };
+  schemaColumns?: IncludeSchemaColumns | ExcludeSchemaColumns;
 
   enableMultiSort?: boolean;
   enableMultiFilter?: boolean;
@@ -318,7 +315,16 @@ export interface MasterDataGridConfig<TData = unknown> {
 
   getRowId?: (row: TData, index: number) => string;
 }
-
+interface BaseSchemaColumns {
+  columns: Array<string>;
+}
+interface IncludeSchemaColumns extends BaseSchemaColumns {
+  mode: "include";
+  sort?: boolean;
+}
+interface ExcludeSchemaColumns extends BaseSchemaColumns {
+  mode: "exclude";
+}
 export interface MasterDataGridProps<TData = unknown> {
   data: TData[];
   config: MasterDataGridConfig<TData>;

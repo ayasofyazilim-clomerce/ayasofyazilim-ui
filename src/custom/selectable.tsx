@@ -201,7 +201,9 @@ export function Selectable<T>({
           )}
         </div>
       ) : (
-        makeAChoiceText
+        <span className="text-muted-foreground font-normal truncate">
+          {makeAChoiceText}
+        </span>
       )}
       <ChevronsUpDown className="opacity-50" />
     </>
