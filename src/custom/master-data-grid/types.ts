@@ -297,7 +297,7 @@ export interface MasterDataGridConfig<TData = unknown> {
     columns: Array<keyof TData>;
   };
   columnOrder?: Array<keyof TData>;
-  schemaColumns?: IncludeSchemaColumns | ExcludeSchemaColumns;
+  schemaColumns?: SchemaColumns;
 
   enableMultiSort?: boolean;
   enableMultiFilter?: boolean;
@@ -325,6 +325,7 @@ interface IncludeSchemaColumns extends BaseSchemaColumns {
 interface ExcludeSchemaColumns extends BaseSchemaColumns {
   mode: "exclude";
 }
+export type SchemaColumns = IncludeSchemaColumns | ExcludeSchemaColumns;
 export interface MasterDataGridProps<TData = unknown> {
   data: TData[];
   config: MasterDataGridConfig<TData>;
