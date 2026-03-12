@@ -8,6 +8,7 @@ import type {
   JSONSchemaProperty,
   Localization,
   MasterDataGridResources,
+  SchemaColumns,
 } from "../types";
 import { getFilterOperators, masterFilter } from "./filter-fns";
 import { getColumnName } from "./translation-utils";
@@ -28,10 +29,7 @@ export function generateColumnsFromSchema<TData = unknown>(
   errorDisplayMode?: "tooltip" | "inline" | "both",
   enableColumnVisibility?: boolean,
   expanderColumns?: Array<keyof TData> | Array<string>,
-  schemaColumns?: {
-    mode: "include" | "exclude";
-    columns: Array<keyof TData> | Array<string>;
-  }
+  schemaColumns?: SchemaColumns
 ): GeneratedColumn<TData>[] {
   if (!schema.properties) return [];
 
