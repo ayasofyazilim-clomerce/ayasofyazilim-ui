@@ -119,12 +119,12 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
             col.id || "",
 
             columnVisibility?.columns.includes(
-              (col.id || "") as keyof TData,
+              (col.id || "") as keyof TData
             ) ===
               (columnVisibility.type === "show"),
-          ]),
+          ])
         )
-      : {},
+      : {}
   );
   const [rowAction, setRowAction] = useState<
     (TanstackTableRowActionsType<TData> & { row: TData }) | null
@@ -134,7 +134,7 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
 
   const tableColumns = useMemo(() => {
     const _columns = [...columns].filter(
-      (col) => !excludeColumns?.includes(col.id as keyof TData),
+      (col) => !excludeColumns?.includes(col.id as keyof TData)
     );
 
     if (rowActions) {
@@ -154,7 +154,7 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
   const getRowId = useCallback(
     (row: TData, index: number) =>
       editable ? index.toString() : (row as TData & { id: string }).id,
-    [],
+    []
   );
 
   const table = useReactTable({
