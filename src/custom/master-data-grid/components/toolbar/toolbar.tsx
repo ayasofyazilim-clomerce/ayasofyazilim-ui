@@ -247,6 +247,7 @@ export function Toolbar<TData>({
       if (action.type === "link") {
         return (
           <Link
+            key={action.id}
             href={action.href}
             className={cn(
               buttonVariants({ variant: action.variant }),
