@@ -5,9 +5,21 @@ import {
   OnChangeFn,
   PaginationState,
   Row,
+  RowData,
   TableMeta,
 } from "@tanstack/react-table";
 import { ComponentType, JSX } from "react";
+
+declare module "@tanstack/react-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData extends RowData> {
+    addRow: (rowIndex: number, columnId: string, value: unknown) => void;
+    removeRow: (rowIndex: number, columnId: string, value: unknown) => void;
+    updateData: (rowIndex: number, columnId: string, value: unknown) => void;
+    duplicateRow: (rowIndex: number, value: TData) => void;
+    orderRow: (newIndex: number, oldIndex: number) => void;
+  }
+}
 
 export type NonEditableTanstackTableProps<TData> = {
   rowCount: number;
@@ -42,7 +54,7 @@ export type TanstackBaseProps<TData, TValue> = {
   showPagination?: boolean;
   expandedRowComponent?: (
     row: TData,
-    toggleExpanded: () => void
+    toggleExpanded: () => void,
   ) => JSX.Element;
   fillerColumn?: keyof TData;
   editable: boolean;

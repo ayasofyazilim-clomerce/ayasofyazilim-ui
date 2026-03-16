@@ -5,7 +5,6 @@ import {
   getExpandedRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  RowData,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -30,17 +29,6 @@ import {
   EditableTanstackTable,
   NonEditableTanstackTable,
 } from "./utils";
-
-declare module "@tanstack/react-table" {
-  // eslint-disaxxble-next-line @typescript-eslint/no-unused-vars
-  interface TableMeta<TData extends RowData> {
-    addRow: (rowIndex: number, columnId: string, value: unknown) => void;
-    removeRow: (rowIndex: number, columnId: string, value: unknown) => void;
-    updateData: (rowIndex: number, columnId: string, value: unknown) => void;
-    duplicateRow: (rowIndex: number, value: TData) => void;
-    orderRow: (newIndex: number, oldIndex: number) => void;
-  }
-}
 
 export default function TanstackTable<TData, TValue>({
   data,
@@ -131,12 +119,12 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
             col.id || "",
 
             columnVisibility?.columns.includes(
-              (col.id || "") as keyof TData
+              (col.id || "") as keyof TData,
             ) ===
               (columnVisibility.type === "show"),
-          ])
+          ]),
         )
-      : {}
+      : {},
   );
   const [rowAction, setRowAction] = useState<
     (TanstackTableRowActionsType<TData> & { row: TData }) | null
@@ -146,7 +134,7 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
 
   const tableColumns = useMemo(() => {
     const _columns = [...columns].filter(
-      (col) => !excludeColumns?.includes(col.id as keyof TData)
+      (col) => !excludeColumns?.includes(col.id as keyof TData),
     );
 
     if (rowActions) {
@@ -166,7 +154,7 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
   const getRowId = useCallback(
     (row: TData, index: number) =>
       editable ? index.toString() : (row as TData & { id: string }).id,
-    []
+    [],
   );
 
   const table = useReactTable({
