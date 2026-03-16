@@ -10,6 +10,10 @@ import {
 } from "@repo/ayasofyazilim-ui/components/field";
 import { Selectable } from "@repo/ayasofyazilim-ui/custom/selectable";
 import { Loader2, RotateCcw, Search, XCircle } from "lucide-react";
+import {
+  DatePicker,
+  DateRangePicker,
+} from "@repo/ayasofyazilim-ui/custom/date-picker";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";
 import { ServerFilterConfig } from "../../types";
@@ -26,11 +30,14 @@ import {
 } from "@repo/ayasofyazilim-ui/components/scroll-area";
 import { getTranslations } from "../../utils";
 
+type DateRangeValue = { from: string | undefined; to: string | undefined };
+
 type FilterValue =
   | string
   | number
   | boolean
   | Array<string | boolean>
+  | DateRangeValue
   | undefined;
 
 export function ServerFilterContent<TData>({
@@ -58,6 +65,11 @@ export function ServerFilterContent<TData>({
             val === "true" ? true : val === "false" ? false : undefined;
         } else if (filter.type === "number") {
           initial[filter.key] = val ? Number(val) : undefined;
+        } else if (filter.type === "date-range") {
+          initial[filter.key] = {
+            from: searchParams.get(filter.keyFrom) || undefined,
+            to: searchParams.get(filter.keyTo) || undefined,
+          };
         } else {
           initial[filter.key] = val || undefined;
         }
@@ -99,6 +111,16 @@ export function ServerFilterContent<TData>({
 
     serverFilters.forEach((filter) => {
       const val = localValues[filter.key];
+
+      if (filter.type === "date-range") {
+        params.delete(filter.keyFrom);
+        params.delete(filter.keyTo);
+        const rangeVal = val as DateRangeValue | undefined;
+        if (rangeVal?.from) params.set(filter.keyFrom, rangeVal.from);
+        if (rangeVal?.to) params.set(filter.keyTo, rangeVal.to);
+        return;
+      }
+
       params.delete(filter.key);
       const isEmpty =
         val === undefined ||
@@ -137,7 +159,13 @@ export function ServerFilterContent<TData>({
   const handleReset = () => {
     const initial: Record<string, FilterValue> = {};
     serverFilters.forEach((f) => {
-      initial[f.key] = f.type === "array" ? [] : undefined;
+      if (f.type === "array") {
+        initial[f.key] = [];
+      } else if (f.type === "date-range") {
+        initial[f.key] = { from: undefined, to: undefined };
+      } else {
+        initial[f.key] = undefined;
+      }
     });
     setLocalValues(initial);
     setErrors({});
@@ -147,10 +175,18 @@ export function ServerFilterContent<TData>({
 
   const clearSingleFilter = useCallback((filter: ServerFilterConfig) => {
     const emptyValue =
-      filter.type === "array" ? [] : filter.type === "boolean" ? undefined : "";
+      filter.type === "array"
+        ? []
+        : filter.type === "boolean"
+          ? undefined
+          : filter.type === "date-range"
+            ? { from: undefined, to: undefined }
+            : "";
     setLocalValues((prev) => ({ ...prev, [filter.key]: emptyValue }));
     setErrors((prev) => ({ ...prev, [filter.key]: "" }));
-    if (["select", "array", "boolean"].includes(filter.type)) {
+    if (
+      ["select", "array", "boolean", "date", "date-range"].includes(filter.type)
+    ) {
       setResetCount((prev) => prev + 1);
     }
   }, []);
@@ -162,6 +198,77 @@ export function ServerFilterContent<TData>({
         <FieldGroup className={"gap-3 max-h-80"}>
           {serverFilters.map((filter) => {
             const value = localValues[filter.key];
+
+            if (filter.type === "date") {
+              const dateVal = value as string | undefined;
+              return (
+                <Field key={`${filter.key}-${resetCount}`} className="gap-1">
+                  <FieldLabel htmlFor={filter.key}>{filter.label}</FieldLabel>
+                  <div className="relative">
+                    <DatePicker
+                      id={filter.key}
+                      defaultValue={dateVal ? new Date(dateVal) : undefined}
+                      onChange={(date) =>
+                        onValueChange(
+                          filter,
+                          date ? date.toISOString() : undefined
+                        )
+                      }
+                    />
+                    {dateVal && (
+                      <button
+                        type="button"
+                        className="absolute right-9 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => clearSingleFilter(filter)}
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {errors[filter.key] && (
+                    <FieldError>{errors[filter.key]}</FieldError>
+                  )}
+                </Field>
+              );
+            }
+
+            if (filter.type === "date-range") {
+              const rangeVal = value as DateRangeValue | undefined;
+              return (
+                <Field key={`${filter.key}-${resetCount}`} className="gap-1">
+                  <FieldLabel>{filter.label}</FieldLabel>
+                  <div className="relative">
+                    <DateRangePicker
+                      id={filter.key}
+                      defaultValues={{
+                        start: rangeVal?.from
+                          ? new Date(rangeVal.from)
+                          : undefined,
+                        end: rangeVal?.to ? new Date(rangeVal.to) : undefined,
+                      }}
+                      onChange={(range) =>
+                        onValueChange(filter, {
+                          from: range.start?.toISOString(),
+                          to: range.end?.toISOString(),
+                        })
+                      }
+                    />
+                    {(rangeVal?.from || rangeVal?.to) && (
+                      <button
+                        type="button"
+                        className="absolute right-9 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        onClick={() => clearSingleFilter(filter)}
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {errors[filter.key] && (
+                    <FieldError>{errors[filter.key]}</FieldError>
+                  )}
+                </Field>
+              );
+            }
 
             const isSelectable =
               filter.type === "select" ||

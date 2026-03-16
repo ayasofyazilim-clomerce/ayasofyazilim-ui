@@ -13,6 +13,7 @@ import type {
 } from "@tanstack/react-table";
 import type { LucideIcon } from "lucide-react";
 import type { Localization } from "../date-tooltip";
+import { ButtonVariant } from "@repo/ayasofyazilim-ui/components/button";
 
 export type { Localization };
 
@@ -121,17 +122,27 @@ export type RowAction<TData = unknown> =
   | StandardRowAction<TData>
   | CustomRowAction<TData>;
 
-export interface TableAction<TData = unknown> {
+interface BaseTableAction<TData = unknown> {
   id: string;
   label: string;
   icon?: LucideIcon;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost";
-  onClick?: (selectedRows: TData[]) => void | Promise<void>;
+  variant?: ButtonVariant;
   disabled?: boolean | ((selectedRows: TData[]) => boolean);
   hidden?: boolean | ((selectedRows: TData[]) => boolean);
   requiresSelection?: boolean;
   className?: string;
 }
+type LinkTableAction<TData = unknown> = BaseTableAction<TData> & {
+  type: "link";
+  href: string;
+};
+type ButtonTableAction<TData = unknown> = BaseTableAction<TData> & {
+  type: "button";
+  onClick: (selectedRows: TData[]) => void | Promise<void>;
+};
+export type TableAction<TData = unknown> =
+  | LinkTableAction<TData>
+  | ButtonTableAction<TData>;
 
 export interface RowExpansionConfig<TData = unknown> {
   enabled?: boolean;
@@ -235,12 +246,26 @@ interface BooleanServerFilterConfig extends BaseServerFilterConfig {
   validator?: z.ZodType<boolean | undefined>;
 }
 
+interface DateServerFilterConfig extends BaseServerFilterConfig {
+  type: "date";
+  validator?: z.ZodType<string | undefined>;
+}
+
+interface DateRangeServerFilterConfig extends BaseServerFilterConfig {
+  type: "date-range";
+  keyFrom: string;
+  keyTo: string;
+  validator?: z.ZodType<{ from?: string; to?: string } | undefined>;
+}
+
 export type ServerFilterConfig =
   | StringServerFilterConfig
   | NumberServerFilterConfig
   | SelectServerFilterConfig
   | ArrayServerFilterConfig
-  | BooleanServerFilterConfig;
+  | BooleanServerFilterConfig
+  | DateServerFilterConfig
+  | DateRangeServerFilterConfig;
 
 export interface MasterDataGridConfig<TData = unknown> {
   schema: JSONSchema | GenericObjectType;
@@ -297,7 +322,7 @@ export interface MasterDataGridConfig<TData = unknown> {
     columns: Array<keyof TData>;
   };
   columnOrder?: Array<keyof TData>;
-  schemaColumns?: SchemaColumns;
+  schemaColumns?: SchemaColumns<TData>;
 
   enableMultiSort?: boolean;
   enableMultiFilter?: boolean;
@@ -315,17 +340,19 @@ export interface MasterDataGridConfig<TData = unknown> {
 
   getRowId?: (row: TData, index: number) => string;
 }
-interface BaseSchemaColumns {
-  columns: Array<string>;
+interface BaseSchemaColumns<T> {
+  columns: Array<keyof T & string>;
 }
-interface IncludeSchemaColumns extends BaseSchemaColumns {
+interface IncludeSchemaColumns<T> extends BaseSchemaColumns<T> {
   mode: "include";
   sort?: boolean;
 }
-interface ExcludeSchemaColumns extends BaseSchemaColumns {
+interface ExcludeSchemaColumns<T> extends BaseSchemaColumns<T> {
   mode: "exclude";
 }
-export type SchemaColumns = IncludeSchemaColumns | ExcludeSchemaColumns;
+export type SchemaColumns<T> =
+  | IncludeSchemaColumns<T>
+  | ExcludeSchemaColumns<T>;
 export interface MasterDataGridProps<TData = unknown> {
   data: TData[];
   config: MasterDataGridConfig<TData>;

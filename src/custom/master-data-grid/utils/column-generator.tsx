@@ -29,7 +29,7 @@ export function generateColumnsFromSchema<TData = unknown>(
   errorDisplayMode?: "tooltip" | "inline" | "both",
   enableColumnVisibility?: boolean,
   expanderColumns?: Array<keyof TData> | Array<string>,
-  schemaColumns?: SchemaColumns
+  schemaColumns?: SchemaColumns<TData>
 ): GeneratedColumn<TData>[] {
   if (!schema.properties) return [];
 
@@ -71,8 +71,8 @@ export function generateColumnsFromSchema<TData = unknown>(
   if (schemaColumns?.mode === "include" && schemaColumns.sort) {
     const sortOrder = schemaColumns.columns;
     columns.sort((a, b) => {
-      const aIndex = sortOrder.indexOf(a.id as string);
-      const bIndex = sortOrder.indexOf(b.id as string);
+      const aIndex = sortOrder.indexOf(a.id as keyof TData & string);
+      const bIndex = sortOrder.indexOf(b.id as keyof TData & string);
       const aPos = aIndex === -1 ? Infinity : aIndex;
       const bPos = bIndex === -1 ? Infinity : bIndex;
       return aPos - bPos;
