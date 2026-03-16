@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Button,
   DatePicker as DefaultDatePicker,
@@ -53,11 +53,13 @@ export function DatePicker({
   const [timeValue, setTimeValue] = useState(
     createTime({ date: defaultValue, offset })
   );
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
   useEffect(() => {
     if (!dateValue) return;
-    if (onChange) {
+    if (onChangeRef.current) {
       if (useTime && timeValue) {
-        onChange(
+        onChangeRef.current(
           new Date(
             dateValue.year,
             dateValue.month - 1,
@@ -70,10 +72,10 @@ export function DatePicker({
       } else {
         const timeZone = localStorage.getItem("tenantTimeZone") || "UTC";
 
-        onChange(dateValue.toDate(timeZone));
+        onChangeRef.current(dateValue.toDate(timeZone));
       }
     }
-  }, [dateValue, timeValue, onChange, useTime]);
+  }, [dateValue, timeValue, useTime]);
 
   const [isOpen, setIsOpen] = useState(false);
   return (

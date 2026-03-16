@@ -1,3 +1,4 @@
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import type { Table as TanStackTable } from "@tanstack/react-table";
 import {
   Columns3,
@@ -7,10 +8,10 @@ import {
   RefreshCw,
   RotateCcw,
 } from "lucide-react";
-import { useEffect, useState, useCallback, useRef } from "react";
-import { Button } from "../../../../components/button";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Button, buttonVariants } from "../../../../components/button";
 import { ButtonGroup } from "../../../../components/button-group";
-import { Input } from "../../../../components/input";
 import {
   Drawer,
   DrawerContent,
@@ -18,6 +19,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../../../../components/drawer";
+import { Input } from "../../../../components/input";
 import type { MasterDataGridConfig, ServerFilterConfig } from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
 import { MultiFilterDialog } from "../filters";
@@ -242,7 +244,20 @@ export function Toolbar<TData>({
       }
 
       const Icon = action.icon;
-
+      if (action.type === "link") {
+        return (
+          <Link
+            href={action.href}
+            className={cn(
+              buttonVariants({ variant: action.variant }),
+              isMobile ? "w-full justify-start" : action.className
+            )}
+          >
+            {Icon && <Icon className="mr-2 h-4 w-4" />}
+            {action.label}
+          </Link>
+        );
+      }
       return (
         <Button
           key={action.id}

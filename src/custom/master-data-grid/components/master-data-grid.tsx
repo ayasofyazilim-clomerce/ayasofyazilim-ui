@@ -325,7 +325,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 h-full",
+        "flex flex-col gap-2",
         configWithDefaults.containerClassName
       )}
     >
