@@ -469,6 +469,9 @@ export interface MasterDataGridResources extends Record<string, string> {
   "column.actions": string;
   "column.openMenu": string;
 
+  "cell.boolean.yes": string;
+  "cell.boolean.no": string;
+
   "filter.title": string;
   "filter.description": string;
   "filter.where": string;
