@@ -54,7 +54,7 @@ export type TanstackBaseProps<TData, TValue> = {
   showPagination?: boolean;
   expandedRowComponent?: (
     row: TData,
-    toggleExpanded: () => void,
+    toggleExpanded: () => void
   ) => JSX.Element;
   fillerColumn?: keyof TData;
   editable: boolean;
