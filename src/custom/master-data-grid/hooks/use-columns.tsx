@@ -82,6 +82,37 @@ export function useColumns<TData>({
         )
       : [];
 
+    // Auto-generate groupBy columns that were excluded by schemaColumns.
+    // These are non-toggleable hidden columns required for grouping to work.
+    const groupByKeys =
+      (config.grouping?.groupBy as string[] | undefined) || [];
+    const missingGroupByKeys = groupByKeys.filter(
+      (key) => !generatedColumns.find((col) => col.id === key)
+    );
+    const groupByColumns =
+      schema && missingGroupByKeys.length > 0
+        ? generateColumnsFromSchema<TData>(
+            schema,
+            configRef.current.localization,
+            t,
+            editingContext,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            false,
+            undefined,
+            {
+              mode: "include",
+              columns: missingGroupByKeys as (keyof TData & string)[],
+            }
+          ).map((col) => ({
+            ...col,
+            enableHiding: false,
+            enableColumnFilter: false,
+          }))
+        : [];
+
     const mergeContext = editingContext
       ? {
           get editingRows() {
@@ -92,7 +123,7 @@ export function useColumns<TData>({
       : undefined;
 
     const merged = mergeColumns<TData>(
-      generatedColumns,
+      [...generatedColumns, ...groupByColumns],
       customColumns,
       mergeContext,
       enableColumnVisibility,
@@ -123,7 +154,7 @@ export function useColumns<TData>({
                 e.stopPropagation();
                 props.row.toggleExpanded();
               }}
-              className="cursor-pointer hover:bg-muted/50 h-full flex items-center"
+              className="cursor-pointer hover:bg-muted/50 h-full flex items-center px-2 expander"
             >
               {content}
             </div>
@@ -239,7 +270,7 @@ export function useColumns<TData>({
     if (config.editing?.enabled && config.editing.mode === "row") {
       finalColumns.push({
         id: "edit-actions",
-        header: t?.["edit"] || "Edit",
+        header: t?.["column.edit"] || "Edit",
         cell: ({ row }) => {
           const rowId = getRowId
             ? getRowId(row.original, row.index)
@@ -251,37 +282,44 @@ export function useColumns<TData>({
 
           if (!isRowEditable) return null;
 
-          return isEditing ? (
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => saveEditingRow(rowId, row.original)}
-                className="h-7 px-2"
-                aria-label={t?.["save"]}
-              >
-                <Save className="size-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => cancelEditingRow(rowId, row.original)}
-                className="h-7 px-2"
-                aria-label={t?.["cancel"]}
-              >
-                <X className="size-3.5" />
-              </Button>
+          return (
+            <div className="flex gap-1 px-2">
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => saveEditingRow(rowId, row.original)}
+                    className="h-7 px-2"
+                    aria-label={t?.["save"]}
+                  >
+                    <Save className="size-3.5" />
+                    {t?.["column.save"]}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => cancelEditingRow(rowId, row.original)}
+                    className="h-7 px-2"
+                    aria-label={t?.["cancel"]}
+                  >
+                    <X className="size-3.5" />
+                    {t?.["column.cancel"]}
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => startEditingRow(rowId, row.original)}
+                  className="h-7 px-2"
+                  aria-label={t?.["edit"]}
+                >
+                  <Pencil className="size-3.5" />
+                  {t?.["column.edit"]}
+                </Button>
+              )}
             </div>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => startEditingRow(rowId, row.original)}
-              className="h-7 px-2"
-              aria-label={t?.["edit"]}
-            >
-              <Pencil className="size-3.5" />
-            </Button>
           );
         },
         enableSorting: false,

@@ -53,7 +53,7 @@ function TooltipContent({
       >
         {children}
         <TooltipPrimitive.Arrow
-          className="-my-px border-none fill-(--tooltip-color) "
+          className="-my-px border-none fill-(--tooltip-color) dark:fill-foreground"
           width={12}
           height={7}
           aria-hidden="true"

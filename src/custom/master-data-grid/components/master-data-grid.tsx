@@ -59,7 +59,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     enableSearch = true,
     enableSorting = true,
     enableFiltering = true,
-    enableGrouping = true,
     enablePinning = true,
     enableResizing = true,
     enableColumnVisibility = true,
@@ -77,12 +76,13 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     },
   } = config;
 
+  const enableGrouping = config.grouping?.enabled ?? false;
+
   const configWithDefaults: MasterDataGridConfig<TData> = {
     ...config,
     enableSearch,
     enableSorting,
     enableFiltering,
-    enableGrouping,
     enablePinning,
     enableResizing,
     enableColumnVisibility,
@@ -238,7 +238,8 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     globalFilterFn: globalFilterFn,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
-    getFilteredRowModel: enableFiltering ? getFilteredRowModel() : undefined,
+    getFilteredRowModel:
+      enableFiltering || enableSearch ? getFilteredRowModel() : undefined,
     getPaginationRowModel: enablePagination
       ? getPaginationRowModel()
       : undefined,
@@ -251,7 +252,8 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       configWithDefaults.rowCount != null,
     rowCount: configWithDefaults.rowCount,
     enableSorting,
-    enableFilters: enableFiltering,
+    enableColumnFilters: enableFiltering,
+    enableGlobalFilter: enableSearch,
     enableGrouping,
     enableColumnPinning: enablePinning,
     enableColumnResizing: enableResizing,
@@ -262,6 +264,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     getRowCanExpand: configWithDefaults.expansion?.enabled
       ? () => true
       : undefined,
+    autoResetExpanded: false,
   });
 
   const selectedRows = useMemo(
@@ -319,6 +322,18 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       </div>
     );
   }
+
+  const groupRowLookup = useMemo(() => {
+    const labelField = configWithDefaults.grouping?.groupLabelField;
+    if (!labelField || !enableGrouping) return undefined;
+    const map = new Map<string, unknown>();
+    data.forEach((item) => {
+      const id = (item as Record<string, unknown>)["id"];
+      if (id != null)
+        map.set(String(id), (item as Record<string, unknown>)[labelField]);
+    });
+    return map;
+  }, [data, configWithDefaults.grouping?.groupLabelField, enableGrouping]);
 
   const rows = table.getRowModel().rows;
 
@@ -449,6 +464,14 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                 configWithDefaults.expansion?.renderContent
               }
               bodyClassName={configWithDefaults.bodyClassName}
+              hideNullGroups={configWithDefaults.grouping?.hideNullGroups}
+              groupRowLookup={groupRowLookup}
+              groupFallbackRenderer={
+                configWithDefaults.grouping?.groupFallbackRenderer
+              }
+              hideGroupParentRows={
+                configWithDefaults.grouping?.hideGroupParentRows
+              }
             />
           </Table>
         )}

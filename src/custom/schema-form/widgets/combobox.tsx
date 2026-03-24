@@ -101,7 +101,7 @@ export function CustomCombobox<T>(props: CustomComboboxProps<T>) {
           variant="outline"
           className={cn(
             "text-muted-foreground w-full justify-between font-normal shadow-xs hover:bg-white",
-            fieldValueDisplayName && "text-black"
+            fieldValueDisplayName && "text-foreground"
           )}
         >
           {fieldValueDisplayName

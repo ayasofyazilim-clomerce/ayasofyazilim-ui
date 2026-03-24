@@ -48,7 +48,7 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
     <div className="border rounded-md overflow-hidden">
       <Table key={`array-item-list-${fieldPathId.$id}`} className="caption-top">
         {!showOptionalDataControlInTitle ? optionalDataControl : undefined}
-        <TableCaption className="border-b mt-0  [&_h5]:font-medium [&_h5]:text-black **:data-[slot=separator]:hidden">
+        <TableCaption className="border-b mt-0  [&_h5]:font-medium [&_h5]:text-foreground **:data-[slot=separator]:hidden">
           <ArrayFieldTitleTemplate
             fieldPathId={fieldPathId}
             title={uiOptions.title || title}

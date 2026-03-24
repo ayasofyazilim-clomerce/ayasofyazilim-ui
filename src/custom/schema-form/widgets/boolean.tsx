@@ -61,7 +61,7 @@ function BooleanWrapper({
     <div
       data-wrapper="boolean"
       className={cn(
-        "flex items-center gap-2 h-9 px-2 border rounded-md shadow-xs",
+        "flex items-center gap-2 h-9 px-2 border dark:bg-input/30 rounded-md shadow-xs",
         className
       )}
     >

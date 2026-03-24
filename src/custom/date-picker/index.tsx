@@ -97,7 +97,7 @@ export function DatePicker({
       <div className="flex">
         <Group
           className={cn(
-            "w-full flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer",
+            "w-full flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer bg-transparent dark:bg-input/30",
             showIcon ? "pr-9" : "pr-3",
             classNames?.dateInput
           )}

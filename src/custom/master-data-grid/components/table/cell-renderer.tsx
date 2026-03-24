@@ -332,7 +332,10 @@ export function CellRenderer<TData = unknown>({
             value: localValue,
             row,
             column,
-            onUpdate: handleChange,
+            onUpdate: (val: unknown) => {
+              setLocalValue(val);
+              onUpdate?.(val);
+            },
             error: validationError || undefined,
             schemaProperty,
             t,
@@ -486,8 +489,8 @@ export function CellRenderer<TData = unknown>({
           value: localValue,
           row,
           column,
-          onUpdate: handleChange,
-          error: validationError || undefined,
+          onUpdate: undefined,
+          error: undefined,
           schemaProperty,
           t,
         })}

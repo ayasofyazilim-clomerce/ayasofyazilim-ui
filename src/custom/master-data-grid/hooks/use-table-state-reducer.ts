@@ -99,14 +99,23 @@ function createInitialState<TData>(
   config: MasterDataGridConfig<TData>,
   pageSize: number
 ): TableState {
+  const baseVisibility = initializeColumnVisibility(config);
+  // Auto-hide groupBy columns — they must exist for grouping but should not be visible
+  const groupByColumns = config.grouping?.groupBy || [];
+  const groupByVisibility = Object.fromEntries(
+    groupByColumns.map((col) => [col, false])
+  );
   return {
     sorting: [],
     columnFilters: [],
-    columnVisibility: initializeColumnVisibility(config),
+    columnVisibility: { ...groupByVisibility, ...baseVisibility },
     rowSelection: {},
     columnPinning: config.pinning || {},
     grouping: config.grouping?.groupBy || [],
-    expanded: config.grouping?.expanded || {},
+    expanded:
+      config.expansion?.defaultExpanded === true
+        ? true
+        : config.grouping?.expanded || {},
     pagination: {
       pageIndex: 0,
       pageSize,
