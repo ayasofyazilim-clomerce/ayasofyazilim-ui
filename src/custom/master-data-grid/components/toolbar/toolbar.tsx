@@ -155,7 +155,7 @@ export function Toolbar<TData>({
             variant="outline"
             className={isMobile ? "w-full justify-start" : ""}
           >
-            <Filter className="mr-2 h-4 w-4" />
+            <Filter className="h-4 w-4" />
             <span>{getTranslations("toolbar.filters", t)}</span>
             {table.getState().columnFilters.length > 0 && (
               <span
@@ -179,7 +179,7 @@ export function Toolbar<TData>({
           }}
           className={isMobile ? "w-full justify-start" : ""}
         >
-          <Columns3 className="mr-2 h-4 w-4" />
+          <Columns3 className="h-4 w-4" />
           <span>{getTranslations("toolbar.columns", t)}</span>
         </Button>
       )}
@@ -192,7 +192,7 @@ export function Toolbar<TData>({
           }}
           className={isMobile ? "w-full justify-start" : ""}
         >
-          <Download className="mr-2 h-4 w-4" />
+          <Download className="h-4 w-4" />
           <span>{getTranslations("toolbar.export", t)}</span>
         </Button>
       )}
@@ -205,7 +205,7 @@ export function Toolbar<TData>({
           }}
           className={isMobile ? "w-full justify-start" : ""}
         >
-          <RefreshCw className="mr-2 h-4 w-4" />
+          <RefreshCw className="h-4 w-4" />
           <span>{getTranslations("toolbar.refresh", t)}</span>
         </Button>
       )}
@@ -218,7 +218,7 @@ export function Toolbar<TData>({
           }}
           className={isMobile ? "w-full justify-start" : ""}
         >
-          <RotateCcw className="mr-2 h-4 w-4" />
+          <RotateCcw className="h-4 w-4" />
           <span>{getTranslations("toolbar.reset", t)}</span>
         </Button>
       )}
@@ -250,11 +250,11 @@ export function Toolbar<TData>({
             key={action.id}
             href={action.href}
             className={cn(
-              buttonVariants({ variant: action.variant }),
+              buttonVariants({ variant: action.variant || "outline" }),
               isMobile ? "w-full justify-start" : action.className
             )}
           >
-            {Icon && <Icon className="mr-2 h-4 w-4" />}
+            {Icon && <Icon className="h-4 w-4" />}
             {action.label}
           </Link>
         );
@@ -262,7 +262,7 @@ export function Toolbar<TData>({
       return (
         <Button
           key={action.id}
-          variant={action.variant}
+          variant={action.variant || "outline"}
           disabled={disabled}
           onClick={() => {
             action.onClick?.(selectedRows);
@@ -270,7 +270,7 @@ export function Toolbar<TData>({
           }}
           className={isMobile ? "w-full justify-start" : action.className}
         >
-          {Icon && <Icon className="mr-2 h-4 w-4" />}
+          {Icon && <Icon className="h-4 w-4" />}
           {action.label}
         </Button>
       );

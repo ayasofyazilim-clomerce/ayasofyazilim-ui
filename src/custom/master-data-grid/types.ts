@@ -184,7 +184,20 @@ export interface ColumnConfig<TData = unknown> {
 export interface GroupingConfig {
   enabled?: boolean;
   groupBy?: string[];
-  expanded?: Record<string, boolean>;
+  expanded?: Record<string, boolean> | true;
+  hideNullGroups?: boolean;
+  /** Field on the matched parent row (where row.id === groupingValue) to display as group label */
+  groupLabelField?: string;
+  /** Hide leaf rows whose `id` appears as a group value (they are already shown as group headers) */
+  hideGroupParentRows?: boolean;
+  /** Custom renderer for the fallback group header (used when the parent row is not in the current page). `subRows` contains the original data of all child rows — use them to derive labels or any other display fields. */
+  groupFallbackRenderer?: (props: {
+    groupValue: string;
+    subRows: Record<string, unknown>[];
+    subRowCount: number;
+    isExpanded: boolean;
+    toggle: () => void;
+  }) => React.ReactNode;
 }
 
 export interface VirtualizationConfig {
@@ -216,6 +229,7 @@ interface BaseServerFilterConfig {
   key: string;
   label: string;
   placeholder: string;
+  when?: boolean;
 }
 
 interface StringServerFilterConfig extends BaseServerFilterConfig {
@@ -277,7 +291,6 @@ export interface MasterDataGridConfig<TData = unknown> {
   serverFilterLocation?: "left" | "right" | "top" | "bottom" | "toolbar";
   enableSorting?: boolean;
   enableFiltering?: boolean;
-  enableGrouping?: boolean;
   enablePinning?: boolean;
   enableResizing?: boolean;
   enableColumnVisibility?: boolean;
@@ -466,6 +479,8 @@ export interface MasterDataGridResources extends Record<string, string> {
   "column.resetSize": string;
   "column.hide": string;
   "column.edit": string;
+  "column.save": string;
+  "column.cancel": string;
   "column.actions": string;
   "column.openMenu": string;
 

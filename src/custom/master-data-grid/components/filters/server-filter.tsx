@@ -197,6 +197,7 @@ export function ServerFilterContent<TData>({
         <ScrollBar />
         <FieldGroup className={"gap-3 max-h-80"}>
           {serverFilters.map((filter) => {
+            if (filter.when === false) return null;
             const value = localValues[filter.key];
 
             if (filter.type === "date") {

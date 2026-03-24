@@ -151,6 +151,7 @@ function createColumnFromProperty<TData = unknown>(
           columnId={key}
           schemaProperty={property}
           t={t}
+          editable={isEditing}
           isEditing={isEditing}
           onUpdate={
             isEditing
