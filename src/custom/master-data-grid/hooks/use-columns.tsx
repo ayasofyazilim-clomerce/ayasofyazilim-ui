@@ -29,7 +29,6 @@ export interface UseColumnsProps<TData> {
   configRef: RefObject<MasterDataGridConfig<TData>>;
   schema?: JSONSchema | GenericObjectType;
   customColumns?: ColumnConfig<TData>[];
-  enableRowSelection: boolean;
   enableColumnVisibility: boolean;
   editingRowsRef: RefObject<Record<string, Record<string, unknown>>>;
   updateCellValue: (rowId: string, columnId: string, value: unknown) => void;
@@ -45,7 +44,6 @@ export function useColumns<TData>({
   configRef,
   schema,
   customColumns,
-  enableRowSelection,
   enableColumnVisibility,
   editingRowsRef,
   updateCellValue,
@@ -165,7 +163,7 @@ export function useColumns<TData>({
 
     const finalColumns: ColumnDef<TData>[] = [];
 
-    if (enableRowSelection) {
+    if (config.selection?.enabled) {
       finalColumns.push({
         id: "select",
         header: ({ table }) => (
@@ -204,14 +202,13 @@ export function useColumns<TData>({
           });
 
           if (!rowActions || rowActions.length === 0) return null;
-
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="w-full"
+                  className="w-full h-full rounded-none"
                   aria-label={t?.["open_menu"]}
                 >
                   <MoreHorizontal />
@@ -368,7 +365,6 @@ export function useColumns<TData>({
   }, [
     schema,
     customColumns,
-    enableRowSelection,
     enableColumnVisibility,
     config.expansion,
     config.rowActions,

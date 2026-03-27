@@ -80,7 +80,7 @@ export function Pagination<TData>({
 
   return (
     <div className="flex items-center flex-wrap gap-4">
-      {table.getIsSomeRowsSelected() && (
+      {(table.getIsAllPageRowsSelected() || table.getIsSomeRowsSelected()) && (
         <div className="text-sm text-muted-foreground text-nowrap">
           {table.getFilteredSelectedRowModel().rows.length}{" "}
           {getTranslations("pagination.of", t)}{" "}

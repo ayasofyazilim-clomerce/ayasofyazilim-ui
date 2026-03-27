@@ -62,7 +62,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     enablePinning = true,
     enableResizing = true,
     enableColumnVisibility = true,
-    enableRowSelection = false,
     enableVirtualization = false,
     enableExport = true,
     enablePagination = true,
@@ -86,7 +85,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     enablePinning,
     enableResizing,
     enableColumnVisibility,
-    enableRowSelection,
     enableVirtualization,
     enableExport,
     enablePagination,
@@ -144,12 +142,13 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     []
   );
 
+  const enableRowSelection = Boolean(config.selection?.enabled);
+
   const columns = useColumns({
     config: configWithDefaults,
     configRef,
     schema,
     customColumns,
-    enableRowSelection,
     enableColumnVisibility,
     editingRowsRef,
     updateCellValue,
@@ -160,6 +159,11 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     saveEditingRow,
   });
 
+  const controlledRowSelection = config.selection?.selectedIds
+    ? Object.fromEntries(config.selection.selectedIds.map((id) => [id, true]))
+    : undefined;
+  const rowSelectionState = controlledRowSelection ?? tableState.rowSelection;
+
   const table = useReactTable({
     data,
     columns,
@@ -167,7 +171,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       sorting: tableState.sorting,
       columnFilters: tableState.columnFilters,
       columnVisibility: tableState.columnVisibility,
-      rowSelection: tableState.rowSelection,
+      rowSelection: rowSelectionState,
       columnPinning: tableState.columnPinning,
       grouping: tableState.grouping,
       expanded: tableState.expanded,
@@ -197,15 +201,18 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     },
     onRowSelectionChange: (updater) => {
       const newSelection =
-        typeof updater === "function"
-          ? updater(tableState.rowSelection)
-          : updater;
-      setRowSelection(newSelection);
+        typeof updater === "function" ? updater(rowSelectionState) : updater;
+
+      // Only update internal state when uncontrolled
+      if (!controlledRowSelection) {
+        setRowSelection(newSelection);
+      }
 
       if (configWithDefaults.selection?.onSelectionChange) {
         const selectedRows = table
-          .getSelectedRowModel()
-          .rows.map((row) => row.original);
+          .getRowModel()
+          .rows.filter((row) => newSelection[row.id])
+          .map((row) => row.original);
         configWithDefaults.selection.onSelectionChange(selectedRows);
       }
     },
@@ -259,7 +266,8 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     enableColumnResizing: enableResizing,
     columnResizeMode: "onChange",
     enableHiding: enableColumnVisibility,
-    enableRowSelection: Boolean(enableRowSelection),
+    enableRowSelection: enableRowSelection,
+    enableMultiRowSelection: configWithDefaults.selection?.mode !== "single",
     getRowId: getRowId ?? ((_, index) => String(index)),
     getRowCanExpand: configWithDefaults.expansion?.enabled
       ? () => true
@@ -385,15 +393,23 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       style={getPinningHeaderStyles(header)}
                       className={cn(
                         getPinningHeaderClassNames(header),
-                        "border-b border-r"
+                        "has-[button]:px-0 not-last:border-r",
+                        header.id === "select" ? "min-w-10" : ""
                       )}
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
+                      {header.id === "select" ? (
+                        <div className="flex items-center justify-center">
+                          {flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                        </div>
+                      ) : header.isPlaceholder ? null : (
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )
+                      )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -436,15 +452,23 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                       style={getPinningHeaderStyles(header)}
                       className={cn(
                         getPinningHeaderClassNames(header),
-                        "has-[button]:px-0 not-last:border-r"
+                        "has-[button]:px-0 not-last:border-r",
+                        header.id === "select" ? "min-w-10 max-w-10" : ""
                       )}
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
+                      {header.id === "select" ? (
+                        <div className="flex items-center justify-center">
+                          {flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                        </div>
+                      ) : header.isPlaceholder ? null : (
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )
+                      )}
                     </TableHead>
                   ))}
                 </TableRow>

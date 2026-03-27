@@ -1,7 +1,7 @@
 "use no memo";
 import type { Row, Table as TanStackTable } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, MinusCircle } from "lucide-react";
 import React from "react";
 import { Button } from "../../../../components/button";
 import { TableBody, TableCell, TableRow } from "../../../../components/table";
@@ -197,7 +197,9 @@ export function TableBodyRenderer<TData>({
                                     val === "null" ||
                                     val === ""
                                   )
-                                    return "—";
+                                    return (
+                                      <MinusCircle className="size-4 text-muted-foreground" />
+                                    );
                                   const key = String(val);
                                   return groupRowLookup?.has(key)
                                     ? String(groupRowLookup.get(key) ?? key)
@@ -246,6 +248,9 @@ export function TableBodyRenderer<TData>({
                           const pv = row.getParentRow()?.groupingValue;
                           return pv != null && pv !== "null" && pv !== "";
                         })();
+
+                      const isSelectionRow =
+                        cell.getContext().cell.column.id === "select";
                       return (
                         <TableCell
                           key={cell.id}
@@ -262,9 +267,18 @@ export function TableBodyRenderer<TData>({
                               "hover:border-muted-foreground/40"
                           )}
                         >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
+                          {isSelectionRow ? (
+                            <div className="flex items-center justify-center">
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </div>
+                          ) : (
+                            flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )
                           )}
                         </TableCell>
                       );

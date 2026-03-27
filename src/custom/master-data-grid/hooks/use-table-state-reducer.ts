@@ -109,7 +109,9 @@ function createInitialState<TData>(
     sorting: [],
     columnFilters: [],
     columnVisibility: { ...groupByVisibility, ...baseVisibility },
-    rowSelection: {},
+    rowSelection: Object.fromEntries(
+      (config.selection?.defaultSelectedIds ?? []).map((id) => [id, true])
+    ),
     columnPinning: config.pinning || {},
     grouping: config.grouping?.groupBy || [],
     expanded:

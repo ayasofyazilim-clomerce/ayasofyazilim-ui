@@ -5,7 +5,8 @@ export function getPinningHeaderStyles<TData>(
   header: Header<TData, unknown>
 ): CSSProperties {
   const pinned = header.column.getIsPinned();
-  const isActions = header.column.id === "actions";
+  const isActions =
+    header.column.id === "actions" || header.column.id === "select";
   return {
     left: pinned === "left" ? `${header.column.getStart("left")}px` : undefined,
     right:
@@ -39,7 +40,7 @@ export function getPinningCellStyles<TData>(
   cell: Cell<TData, unknown>
 ): CSSProperties {
   const pinned = cell.column.getIsPinned();
-  const isActions = cell.column.id === "actions";
+  const isActions = cell.column.id === "actions" || cell.column.id === "select";
   if (isActions) {
     return {
       width: "40px",
