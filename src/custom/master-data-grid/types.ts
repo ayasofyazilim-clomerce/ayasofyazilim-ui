@@ -209,6 +209,9 @@ export interface VirtualizationConfig {
 export interface SelectionConfig<TData = unknown> {
   enabled?: boolean;
   mode?: "single" | "multiple";
+  defaultSelectedIds?: string[];
+  /** Controlled selection — grid always reflects this array; update it in onSelectionChange to keep in sync */
+  selectedIds?: string[];
   onSelectionChange?: (selectedRows: TData[]) => void;
   rowSelectable?: (row: TData) => boolean;
 }
@@ -254,6 +257,11 @@ interface ArrayServerFilterConfig extends BaseServerFilterConfig {
   validator?: z.ZodType<string[] | undefined>;
 }
 
+interface StringArrayServerFilterConfig extends BaseServerFilterConfig {
+  type: "string-array";
+  validator?: z.ZodType<string[] | undefined>;
+}
+
 interface BooleanServerFilterConfig extends BaseServerFilterConfig {
   type: "boolean";
   options: { label: string; value: boolean }[];
@@ -277,6 +285,7 @@ export type ServerFilterConfig =
   | NumberServerFilterConfig
   | SelectServerFilterConfig
   | ArrayServerFilterConfig
+  | StringArrayServerFilterConfig
   | BooleanServerFilterConfig
   | DateServerFilterConfig
   | DateRangeServerFilterConfig;
@@ -294,7 +303,6 @@ export interface MasterDataGridConfig<TData = unknown> {
   enablePinning?: boolean;
   enableResizing?: boolean;
   enableColumnVisibility?: boolean;
-  enableRowSelection?: boolean;
   enableVirtualization?: boolean;
   enableExport?: boolean;
   enableSearch?: boolean;

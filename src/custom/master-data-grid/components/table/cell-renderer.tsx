@@ -15,15 +15,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../../../../components/tooltip";
+import { cn } from "../../../../lib/utils";
 import { DatePicker } from "../../../date-picker";
 import DateTooltip from "../../../date-tooltip";
-import { cn } from "../../../../lib/utils";
 import type {
   CellRendererProps,
   JSONSchemaProperty,
   MasterDataGridResources,
 } from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
+import { EmptyCell } from "../helpers/empty-cell";
 
 const DEBOUNCE_DELAY = 150;
 const MAX_STRING_LENGTH = 100;
@@ -498,16 +499,14 @@ export function CellRenderer<TData = unknown>({
     );
   }
   if (value === null || value === undefined) {
-    return (
-      <span className={cn("text-muted-foreground italic", className)}>—</span>
-    );
+    return <EmptyCell />;
   }
 
   if (schemaProperty?.type === "boolean" || typeof value === "boolean") {
     const yesLabel = t?.["cell.boolean.yes"] ?? "Yes";
     const noLabel = t?.["cell.boolean.no"] ?? "No";
     return (
-      <Badge variant={value ? "default" : "secondary"} className={className}>
+      <Badge variant={value ? "success" : "destructive"} className={className}>
         {value ? yesLabel : noLabel}
       </Badge>
     );
@@ -558,7 +557,7 @@ export function CellRenderer<TData = unknown>({
   if (schemaProperty?.enum && Array.isArray(schemaProperty.enum)) {
     const label = String(value);
     return (
-      <Badge variant="outline" className={cn("font-normal", className)}>
+      <Badge variant="secondary" className={cn("font-normal", className)}>
         {t?.[`column.${fieldName}.${label}`] || label}
       </Badge>
     );
@@ -591,9 +590,9 @@ export function CellRenderer<TData = unknown>({
   if (schemaProperty?.format === "uuid") {
     const uuid = String(value);
     return (
-      <code className={cn("text-xs bg-muted  5 rounded", className)}>
+      <Badge variant="secondary" className={cn("font-normal", className)}>
         {uuid.slice(0, 8)}...
-      </code>
+      </Badge>
     );
   }
 

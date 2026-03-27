@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
 import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Field,
@@ -9,7 +10,7 @@ import {
   FieldSet,
 } from "@repo/ayasofyazilim-ui/components/field";
 import { Selectable } from "@repo/ayasofyazilim-ui/custom/selectable";
-import { Loader2, RotateCcw, Search, XCircle } from "lucide-react";
+import { Loader2, RotateCcw, Search, X, XCircle } from "lucide-react";
 import {
   DatePicker,
   DateRangePicker,
@@ -58,7 +59,7 @@ export function ServerFilterContent<TData>({
       const initial: Record<string, FilterValue> = {};
       serverFilters.forEach((filter) => {
         const val = searchParams.get(filter.key);
-        if (filter.type === "array") {
+        if (filter.type === "array" || filter.type === "string-array") {
           initial[filter.key] = searchParams.getAll(filter.key);
         } else if (filter.type === "boolean") {
           initial[filter.key] =
@@ -159,7 +160,7 @@ export function ServerFilterContent<TData>({
   const handleReset = () => {
     const initial: Record<string, FilterValue> = {};
     serverFilters.forEach((f) => {
-      if (f.type === "array") {
+      if (f.type === "array" || f.type === "string-array") {
         initial[f.key] = [];
       } else if (f.type === "date-range") {
         initial[f.key] = { from: undefined, to: undefined };
@@ -175,7 +176,7 @@ export function ServerFilterContent<TData>({
 
   const clearSingleFilter = useCallback((filter: ServerFilterConfig) => {
     const emptyValue =
-      filter.type === "array"
+      filter.type === "array" || filter.type === "string-array"
         ? []
         : filter.type === "boolean"
           ? undefined
@@ -185,7 +186,14 @@ export function ServerFilterContent<TData>({
     setLocalValues((prev) => ({ ...prev, [filter.key]: emptyValue }));
     setErrors((prev) => ({ ...prev, [filter.key]: "" }));
     if (
-      ["select", "array", "boolean", "date", "date-range"].includes(filter.type)
+      [
+        "select",
+        "array",
+        "string-array",
+        "boolean",
+        "date",
+        "date-range",
+      ].includes(filter.type)
     ) {
       setResetCount((prev) => prev + 1);
     }
@@ -264,6 +272,62 @@ export function ServerFilterContent<TData>({
                       </button>
                     )}
                   </div>
+                  {errors[filter.key] && (
+                    <FieldError>{errors[filter.key]}</FieldError>
+                  )}
+                </Field>
+              );
+            }
+
+            if (filter.type === "string-array") {
+              const tags = (value as string[] | undefined) ?? [];
+              return (
+                <Field key={filter.key} className="gap-1">
+                  <FieldLabel htmlFor={filter.key}>{filter.label}</FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      id={filter.key}
+                      type="text"
+                      placeholder={filter.placeholder}
+                      className={errors[filter.key] ? "border-destructive" : ""}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const input = e.currentTarget;
+                          const trimmed = input.value.trim();
+                          if (trimmed && !tags.includes(trimmed)) {
+                            onValueChange(filter, [...tags, trimmed]);
+                          }
+                          input.value = "";
+                        }
+                      }}
+                    />
+                  </InputGroup>
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {tags.map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="gap-1 pr-1"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            className="ml-1 rounded-full hover:bg-muted"
+                            onClick={() =>
+                              onValueChange(
+                                filter,
+                                tags.filter((t) => t !== tag)
+                              )
+                            }
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                   {errors[filter.key] && (
                     <FieldError>{errors[filter.key]}</FieldError>
                   )}
