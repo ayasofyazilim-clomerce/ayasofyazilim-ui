@@ -60,7 +60,7 @@ export function HeaderCell<TData>({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="data-[state=open]:bg-accent w-full rounded-none"
+            className="data-[state=open]:bg-accent w-full rounded-none h-full"
           >
             <span className="font-semibold mr-auto truncate">{label}</span>
             {isSorted === "asc" ? (
