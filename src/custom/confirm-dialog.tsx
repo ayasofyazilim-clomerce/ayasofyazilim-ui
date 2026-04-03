@@ -16,8 +16,9 @@ import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
 import { cn } from "../lib/utils";
 
 export type ConfirmDialogProps = {
-  closeProps?: ButtonProps;
+  closeProps?: ButtonProps & { label?: string };
   confirmProps?: ButtonProps & {
+    label?: string;
     closeAfterConfirm?: boolean;
     onConfirm?: () => void | Promise<void>;
   };
@@ -69,7 +70,9 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription>
+            <div>{description}</div>
+          </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           {loading || isConfirming ? (
@@ -82,7 +85,9 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
                 {...props.closeProps}
                 disabled={loading || isConfirming}
               >
-                {props.closeProps?.children || "Cancel"}
+                {props.closeProps?.children ||
+                  props.closeProps?.label ||
+                  "Cancel"}
               </Button>
             </DialogClose>
           )}
@@ -104,7 +109,9 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
                 }
               }}
             >
-              {props.confirmProps?.children || "Confirm"}
+              {props.confirmProps?.children ||
+                props.confirmProps?.label ||
+                "Confirm"}
             </Button>
           )}
         </DialogFooter>
