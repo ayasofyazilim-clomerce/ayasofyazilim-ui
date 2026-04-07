@@ -57,28 +57,28 @@ export function useColumns<TData>({
   return useMemo<ColumnDef<TData>[]>(() => {
     const editingContext = config.editing?.enabled
       ? {
-        get editingRows() {
-          return editingRowsRef.current;
-        },
-        onCellUpdate: updateCellValue,
-        getRowId: getRowId || ((row: TData, index: number) => String(index)),
-      }
+          get editingRows() {
+            return editingRowsRef.current;
+          },
+          onCellUpdate: updateCellValue,
+          getRowId: getRowId || ((row: TData, index: number) => String(index)),
+        }
       : undefined;
 
     const generatedColumns = schema
       ? generateColumnsFromSchema<TData>(
-        schema,
-        configRef.current.localization,
-        t,
-        editingContext,
-        configRef.current.cellClassName,
-        configRef.current.dateOptions,
-        configRef.current.customRenderers,
-        configRef.current.editing?.errorDisplayMode,
-        enableColumnVisibility,
-        config.expansion?.expanderColumns,
-        config.schemaColumns
-      )
+          schema,
+          configRef.current.localization,
+          t,
+          editingContext,
+          configRef.current.cellClassName,
+          configRef.current.dateOptions,
+          configRef.current.customRenderers,
+          configRef.current.editing?.errorDisplayMode,
+          enableColumnVisibility,
+          config.expansion?.expanderColumns,
+          config.schemaColumns
+        )
       : [];
 
     // Auto-generate groupBy columns that were excluded by schemaColumns.
@@ -91,34 +91,34 @@ export function useColumns<TData>({
     const groupByColumns =
       schema && missingGroupByKeys.length > 0
         ? generateColumnsFromSchema<TData>(
-          schema,
-          configRef.current.localization,
-          t,
-          editingContext,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          false,
-          undefined,
-          {
-            mode: "include",
-            columns: missingGroupByKeys as (keyof TData & string)[],
-          }
-        ).map((col) => ({
-          ...col,
-          enableHiding: false,
-          enableColumnFilter: false,
-        }))
+            schema,
+            configRef.current.localization,
+            t,
+            editingContext,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            false,
+            undefined,
+            {
+              mode: "include",
+              columns: missingGroupByKeys as (keyof TData & string)[],
+            }
+          ).map((col) => ({
+            ...col,
+            enableHiding: false,
+            enableColumnFilter: false,
+          }))
         : [];
 
     const mergeContext = editingContext
       ? {
-        get editingRows() {
-          return editingRowsRef.current;
-        },
-        getRowId: editingContext.getRowId,
-      }
+          get editingRows() {
+            return editingRowsRef.current;
+          },
+          getRowId: editingContext.getRowId,
+        }
       : undefined;
 
     const merged = mergeColumns<TData>(

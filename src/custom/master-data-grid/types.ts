@@ -21,15 +21,15 @@ export type { Localization };
 export interface JSONSchemaProperty {
   type: "string" | "number" | "integer" | "boolean" | "array" | "object";
   format?:
-  | "int32"
-  | "date"
-  | "date-time"
-  | "email"
-  | "uri"
-  | "url"
-  | "uuid"
-  | "time"
-  | "badge";
+    | "int32"
+    | "date"
+    | "date-time"
+    | "email"
+    | "uri"
+    | "url"
+    | "uuid"
+    | "time"
+    | "badge";
   enum?: Array<string | number>;
   title?: string;
   description?: string;
@@ -93,12 +93,12 @@ export interface CellEditConfig<TData = unknown> {
 interface BaseRowAction<TData = unknown> {
   id: string;
   variant?:
-  | "default"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost"
-  | "link";
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
   disabled?: boolean | ((row: TData) => boolean);
   hidden?: boolean | ((row: TData) => boolean);
   className?: string;
@@ -119,8 +119,7 @@ export interface CustomRowAction<TData = unknown> extends BaseRowAction<TData> {
   icon?: never;
 }
 
-export interface DialogRowAction<TData = unknown>
-  extends BaseRowAction<TData> {
+export interface DialogRowAction<TData = unknown> extends BaseRowAction<TData> {
   type: "dialog";
   dialogType?: "dialog" | "sheet";
   label: string | ((row: TData) => string);

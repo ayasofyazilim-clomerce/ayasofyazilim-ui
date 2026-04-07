@@ -133,7 +133,7 @@ export function Toolbar<TData>({
     const hasColumnFiltersChanged =
       state.columnFilters.length !== initial.columnFilters.length ||
       JSON.stringify(state.columnFilters) !==
-      JSON.stringify(initial.columnFilters);
+        JSON.stringify(initial.columnFilters);
 
     const hasSortingChanged =
       state.sorting.length !== initial.sorting.length ||
@@ -314,16 +314,19 @@ export function Toolbar<TData>({
           <Button
             variant={action.variant || "outline"}
             disabled={disabled}
-            className={
-              isMobile ? "w-full justify-start" : action.className
-            }
+            className={isMobile ? "w-full justify-start" : action.className}
           >
             {Icon && <Icon className="h-4 w-4" />}
             {action.label}
           </Button>
         );
 
-        const childrenContent = action.children({ selectedRows, preventClose: isPreventClose, setPreventClose, close });
+        const childrenContent = action.children({
+          selectedRows,
+          preventClose: isPreventClose,
+          setPreventClose,
+          close,
+        });
 
         const interactionProps = {
           onPointerDownOutside: (e: Event) => {
@@ -337,9 +340,7 @@ export function Toolbar<TData>({
         if (action.dialogType === "sheet") {
           return (
             <Sheet key={action.id} open={isOpen} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                {triggerButton}
-              </SheetTrigger>
+              <SheetTrigger asChild>{triggerButton}</SheetTrigger>
               <SheetContent
                 className={action.contentClassName}
                 {...interactionProps}
@@ -360,9 +361,7 @@ export function Toolbar<TData>({
 
         return (
           <Dialog key={action.id} open={isOpen} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              {triggerButton}
-            </DialogTrigger>
+            <DialogTrigger asChild>{triggerButton}</DialogTrigger>
             <DialogContent
               className={action.contentClassName}
               showCloseButton={action.showCloseButton}
