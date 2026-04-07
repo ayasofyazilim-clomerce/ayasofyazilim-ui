@@ -106,7 +106,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "tailwindcss": "^4.1.11",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.9.2"
+    "typescript": "6.0.2"
   },
   "exports": {
     "./globals.css": "./src/styles/globals.css",
