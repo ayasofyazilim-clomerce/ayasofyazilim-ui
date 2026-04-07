@@ -17,6 +17,8 @@ const config: Config = {
       {
         tsconfig: {
           jsx: "react-jsx",
+          ignoreDeprecations: "6.0",
+          rootDir: ".",
         },
       },
     ],
@@ -26,6 +28,8 @@ const config: Config = {
         tsconfig: {
           allowJs: true,
           jsx: "react-jsx",
+          ignoreDeprecations: "6.0",
+          rootDir: ".",
         },
       },
     ],

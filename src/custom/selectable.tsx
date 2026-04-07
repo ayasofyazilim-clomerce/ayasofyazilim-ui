@@ -230,7 +230,7 @@ export function Selectable<T>({
         )}
       </PopoverTrigger>
       <PopoverContent className="p-0">
-        <Command>
+        <Command shouldFilter={!onSearch}>
           <CommandInput
             placeholder={searchPlaceholderText}
             className="h-9"

@@ -350,8 +350,11 @@ describe("Selectable Component", () => {
         { timeout: 1500 }
       );
 
-      // Verify that results were returned from the API
-      expect(onSearch).toHaveReturnedWith(Promise.resolve(searchResults));
+      // Verify that results are displayed in the UI
+      await waitFor(() => {
+        expect(screen.getByText("Option 1")).toBeInTheDocument();
+        expect(screen.getByText("Option 2")).toBeInTheDocument();
+      });
     });
 
     it('should show "Type to search..." when options are empty and onSearch is provided', async () => {
