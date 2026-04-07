@@ -23,6 +23,7 @@ import {
   generateColumnsFromSchema,
   mergeColumns,
 } from "../utils/column-generator";
+import { DialogRowActionItem } from "../components/helpers/dialog-row-action";
 
 export interface UseColumnsProps<TData> {
   config: MasterDataGridConfig<TData>;
@@ -221,6 +222,24 @@ export function useColumns<TData>({
                       ? action.disabled(row.original)
                       : action.disabled;
 
+                  // For dialog type, render the DialogRowActionItem
+                  if ("type" in action && action.type === "dialog") {
+                    return (
+                      <DropdownMenuItem
+                        key={action.id}
+                        disabled={disabled}
+                        className={cn("w-full p-0", action.className)}
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        <DialogRowActionItem
+                          action={action}
+                          row={row.original}
+                          disabled={disabled}
+                        />
+                      </DropdownMenuItem>
+                    );
+                  }
+
                   // For custom render, let the rendered content handle onClick
                   if ("render" in action && action.render) {
                     return (
@@ -237,7 +256,7 @@ export function useColumns<TData>({
                   }
 
                   // For standard label action, handle onClick at DropdownMenuItem level
-                  if ("label" in action) {
+                  if ("label" in action && "onClick" in action) {
                     return (
                       <DropdownMenuItem
                         key={action.id}

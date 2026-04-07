@@ -1,3 +1,4 @@
+import type React from "react";
 import { z } from "@repo/ayasofyazilim-ui/lib/zod";
 import { GenericObjectType } from "@rjsf/utils";
 import type {
@@ -118,9 +119,28 @@ export interface CustomRowAction<TData = unknown> extends BaseRowAction<TData> {
   icon?: never;
 }
 
+export interface DialogRowAction<TData = unknown> extends BaseRowAction<TData> {
+  type: "dialog";
+  dialogType?: "dialog" | "sheet";
+  label: string | ((row: TData) => string);
+  icon?: LucideIcon;
+  title?: string | ((row: TData) => string);
+  description?: string | ((row: TData) => string);
+  children: (props: {
+    row: TData;
+    preventClose: boolean;
+    setPreventClose: (prevent: boolean) => void;
+    close: () => void;
+  }) => React.ReactNode;
+  preventClose?: boolean;
+  contentClassName?: string;
+  showCloseButton?: boolean;
+}
+
 export type RowAction<TData = unknown> =
   | StandardRowAction<TData>
-  | CustomRowAction<TData>;
+  | CustomRowAction<TData>
+  | DialogRowAction<TData>;
 
 interface BaseTableAction<TData = unknown> {
   id: string;
@@ -140,9 +160,25 @@ type ButtonTableAction<TData = unknown> = BaseTableAction<TData> & {
   type: "button";
   onClick: (selectedRows: TData[]) => void | Promise<void>;
 };
+type DialogTableAction<TData = unknown> = BaseTableAction<TData> & {
+  type: "dialog";
+  dialogType?: "dialog" | "sheet";
+  title?: string;
+  description?: string;
+  children: (props: {
+    selectedRows: TData[];
+    preventClose: boolean;
+    setPreventClose: (prevent: boolean) => void;
+    close: () => void;
+  }) => React.ReactNode;
+  preventClose?: boolean;
+  contentClassName?: string;
+  showCloseButton?: boolean;
+};
 export type TableAction<TData = unknown> =
   | LinkTableAction<TData>
-  | ButtonTableAction<TData>;
+  | ButtonTableAction<TData>
+  | DialogTableAction<TData>;
 
 export interface RowExpansionConfig<TData = unknown> {
   enabled?: boolean;

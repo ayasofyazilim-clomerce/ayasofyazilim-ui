@@ -3,6 +3,7 @@ import { Label } from "@repo/ayasofyazilim-ui/components/label";
 import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { WidgetProps } from "@rjsf/utils";
+import { Asterisk } from "lucide-react";
 import { ReactNode } from "react";
 
 export const SwitchWidget = (props: WidgetProps) => {
@@ -67,9 +68,9 @@ function BooleanWrapper({
     >
       {children}
       {displayLabel !== false && (
-        <Label id={id} htmlFor={id} className="w-full">
+        <Label id={id} htmlFor={id} className="w-full gap-0">
           {label}
-          {required && "*"}
+          {required && <span className="text-destructive">*</span>}
         </Label>
       )}
     </div>
