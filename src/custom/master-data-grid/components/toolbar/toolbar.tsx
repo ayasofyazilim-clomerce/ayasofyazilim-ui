@@ -13,12 +13,28 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, buttonVariants } from "../../../../components/button";
 import { ButtonGroup } from "../../../../components/button-group";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../../../components/dialog";
+import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "../../../../components/drawer";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "../../../../components/sheet";
 import { Input } from "../../../../components/input";
 import type { MasterDataGridConfig, ServerFilterConfig } from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
@@ -117,7 +133,7 @@ export function Toolbar<TData>({
     const hasColumnFiltersChanged =
       state.columnFilters.length !== initial.columnFilters.length ||
       JSON.stringify(state.columnFilters) !==
-        JSON.stringify(initial.columnFilters);
+      JSON.stringify(initial.columnFilters);
 
     const hasSortingChanged =
       state.sorting.length !== initial.sorting.length ||
@@ -225,6 +241,13 @@ export function Toolbar<TData>({
     </>
   );
 
+  const [dialogOpenStates, setDialogOpenStates] = useState<
+    Record<string, boolean>
+  >({});
+  const [preventCloseStates, setPreventCloseStates] = useState<
+    Record<string, boolean>
+  >({});
+
   const renderTableActions = (isMobile = false) =>
     tableActions?.map((action) => {
       const disabled =
@@ -257,6 +280,105 @@ export function Toolbar<TData>({
             {Icon && <Icon className="h-4 w-4" />}
             {action.label}
           </Link>
+        );
+      }
+      if (action.type === "dialog") {
+        const isOpen = dialogOpenStates[action.id] ?? false;
+        const isPreventClose =
+          action.preventClose || (preventCloseStates[action.id] ?? false);
+
+        const setOpen = (open: boolean) => {
+          if (!open && isPreventClose) return;
+          setDialogOpenStates((prev) => ({ ...prev, [action.id]: open }));
+          if (!open) {
+            setPreventCloseStates((prev) => ({
+              ...prev,
+              [action.id]: false,
+            }));
+          }
+        };
+
+        const setPreventClose = (prevent: boolean) => {
+          setPreventCloseStates((prev) => ({
+            ...prev,
+            [action.id]: prevent,
+          }));
+        };
+
+        const close = () => {
+          setPreventCloseStates((prev) => ({ ...prev, [action.id]: false }));
+          setDialogOpenStates((prev) => ({ ...prev, [action.id]: false }));
+        };
+
+        const triggerButton = (
+          <Button
+            variant={action.variant || "outline"}
+            disabled={disabled}
+            className={
+              isMobile ? "w-full justify-start" : action.className
+            }
+          >
+            {Icon && <Icon className="h-4 w-4" />}
+            {action.label}
+          </Button>
+        );
+
+        const childrenContent = action.children({ selectedRows, preventClose: isPreventClose, setPreventClose, close });
+
+        const interactionProps = {
+          onPointerDownOutside: (e: Event) => {
+            if (isPreventClose) e.preventDefault();
+          },
+          onEscapeKeyDown: (e: Event) => {
+            if (isPreventClose) e.preventDefault();
+          },
+        };
+
+        if (action.dialogType === "sheet") {
+          return (
+            <Sheet key={action.id} open={isOpen} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                {triggerButton}
+              </SheetTrigger>
+              <SheetContent
+                className={action.contentClassName}
+                {...interactionProps}
+              >
+                {(action.title || action.description) && (
+                  <SheetHeader>
+                    {action.title && <SheetTitle>{action.title}</SheetTitle>}
+                    {action.description && (
+                      <SheetDescription>{action.description}</SheetDescription>
+                    )}
+                  </SheetHeader>
+                )}
+                {childrenContent}
+              </SheetContent>
+            </Sheet>
+          );
+        }
+
+        return (
+          <Dialog key={action.id} open={isOpen} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              {triggerButton}
+            </DialogTrigger>
+            <DialogContent
+              className={action.contentClassName}
+              showCloseButton={action.showCloseButton}
+              {...interactionProps}
+            >
+              {(action.title || action.description) && (
+                <DialogHeader>
+                  {action.title && <DialogTitle>{action.title}</DialogTitle>}
+                  {action.description && (
+                    <DialogDescription>{action.description}</DialogDescription>
+                  )}
+                </DialogHeader>
+              )}
+              {childrenContent}
+            </DialogContent>
+          </Dialog>
         );
       }
       return (

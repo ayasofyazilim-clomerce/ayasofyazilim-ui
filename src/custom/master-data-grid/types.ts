@@ -1,3 +1,4 @@
+import type React from "react";
 import { z } from "@repo/ayasofyazilim-ui/lib/zod";
 import { GenericObjectType } from "@rjsf/utils";
 import type {
@@ -20,15 +21,15 @@ export type { Localization };
 export interface JSONSchemaProperty {
   type: "string" | "number" | "integer" | "boolean" | "array" | "object";
   format?:
-    | "int32"
-    | "date"
-    | "date-time"
-    | "email"
-    | "uri"
-    | "url"
-    | "uuid"
-    | "time"
-    | "badge";
+  | "int32"
+  | "date"
+  | "date-time"
+  | "email"
+  | "uri"
+  | "url"
+  | "uuid"
+  | "time"
+  | "badge";
   enum?: Array<string | number>;
   title?: string;
   description?: string;
@@ -92,12 +93,12 @@ export interface CellEditConfig<TData = unknown> {
 interface BaseRowAction<TData = unknown> {
   id: string;
   variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | "link";
   disabled?: boolean | ((row: TData) => boolean);
   hidden?: boolean | ((row: TData) => boolean);
   className?: string;
@@ -118,9 +119,29 @@ export interface CustomRowAction<TData = unknown> extends BaseRowAction<TData> {
   icon?: never;
 }
 
+export interface DialogRowAction<TData = unknown>
+  extends BaseRowAction<TData> {
+  type: "dialog";
+  dialogType?: "dialog" | "sheet";
+  label: string | ((row: TData) => string);
+  icon?: LucideIcon;
+  title?: string | ((row: TData) => string);
+  description?: string | ((row: TData) => string);
+  children: (props: {
+    row: TData;
+    preventClose: boolean;
+    setPreventClose: (prevent: boolean) => void;
+    close: () => void;
+  }) => React.ReactNode;
+  preventClose?: boolean;
+  contentClassName?: string;
+  showCloseButton?: boolean;
+}
+
 export type RowAction<TData = unknown> =
   | StandardRowAction<TData>
-  | CustomRowAction<TData>;
+  | CustomRowAction<TData>
+  | DialogRowAction<TData>;
 
 interface BaseTableAction<TData = unknown> {
   id: string;
@@ -140,9 +161,25 @@ type ButtonTableAction<TData = unknown> = BaseTableAction<TData> & {
   type: "button";
   onClick: (selectedRows: TData[]) => void | Promise<void>;
 };
+type DialogTableAction<TData = unknown> = BaseTableAction<TData> & {
+  type: "dialog";
+  dialogType?: "dialog" | "sheet";
+  title?: string;
+  description?: string;
+  children: (props: {
+    selectedRows: TData[];
+    preventClose: boolean;
+    setPreventClose: (prevent: boolean) => void;
+    close: () => void;
+  }) => React.ReactNode;
+  preventClose?: boolean;
+  contentClassName?: string;
+  showCloseButton?: boolean;
+};
 export type TableAction<TData = unknown> =
   | LinkTableAction<TData>
-  | ButtonTableAction<TData>;
+  | ButtonTableAction<TData>
+  | DialogTableAction<TData>;
 
 export interface RowExpansionConfig<TData = unknown> {
   enabled?: boolean;
