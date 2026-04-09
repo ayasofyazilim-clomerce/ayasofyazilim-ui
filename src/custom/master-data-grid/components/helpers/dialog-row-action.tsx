@@ -96,16 +96,18 @@ export function DialogRowActionItem<TData>({
     return (
       <Sheet open={isOpen} onOpenChange={setOpen}>
         <SheetTrigger asChild>{triggerButton}</SheetTrigger>
-        <SheetContent className={action.contentClassName} {...interactionProps}>
+        <SheetContent {...interactionProps}>
           {(title || description) && (
-            <SheetHeader>
+            <SheetHeader className="pb-0">
               {title && <SheetTitle>{title}</SheetTitle>}
               {description && (
                 <SheetDescription>{description}</SheetDescription>
               )}
             </SheetHeader>
           )}
-          {childrenContent}
+          <div className={cn("px-4", action.contentClassName)}>
+            {childrenContent}
+          </div>
         </SheetContent>
       </Sheet>
     );
