@@ -36,7 +36,7 @@ export function TanstackTableTableSchemaFormDialog<TData>(
           {...props}
           formData={formData}
           onChange={handleFormChange}
-          onSubmit={({ formData: editedFormData }) => {
+          onSubmit={({ editedFormData: editedFormData }) => {
             onSubmit(editedFormData);
             setDialogOpen();
           }}

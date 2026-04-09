@@ -14,6 +14,7 @@ import {
 } from "@repo/ayasofyazilim-ui/components/select";
 import { Selectable } from "@repo/ayasofyazilim-ui/custom/selectable";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Input } from "@repo/ayasofyazilim-ui/components/input";
 
 /** The `SelectWidget` is a widget for rendering dropdowns.
  *  It is typically used with string properties constrained with enum options.
@@ -46,6 +47,7 @@ export function SelectWidget<
   value,
   multiple,
   onChange,
+  readonly,
   rawErrors = [],
   className,
 }: WidgetProps<T, S, F>) {
@@ -64,15 +66,29 @@ export function SelectWidget<
     { "border-destructive": rawErrors.length > 0 },
     className
   );
+  if (readonly && items.find((item) => item.value === value)) {
+    return (
+      <Input
+        readOnly
+        className={cnClassName}
+        value={items.find((item) => item.value === value)?.label || ""}
+      />
+    );
+  }
   return !multiple ? (
     <Select
       required={required}
+      disabled={disabled || readonly}
       value={value}
       onValueChange={(val) => {
         onChange(val);
       }}
     >
-      <SelectTrigger className={cnClassName} id={id}>
+      <SelectTrigger
+        disabled={disabled || readonly}
+        className={cnClassName}
+        id={id}
+      >
         <SelectValue placeholder={optEmptyValue} />
       </SelectTrigger>
       <SelectContent>
@@ -98,7 +114,7 @@ export function SelectWidget<
       onChange={(val) => {
         onChange(val.map((item) => item.value));
       }}
-      disabled={disabled}
+      disabled={disabled || readonly}
       makeAChoiceText={optEmptyValue}
     />
   );

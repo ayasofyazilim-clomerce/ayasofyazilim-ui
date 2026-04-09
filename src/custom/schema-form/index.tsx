@@ -208,7 +208,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       if (!userOnSubmit) return;
 
       let submitData = data;
-      let cleanedFormData = data.formData as T;
+      let cleanedFormData = data.editedFormData as T;
 
       if (fieldDependencies && cleanedFormData) {
         cleanedFormData = cleanHiddenFieldsFromFormData(
@@ -225,7 +225,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       }
 
       if (fieldDependencies || runtimeDependencyConfig) {
-        submitData = { ...data, formData: cleanedFormData };
+        submitData = { ...data, editedFormData: cleanedFormData };
       }
 
       userOnSubmit(submitData, event);
