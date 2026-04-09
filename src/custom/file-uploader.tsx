@@ -121,7 +121,49 @@ export type BaseFileUploaderProps = React.HTMLAttributes<HTMLDivElement> & {
   };
   showFileList?: boolean;
   fileCardRenderer?: (props: FileCardProps) => React.ReactNode;
+  name?: string;
+  t?: FileUploaderTranslations;
 } & (ButtonFileUploaderProps | DropzoneFileUploaderProps);
+
+export type FileUploaderTranslations = {
+  "FileUploader.Files"?: string;
+  "FileUploader.Select"?: string;
+  "FileUploader.DropTheFilesHere"?: string;
+  "FileUploader.DragAndDropFilesHere"?: string;
+  "FileUploader.YouCanUpload{0}files{1}each"?: string;
+  "FileUploader.CanUploadSingle"?: string;
+  "FileUploader.CannotUploadMoreThanOne"?: string;
+  "FileUploader.CannotUploadMoreThan{0}"?: string;
+  "FileUploader.RejectedFile{0}"?: string;
+  "FileUploader.Uploading{0}"?: string;
+  "FileUploader.{0}Uploaded"?: string;
+  "FileUploader.FailedToUpload{0}"?: string;
+};
+
+const defaultTranslations: Required<FileUploaderTranslations> = {
+  "FileUploader.Files": "Files",
+  "FileUploader.Select": "Select",
+  "FileUploader.DropTheFilesHere": "Drop the files here",
+  "FileUploader.DragAndDropFilesHere":
+    "Drag'n drop files here, or click to select files",
+  "FileUploader.YouCanUpload{0}files{1}each":
+    "You can upload {0} files (up to {1} each)",
+  "FileUploader.CanUploadSingle": "You can upload a file with {0}",
+  "FileUploader.CannotUploadMoreThanOne":
+    "Cannot upload more than 1 file at a time",
+  "FileUploader.CannotUploadMoreThan{0}": "Cannot upload more than {0} files",
+  "FileUploader.RejectedFile{0}": "File {0} was rejected because of {1}",
+  "FileUploader.Uploading{0}": "Uploading {0}...",
+  "FileUploader.{0}Uploaded": "{0} uploaded",
+  "FileUploader.FailedToUpload{0}": "Failed to upload {0}",
+};
+
+function tReplace(template: string, ...args: (string | number)[]): string {
+  return args.reduce<string>(
+    (result, arg, index) => result.replace(`{${index}}`, String(arg)),
+    template
+  );
+}
 
 type ButtonFileUploaderProps = {
   variant: "button";
@@ -149,7 +191,11 @@ export function FileUploader(props: BaseFileUploaderProps) {
     label,
     description,
     fileCardRenderer,
+    name,
+    t: userTranslations,
   } = props;
+
+  const t = { ...defaultTranslations, ...userTranslations };
 
   const [files, setFiles] = useControllableState({
     prop: valueProp,
@@ -159,12 +205,14 @@ export function FileUploader(props: BaseFileUploaderProps) {
   const onDrop = React.useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (!multiple && maxFileCount === 1 && acceptedFiles.length > 1) {
-        toast.error("Cannot upload more than 1 file at a time");
+        toast.error(t["FileUploader.CannotUploadMoreThanOne"]);
         return;
       }
 
       if ((files?.length ?? 0) + acceptedFiles.length > maxFileCount) {
-        toast.error(`Cannot upload more than ${maxFileCount} files`);
+        toast.error(
+          tReplace(t["FileUploader.CannotUploadMoreThan{0}"], maxFileCount)
+        );
         return;
       }
 
@@ -181,7 +229,11 @@ export function FileUploader(props: BaseFileUploaderProps) {
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file, errors }) => {
           toast.error(
-            `File ${file.name} was rejected because of ${errors.map((error) => error.message).join(", ")}`
+            tReplace(
+              t["FileUploader.RejectedFile{0}"],
+              file.name,
+              errors.map((error) => error.message).join(", ")
+            )
           );
         });
       }
@@ -195,12 +247,12 @@ export function FileUploader(props: BaseFileUploaderProps) {
           updatedFiles.length > 0 ? `${updatedFiles.length} files` : `file`;
 
         toast.promise(onUpload(updatedFiles), {
-          loading: `Uploading ${target}...`,
+          loading: tReplace(t["FileUploader.Uploading{0}"], target),
           success: () => {
             setFiles([]);
-            return `${target} uploaded`;
+            return tReplace(t["FileUploader.{0}Uploaded"], target);
           },
-          error: `Failed to upload ${target}`,
+          error: tReplace(t["FileUploader.FailedToUpload{0}"], target),
         });
       }
     },
@@ -230,7 +282,17 @@ export function FileUploader(props: BaseFileUploaderProps) {
   );
 
   const isDisabled = disabled || (files?.length ?? 0) >= maxFileCount;
+  const isMultiple = maxFileCount > 1 || multiple;
   const [isOpen, setIsOpen] = React.useState(false);
+  const hiddenInputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (!hiddenInputRef.current || !name) return;
+    const dt = new DataTransfer();
+    files?.forEach((file) => dt.items.add(file));
+    hiddenInputRef.current.files = dt.files;
+  }, [files, name]);
+
   return (
     <Collapsible
       onOpenChange={setIsOpen}
@@ -240,32 +302,43 @@ export function FileUploader(props: BaseFileUploaderProps) {
         classNames?.collapsible
       )}
     >
+      {name && (
+        <input
+          ref={hiddenInputRef}
+          type="file"
+          name={name}
+          multiple={isMultiple}
+          hidden
+          tabIndex={-1}
+          aria-hidden
+        />
+      )}
       <div
         className={cn(
-          " gap-4 p-4",
-          props.variant === "button"
-            ? "flex flex-col sm:flex-row"
-            : "grid grid-cols-12",
+          "flex flex-col gap-4 p-4",
+          props.variant === "button" ? "sm:flex-row" : "",
           classNames?.container
         )}
       >
-        <CollapsibleTrigger
-          className={cn(
-            "gap-4 group/trigger hover:no-underline",
-            !files?.length && "opacity-50"
-          )}
-          asChild
-        >
-          <Button
-            variant="outline"
-            className="gap-2"
-            disabled={isDisabled || !files?.length}
+        {isMultiple && (
+          <CollapsibleTrigger
+            className={cn(
+              "gap-4 group/trigger hover:no-underline",
+              !files?.length && "opacity-50"
+            )}
+            asChild
           >
-            <FolderOpen className="w-4 group-data-[state=open]/trigger:hidden" />
-            <Folder className="w-4 group-data-[state=closed]/trigger:hidden" />
-            Files
-          </Button>
-        </CollapsibleTrigger>
+            <Button
+              variant="outline"
+              className="gap-2"
+              disabled={isDisabled || !files?.length}
+            >
+              <FolderOpen className="w-4 group-data-[state=open]/trigger:hidden" />
+              <Folder className="w-4 group-data-[state=closed]/trigger:hidden" />
+              {t["FileUploader.Files"]}
+            </Button>
+          </CollapsibleTrigger>
+        )}
         <Dropzone
           onDrop={onDrop}
           accept={accept}
@@ -276,76 +349,125 @@ export function FileUploader(props: BaseFileUploaderProps) {
           noDrag={props.variant === "button"}
         >
           {(dropzone) => (
-            <DropzoneTrigger {...dropzone} {...props} isDisabled={isDisabled} />
+            <DropzoneTrigger
+              {...dropzone}
+              {...props}
+              t={t}
+              isDisabled={isDisabled}
+            />
           )}
         </Dropzone>
-        <div className={cn("flex w-full", classNames?.header)}>
-          <div className="flex flex-col w-full text-nowrap justify-center">
-            {label && (
-              <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                {label}
-              </span>
-            )}
-            {description && (
-              <span className="text-muted-foreground text-sm">
-                {description}
-              </span>
-            )}
+        {(label ||
+          description ||
+          (props.variant === "button" && props.headerChildren)) && (
+          <div className={cn("flex w-full", classNames?.header)}>
+            <div className="flex flex-col w-full text-nowrap justify-center">
+              {label && (
+                <span className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  {label}
+                </span>
+              )}
+              {description && (
+                <span className="text-muted-foreground text-sm">
+                  {description}
+                </span>
+              )}
+            </div>
+            {props.variant === "button" &&
+              props.headerChildren &&
+              props.headerChildren}
           </div>
-          {props.variant === "button" &&
-            props.headerChildren &&
-            props.headerChildren}
-        </div>
+        )}
       </div>
       {props.children && props.children}
-      <CollapsibleContent
-        className={cn("w-full p-0 h-max", classNames?.collapsibleContent)}
-      >
-        <div
-          className={cn(
-            "group relative flex flex-col gap-4 overflow-hidden",
-            files?.length && props.variant === "button" && "",
-            files?.length && files?.length > 0 && "p-4 border-t",
-            classNames?.container
-          )}
+      {isMultiple ? (
+        <CollapsibleContent
+          className={cn("w-full p-0 h-max", classNames?.collapsibleContent)}
         >
-          {files?.length && showFileList !== false ? (
-            <ScrollArea className="h-fit w-full">
-              <div
-                className={cn(
-                  "grid max-h-48 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 flex-col gap-4",
-                  files.length === 1 && "grid-cols-1!",
-                  files.length === 2 && "sm:grid-cols-2!",
-                  files.length === 3 && "lg:grid-cols-3!",
-                  files.length === 4 && "2xl:grid-cols-4!",
-                  classNames?.fileList
-                )}
-              >
-                {files?.map((file, index) => (
-                  <React.Fragment
-                    key={file.name + file.lastModified + file.path}
-                  >
-                    {fileCardRenderer ? (
-                      fileCardRenderer({
-                        file,
-                        index,
-                        onRemove: () => onRemove(index),
-                      })
-                    ) : (
-                      <FileCard
-                        file={file}
-                        onRemove={() => onRemove(index)}
-                        progress={progresses?.[file.name]}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-            </ScrollArea>
-          ) : null}
-        </div>
-      </CollapsibleContent>
+          <FileListSection
+            files={files}
+            showFileList={showFileList}
+            variant={props.variant}
+            classNames={classNames}
+            fileCardRenderer={fileCardRenderer}
+            progresses={progresses}
+            onRemove={onRemove}
+          />
+        </CollapsibleContent>
+      ) : (
+        <FileListSection
+          files={files}
+          showFileList={showFileList}
+          variant={props.variant}
+          classNames={classNames}
+          fileCardRenderer={fileCardRenderer}
+          progresses={progresses}
+          onRemove={onRemove}
+        />
+      )}
     </Collapsible>
+  );
+}
+
+function FileListSection({
+  files,
+  showFileList,
+  variant,
+  classNames,
+  fileCardRenderer,
+  progresses,
+  onRemove,
+}: {
+  files: DefaultFileWithPath[] | undefined;
+  showFileList: boolean;
+  variant: "button" | "dropzone";
+  classNames?: BaseFileUploaderProps["classNames"];
+  fileCardRenderer?: (props: FileCardProps) => React.ReactNode;
+  progresses?: Record<string, number>;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <div
+      className={cn(
+        "group relative flex flex-col gap-4 overflow-hidden",
+        files?.length && variant === "button" && "",
+        files?.length && files?.length > 0 && "p-4 border-t",
+        classNames?.container
+      )}
+    >
+      {files?.length && showFileList !== false ? (
+        <ScrollArea className="h-fit w-full">
+          <div
+            className={cn(
+              "grid max-h-48 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 flex-col gap-4",
+              files.length === 1 && "grid-cols-1!",
+              files.length === 2 && "sm:grid-cols-2!",
+              files.length === 3 && "lg:grid-cols-3!",
+              files.length === 4 && "2xl:grid-cols-4!",
+              classNames?.fileList
+            )}
+          >
+            {files?.map((file, index) => (
+              <React.Fragment key={file.name + file.lastModified + file.path}>
+                {fileCardRenderer ? (
+                  fileCardRenderer({
+                    file,
+                    index,
+                    onRemove: () => onRemove(index),
+                  })
+                ) : (
+                  <FileCard
+                    file={file}
+                    onRemove={() => onRemove(index)}
+                    progress={progresses?.[file.name]}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </ScrollArea>
+      ) : null}
+    </div>
   );
 }
 
@@ -443,8 +565,9 @@ export function FilePreview({ file }: FilePreviewProps) {
 }
 
 type DropzoneTriggerProps = DropzoneState &
-  BaseFileUploaderProps & {
+  Omit<BaseFileUploaderProps, "t"> & {
     isDisabled?: boolean;
+    t: Required<FileUploaderTranslations>;
   };
 function DropzoneTrigger(props: DropzoneTriggerProps) {
   const {
@@ -456,6 +579,7 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
     maxFileCount = 1,
     maxSize = 1024 * 1024 * 2,
     isDisabled,
+    t,
     // ...dropzoneProps
   } = props;
   if (variant === "button") {
@@ -482,7 +606,7 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
             disabled={isDisabled}
           >
             <Upload className="size-4" aria-hidden="true" />
-            Select
+            {t["FileUploader.Select"]}
           </Button>
         </div>
       </div>
@@ -511,7 +635,7 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
             />
           </div>
           <p className="text-muted-foreground font-medium">
-            Drop the files here
+            {t["FileUploader.DropTheFilesHere"]}
           </p>
         </div>
       ) : (
@@ -523,15 +647,20 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
             />
           </div>
           <div className="flex flex-col gap-px">
-            <p className="text-muted-foreground font-medium">
-              Drag{`'n'`} drop files here, or click to select files
+            <p className="text-muted-foreground font-medium text-sm">
+              {t["FileUploader.DragAndDropFilesHere"]}
             </p>
-            <p className="text-muted-foreground/70 text-sm">
-              You can upload
+            <p className="text-muted-foreground/70 text-xs">
               {maxFileCount > 1
-                ? ` ${maxFileCount === Infinity ? "multiple" : maxFileCount}
-                      files (up to ${formatBytes(maxSize)} each)`
-                : ` a file with ${formatBytes(maxSize)}`}
+                ? tReplace(
+                    t["FileUploader.YouCanUpload{0}files{1}each"],
+                    maxFileCount === Infinity ? "multiple" : maxFileCount,
+                    formatBytes(maxSize)
+                  )
+                : tReplace(
+                    t["FileUploader.YouCanUpload{0}files{1}each"],
+                    formatBytes(maxSize)
+                  )}
             </p>
           </div>
         </div>

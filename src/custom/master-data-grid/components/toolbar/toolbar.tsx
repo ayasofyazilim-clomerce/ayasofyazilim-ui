@@ -341,19 +341,18 @@ export function Toolbar<TData>({
           return (
             <Sheet key={action.id} open={isOpen} onOpenChange={setOpen}>
               <SheetTrigger asChild>{triggerButton}</SheetTrigger>
-              <SheetContent
-                className={action.contentClassName}
-                {...interactionProps}
-              >
+              <SheetContent {...interactionProps}>
                 {(action.title || action.description) && (
-                  <SheetHeader>
+                  <SheetHeader className="pb-0">
                     {action.title && <SheetTitle>{action.title}</SheetTitle>}
                     {action.description && (
                       <SheetDescription>{action.description}</SheetDescription>
                     )}
                   </SheetHeader>
                 )}
-                {childrenContent}
+                <div className={cn("px-4", action.contentClassName)}>
+                  {childrenContent}
+                </div>
               </SheetContent>
             </Sheet>
           );
