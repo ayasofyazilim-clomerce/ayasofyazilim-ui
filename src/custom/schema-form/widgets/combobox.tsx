@@ -1,9 +1,19 @@
 import { ChevronsUpDown } from "lucide-react";
 import { WidgetProps } from "@rjsf/utils";
 import { CheckIcon } from "lucide-react";
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
 import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import AsyncSelect, {
+  BadgeConfig,
+  SearchItem,
+} from "@repo/ayasofyazilim-ui/custom/async-select";
 import {
   Command,
   CommandEmpty,
@@ -266,6 +276,95 @@ export function CustomComboboxWidget<T>({
         selectIdentifier={selectIdentifier}
         selectLabel={selectLabel}
         disabledItems={disabledItems}
+        badges={badges}
+      />
+    );
+  }
+  return Widget;
+}
+
+export function AsyncComboboxWidget<T extends SearchItem>({
+  languageData,
+  selectIdentifier,
+  selectLabel,
+  fetchAction,
+  onChange,
+  badges,
+  multiple = false,
+}: {
+  languageData: {
+    "Select.Placeholder": string;
+    "Select.ResultLabel": string;
+    "Select.EmptyValue": string;
+  };
+  selectIdentifier: keyof T & string;
+  selectLabel: keyof T & string;
+  fetchAction: (search: string) => Promise<T[]>;
+  onChange?: (value: T | T[] | null | undefined) => void;
+  badges?: BadgeConfig<T>[];
+  multiple?: boolean;
+}) {
+  function Widget(props: WidgetProps) {
+    const [selectedItems, setSelectedItems] = useState<T[]>([]);
+
+    useEffect(() => {
+      if (!props.value) {
+        setSelectedItems([]);
+        return;
+      }
+      const ids: unknown[] = Array.isArray(props.value)
+        ? props.value
+        : [props.value];
+      if (ids.length === 0) {
+        setSelectedItems([]);
+        return;
+      }
+      const alreadyResolved = ids.every((id) =>
+        selectedItems.some(
+          (item) => String(item[selectIdentifier]) === String(id)
+        )
+      );
+      if (alreadyResolved && selectedItems.length === ids.length) return;
+      fetchAction("").then((results) => {
+        const matched = ids
+          .map((id) =>
+            results.find((r) => String(r[selectIdentifier]) === String(id))
+          )
+          .filter(Boolean) as T[];
+        setSelectedItems(matched);
+      });
+    }, [props.value]);
+
+    return (
+      <AsyncSelect<T>
+        id={props.id}
+        fetchAction={fetchAction}
+        value={selectedItems}
+        onChange={(items) => {
+          setSelectedItems(items);
+          if (multiple) {
+            const newValue = items.map((item) => item[selectIdentifier]);
+            props.onChange(newValue);
+            if (onChange) {
+              onChange(items);
+            }
+          } else {
+            const item = items[0];
+            const newValue = item ? item[selectIdentifier] : undefined;
+            props.onChange(newValue);
+            if (onChange) {
+              onChange(item ?? null);
+            }
+          }
+        }}
+        disabled={props.disabled}
+        multiple={multiple}
+        closeOnSelect={!multiple}
+        identifierKey={selectIdentifier}
+        labelKey={selectLabel}
+        searchText={languageData["Select.Placeholder"]}
+        resultText={languageData["Select.ResultLabel"]}
+        noResultText={languageData["Select.EmptyValue"]}
         badges={badges}
       />
     );
