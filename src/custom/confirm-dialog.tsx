@@ -71,7 +71,7 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            <div>{description}</div>
+            <span>{description}</span>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
