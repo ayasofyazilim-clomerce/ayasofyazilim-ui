@@ -1,6 +1,13 @@
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@repo/ayasofyazilim-ui/components/dropdown-menu";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import type { Table as TanStackTable } from "@tanstack/react-table";
 import {
+  ChevronDown,
   Columns3,
   Download,
   Filter,
@@ -27,6 +34,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../../../../components/drawer";
+import { Input } from "../../../../components/input";
 import {
   Sheet,
   SheetContent,
@@ -35,9 +43,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../../../../components/sheet";
-import { Input } from "../../../../components/input";
 import type { MasterDataGridConfig, ServerFilterConfig } from "../../types";
-import { getTranslations } from "../../utils/translation-utils";
+import { getColumnName, getTranslations } from "../../utils/translation-utils";
 import { MultiFilterDialog } from "../filters";
 
 interface ToolbarProps<TData> {
@@ -187,17 +194,46 @@ export function Toolbar<TData>({
         </MultiFilterDialog>
       )}
       {config.enableColumnVisibility && (
-        <Button
-          variant="outline"
-          onClick={() => {
-            onOpenColumnSettings?.();
-            if (isMobile) setMobileMenuOpen(false);
-          }}
-          className={isMobile ? "w-full justify-start" : ""}
-        >
-          <Columns3 className="h-4 w-4" />
-          <span>{getTranslations("toolbar.columns", t)}</span>
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className={isMobile ? "w-full justify-start" : ""}
+            >
+              <Columns3 />
+              <span className="hidden lg:inline">
+                {getTranslations("toolbar.columns", t)}
+              </span>
+              <span className="lg:hidden">
+                {getTranslations("toolbar.columns", t)}
+              </span>
+              <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            {table
+              .getAllColumns()
+              .filter(
+                (column) =>
+                  typeof column.accessorFn !== "undefined" &&
+                  column.getCanHide()
+              )
+              .map((column) => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {getColumnName(column, t)}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
       {enableExport && onExport && (
         <Button

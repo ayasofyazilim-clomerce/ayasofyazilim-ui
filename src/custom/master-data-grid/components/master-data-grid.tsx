@@ -31,7 +31,6 @@ import {
   getPinningHeaderStyles,
 } from "../utils/pinning-utils";
 import { getTranslations } from "../utils/translation-utils";
-import { ColumnSettingsDialog } from "./dialogs/column-settings-dialog";
 import { ServerFilterContent } from "./filters/server-filter";
 import { Pagination } from "./pagination";
 import { TableBodyRenderer, VirtualBody } from "./table";
@@ -508,12 +507,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       {enablePagination && (
         <Pagination table={table} pageSizeOptions={pageSizeOptions} t={t} />
       )}
-      <ColumnSettingsDialog
-        open={columnSettingsOpen}
-        onOpenChange={setColumnSettingsOpen}
-        table={table}
-        t={t}
-      />
     </div>
   );
 }
