@@ -1,5 +1,6 @@
 "use client";
 "use no memo";
+import { ButtonGroup } from "@repo/ayasofyazilim-ui/components/button-group";
 import type { Table } from "@tanstack/react-table";
 import {
   ChevronLeftIcon,
@@ -17,8 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../components/select";
-import { getTranslations } from "../../utils/translation-utils";
 import { MasterDataGridResources } from "../../types";
+import { getTranslations } from "../../utils/translation-utils";
 
 interface PaginationProps<TData> {
   table: Table<TData>;
@@ -100,7 +101,7 @@ export function Pagination<TData>({
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger size="sm" className="w-18">
               <SelectValue placeholder={pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
@@ -118,11 +119,10 @@ export function Pagination<TData>({
           {table.getPageCount() === 0 ? 0 : pagination.pageIndex + 1}{" "}
           {getTranslations("pagination.of", t)} {table.getPageCount()}
         </div>
-
-        <div className="flex items-center gap-x-2">
+        <ButtonGroup>
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            size="icon-sm"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
             title={getTranslations("pagination.firstPage", t)}
@@ -135,7 +135,7 @@ export function Pagination<TData>({
 
           <Button
             variant="outline"
-            className="h-8 w-8 p-0"
+            size="icon-sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             title={getTranslations("pagination.previousPage", t)}
@@ -148,7 +148,7 @@ export function Pagination<TData>({
 
           <Button
             variant="outline"
-            className="h-8 w-8 p-0"
+            size="icon-sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             title={getTranslations("pagination.nextPage", t)}
@@ -161,7 +161,7 @@ export function Pagination<TData>({
 
           <Button
             variant="outline"
-            className="hidden h-8 w-8 p-0 lg:flex"
+            size="icon-sm"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
             title={getTranslations("pagination.lastPage", t)}
@@ -171,7 +171,7 @@ export function Pagination<TData>({
             </span>
             <ChevronsRightIcon className="h-4 w-4" />
           </Button>
-        </div>
+        </ButtonGroup>
       </div>
     </div>
   );
