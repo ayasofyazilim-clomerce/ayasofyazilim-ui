@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDownIcon, PhoneIcon } from "lucide-react";
+import { PhoneIcon } from "lucide-react";
 import React, { useState } from "react";
 import PhoneInputWithCountrySelect, {
   Country,
@@ -17,7 +17,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "../components/select";
 // import { FieldErrorTemplate } from "./schema-form/fields";
 export type PhoneInputValues = {
@@ -118,42 +117,34 @@ const CountrySelect = ({
     onChange(value);
   };
   return (
-    <div className="border-input bg-background text-muted-foreground focus-within:border-ring focus-within:ring-ring/50 hover:bg-accent hover:text-foreground has-aria-invalid:border-destructive/60 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40 relative inline-flex items-center self-stretch rounded-s-md border py-2 ps-3 pe-2 transition-[color,box-shadow] outline-none focus-within:z-10 focus-within:ring-[3px] has-disabled:pointer-events-none has-disabled:opacity-50">
-      <div className="inline-flex items-center gap-1" aria-hidden="true">
+    <Select
+      disabled={disabled}
+      value={value}
+      data-testid={`${id}_select`}
+      onValueChange={handleSelect}
+      aria-label="Select country"
+    >
+      <SelectTrigger className="border-r-0 rounded-r-none shadow-none">
         <FlagComponent country={value} countryName={value} aria-hidden="true" />
-        <span className="text-muted-foreground/80">
-          <ChevronDownIcon size={16} aria-hidden="true" />
-        </span>
-      </div>
-      <Select
-        disabled={disabled}
-        value={value}
-        data-testid={`${id}_select`}
-        onValueChange={handleSelect}
-        aria-label="Select country"
-      >
-        <SelectTrigger className="absolute inset-0 text-sm opacity-0">
-          <SelectValue placeholder="Select a country" />
-        </SelectTrigger>
-        <SelectContent>
-          {options
-            .filter((x) => x.value)
-            .map((option, i) => {
-              if (!option.value) return null;
-              return (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  data-testid={`${id}_${option.value}`}
-                >
-                  {option.label}
-                  {option.value && `+${getCountryCallingCode(option.value)}`}
-                </SelectItem>
-              );
-            })}
-        </SelectContent>
-      </Select>
-    </div>
+      </SelectTrigger>
+      <SelectContent>
+        {options
+          .filter((x) => x.value)
+          .map((option, i) => {
+            if (!option.value) return null;
+            return (
+              <SelectItem
+                key={option.value}
+                value={option.value}
+                data-testid={`${id}_${option.value}`}
+              >
+                {option.label}
+                {option.value && `+${getCountryCallingCode(option.value)}`}
+              </SelectItem>
+            );
+          })}
+      </SelectContent>
+    </Select>
   );
 };
 
