@@ -175,6 +175,7 @@ export function Toolbar<TData>({
       {config.enableFiltering && (
         <MultiFilterDialog table={table} config={config}>
           <Button
+            size={"sm"}
             variant="outline"
             className={isMobile ? "w-full justify-start" : ""}
           >
@@ -198,6 +199,7 @@ export function Toolbar<TData>({
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
+              size="sm"
               className={isMobile ? "w-full justify-start" : ""}
             >
               <Columns3 />
@@ -238,6 +240,7 @@ export function Toolbar<TData>({
       {enableExport && onExport && (
         <Button
           variant="outline"
+          size={"sm"}
           onClick={() => {
             onExport("csv");
             if (isMobile) setMobileMenuOpen(false);
@@ -251,6 +254,7 @@ export function Toolbar<TData>({
       {onRefresh && (
         <Button
           variant="outline"
+          size={"sm"}
           onClick={() => {
             onRefresh();
             if (isMobile) setMobileMenuOpen(false);
@@ -264,6 +268,7 @@ export function Toolbar<TData>({
       {onReset && hasTableChanges() && (
         <Button
           variant="outline"
+          size={"sm"}
           onClick={() => {
             onReset();
             if (isMobile) setMobileMenuOpen(false);
@@ -309,7 +314,10 @@ export function Toolbar<TData>({
             key={action.id}
             href={action.href}
             className={cn(
-              buttonVariants({ variant: action.variant || "outline" }),
+              buttonVariants({
+                variant: action.variant || "outline",
+                size: "sm",
+              }),
               isMobile ? "w-full justify-start" : action.className
             )}
           >
@@ -350,6 +358,7 @@ export function Toolbar<TData>({
           <Button
             variant={action.variant || "outline"}
             disabled={disabled}
+            size={"sm"}
             className={isMobile ? "w-full justify-start" : action.className}
           >
             {Icon && <Icon className="h-4 w-4" />}
@@ -420,6 +429,7 @@ export function Toolbar<TData>({
           key={action.id}
           variant={action.variant || "outline"}
           disabled={disabled}
+          size={"sm"}
           onClick={() => {
             action.onClick?.(selectedRows);
             if (isMobile) setMobileMenuOpen(false);
@@ -450,7 +460,7 @@ export function Toolbar<TData>({
           placeholder={getTranslations("toolbar.search", t)}
           value={searchValue}
           onChange={(event) => handleSearchChange(event.target.value)}
-          className="md:max-w-sm"
+          className="md:max-w-sm h-8"
         />
       )}
       {selectedRows.length > 0 && (
