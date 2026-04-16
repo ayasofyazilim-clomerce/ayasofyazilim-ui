@@ -108,8 +108,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
 
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const [columnSettingsOpen, setColumnSettingsOpen] = useState(false);
-
   const configRef = useRef(configWithDefaults);
   configRef.current = configWithDefaults;
 
@@ -361,7 +359,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         onExport={enableExport ? handleExport : undefined}
         onRefresh={configWithDefaults.onRefresh}
         onReset={handleReset}
-        onOpenColumnSettings={() => setColumnSettingsOpen(true)}
       />
 
       <div
