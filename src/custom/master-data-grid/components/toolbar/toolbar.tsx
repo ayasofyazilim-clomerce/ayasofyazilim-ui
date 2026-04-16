@@ -55,7 +55,6 @@ interface ToolbarProps<TData> {
   onExport?: (format: string) => void;
   onRefresh?: () => void;
   onReset?: () => void;
-  onOpenColumnSettings?: () => void;
 }
 
 export function Toolbar<TData>({
@@ -65,7 +64,6 @@ export function Toolbar<TData>({
   onExport,
   onRefresh,
   onReset,
-  onOpenColumnSettings,
 }: ToolbarProps<TData>) {
   const { t, tableActions, enableExport } = config;
 
@@ -477,7 +475,7 @@ export function Toolbar<TData>({
       </ButtonGroup>
       <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <DrawerTrigger asChild>
-          <Button variant="outline" size="icon" className="md:hidden">
+          <Button variant="outline" size="icon-sm" className="md:hidden">
             <Menu className="h-4 w-4" />
           </Button>
         </DrawerTrigger>
