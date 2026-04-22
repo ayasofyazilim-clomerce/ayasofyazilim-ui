@@ -179,7 +179,7 @@ export function mergeUISchemaObjects<
 /**
  * Helper: Generates UiSchema structure from JSON Schema + Resources
  */
-function uiSchemaFromSchema({
+function uiSchemaFromSchema<T>({
   name,
   object,
   resources,
@@ -190,7 +190,7 @@ function uiSchemaFromSchema({
   object: GenericObjectType;
   resources: Record<string, string>;
 }) {
-  const uiSchema: Record<string, any> = { [name]: {} };
+  const uiSchema: UiSchema<T> = { [name]: {} };
 
   // 1. Handle Objects
   if (object?.type === "object" && object.properties) {
@@ -237,7 +237,7 @@ function uiSchemaFromSchema({
     const getResource = (suffix?: string) =>
       resources[suffix ? `${constantKey}.${suffix}` : constantKey];
 
-    const uiSchemaItem: Record<string, any> = {
+    const uiSchemaItem: Record<string, unknown> = {
       "ui:title": getResource() || lodash.startCase(name),
       "ui:placeholder": getResource("ui:placeholder"),
     };
@@ -271,7 +271,7 @@ function filterUndefinedAndEmpty<T>(obj: T): FilteredObject<T> {
   // Use omitBy to filter undefined, then mapValues to recurse
   const result = lodash.transform(
     obj as unknown as object,
-    (acc: any, value, key) => {
+    (acc: Record<string, unknown>, value, key) => {
       const filteredValue = filterUndefinedAndEmpty(value);
 
       const isValid =

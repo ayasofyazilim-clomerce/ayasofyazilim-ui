@@ -203,7 +203,7 @@ export function DateRangePicker({
           undefined,
       });
     }
-  }, [dateValue]);
+  }, [dateValue, onChange]);
   return (
     <DefaultDateRangePicker
       aria-label="x"

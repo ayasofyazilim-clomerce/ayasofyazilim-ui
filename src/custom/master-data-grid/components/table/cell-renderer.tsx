@@ -326,7 +326,7 @@ export function CellRenderer<TData = unknown>({
 
   if (editable && !schemaProperty?.readOnly) {
     if (fieldName && customRenderers?.[fieldName]) {
-      const customRenderer = customRenderers?.[fieldName]!;
+      const customRenderer = customRenderers?.[fieldName];
       return (
         <>
           {customRenderer({
@@ -483,7 +483,7 @@ export function CellRenderer<TData = unknown>({
   }
 
   if (fieldName && customRenderers?.[fieldName]) {
-    const customRenderer = customRenderers?.[fieldName]!;
+    const customRenderer = customRenderers![fieldName];
     return (
       <>
         {customRenderer({

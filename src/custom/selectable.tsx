@@ -108,7 +108,15 @@ export function Selectable<T>({
     const sortedTypes = Object.keys(groupedOptions).sort();
 
     return { groupedOptions, sortedTypes };
-  }, [selectedOptions, searchResults, options, searchValue, getKey, getGroup]);
+  }, [
+    selectedOptions,
+    searchResults,
+    options,
+    searchValue,
+    getKey,
+    getGroup,
+    onSearch,
+  ]);
 
   const toggleSelection = useCallback(
     (option: T, isSelected: boolean) => {

@@ -121,7 +121,7 @@ export function TanstackTableDateFilter<TData, TValue>({
     if (filter.length > 0) {
       onFilterMultiple(filter);
     }
-  }, [date]);
+  }, [date, dateItem, onFilter, onFilterMultiple, params]);
 
   return (
     <Popover>

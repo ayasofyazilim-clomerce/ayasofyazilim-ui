@@ -1,3 +1,4 @@
+/* eslint-disable */
 const JSDOMEnvironment = require("jest-environment-jsdom").default;
 
 // Mock canvas before jsdom loads it

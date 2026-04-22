@@ -1,5 +1,6 @@
 import {
   FormContextType,
+  GenericObjectType,
   RJSFSchema,
   StrictRJSFSchema,
   WidgetProps,
@@ -36,9 +37,9 @@ interface MappedItem {
 }
 
 export function SelectWidget<
-  T = any,
+  T = unknown,
   S extends StrictRJSFSchema = RJSFSchema,
-  F extends FormContextType = any,
+  F extends FormContextType = GenericObjectType,
 >({
   id,
   options,

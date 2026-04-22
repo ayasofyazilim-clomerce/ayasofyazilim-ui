@@ -64,7 +64,6 @@ function HorizontalBarChart({
   footer,
   trendText,
   trendIcon,
-  xAxisTickFormatter = (value) => value,
   yAxisTickFormatter = (value) => value,
   classNames,
   showLegend,

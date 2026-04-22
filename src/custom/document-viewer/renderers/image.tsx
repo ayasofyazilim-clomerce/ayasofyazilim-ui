@@ -6,8 +6,8 @@ import ImageCanvas from "../../image-canvas";
 const CustomImageRenderer = (props: DocRendererProps) => {
   const { mainState } = props;
   const { currentDocument } = mainState;
-  if (!currentDocument) return null;
   const [zoom, setZoom] = useState(1);
+  if (!currentDocument) return null;
   return (
     <div className="flex w-full items-center justify-center p-4">
       <Controllers

@@ -50,14 +50,13 @@ export function ServerFilterContent<TData>({
   const [isPending, startTransition] = useTransition();
 
   const { serverFilters } = config;
-  if (!serverFilters) return null;
 
   const [resetCount, setResetCount] = useState(0);
 
   const [localValues, setLocalValues] = useState<Record<string, FilterValue>>(
     () => {
       const initial: Record<string, FilterValue> = {};
-      serverFilters.forEach((filter) => {
+      serverFilters?.forEach((filter) => {
         const val = searchParams.get(filter.key);
         if (filter.type === "array" || filter.type === "string-array") {
           initial[filter.key] = searchParams.getAll(filter.key);
@@ -105,6 +104,33 @@ export function ServerFilterContent<TData>({
     },
     []
   );
+
+  const clearSingleFilter = useCallback((filter: ServerFilterConfig) => {
+    const emptyValue =
+      filter.type === "array" || filter.type === "string-array"
+        ? []
+        : filter.type === "boolean"
+          ? undefined
+          : filter.type === "date-range"
+            ? { from: undefined, to: undefined }
+            : "";
+    setLocalValues((prev) => ({ ...prev, [filter.key]: emptyValue }));
+    setErrors((prev) => ({ ...prev, [filter.key]: "" }));
+    if (
+      [
+        "select",
+        "array",
+        "string-array",
+        "boolean",
+        "date",
+        "date-range",
+      ].includes(filter.type)
+    ) {
+      setResetCount((prev) => prev + 1);
+    }
+  }, []);
+
+  if (!serverFilters) return null;
 
   const handleApply = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -173,31 +199,6 @@ export function ServerFilterContent<TData>({
     setResetCount((prev) => prev + 1);
     startTransition(() => router.push(pathname, { scroll: false }));
   };
-
-  const clearSingleFilter = useCallback((filter: ServerFilterConfig) => {
-    const emptyValue =
-      filter.type === "array" || filter.type === "string-array"
-        ? []
-        : filter.type === "boolean"
-          ? undefined
-          : filter.type === "date-range"
-            ? { from: undefined, to: undefined }
-            : "";
-    setLocalValues((prev) => ({ ...prev, [filter.key]: emptyValue }));
-    setErrors((prev) => ({ ...prev, [filter.key]: "" }));
-    if (
-      [
-        "select",
-        "array",
-        "string-array",
-        "boolean",
-        "date",
-        "date-range",
-      ].includes(filter.type)
-    ) {
-      setResetCount((prev) => prev + 1);
-    }
-  }, []);
 
   return (
     <FieldSet className="p-2">

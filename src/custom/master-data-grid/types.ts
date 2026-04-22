@@ -469,7 +469,7 @@ export interface ExpandableColumnMeta extends ColumnMeta {
 export interface ExportColumnDef<TData = unknown> {
   accessorKey?: string;
   accessorFn?: (row: TData, index: number) => unknown;
-  header?: string | ((info: any) => React.ReactNode);
+  header?: string | ((info: TData) => React.ReactNode);
   id?: string;
   meta?: ColumnMeta;
 }
@@ -488,7 +488,7 @@ export interface CellRendererProps<TData = unknown> {
   errorDisplayMode?: "tooltip" | "inline" | "both";
   className?: string;
   dateOptions?: Intl.DateTimeFormatOptions;
-  localization?: any;
+  localization?: Localization;
   fieldName?: keyof TData & string;
   customRenderers?: CustomRenderers<TData>;
 }

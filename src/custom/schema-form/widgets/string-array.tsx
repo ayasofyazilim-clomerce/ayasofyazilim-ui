@@ -14,7 +14,7 @@ import {
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { WidgetProps } from "@rjsf/utils";
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 interface StringArrayWidgetConfig {
   classNames?: {
@@ -105,7 +105,7 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
     const [inputValue, setInputValue] = useState("");
     const [error, setError] = useState<string>("");
 
-    const currentValues = props.value || [];
+    const currentValues = useMemo(() => props.value || [], [props.value]);
 
     const handleValue = useCallback(
       (value: string) => {
@@ -163,7 +163,7 @@ export function CustomStringArrayWidget(config: StringArrayWidgetConfig = {}) {
           onRemove(valueToRemove, index);
         }
       },
-      [currentValues, props, onRemove]
+      [currentValues, props]
     );
 
     const isDisabled = disabled || props.disabled;

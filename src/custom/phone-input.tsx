@@ -134,7 +134,7 @@ const CountrySelect = ({
             if (!option.value) return null;
             return (
               <SelectItem
-                key={option.value}
+                key={option.value + i}
                 value={option.value}
                 data-testid={`${id}_${option.value}`}
               >

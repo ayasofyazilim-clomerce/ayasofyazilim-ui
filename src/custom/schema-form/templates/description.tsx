@@ -1,10 +1,10 @@
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipTrigger,
 } from "@repo/ayasofyazilim-ui/components/tooltip";
 import { DescriptionFieldProps } from "@rjsf/utils";
-import { InfoIcon, MessageCircleQuestion } from "lucide-react";
+import { InfoIcon } from "lucide-react";
 
 export function DescriptionFieldTemplate(props: DescriptionFieldProps) {
   const { description, id } = props;

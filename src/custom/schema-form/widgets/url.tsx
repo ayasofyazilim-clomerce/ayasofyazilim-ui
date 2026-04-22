@@ -45,7 +45,7 @@ export const URLInputWidget = (props: WidgetProps) => {
         disabled={disabled}
         autoComplete={uiSchema?.["ui:autocomplete"]}
         onKeyDown={(e) => {
-          e.key === "Enter" && e.preventDefault();
+          if (e.key === "Enter") e.preventDefault();
         }}
       />
       <InputGroupAddon>

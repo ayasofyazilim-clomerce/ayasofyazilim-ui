@@ -21,7 +21,7 @@ export function FieldLabel({
   className?: string;
   required?: boolean;
   description?:
-    | ReactElement<unknown, string | JSXElementConstructor<any>>
+    | ReactElement<unknown, string | JSXElementConstructor<unknown>>
     | string
     | undefined;
 }) {

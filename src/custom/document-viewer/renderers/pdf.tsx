@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
-import { DocRenderer, DocRendererProps } from "react-doc-viewer";
-import { Document, Page, pdfjs, Thumbnail } from "react-pdf";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { useState } from "react";
+import { DocRendererProps } from "react-doc-viewer";
+import { Document, Page, pdfjs, Thumbnail } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { Controllers } from "../controllers";
@@ -86,20 +86,3 @@ CustomPDFRenderer.fileTypes = ["pdf", "application/pdf"];
 CustomPDFRenderer.weight = 1;
 
 export default CustomPDFRenderer;
-
-export const ExtendCustomPDFRenderer = ({
-  searchValue,
-}: {
-  searchValue?: string;
-}): DocRenderer => {
-  const Renderer = useMemo(() => {
-    function RendererComponent(props: DocRendererProps) {
-      return <CustomPDFRenderer {...props} />;
-    }
-    RendererComponent.fileTypes = ["pdf", "application/pdf"];
-    RendererComponent.weight = 1;
-    return RendererComponent;
-  }, [searchValue]);
-
-  return Renderer;
-};

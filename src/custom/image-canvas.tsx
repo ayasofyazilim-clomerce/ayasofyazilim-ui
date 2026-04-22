@@ -94,7 +94,7 @@ export default function ImageCanvas({
 
     // Draw the image with the current zoom and position
     ctx.drawImage(image, x, y, scaledWidth, scaledHeight);
-  }, [image, currentZoom, position]); // Load the image - optimized to properly clean up
+  }, [image, currentZoom, position, error, renderError]); // Load the image - optimized to properly clean up
   useEffect(() => {
     const img = new Image();
 
@@ -128,6 +128,7 @@ export default function ImageCanvas({
       img.removeEventListener("error", onError);
       img.src = ""; // Clean up to avoid memory leaks
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageUrl]);
 
   // Ensure the canvas is drawn whenever image, zoom, or position changes

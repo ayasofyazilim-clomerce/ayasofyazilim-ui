@@ -18,7 +18,7 @@ export type {
   StrictRJSFSchema,
 } from "@rjsf/utils";
 
-export type SchemaFormProps<T = any> = Omit<
+export type SchemaFormProps<T = unknown> = Omit<
   FormProps<T>,
   "validator" | "schema" | "uiSchema" | "formData"
 > & {
@@ -31,7 +31,7 @@ export type SchemaFormProps<T = any> = Omit<
   runtimeDependencyConfig?: RuntimeDependencyConfig;
   fieldDependencies?: DependencyConfig;
 };
-export type RJSFChangeEvent<T = any> = IChangeEvent<T>;
+export type RJSFChangeEvent<T = unknown> = IChangeEvent<T>;
 
 export type CreateFieldConfigWithResourceProps = {
   extend?: _GenericObjectType;
@@ -56,7 +56,7 @@ export type CreateSchemaWithFilters<T> = {
 
 export type FilteredObject<T> = {
   [K in keyof T]: T[K] extends object
-    ? T[K] extends Array<any>
+    ? T[K] extends Array<unknown>
       ? T[K] // Keep arrays as they are
       : FilteredObject<T[K]>
     : T[K] extends undefined

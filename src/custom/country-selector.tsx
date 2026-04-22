@@ -98,7 +98,7 @@ export function CountrySelector({
   className,
 }: CountrySelectorProps) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState<string>(defaultValue || "");
+  const [, setValue] = React.useState<string>(defaultValue || "");
 
   function onSelect(currentValue: string) {
     setValue(currentValue);

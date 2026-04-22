@@ -65,7 +65,7 @@ const INTERNAL_TEMPLATES = {
 
 const FIELDS_TO_REMOVE = ["extraProperties", "additionalProperties"];
 
-export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
+export function SchemaForm<T = unknown>(props: SchemaFormProps<T>) {
   const {
     validator: customValidator,
     schema: originalSchema,
@@ -151,7 +151,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
       });
 
       if (userTransformErrors) {
-        filteredErrors = userTransformErrors(filteredErrors, {} as any);
+        filteredErrors = userTransformErrors(filteredErrors, {});
       }
 
       return filteredErrors;
@@ -198,7 +198,7 @@ export function SchemaForm<T = any>(props: SchemaFormProps<T>) {
         ? { ArrayFieldItemTemplate, ArrayFieldTemplate }
         : {}
     );
-  }, [templates]);
+  }, [templates, useTableForArrayFields]);
 
   const handleSubmit = useCallback(
     (

@@ -5,7 +5,11 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ayasofyazilim-ui/components/dropdown-menu";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import type { Table as TanStackTable } from "@tanstack/react-table";
+import type {
+  ColumnFilter,
+  ColumnSort,
+  Table as TanStackTable,
+} from "@tanstack/react-table";
 import {
   ChevronDown,
   Columns3,
@@ -73,8 +77,8 @@ export function Toolbar<TData>({
 
   const initialStateRef = useRef<{
     globalFilter: string | undefined;
-    columnFilters: any[];
-    sorting: any[];
+    columnFilters: ColumnFilter[];
+    sorting: ColumnSort[];
     columnVisibility: Record<string, boolean>;
     columnPinning: { left?: string[]; right?: string[] };
   } | null>(null);
@@ -95,14 +99,14 @@ export function Toolbar<TData>({
         },
       };
     }
-  }, []);
+  }, [table]);
 
+  const globalFilter = table.getState().globalFilter as string;
   useEffect(() => {
-    const currentFilter = table.getState().globalFilter as string;
-    if (currentFilter !== searchValue) {
-      setSearchValue(currentFilter ?? "");
+    if (globalFilter !== searchValue) {
+      setSearchValue(globalFilter ?? "");
     }
-  }, [table.getState().globalFilter]);
+  }, [globalFilter, searchValue]);
 
   const handleSearchChange = useCallback(
     (value: string) => {

@@ -40,7 +40,7 @@ export function Controllers({
         setSearchValue("");
       }
     }
-  }, [open]);
+  }, [open, setSearchValue]);
 
   return (
     <div className="absolute top-4 right-6 flex gap-2 z-10 flex-col">

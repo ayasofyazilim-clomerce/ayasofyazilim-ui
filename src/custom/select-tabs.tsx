@@ -4,6 +4,7 @@ import { Circle, CircleCheckBig } from "lucide-react";
 import React, {
   createContext,
   JSX,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -88,18 +89,24 @@ export default function SelectTabs({
   className,
 }: ISelectTabsProps) {
   const [activeTab, setActiveTab] = useState(value);
-  const contextValue = useMemo(() => ({ activeTab, onChange }), [activeTab]);
-  function onChange(newValue: string) {
-    if (disabled) return;
+  const onChange = useCallback(
+    (newValue: string) => {
+      if (disabled) return;
 
-    if (newValue === activeTab && deselect) {
-      setActiveTab("");
-      onValueChange?.("");
-    } else if (newValue !== activeTab) {
-      setActiveTab(newValue);
-      onValueChange?.(newValue);
-    }
-  }
+      if (newValue === activeTab && deselect) {
+        setActiveTab("");
+        onValueChange?.("");
+      } else if (newValue !== activeTab) {
+        setActiveTab(newValue);
+        onValueChange?.(newValue);
+      }
+    },
+    [disabled, activeTab, deselect, onValueChange]
+  );
+  const contextValue = useMemo(
+    () => ({ activeTab, onChange }),
+    [activeTab, onChange]
+  );
 
   return (
     <SelectTabsContext.Provider value={contextValue}>

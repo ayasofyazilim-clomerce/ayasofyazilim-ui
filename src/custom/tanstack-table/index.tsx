@@ -9,7 +9,8 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useCallback, useMemo, useState } from "react";
+import { Table as TableType } from "@tanstack/react-table";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import {
   TanstackTableActionDialogs,
@@ -132,6 +133,8 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
   const [tableAction, setTableAction] =
     useState<TanstackTableTableActionsType<TData> | null>(null);
 
+  const tableRef = useRef<TableType<TData> | null>(null);
+
   const tableColumns = useMemo(() => {
     const _columns = [...columns].filter(
       (col) => !excludeColumns?.includes(col.id as keyof TData)
@@ -141,7 +144,9 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
       _columns.push({
         id: "actions",
         cell: ({ row }) =>
-          CellWithActions(table, row, rowActions, setRowAction),
+          tableRef.current
+            ? CellWithActions(tableRef.current, row, rowActions, setRowAction)
+            : null,
       });
     }
     if (!resizeable) return _columns;
@@ -149,12 +154,12 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
       ...col,
       minSize: fillerColumn === col.id ? 600 : undefined,
     }));
-  }, [columns, rowActions]);
+  }, [columns, rowActions, excludeColumns, resizeable, fillerColumn]);
 
   const getRowId = useCallback(
     (row: TData, index: number) =>
       editable ? index.toString() : (row as TData & { id: string }).id,
-    []
+    [editable]
   );
 
   const table = useReactTable({
@@ -196,6 +201,7 @@ function TanstackBase<TData, TValue>(props: TanstackBaseProps<TData, TValue>) {
     rowCount,
     meta,
   });
+  tableRef.current = table;
   return (
     <div className="flex flex-col gap-2 overflow-hidden">
       <TanstackTableToolbar<TData>
