@@ -100,12 +100,13 @@ import {
   PlaceAutocomplete,
 } from "./place-autocomplete";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createLazyComponent<T extends ComponentType<any>>(
   factory: () => Promise<{ default: T }>
 ) {
   const LazyComponent = lazy(factory);
 
-  return (props: React.ComponentProps<T>) => {
+  const LazyWrapper = (props: React.ComponentProps<T>) => {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -122,6 +123,8 @@ function createLazyComponent<T extends ComponentType<any>>(
       </Suspense>
     );
   };
+  LazyWrapper.displayName = "LazyWrapper";
+  return LazyWrapper;
 }
 
 const LeafletMapContainer = createLazyComponent(() =>
@@ -282,7 +285,7 @@ function MapTileLayer({
         attribution: resolvedAttribution,
       });
     }
-  }, [context, name, url, attribution]);
+  }, [context, name, resolvedUrl, resolvedAttribution]);
 
   if (context && context.selectedTileLayer !== name) {
     return null;
@@ -876,6 +879,7 @@ function MapLocateControl({
     setIsLocating(false);
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => () => stopLocating(), []);
 
   return (
@@ -1000,6 +1004,7 @@ function MapDrawControl({
       map.off(L.Draw.Event.EDITED, handleDrawEditedOrDeleted);
       map.off(L.Draw.Event.DELETED, handleDrawEditedOrDeleted);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [L, LeafletDraw, map, onLayersChange]);
 
   return (
@@ -1254,6 +1259,7 @@ function MapDrawActionButton<T extends EditToolbar.Edit | EditToolbar.Delete>({
       control.disable?.();
       controlRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [L, map, isActive, featureGroup, createDrawTool]);
 
   function handleClick() {
@@ -1314,7 +1320,7 @@ function MapDrawEdit({
     L.drawLocal.edit.handlers.remove.tooltip = {
       text: "Click on a shape to remove.",
     };
-  }, [mapDrawHandleIcon]);
+  }, [L, mapDrawHandleIcon]);
 
   return (
     <MapDrawActionButton
@@ -1495,7 +1501,7 @@ function MapSearchControlWrapper() {
   React.useEffect(() => {
     if (!selectedPosition) return;
     map.panTo(selectedPosition);
-  }, [selectedPosition]);
+  }, [selectedPosition, map]);
   return (
     <>
       <MapSearchControl

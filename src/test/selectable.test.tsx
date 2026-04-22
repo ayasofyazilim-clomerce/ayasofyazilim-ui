@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Selectable } from "../custom/selectable";
 
@@ -878,9 +878,7 @@ describe("Selectable Component", () => {
     });
 
     it("should have disabled styling", () => {
-      const { container } = render(
-        <Selectable {...defaultProps} disabled={true} />
-      );
+      render(<Selectable {...defaultProps} disabled={true} />);
 
       const trigger = screen.getByRole("button");
       expect(trigger).toHaveClass("disabled:pointer-events-none");

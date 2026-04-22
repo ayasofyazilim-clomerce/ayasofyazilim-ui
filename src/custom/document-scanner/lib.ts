@@ -220,7 +220,7 @@ export function findDocumentCornersAdvanced(
     const approaches = [
       {
         name: "OTSU + Gaussian",
-        process: (input: any) => {
+        process: (input: Mat) => {
           const blurred = new cv.Mat();
           const binary = new cv.Mat();
           cv.GaussianBlur(input, blurred, new cv.Size(9, 9), 0, 0, 0);

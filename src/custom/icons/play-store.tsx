@@ -22,9 +22,9 @@ const IconGooglePlay = (props: IconType) => {
       {...props}
       fillRule="evenodd"
       clipRule="evenodd"
-      image-rendering="optimizeQuality"
-      shape-rendering="geometricPrecision"
-      text-rendering="geometricPrecision"
+      imageRendering="optimizeQuality"
+      shapeRendering="geometricPrecision"
+      textRendering="geometricPrecision"
       viewBox="0 0 466 511.98"
     >
       <g fillRule="nonzero">

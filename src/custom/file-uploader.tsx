@@ -24,6 +24,7 @@ import { ScrollArea } from "@repo/ayasofyazilim-ui/components/scroll-area";
 import { toast } from "@repo/ayasofyazilim-ui/components/sonner";
 import { cn, formatBytes } from "@repo/ayasofyazilim-ui/lib/utils";
 import { useControllableState } from "../hooks/use-controllable-state";
+import { useMemo } from "react";
 
 export type FileWithPath = DefaultFileWithPath;
 export type BaseFileUploaderProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -195,7 +196,11 @@ export function FileUploader(props: BaseFileUploaderProps) {
     t: userTranslations,
   } = props;
 
-  const t = { ...defaultTranslations, ...userTranslations };
+  const t = useMemo(
+    () => ({ ...defaultTranslations, ...userTranslations }),
+    [userTranslations]
+  );
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const [files, setFiles] = useControllableState({
     prop: valueProp,
@@ -257,7 +262,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
       }
     },
 
-    [files, maxFileCount, multiple, onUpload, setFiles]
+    [files, isOpen, maxFileCount, multiple, onUpload, setFiles, t]
   );
 
   function onRemove(index: number) {
@@ -278,12 +283,12 @@ export function FileUploader(props: BaseFileUploaderProps) {
         }
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
   const isDisabled = disabled || (files?.length ?? 0) >= maxFileCount;
   const isMultiple = maxFileCount > 1 || multiple;
-  const [isOpen, setIsOpen] = React.useState(false);
   const hiddenInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {

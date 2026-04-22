@@ -174,7 +174,7 @@ function SidebarProvider({
         };
 
         const openSidebars = Object.entries(next)
-          .filter(([_, sidebarState]) => sidebarState?.open === true)
+          .filter(([, sidebarState]) => sidebarState?.open === true)
           .map(([sidebarName]) => sidebarName);
 
         openSidebars.forEach((sidebarName) => {

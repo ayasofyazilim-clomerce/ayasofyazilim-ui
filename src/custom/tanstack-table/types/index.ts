@@ -11,7 +11,6 @@ import {
 import { ComponentType, JSX } from "react";
 
 declare module "@tanstack/react-table" {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TableMeta<TData extends RowData> {
     addRow: (rowIndex: number, columnId: string, value: unknown) => void;
     removeRow: (rowIndex: number, columnId: string, value: unknown) => void;

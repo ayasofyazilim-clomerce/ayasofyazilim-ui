@@ -10,6 +10,7 @@ import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import {
   ArrayFieldItemTemplateProps,
   FormContextType,
+  GenericObjectType,
   RJSFSchema,
   StrictRJSFSchema,
 } from "@rjsf/utils";
@@ -22,9 +23,9 @@ import {
 } from "lucide-react";
 
 export function ArrayFieldItemTemplate<
-  T = any,
+  T = unknown,
   S extends StrictRJSFSchema = RJSFSchema,
-  F extends FormContextType = any,
+  F extends FormContextType = GenericObjectType,
 >(props: ArrayFieldItemTemplateProps<T, S, F>) {
   const { children, buttonsProps, hasToolbar } = props;
   const {

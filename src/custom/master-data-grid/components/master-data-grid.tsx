@@ -301,7 +301,17 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     table.resetGlobalFilter();
     setGlobalFilter("");
   }, [table, resetToDefaults]);
-
+  const groupRowLookup = useMemo(() => {
+    const labelField = configWithDefaults.grouping?.groupLabelField;
+    if (!labelField || !enableGrouping) return undefined;
+    const map = new Map<string, unknown>();
+    data.forEach((item) => {
+      const id = (item as Record<string, unknown>)["id"];
+      if (id != null)
+        map.set(String(id), (item as Record<string, unknown>)[labelField]);
+    });
+    return map;
+  }, [data, configWithDefaults.grouping?.groupLabelField, enableGrouping]);
   if (configWithDefaults.loading) {
     return (
       <div className={cn("space-y-4", configWithDefaults.containerClassName)}>
@@ -327,18 +337,6 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
       </div>
     );
   }
-
-  const groupRowLookup = useMemo(() => {
-    const labelField = configWithDefaults.grouping?.groupLabelField;
-    if (!labelField || !enableGrouping) return undefined;
-    const map = new Map<string, unknown>();
-    data.forEach((item) => {
-      const id = (item as Record<string, unknown>)["id"];
-      if (id != null)
-        map.set(String(id), (item as Record<string, unknown>)[labelField]);
-    });
-    return map;
-  }, [data, configWithDefaults.grouping?.groupLabelField, enableGrouping]);
 
   const rows = table.getRowModel().rows;
 

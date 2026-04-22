@@ -72,7 +72,7 @@ export function BaseInputTemplate({
                 ? ([schema.default] as string[])
                 : []
             )
-            .map((example: any) => {
+            .map((example) => {
               return <option key={example} value={example} />;
             })}
         </datalist>

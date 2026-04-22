@@ -217,6 +217,13 @@ export function Webcam(props: WebcamProps) {
     }
   }, []);
 
+  const stopVideoRecording = useCallback(() => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
+    }
+  }, [isRecording]);
+
   // Video Recording Functions
   const startVideoRecording = useCallback(() => {
     if (!webcamRef.current?.stream || isRecording || !videoRecording) return;
@@ -276,14 +283,8 @@ export function Webcam(props: WebcamProps) {
     callbacks,
     recordingDuration,
     clearRecordingInterval,
+    stopVideoRecording,
   ]);
-
-  const stopVideoRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current = null;
-    }
-  }, [isRecording]);
 
   // Photo Capture Functions
   const captureHighQualityPhoto = useCallback((): string | null => {
@@ -462,6 +463,7 @@ export function Webcam(props: WebcamProps) {
 
     return clearVideoCheckInterval;
   }, [
+    hasAutoStarted,
     clearVideoCheckInterval,
     checkVideoReady,
     videoRecording,

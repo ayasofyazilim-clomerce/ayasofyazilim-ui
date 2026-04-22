@@ -154,7 +154,7 @@ export function SectionLayout({
     if (linkElement && defaultActiveSectionId) {
       setActiveSectionId(defaultActiveSectionId);
     }
-  }, [defaultActiveSectionId]);
+  }, [defaultActiveSectionId, linkElement]);
   const contextValue = useMemo(
     () => ({ activeSectionId: activeSectionId || "" }),
     [activeSectionId]

@@ -57,7 +57,7 @@ export function TanstackTablePagination<TData>(
     }
 
     replace(`${pathname}?${params.toString()}`);
-  }, [pagination]);
+  }, [pagination, replace, pathname, searchParams]);
 
   return (
     <div className="flex items-center flex-wrap">

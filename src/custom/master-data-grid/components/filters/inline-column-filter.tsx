@@ -40,7 +40,7 @@ export function InlineColumnFilter<TData>({
         ? getFilterOperators(schemaProperty.type, schemaProperty.format)
         : ["contains"])
     );
-  }, [filterOperators, schemaProperty?.type, schemaProperty?.format]);
+  }, [filterOperators, schemaProperty]);
 
   const currentFilter = column.getFilterValue() as ColumnFilter | undefined;
   const [operator, setOperator] = useState<FilterOperator>(

@@ -38,7 +38,7 @@ export function TanstackTableTextFilter<TData, TValue>({
     if (params?.get(accessorKey) !== filterValue) {
       onFilter(accessorKey, filterValue);
     }
-  }, [filterValue]);
+  }, [filterValue, accessorKey, onFilter, params]);
   return (
     <Popover>
       <PopoverTrigger asChild>

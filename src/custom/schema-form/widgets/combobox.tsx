@@ -333,7 +333,7 @@ export function AsyncComboboxWidget<T extends SearchItem>({
           .filter(Boolean) as T[];
         setSelectedItems(matched);
       });
-    }, [props.value]);
+    }, [props.value, selectedItems]);
 
     return (
       <AsyncSelect<T>

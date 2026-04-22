@@ -35,7 +35,7 @@ export function TanstackTableActionDialogs<TData>({
       rowAction.onClick(rowAction.row);
       setRowAction(null);
     }
-  }, [rowAction]);
+  }, [rowAction, setRowAction]);
 
   return (
     <>

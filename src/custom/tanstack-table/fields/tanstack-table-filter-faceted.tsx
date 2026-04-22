@@ -45,7 +45,7 @@ export function TanstackTableFacetedFilter<TData, TValue>({
   );
   useEffect(() => {
     setSelectedValues(new Set(params?.get(accessorKey)?.split(",") || []));
-  }, [params?.get(accessorKey)]);
+  }, [accessorKey, params]);
 
   return (
     <Popover>

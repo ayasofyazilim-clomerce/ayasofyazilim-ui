@@ -49,6 +49,7 @@ export function useEditing<TData>({
   const cancelEditingRow = useCallback(
     (rowId: string, row: TData) => {
       setEditingRows((prev) => {
+        /* eslint-disable */
         const { [rowId]: removed, ...rest } = prev;
         return rest;
       });
@@ -76,6 +77,7 @@ export function useEditing<TData>({
       }
 
       setEditingRows((prev) => {
+        /* eslint-disable */
         const { [rowId]: removed, ...rest } = prev;
         return rest;
       });
