@@ -36,8 +36,24 @@ function DropdownMenuContent({
   sideOffset = 4,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+  const [fullscreenContainer, setFullscreenContainer] =
+    React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    const updateContainer = () => {
+      setFullscreenContainer(document.fullscreenElement as HTMLElement | null);
+    };
+
+    document.addEventListener("fullscreenchange", updateContainer);
+    updateContainer(); // initial check
+
+    return () => {
+      document.removeEventListener("fullscreenchange", updateContainer);
+    };
+  }, []);
+
   return (
-    <DropdownMenuPrimitive.Portal>
+    <DropdownMenuPrimitive.Portal container={fullscreenContainer || undefined}>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
