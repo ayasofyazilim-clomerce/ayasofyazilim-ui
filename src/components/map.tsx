@@ -36,7 +36,7 @@ import type {
 } from "leaflet";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet.fullscreen/dist/Control.FullScreen.css";
-import type {} from "leaflet.markercluster";
+import type { } from "leaflet.markercluster";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet/dist/leaflet.css";
@@ -98,6 +98,7 @@ import { ButtonGroup } from "./button-group";
 import {
   PlaceAutocompleteProps,
   PlaceAutocomplete,
+  PlaceAutocompleteTranslations,
 } from "./place-autocomplete";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -275,7 +276,7 @@ function MapTileLayer({
     resolvedTheme === "dark" && darkAttribution
       ? darkAttribution
       : attribution ??
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>';
+      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
   useEffect(() => {
     if (context) {
@@ -396,7 +397,7 @@ function MapLayers({
     if (tileLayers.length > 0 && !selectedTileLayer) {
       const validDefaultValue =
         defaultTileLayer &&
-        tileLayers.some((layer) => layer.name === defaultTileLayer)
+          tileLayers.some((layer) => layer.name === defaultTileLayer)
           ? defaultTileLayer
           : tileLayers[0]?.name || "";
       setSelectedTileLayer(validDefaultValue);
@@ -593,12 +594,12 @@ function MapMarkerClusterGroup({
 
   const iconCreateFunction = icon
     ? (cluster: MarkerCluster) => {
-        const markerCount = cluster.getChildCount();
-        const iconNode = icon(markerCount);
-        return L.divIcon({
-          html: renderToString(iconNode),
-        });
-      }
+      const markerCount = cluster.getChildCount();
+      const iconNode = icon(markerCount);
+      return L.divIcon({
+        html: renderToString(iconNode),
+      });
+    }
     : undefined;
 
   return (
@@ -1120,9 +1121,9 @@ function MapDrawPolyline({
         new L.Draw.Polyline(map, {
           ...(mapDrawHandleIcon
             ? {
-                icon: mapDrawHandleIcon,
-                touchIcon: mapDrawHandleIcon,
-              }
+              icon: mapDrawHandleIcon,
+              touchIcon: mapDrawHandleIcon,
+            }
             : {}),
           showLength,
           drawError,
@@ -1206,9 +1207,9 @@ function MapDrawPolygon({
         new L.Draw.Polygon(map, {
           ...(mapDrawHandleIcon
             ? {
-                icon: mapDrawHandleIcon,
-                touchIcon: mapDrawHandleIcon,
-              }
+              icon: mapDrawHandleIcon,
+              touchIcon: mapDrawHandleIcon,
+            }
             : {}),
           drawError,
           shapeOptions,
@@ -1494,7 +1495,7 @@ function useDebounceLoadingState(delay = 200) {
 
   return [showLoading, setIsLoading] as const;
 }
-function MapSearchControlWrapper() {
+function MapSearchControlWrapper({ translations }: { translations?: PlaceAutocompleteTranslations }) {
   const map = useMap();
   const [selectedPosition, setSelectedPosition] =
     React.useState<LatLngExpression | null>(null);
@@ -1505,6 +1506,7 @@ function MapSearchControlWrapper() {
   return (
     <>
       <MapSearchControl
+        translations={translations}
         onPlaceSelect={(feature) =>
           setSelectedPosition(
             feature.geometry.coordinates.reverse() as LatLngExpression
