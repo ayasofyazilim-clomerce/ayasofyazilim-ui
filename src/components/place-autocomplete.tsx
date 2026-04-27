@@ -32,12 +32,13 @@ export interface PlaceAutocompleteTranslations {
 }
 
 /** Default English translations */
-export const DEFAULT_PLACE_AUTOCOMPLETE_TRANSLATIONS: PlaceAutocompleteTranslations = {
-  "PlaceAutocomplete.placeholder": "Search for a place...",
-  "PlaceAutocomplete.searchFailed{0}": "Search failed: {0}",
-  "PlaceAutocomplete.noResults{0}": "No results found for \"{0}\"",
-  "PlaceAutocomplete.unknownPlace": "Unknown location",
-};
+export const DEFAULT_PLACE_AUTOCOMPLETE_TRANSLATIONS: PlaceAutocompleteTranslations =
+  {
+    "PlaceAutocomplete.placeholder": "Search for a place...",
+    "PlaceAutocomplete.searchFailed{0}": "Search failed: {0}",
+    "PlaceAutocomplete.noResults{0}": 'No results found for "{0}"',
+    "PlaceAutocomplete.unknownPlace": "Unknown location",
+  };
 
 interface PlaceFeatureProperties {
   osm_id: number;
@@ -75,7 +76,7 @@ interface PlaceSearchOptions {
 
 interface PlaceAutocompleteProps
   extends Omit<PlaceSearchOptions, "query">,
-  Omit<React.ComponentProps<"input">, "value" | "onChange" | "placeholder"> {
+    Omit<React.ComponentProps<"input">, "value" | "onChange" | "placeholder"> {
   /** Required translations object. Use DEFAULT_PLACE_AUTOCOMPLETE_TRANSLATIONS for English. */
   translations?: PlaceAutocompleteTranslations;
   debounceMs?: number;
@@ -108,7 +109,8 @@ function formatAddress(properties: PlaceFeatureProperties) {
   }
   if (properties.city) parts.push(properties.city);
   else if (properties.locality) parts.push(properties.locality);
-  if (properties.state && properties.state !== properties.city) parts.push(properties.state);
+  if (properties.state && properties.state !== properties.city)
+    parts.push(properties.state);
   if (properties.country) parts.push(properties.country);
   return [...new Set(parts)].join(", ");
 }
@@ -190,10 +192,19 @@ function PlaceAutocomplete({
 
       try {
         const url = buildSearchUrl({
-          query, lang, limit, bbox, lat, lon, zoom, locationBiasScale,
+          query,
+          lang,
+          limit,
+          bbox,
+          lat,
+          lon,
+          zoom,
+          locationBiasScale,
         });
 
-        const response = await fetch(url, { signal: abortControllerRef.current.signal });
+        const response = await fetch(url, {
+          signal: abortControllerRef.current.signal,
+        });
         if (!response.ok) throw new Error(`${response.status}`);
 
         const data: PlaceFeatureCollection = await response.json();
@@ -245,14 +256,26 @@ function PlaceAutocomplete({
     };
   }, []);
 
-  const hasNoResults = hasSearched && !isLoading && !error && results.length === 0;
+  const hasNoResults =
+    hasSearched && !isLoading && !error && results.length === 0;
   const showCommandList = error || hasNoResults || results.length > 0;
 
   return (
-    <Command className={cn("h-fit overflow-visible", className)} shouldFilter={false} loop>
+    <Command
+      className={cn("h-fit overflow-visible", className)}
+      shouldFilter={false}
+      loop
+    >
       <div className="relative">
-        <InputGroup className={cn("border-input! bg-popover! ring-0!", showCommandList && "rounded-b-none")}>
-          <InputGroupAddon><SearchIcon /></InputGroupAddon>
+        <InputGroup
+          className={cn(
+            "border-input! bg-popover! ring-0!",
+            showCommandList && "rounded-b-none"
+          )}
+        >
+          <InputGroupAddon>
+            <SearchIcon />
+          </InputGroupAddon>
           <InputGroupInput
             placeholder={translations["PlaceAutocomplete.placeholder"]}
             value={displayValue}
@@ -270,19 +293,28 @@ function PlaceAutocomplete({
           <CommandList className="bg-popover border-input absolute top-full right-0 left-0 z-50 rounded-b-md border border-t-0 shadow-md">
             {error && (
               <CommandEmpty>
-                {t(translations["PlaceAutocomplete.searchFailed{0}"], error.message)}
+                {t(
+                  translations["PlaceAutocomplete.searchFailed{0}"],
+                  error.message
+                )}
               </CommandEmpty>
             )}
             {hasNoResults && (
               <CommandEmpty>
-                {t(translations["PlaceAutocomplete.noResults{0}"], displayValue)}
+                {t(
+                  translations["PlaceAutocomplete.noResults{0}"],
+                  displayValue
+                )}
               </CommandEmpty>
             )}
             {results.length > 0 && (
               <CommandGroup>
                 {results.map((feature) => {
                   const formattedAddress = formatAddress(feature.properties);
-                  const name = feature.properties.name || feature.properties.street || translations["PlaceAutocomplete.unknownPlace"];
+                  const name =
+                    feature.properties.name ||
+                    feature.properties.street ||
+                    translations["PlaceAutocomplete.unknownPlace"];
 
                   return (
                     <CommandItem
@@ -295,7 +327,8 @@ function PlaceAutocomplete({
                         skipNextSearchRef.current = true;
 
                         // 2. Clear any pending debounce timers or active fetches
-                        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                        if (timeoutRef.current)
+                          clearTimeout(timeoutRef.current);
                         abortControllerRef.current?.abort();
 
                         // 3. Update values
@@ -312,7 +345,9 @@ function PlaceAutocomplete({
                       <MapPinIcon className="mr-2 h-4 w-4" />
                       <div className="flex flex-col items-start text-start">
                         <span className="font-medium">{name}</span>
-                        <span className="text-muted-foreground text-xs">{formattedAddress}</span>
+                        <span className="text-muted-foreground text-xs">
+                          {formattedAddress}
+                        </span>
                       </div>
                     </CommandItem>
                   );
