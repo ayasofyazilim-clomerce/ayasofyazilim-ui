@@ -135,7 +135,7 @@ export function Toolbar<TData>({
     const hasColumnFiltersChanged =
       state.columnFilters.length !== initial.columnFilters.length ||
       JSON.stringify(state.columnFilters) !==
-      JSON.stringify(initial.columnFilters);
+        JSON.stringify(initial.columnFilters);
 
     const hasSortingChanged =
       state.sorting.length !== initial.sorting.length ||
