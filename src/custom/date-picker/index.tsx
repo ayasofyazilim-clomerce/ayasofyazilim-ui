@@ -83,6 +83,7 @@ export function DatePicker({
       aria-label="x"
       className="space-y-2"
       isDisabled={disabled}
+      shouldForceLeadingZeros
       value={dateValue}
       onChange={(date) => {
         if (date) {
@@ -104,7 +105,7 @@ export function DatePicker({
         >
           <DateInput
             unstyled
-            className="peer-focus:ring"
+            className="peer-focus:ring text-sm"
             data-testid={`${id}_calendar_input_1`}
           />
           {useTime && (
@@ -113,7 +114,8 @@ export function DatePicker({
               <TimeField
                 aria-label="Time"
                 value={timeValue}
-                className="h-max *:m-0"
+                shouldForceLeadingZeros
+                className="h-max *:m-0 text-nowrap"
                 onChange={(time) => {
                   if (time) {
                     setTimeValue(time);
@@ -122,7 +124,7 @@ export function DatePicker({
               >
                 <DateInput
                   unstyled
-                  className="peer-focus:ring"
+                  className="peer-focus:ring *:m-0 *:p-0 text-sm"
                   data-testid={`${id}_calendar_input_2`}
                 />
               </TimeField>
@@ -210,6 +212,7 @@ export function DateRangePicker({
       startName="start"
       endName="end"
       className="space-y-2"
+      shouldForceLeadingZeros
       isDisabled={disabled}
       value={
         dateValue.start &&
