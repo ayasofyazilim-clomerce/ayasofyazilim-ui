@@ -330,6 +330,7 @@ export interface MasterDataGridConfig<TData = unknown> {
   schema: JSONSchema | GenericObjectType;
   columns?: ColumnConfig<TData>[];
 
+  locale?: string;
   t?: MasterDataGridResources;
 
   serverFilters?: ServerFilterConfig[];

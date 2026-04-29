@@ -242,6 +242,7 @@ export function SchemaForm<T = unknown>(props: SchemaFormProps<T>) {
           : undefined
       }
       formContext={{
+        ...restProps.formContext,
         useTableForArrayFields,
       }}
       formData={formData}

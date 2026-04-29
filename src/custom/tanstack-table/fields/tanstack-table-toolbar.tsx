@@ -103,6 +103,7 @@ export const TanstackTableToolbar = <TData,>({
                   : undefined
               }
               dateItem={dateItem}
+              locale={filters?.locale}
               params={params}
               onFilter={(accessorKey, selectedValues) =>
                 onFilter(accessorKey, selectedValues)

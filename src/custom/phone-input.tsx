@@ -85,7 +85,7 @@ const _PhoneInput = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <Input
     data-testid={`${props.id}_input`}
-    data-slot="phone-input"
+    data-slot="input-group-control"
     className={cn(
       "-ms-px rounded-s-none rounded-l-none! shadow-none focus-visible:z-10",
       className

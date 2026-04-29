@@ -20,6 +20,7 @@ interface TanstackTableDateFilterProps<TData, TValue> {
   accessorKey: string;
   column?: Column<TData, TValue>;
   dateItem: TanstackTableDateFilterType;
+  locale?: string;
   onFilter: (accessorKey: string, selectedValues: string) => void;
   onFilterMultiple: (
     filter: {
@@ -37,6 +38,7 @@ export function TanstackTableDateFilter<TData, TValue>({
   onFilter,
   onFilterMultiple,
   dateItem,
+  locale,
 }: TanstackTableDateFilterProps<TData, TValue>) {
   const title = column?.columnDef?.meta?.toString() || accessorKey;
 
@@ -151,6 +153,7 @@ export function TanstackTableDateFilter<TData, TValue>({
             classNames={{
               dateInput: "border-0 border-b rounded-none",
             }}
+            locale={locale}
             onChange={(_date) => {
               setDate(_date);
             }}
@@ -159,6 +162,7 @@ export function TanstackTableDateFilter<TData, TValue>({
         ) : (
           <DatePicker
             id={dateItem.endAccessorKey || ""}
+            locale={locale}
             onChange={(_date) => {
               setDate(_date);
             }}

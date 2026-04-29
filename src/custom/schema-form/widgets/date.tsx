@@ -2,7 +2,8 @@ import { DatePicker } from "@repo/ayasofyazilim-ui/custom/date-picker";
 import { WidgetProps } from "@rjsf/utils";
 
 export const DateWidget = (props: WidgetProps) => {
-  const { value, onChange, disabled } = props;
+  const { value, onChange, disabled, registry } = props;
+  const locale = registry.formContext?.locale;
 
   const initialDate =
     value && !Number.isNaN(new Date(value).getTime())
@@ -11,6 +12,7 @@ export const DateWidget = (props: WidgetProps) => {
   return (
     <DatePicker
       id={props.id}
+      locale={locale}
       defaultValue={initialDate}
       disabled={disabled}
       classNames={{
@@ -30,7 +32,8 @@ export const DateWidget = (props: WidgetProps) => {
 };
 
 export const DateTimeWidget = (props: WidgetProps) => {
-  const { value, onChange, disabled } = props;
+  const { value, onChange, disabled, registry } = props;
+  const locale = registry.formContext?.locale;
 
   const initialDate =
     value && !Number.isNaN(new Date(value).getTime())
@@ -39,6 +42,7 @@ export const DateTimeWidget = (props: WidgetProps) => {
   return (
     <DatePicker
       id={props.id}
+      locale={locale}
       defaultValue={initialDate}
       useTime
       disabled={disabled}
