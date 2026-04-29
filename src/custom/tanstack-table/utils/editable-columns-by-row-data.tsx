@@ -30,6 +30,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
     excludeColumns,
     languageData,
     editableColumns,
+    locale,
     config,
     faceted,
     links,
@@ -66,6 +67,7 @@ export function tanstackTableEditableColumnsByRowData<T>(
               table={table}
               rows={rows}
               editableColumns={editableColumns}
+              locale={locale}
               links={links}
               faceted={faceted}
               badges={badges}
@@ -93,6 +95,7 @@ function Cell<T>({
   table,
   rows,
   editableColumns,
+  locale,
   links,
   faceted,
   badges,
@@ -229,6 +232,7 @@ function Cell<T>({
       <div className="text-center">
         <DatePicker
           id={`${accessorKey}_date`}
+          locale={locale}
           defaultValue={
             date instanceof Date && !Number.isNaN(date.getTime())
               ? date

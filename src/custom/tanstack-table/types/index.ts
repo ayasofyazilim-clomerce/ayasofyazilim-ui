@@ -130,6 +130,7 @@ export type TanstackTableDateFilterType = {
 };
 
 export type TanstackTableFiltersType = {
+  locale?: string;
   dateFilters?: TanstackTableDateFilterType[];
   facetedFilters?: Record<
     string,
@@ -319,6 +320,7 @@ export type TanstackTableCreateColumnsByRowId<T> = {
 export type TanstacktableEditableColumnsByRowId<T> = {
   excludeColumns?: Partial<keyof T>[];
   editableColumns?: Partial<keyof T>[];
+  locale?: string;
   languageData?: TanstackTableLanguageDataType;
   rows: Record<
     string,

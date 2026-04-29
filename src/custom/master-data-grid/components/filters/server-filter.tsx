@@ -44,6 +44,7 @@ type FilterValue =
 export function ServerFilterContent<TData>({
   config,
 }: BaseMultiFilterDialogProps<TData>) {
+  const { locale } = config;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -217,6 +218,7 @@ export function ServerFilterContent<TData>({
                   <div className="relative">
                     <DatePicker
                       id={filter.key}
+                      locale={locale}
                       defaultValue={dateVal ? new Date(dateVal) : undefined}
                       onChange={(date) =>
                         onValueChange(
@@ -250,6 +252,7 @@ export function ServerFilterContent<TData>({
                   <div className="relative">
                     <DateRangePicker
                       id={filter.key}
+                      locale={locale}
                       defaultValues={{
                         start: rangeVal?.from
                           ? new Date(rangeVal.from)

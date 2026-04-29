@@ -8,6 +8,7 @@ import {
   DateRangePicker as DefaultDateRangePicker,
   // Dialog,
   Group,
+  I18nProvider,
   Label,
   // Popover,
 } from "react-aria-components";
@@ -35,6 +36,7 @@ export function DatePicker({
   disabled = false,
   useTime = false,
   showIcon = true,
+  locale = "en-US",
 }: {
   id: string;
   label?: string;
@@ -46,6 +48,7 @@ export function DatePicker({
   useTime?: boolean;
   defaultValue?: Date;
   onChange?: (date: Date) => void;
+  locale?: string;
 }) {
   const [dateValue, setDateValue] = useState(
     createDate({ date: defaultValue, offset })
@@ -79,84 +82,86 @@ export function DatePicker({
 
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <DefaultDatePicker
-      aria-label="x"
-      className="space-y-2"
-      isDisabled={disabled}
-      shouldForceLeadingZeros
-      value={dateValue}
-      onChange={(date) => {
-        if (date) {
-          setDateValue(date);
-        }
-      }}
-    >
-      {label && (
-        <Label className="text-sm font-medium text-foreground">{label}</Label>
-      )}
+    <I18nProvider locale={locale}>
+      <DefaultDatePicker
+        aria-label="x"
+        className="space-y-2"
+        isDisabled={disabled}
+        shouldForceLeadingZeros
+        value={dateValue}
+        onChange={(date) => {
+          if (date) {
+            setDateValue(date);
+          }
+        }}
+      >
+        {label && (
+          <Label className="text-sm font-medium text-foreground">{label}</Label>
+        )}
 
-      <div className="flex">
-        <Group
-          className={cn(
-            "w-full flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer bg-transparent dark:bg-input/30",
-            showIcon ? "pr-9" : "pr-3",
-            classNames?.dateInput
-          )}
-        >
-          <DateInput
-            unstyled
-            className="peer-focus:ring text-sm"
-            data-testid={`${id}_calendar_input_1`}
-          />
-          {useTime && (
-            <>
-              <Separator orientation="vertical" />
-              <TimeField
-                aria-label="Time"
-                value={timeValue}
-                shouldForceLeadingZeros
-                className="h-max *:m-0 text-nowrap"
-                onChange={(time) => {
-                  if (time) {
-                    setTimeValue(time);
-                  }
-                }}
-              >
-                <DateInput
-                  unstyled
-                  className="peer-focus:ring *:m-0 *:p-0 text-sm"
-                  data-testid={`${id}_calendar_input_2`}
-                />
-              </TimeField>
-            </>
-          )}
-        </Group>
-        <Popover
-          open={isOpen}
-          onOpenChange={setIsOpen}
-          // placement="bottom end"
-        >
-          <PopoverTrigger asChild>
-            {showIcon && (
-              <Button
-                data-testid={`${id}_calendar_icon`}
-                className="z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus-visible:outline-none data-focus-visible:outline-2 data-focus-visible:outline-ring/70 border-none"
-              >
-                <CalendarIcon size={16} strokeWidth={2} />
-              </Button>
+        <div className="flex">
+          <Group
+            className={cn(
+              "w-full flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer bg-transparent dark:bg-input/30",
+              showIcon ? "pr-9" : "pr-3",
+              classNames?.dateInput
             )}
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="z-50 min-w-fit max-w-fit rounded-lg border border-border bg-background text-popover-foreground shadow-lg shadow-black/5 outline-none data-entering:animate-in data-exiting:animate-out data-entering:fade-in-0 data-exiting:fade-out-0 data-entering:zoom-in-95 data-exiting:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2"
           >
-            {/* <Dialog className="max-h-[inherit] overflow-auto p-2"> */}
-            <Calendar onChange={() => setIsOpen(false)} />
-            {/* </Dialog> */}
-          </PopoverContent>
-        </Popover>
-      </div>
-    </DefaultDatePicker>
+            <DateInput
+              unstyled
+              className="peer-focus:ring text-sm"
+              data-testid={`${id}_calendar_input_1`}
+            />
+            {useTime && (
+              <>
+                <Separator orientation="vertical" />
+                <TimeField
+                  aria-label="Time"
+                  value={timeValue}
+                  shouldForceLeadingZeros
+                  className="h-max *:m-0 text-nowrap"
+                  onChange={(time) => {
+                    if (time) {
+                      setTimeValue(time);
+                    }
+                  }}
+                >
+                  <DateInput
+                    unstyled
+                    className="peer-focus:ring *:m-0 *:p-0 text-sm"
+                    data-testid={`${id}_calendar_input_2`}
+                  />
+                </TimeField>
+              </>
+            )}
+          </Group>
+          <Popover
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            // placement="bottom end"
+          >
+            <PopoverTrigger asChild>
+              {showIcon && (
+                <Button
+                  data-testid={`${id}_calendar_icon`}
+                  className="z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus-visible:outline-none data-focus-visible:outline-2 data-focus-visible:outline-ring/70 border-none"
+                >
+                  <CalendarIcon size={16} strokeWidth={2} />
+                </Button>
+              )}
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="z-50 min-w-fit max-w-fit rounded-lg border border-border bg-background text-popover-foreground shadow-lg shadow-black/5 outline-none data-entering:animate-in data-exiting:animate-out data-entering:fade-in-0 data-exiting:fade-out-0 data-entering:zoom-in-95 data-exiting:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2"
+            >
+              {/* <Dialog className="max-h-[inherit] overflow-auto p-2"> */}
+              <Calendar onChange={() => setIsOpen(false)} />
+              {/* </Dialog> */}
+            </PopoverContent>
+          </Popover>
+        </div>
+      </DefaultDatePicker>
+    </I18nProvider>
   );
 }
 
@@ -168,6 +173,7 @@ export function DateRangePicker({
   defaultValues,
   disabled = false,
   showIcon = true,
+  locale = "en-US",
 }: {
   id: string;
   label?: string;
@@ -178,6 +184,7 @@ export function DateRangePicker({
   showIcon?: boolean;
   defaultValues?: DateRange;
   onChange?: (date: DateRange) => void;
+  locale?: string;
 }) {
   const [dateValue, setDateValue] = useState({
     start: createDate({ date: defaultValues?.start, offset }),
@@ -207,72 +214,74 @@ export function DateRangePicker({
     }
   }, [dateValue, onChange]);
   return (
-    <DefaultDateRangePicker
-      aria-label="x"
-      startName="start"
-      endName="end"
-      className="space-y-2"
-      shouldForceLeadingZeros
-      isDisabled={disabled}
-      value={
-        dateValue.start &&
-        dateValue.end && {
-          start: dateValue.start,
-          end: dateValue.end,
+    <I18nProvider locale={locale}>
+      <DefaultDateRangePicker
+        aria-label="x"
+        startName="start"
+        endName="end"
+        className="space-y-2"
+        shouldForceLeadingZeros
+        isDisabled={disabled}
+        value={
+          dateValue.start &&
+          dateValue.end && {
+            start: dateValue.start,
+            end: dateValue.end,
+          }
         }
-      }
-      onChange={(date) => {
-        if (date) {
-          setDateValue(date);
-        }
-      }}
-    >
-      {label && (
-        <Label className="text-sm font-medium text-foreground">{label}</Label>
-      )}
-      <div className="flex">
-        <Group
-          className={cn(
-            "w-full min-w-fit flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer",
-            showIcon ? "pr-9" : "pr-3",
-            classNames?.dateInput
-          )}
-        >
-          <DateInput
-            unstyled
-            className="peer-focus:ring"
-            slot="start"
-            data-testid={`${id}_calendar_input_2`}
-          />
-          <Separator orientation="vertical" />
-          <DateInput
-            unstyled
-            className="peer-focus:ring"
-            slot="end"
-            data-testid={`${id}_calendar_input_2`}
-          />
-        </Group>
-        <Popover>
-          <PopoverTrigger asChild>
-            {showIcon && (
-              <Button
-                data-testid={`${id}_calendar_icon`}
-                className="z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus-visible:outline-none data-focus-visible:outline-2 data-focus-visible:outline-ring/70 border-none"
-              >
-                <CalendarIcon size={16} strokeWidth={2} />
-              </Button>
+        onChange={(date) => {
+          if (date) {
+            setDateValue(date);
+          }
+        }}
+      >
+        {label && (
+          <Label className="text-sm font-medium text-foreground">{label}</Label>
+        )}
+        <div className="flex">
+          <Group
+            className={cn(
+              "w-full min-w-fit flex border rounded-md h-9 pl-3 py-2 items-center gap-2 peer",
+              showIcon ? "pr-9" : "pr-3",
+              classNames?.dateInput
             )}
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="z-50 rounded-lg border border-border bg-background text-popover-foreground shadow-lg shadow-black/5 outline-none data-entering:animate-in data-exiting:animate-out data-entering:fade-in-0 data-exiting:fade-out-0 data-entering:zoom-in-95 data-exiting:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2"
           >
-            {/* <Dialog className="max-h-[inherit] overflow-auto p-2"> */}
-            <RangeCalendar />
-            {/* </Dialog> */}
-          </PopoverContent>
-        </Popover>
-      </div>
-    </DefaultDateRangePicker>
+            <DateInput
+              unstyled
+              className="peer-focus:ring"
+              slot="start"
+              data-testid={`${id}_calendar_input_2`}
+            />
+            <Separator orientation="vertical" />
+            <DateInput
+              unstyled
+              className="peer-focus:ring"
+              slot="end"
+              data-testid={`${id}_calendar_input_2`}
+            />
+          </Group>
+          <Popover>
+            <PopoverTrigger asChild>
+              {showIcon && (
+                <Button
+                  data-testid={`${id}_calendar_icon`}
+                  className="z-10 -me-px -ms-9 flex w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus-visible:outline-none data-focus-visible:outline-2 data-focus-visible:outline-ring/70 border-none"
+                >
+                  <CalendarIcon size={16} strokeWidth={2} />
+                </Button>
+              )}
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="z-50 rounded-lg border border-border bg-background text-popover-foreground shadow-lg shadow-black/5 outline-none data-entering:animate-in data-exiting:animate-out data-entering:fade-in-0 data-exiting:fade-out-0 data-entering:zoom-in-95 data-exiting:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2"
+            >
+              {/* <Dialog className="max-h-[inherit] overflow-auto p-2"> */}
+              <RangeCalendar />
+              {/* </Dialog> */}
+            </PopoverContent>
+          </Popover>
+        </div>
+      </DefaultDateRangePicker>
+    </I18nProvider>
   );
 }
