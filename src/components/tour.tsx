@@ -325,7 +325,7 @@ function TourOverlay({
                                 <CardHeader>
                                     <CardTitle>{step.title}</CardTitle>
                                     <CardDescription>
-                                        Step {currentStepIndex + 1} of {totalSteps}
+                                        {currentStepIndex + 1}/{totalSteps}
                                     </CardDescription>
                                     <CardAction>
                                         <Button
