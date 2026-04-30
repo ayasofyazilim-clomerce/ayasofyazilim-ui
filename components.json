@@ -18,6 +18,7 @@
     "hooks": "@repo/ayasofyazilim-ui/hooks"
   },
   "registries": {
-    "@shadcn-map": "http://shadcn-map.vercel.app/r/{name}.json"
+    "@shadcn-map": "http://shadcn-map.vercel.app/r/{name}.json",
+    "@tour": "https://onboarding-tour.vercel.app/r/{name}.json"
   }
 }
