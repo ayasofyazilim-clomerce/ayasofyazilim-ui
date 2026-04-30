@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, InfoIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   Button,
@@ -12,6 +12,11 @@ import {
   Label,
   // Popover,
 } from "react-aria-components";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@repo/ayasofyazilim-ui/components/tooltip";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
 import { Calendar, RangeCalendar } from "./calendar-rac";
@@ -26,7 +31,10 @@ import {
 
 // const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; DO NOT DELETE
 const offset = new Date().getTimezoneOffset() * 60 * 1000;
-
+const defaultTranslations = {
+  "DatePicker.from": "From",
+  "DatePicker.to": "To",
+};
 export function DatePicker({
   id,
   label,
@@ -37,6 +45,9 @@ export function DatePicker({
   useTime = false,
   showIcon = true,
   locale = "en-US",
+  minDate,
+  maxDate,
+  translations = defaultTranslations,
 }: {
   id: string;
   label?: string;
@@ -49,6 +60,12 @@ export function DatePicker({
   defaultValue?: Date;
   onChange?: (date: Date) => void;
   locale?: string;
+  minDate?: Date;
+  maxDate?: Date;
+  translations?: {
+    "DatePicker.from": string;
+    "DatePicker.to": string;
+  };
 }) {
   const [dateValue, setDateValue] = useState(
     createDate({ date: defaultValue, offset })
@@ -85,6 +102,8 @@ export function DatePicker({
     <I18nProvider locale={locale}>
       <DefaultDatePicker
         aria-label="x"
+        minValue={createDate({ date: minDate, offset })}
+        maxValue={createDate({ date: maxDate, offset })}
         className="space-y-2"
         isDisabled={disabled}
         shouldForceLeadingZeros
@@ -107,6 +126,23 @@ export function DatePicker({
               classNames?.dateInput
             )}
           >
+            {(minDate || maxDate) && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <InfoIcon
+                    size={14}
+                    className="shrink-0 cursor-help text-muted-foreground"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {minDate && maxDate
+                    ? `${minDate.toLocaleDateString(locale, { dateStyle: "medium" })} – ${maxDate.toLocaleDateString(locale, { dateStyle: "medium" })}`
+                    : minDate
+                      ? `${translations["DatePicker.from"]} ${minDate.toLocaleDateString(locale, { dateStyle: "medium" })}`
+                      : `${translations["DatePicker.to"]} ${maxDate!.toLocaleDateString(locale, { dateStyle: "medium" })}`}
+                </TooltipContent>
+              </Tooltip>
+            )}
             <DateInput
               unstyled
               className="peer-focus:ring text-sm"
