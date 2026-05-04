@@ -602,13 +602,18 @@ describe("DrawPad", () => {
           screen.getByTestId("draw-pad-pen-color-popover")
         ).toBeInTheDocument()
       );
-      ["000000", "2563eb", "dc2626", "16a34a", "7c3aed", "ea580c"].forEach(
-        (c) => {
-          expect(
-            screen.getByTestId(`draw-pad-color-preset-${c}`)
-          ).toBeInTheDocument();
-        }
-      );
+      [
+        "#000000",
+        "#ffffff",
+        "#2563eb",
+        "#dc2626",
+        "#16a34a",
+        "#7c3aed",
+      ].forEach((c) => {
+        expect(
+          screen.getByTestId(`draw-pad-color-preset-${c}`)
+        ).toBeInTheDocument();
+      });
     });
 
     it("shows custom color input", async () => {
@@ -626,10 +631,10 @@ describe("DrawPad", () => {
       await user.click(screen.getByTestId("draw-pad-pen-color"));
       await waitFor(() =>
         expect(
-          screen.getByTestId("draw-pad-color-preset-2563eb")
+          screen.getByTestId("draw-pad-color-preset-#2563eb")
         ).toBeInTheDocument()
       );
-      await user.click(screen.getByTestId("draw-pad-color-preset-2563eb"));
+      await user.click(screen.getByTestId("draw-pad-color-preset-#2563eb"));
       expect((fakePad as any).penColor).toBe("#2563eb");
     });
 
@@ -639,12 +644,12 @@ describe("DrawPad", () => {
       await user.click(screen.getByTestId("draw-pad-pen-color"));
       await waitFor(() =>
         expect(
-          screen.getByTestId("draw-pad-color-preset-dc2626")
+          screen.getByTestId("draw-pad-color-preset-#ffffff")
         ).toBeInTheDocument()
       );
-      await user.click(screen.getByTestId("draw-pad-color-preset-dc2626"));
+      await user.click(screen.getByTestId("draw-pad-color-preset-#ffffff"));
       expect(screen.getByTestId("draw-pad-color-custom")).toHaveValue(
-        "#dc2626"
+        "#ffffff"
       );
     });
 
