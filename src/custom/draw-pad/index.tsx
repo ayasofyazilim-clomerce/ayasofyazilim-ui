@@ -1,6 +1,21 @@
 "use client";
 
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
+import {
+  Download,
+  Eraser,
+  Maximize2,
+  Minimize2,
+  Palette,
+  Pen,
+} from "lucide-react";
+import React, {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import SignaturePad from "react-signature-pad-wrapper";
 import { Button } from "../../components/button";
 import {
   Dialog,
@@ -24,23 +39,6 @@ import {
   PopoverTrigger,
 } from "../../components/popover";
 import { cn } from "../../lib/utils";
-import {
-  Download,
-  Eraser,
-  Maximize2,
-  Minimize2,
-  Palette,
-  Pen,
-} from "lucide-react";
-import {
-  forwardRef,
-  useCallback,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react"; // Removed useEffect from here
-import SignaturePad from "react-signature-pad-wrapper";
-import React from "react";
 
 type SignaturePadOptions = NonNullable<
   React.ComponentProps<typeof SignaturePad>["options"]
@@ -501,7 +499,7 @@ export const DrawPad = forwardRef<DrawPadHandle, DrawPadProps>(function DrawPad(
                       {PRESET_COLORS.map((c) => (
                         <button
                           key={c}
-                          data-testid={`draw-pad-color-preset-${c.slice(1)}`}
+                          data-testid={`draw-pad-color-preset-${c}`}
                           type="button"
                           className={cn(
                             "h-6 w-6 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
