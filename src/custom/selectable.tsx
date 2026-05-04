@@ -130,15 +130,14 @@ export function Selectable<T>({
         setOpen(false);
         return;
       }
-      setSelectedOptions((prev) => {
-        const newSelection = isSelected
-          ? [...(prev || []), option]
-          : prev?.filter((item) => getKey(item) !== getKey(option)) || [];
-        onChange(newSelection);
-        return newSelection;
-      });
+      const newSelection = isSelected
+        ? [...(selectedOptions || []), option]
+        : selectedOptions?.filter((item) => getKey(item) !== getKey(option)) ||
+          [];
+      setSelectedOptions(newSelection);
+      onChange(newSelection);
     },
-    [singular, getKey, getDisabled, onChange]
+    [singular, selectedOptions, getKey, getDisabled, onChange]
   );
 
   const handleSearchChange = useCallback((search: string) => {
