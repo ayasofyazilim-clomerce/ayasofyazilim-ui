@@ -86,6 +86,7 @@
     "react-pdf": "^10.2.0",
     "react-phone-number-input": "^3.4.12",
     "react-resizable-panels": "^3.0.6",
+    "react-signature-pad-wrapper": "^4.3.2",
     "react-webcam": "^7.2.0",
     "recharts": "2.15.4",
     "sonner": "^2.0.7",
