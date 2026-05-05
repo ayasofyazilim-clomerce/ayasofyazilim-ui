@@ -494,7 +494,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
           </Table>
         )}
         {serverFilterLocation !== "toolbar" && (
-          <div className="border-l hidden lg:block">
+          <div className="border-l hidden lg:block w-full max-w-xs">
             <ServerFilterContent table={table} config={config} />
           </div>
         )}

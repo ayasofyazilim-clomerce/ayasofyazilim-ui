@@ -171,11 +171,7 @@ export function DatePicker({
               </>
             )}
           </Group>
-          <Popover
-            open={isOpen}
-            onOpenChange={setIsOpen}
-            // placement="bottom end"
-          >
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
               {showIcon && (
                 <Button
@@ -226,12 +222,14 @@ export function DateRangePicker({
     start: createDate({ date: defaultValues?.start, offset }),
     end: createDate({ date: defaultValues?.end, offset }),
   });
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
   useEffect(() => {
     if (!dateValue) return;
-    if (onChange) {
+    if (onChangeRef.current) {
       const { start } = dateValue;
       const { end } = dateValue;
-      onChange({
+      onChangeRef.current({
         start:
           (start &&
             start.year &&
@@ -248,7 +246,7 @@ export function DateRangePicker({
           undefined,
       });
     }
-  }, [dateValue, onChange]);
+  }, [dateValue]);
   return (
     <I18nProvider locale={locale}>
       <DefaultDateRangePicker
@@ -284,14 +282,14 @@ export function DateRangePicker({
           >
             <DateInput
               unstyled
-              className="peer-focus:ring"
+              className="peer-focus:ring text-sm"
               slot="start"
               data-testid={`${id}_calendar_input_2`}
             />
             <Separator orientation="vertical" />
             <DateInput
               unstyled
-              className="peer-focus:ring"
+              className="peer-focus:ring text-sm"
               slot="end"
               data-testid={`${id}_calendar_input_2`}
             />
