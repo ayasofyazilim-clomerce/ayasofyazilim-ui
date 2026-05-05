@@ -416,7 +416,7 @@ export function ServerFilterContent<TData>({
           })}
         </FieldGroup>
       </ScrollArea>
-      <Field orientation="horizontal">
+      <Field orientation="horizontal" className="justify-center">
         <Button
           type="button"
           variant="ghost"
