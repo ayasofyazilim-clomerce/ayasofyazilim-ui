@@ -324,9 +324,7 @@ export function AsyncComboboxWidget<T extends SearchItem>({
       }
       const current = selectedItemsRef.current;
       const alreadyResolved = ids.every((id) =>
-        current.some(
-          (item) => String(item[selectIdentifier]) === String(id)
-        )
+        current.some((item) => String(item[selectIdentifier]) === String(id))
       );
       if (alreadyResolved && current.length === ids.length) return;
       fetchAction("").then((results) => {
