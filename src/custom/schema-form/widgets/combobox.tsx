@@ -6,6 +6,7 @@ import {
   ReactNode,
   SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
@@ -306,6 +307,8 @@ export function AsyncComboboxWidget<T extends SearchItem>({
 }) {
   function Widget(props: WidgetProps) {
     const [selectedItems, setSelectedItems] = useState<T[]>([]);
+    const selectedItemsRef = useRef<T[]>(selectedItems);
+    selectedItemsRef.current = selectedItems;
 
     useEffect(() => {
       if (!props.value) {
@@ -319,12 +322,13 @@ export function AsyncComboboxWidget<T extends SearchItem>({
         setSelectedItems([]);
         return;
       }
+      const current = selectedItemsRef.current;
       const alreadyResolved = ids.every((id) =>
-        selectedItems.some(
+        current.some(
           (item) => String(item[selectIdentifier]) === String(id)
         )
       );
-      if (alreadyResolved && selectedItems.length === ids.length) return;
+      if (alreadyResolved && current.length === ids.length) return;
       fetchAction("").then((results) => {
         const matched = ids
           .map((id) =>
@@ -333,7 +337,7 @@ export function AsyncComboboxWidget<T extends SearchItem>({
           .filter(Boolean) as T[];
         setSelectedItems(matched);
       });
-    }, [props.value, selectedItems]);
+    }, [props.value]);
 
     return (
       <AsyncSelect<T>
