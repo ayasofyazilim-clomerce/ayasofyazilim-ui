@@ -111,6 +111,7 @@ export function CountrySelector({
         <Button
           role="combobox"
           variant="ghost"
+          size="icon"
           aria-expanded={open}
           className={cn(className)}
         >
