@@ -365,24 +365,24 @@ export function FileUploader(props: BaseFileUploaderProps) {
         {(label ||
           description ||
           (props.variant === "button" && props.headerChildren)) && (
-          <div className={cn("flex w-full", classNames?.header)}>
-            <div className="flex flex-col w-full text-nowrap justify-center">
-              {label && (
-                <span className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  {label}
-                </span>
-              )}
-              {description && (
-                <span className="text-muted-foreground text-sm">
-                  {description}
-                </span>
-              )}
+            <div className={cn("flex w-full", classNames?.header)}>
+              <div className="flex flex-col w-full text-nowrap justify-center">
+                {label && (
+                  <span className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    {label}
+                  </span>
+                )}
+                {description && (
+                  <span className="text-muted-foreground text-sm">
+                    {description}
+                  </span>
+                )}
+              </div>
+              {props.variant === "button" &&
+                props.headerChildren &&
+                props.headerChildren}
             </div>
-            {props.variant === "button" &&
-              props.headerChildren &&
-              props.headerChildren}
-          </div>
-        )}
+          )}
       </div>
       {props.children && props.children}
       {isMultiple ? (
@@ -397,10 +397,12 @@ export function FileUploader(props: BaseFileUploaderProps) {
             fileCardRenderer={fileCardRenderer}
             progresses={progresses}
             onRemove={onRemove}
+            disabled={isDisabled}
           />
         </CollapsibleContent>
       ) : (
         <FileListSection
+          disabled={isDisabled}
           files={files}
           showFileList={showFileList}
           variant={props.variant}
@@ -421,6 +423,7 @@ function FileListSection({
   classNames,
   fileCardRenderer,
   progresses,
+  disabled,
   onRemove,
 }: {
   files: DefaultFileWithPath[] | undefined;
@@ -429,6 +432,7 @@ function FileListSection({
   classNames?: BaseFileUploaderProps["classNames"];
   fileCardRenderer?: (props: FileCardProps) => React.ReactNode;
   progresses?: Record<string, number>;
+  disabled?: boolean;
   onRemove: (index: number) => void;
 }) {
   return (
@@ -458,12 +462,14 @@ function FileListSection({
                   fileCardRenderer({
                     file,
                     index,
+                    disabled,
                     onRemove: () => onRemove(index),
                   })
                 ) : (
                   <FileCard
                     file={file}
                     onRemove={() => onRemove(index)}
+                    disabled={disabled}
                     progress={progresses?.[file.name]}
                   />
                 )}
@@ -525,7 +531,7 @@ export function FileCard({
             variant="outline"
             size="icon"
             className={cn("size-7", classNames?.removeButton)}
-            disabled={!!progress || disabled}
+            disabled={disabled || !!progress}
             onClick={onRemove}
           >
             <X className="size-4" aria-hidden="true" />
@@ -658,14 +664,14 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
             <p className="text-muted-foreground/70 text-xs">
               {maxFileCount > 1
                 ? tReplace(
-                    t["FileUploader.YouCanUpload{0}files{1}each"],
-                    maxFileCount === Infinity ? "multiple" : maxFileCount,
-                    formatBytes(maxSize)
-                  )
+                  t["FileUploader.YouCanUpload{0}files{1}each"],
+                  maxFileCount === Infinity ? "multiple" : maxFileCount,
+                  formatBytes(maxSize)
+                )
                 : tReplace(
-                    t["FileUploader.YouCanUpload{0}files{1}each"],
-                    formatBytes(maxSize)
-                  )}
+                  t["FileUploader.YouCanUpload{0}files{1}each"],
+                  formatBytes(maxSize)
+                )}
             </p>
           </div>
         </div>
