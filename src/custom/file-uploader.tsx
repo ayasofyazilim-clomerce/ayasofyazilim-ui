@@ -365,24 +365,24 @@ export function FileUploader(props: BaseFileUploaderProps) {
         {(label ||
           description ||
           (props.variant === "button" && props.headerChildren)) && (
-            <div className={cn("flex w-full", classNames?.header)}>
-              <div className="flex flex-col w-full text-nowrap justify-center">
-                {label && (
-                  <span className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    {label}
-                  </span>
-                )}
-                {description && (
-                  <span className="text-muted-foreground text-sm">
-                    {description}
-                  </span>
-                )}
-              </div>
-              {props.variant === "button" &&
-                props.headerChildren &&
-                props.headerChildren}
+          <div className={cn("flex w-full", classNames?.header)}>
+            <div className="flex flex-col w-full text-nowrap justify-center">
+              {label && (
+                <span className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  {label}
+                </span>
+              )}
+              {description && (
+                <span className="text-muted-foreground text-sm">
+                  {description}
+                </span>
+              )}
             </div>
-          )}
+            {props.variant === "button" &&
+              props.headerChildren &&
+              props.headerChildren}
+          </div>
+        )}
       </div>
       {props.children && props.children}
       {isMultiple ? (
@@ -664,14 +664,14 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
             <p className="text-muted-foreground/70 text-xs">
               {maxFileCount > 1
                 ? tReplace(
-                  t["FileUploader.YouCanUpload{0}files{1}each"],
-                  maxFileCount === Infinity ? "multiple" : maxFileCount,
-                  formatBytes(maxSize)
-                )
+                    t["FileUploader.YouCanUpload{0}files{1}each"],
+                    maxFileCount === Infinity ? "multiple" : maxFileCount,
+                    formatBytes(maxSize)
+                  )
                 : tReplace(
-                  t["FileUploader.YouCanUpload{0}files{1}each"],
-                  formatBytes(maxSize)
-                )}
+                    t["FileUploader.YouCanUpload{0}files{1}each"],
+                    formatBytes(maxSize)
+                  )}
             </p>
           </div>
         </div>
