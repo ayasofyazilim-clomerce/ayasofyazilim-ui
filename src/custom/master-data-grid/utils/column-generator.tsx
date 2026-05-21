@@ -156,7 +156,7 @@ function createColumnFromProperty<TData = unknown>(
           onUpdate={
             isEditing
               ? (value: unknown) =>
-                editingContext?.onCellUpdate(rowId, key, value)
+                  editingContext?.onCellUpdate(rowId, key, value)
               : undefined
           }
           className={className}
@@ -279,9 +279,9 @@ export function mergeColumns<TData = unknown>(
     let header:
       | string
       | ((info: {
-        column: Column<TData>;
-        header: Header<TData, unknown>;
-      }) => React.ReactNode);
+          column: Column<TData>;
+          header: Header<TData, unknown>;
+        }) => React.ReactNode);
 
     if (custom.extendHeader !== false) {
       header = ({
