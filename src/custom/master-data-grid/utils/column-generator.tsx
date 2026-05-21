@@ -99,9 +99,9 @@ function createColumnFromProperty<TData = unknown>(
   enableColumnVisibility?: boolean,
   expanderColumns?: Array<keyof TData> | Array<string>
 ): GeneratedColumn<TData> | null {
-  if (property.type === "object") {
-    return null;
-  }
+  // if (property.type === "object") {
+  //   return null;
+  // }
 
   const filterOperators = getFilterOperators(property.type, property.format);
 
@@ -156,7 +156,7 @@ function createColumnFromProperty<TData = unknown>(
           onUpdate={
             isEditing
               ? (value: unknown) =>
-                  editingContext?.onCellUpdate(rowId, key, value)
+                editingContext?.onCellUpdate(rowId, key, value)
               : undefined
           }
           className={className}
@@ -279,9 +279,9 @@ export function mergeColumns<TData = unknown>(
     let header:
       | string
       | ((info: {
-          column: Column<TData>;
-          header: Header<TData, unknown>;
-        }) => React.ReactNode);
+        column: Column<TData>;
+        header: Header<TData, unknown>;
+      }) => React.ReactNode);
 
     if (custom.extendHeader !== false) {
       header = ({
