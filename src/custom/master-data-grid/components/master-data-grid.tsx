@@ -263,7 +263,9 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     enableColumnResizing: enableResizing,
     columnResizeMode: "onChange",
     enableHiding: enableColumnVisibility,
-    enableRowSelection: enableRowSelection,
+    enableRowSelection: configWithDefaults.selection?.rowSelectable
+      ? (row) => configWithDefaults.selection!.rowSelectable!(row.original)
+      : enableRowSelection,
     enableMultiRowSelection: configWithDefaults.selection?.mode !== "single",
     getRowId: getRowId ?? ((_, index) => String(index)),
     getRowCanExpand: configWithDefaults.expansion?.enabled
@@ -274,7 +276,10 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
 
   const selectedRows = useMemo(
     () => table.getSelectedRowModel().rows.map((row) => row.original),
-    [table]
+    // rowSelectionState must be included so this recomputes whenever selection changes.
+    // `table` is a stable reference and alone is not sufficient as a dependency.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [table, rowSelectionState]
   );
 
   const handleExport = useCallback(
