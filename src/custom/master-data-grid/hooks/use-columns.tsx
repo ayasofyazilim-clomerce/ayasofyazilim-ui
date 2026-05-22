@@ -179,6 +179,7 @@ export function useColumns<TData>({
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
+            disabled={!row.getCanSelect()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label={t?.["select_row"]}
           />
