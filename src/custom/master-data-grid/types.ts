@@ -92,13 +92,7 @@ export interface CellEditConfig<TData = unknown> {
 
 interface BaseRowAction<TData = unknown> {
   id: string;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  variant?: ButtonVariant;
   disabled?: boolean | ((row: TData) => boolean);
   hidden?: boolean | ((row: TData) => boolean);
   className?: string;
@@ -353,6 +347,12 @@ export interface MasterDataGridConfig<TData = unknown> {
   export?: ExportConfig<TData>;
 
   rowActions?: RowAction<TData>[];
+  /** Controls how row actions are displayed. Defaults to "dropdown".
+   *  - "dropdown": single ⋯ button that opens a menu
+   *  - "inline": each action as its own icon button
+   *  - "responsive": dropdown on small screens, inline on md+ screens
+   */
+  rowActionsDisplay?: "dropdown" | "inline" | "responsive";
   tableActions?: TableAction<TData>[];
 
   className?: string;

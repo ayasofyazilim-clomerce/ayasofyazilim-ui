@@ -5,15 +5,14 @@ export function getPinningHeaderStyles<TData>(
   header: Header<TData, unknown>
 ): CSSProperties {
   const pinned = header.column.getIsPinned();
-  const isActions =
-    header.column.id === "actions" || header.column.id === "select";
+  const isSelect = header.column.id === "select";
   return {
     left: pinned === "left" ? `${header.column.getStart("left")}px` : undefined,
     right:
       pinned === "right" ? `${header.column.getAfter("right")}px` : undefined,
     position: pinned ? "sticky" : "relative",
     zIndex: pinned ? 1 : 0,
-    maxWidth: isActions ? "40px" : undefined,
+    maxWidth: isSelect ? "40px" : undefined,
   };
 }
 
@@ -40,8 +39,8 @@ export function getPinningCellStyles<TData>(
   cell: Cell<TData, unknown>
 ): CSSProperties {
   const pinned = cell.column.getIsPinned();
-  const isActions = cell.column.id === "actions" || cell.column.id === "select";
-  if (isActions) {
+  const isSelect = cell.column.id === "select";
+  if (isSelect) {
     return {
       width: "40px",
       minWidth: "40px",
