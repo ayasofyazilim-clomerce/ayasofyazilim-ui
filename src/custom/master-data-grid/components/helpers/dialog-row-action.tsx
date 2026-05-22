@@ -78,10 +78,11 @@ export function DialogRowActionItem<TData>({
     <Button
       variant={action.variant || "ghost"}
       disabled={disabled}
-      className={cn("w-full justify-start", action.className)}
+      size="sm"
+      className={cn("shrink w-full justify-start", action.className)}
     >
       {Icon && <Icon className="size-3.5" />}
-      {label}
+      <span>{label}</span>
     </Button>
   );
 
