@@ -437,13 +437,24 @@ export function Toolbar<TData>({
       );
     });
 
+  const hasVisibleTableActions =
+    tableActions?.some((action) => {
+      const hidden =
+        typeof action.hidden === "function"
+          ? action.hidden(selectedRows)
+          : action.hidden;
+      if (hidden) return false;
+      if (action.requiresSelection && selectedRows.length === 0) return false;
+      return true;
+    }) ?? false;
+
   const hasAnyEnabledFeature =
     config.enableSearch ||
     config.enableFiltering ||
     config.enableColumnVisibility ||
     enableExport ||
     onRefresh ||
-    (tableActions && tableActions.length > 0);
+    hasVisibleTableActions;
 
   if (!hasAnyEnabledFeature) {
     return null;
