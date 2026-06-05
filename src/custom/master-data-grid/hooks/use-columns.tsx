@@ -37,7 +37,6 @@ import {
   generateColumnsFromSchema,
   mergeColumns,
 } from "../utils/column-generator";
-import { DialogRowActionItem } from "../components/helpers/dialog-row-action";
 
 // Maps a ButtonVariant to the DropdownMenuItem's supported variant + extra className.
 function getDropdownItemProps(variant: ButtonVariant | undefined): {
