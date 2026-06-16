@@ -93,6 +93,8 @@
     "tailwind-merge": "^3.3.1",
     "tw-animate-css": "^1.3.6",
     "vaul": "^1.1.2",
+    "@zxing/browser": "^0.2.0",
+    "@zxing/library": "^0.23.0",
     "zod": "4.1.13"
   },
   "devDependencies": {
