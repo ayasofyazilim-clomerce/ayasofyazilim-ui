@@ -182,3 +182,18 @@
     @apply appearance-none;
   }
 }
+
+/*
+ * Drives the BarcodeCameraScanner viewfinder's top-to-bottom scan line
+ * (`animate-[scan_2s_linear_infinite]`). Defined here so every app consuming
+ * the component gets the animation without duplicating it per app.
+ */
+@keyframes scan {
+  0%,
+  100% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+}

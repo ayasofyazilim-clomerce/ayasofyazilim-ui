@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 // ── W3C Barcode Detection API types (Chrome/Edge/Safari 17+) ─────────────────
 interface BarcodeDetectorResult {
   rawValue: string;
+  format: string;
 }
 interface BarcodeDetectorCtor {
   new (options?: { formats: string[] }): {
@@ -24,20 +25,44 @@ interface BarcodeDetectorCtor {
   getSupportedFormats(): Promise<string[]>;
 }
 
-const BARCODE_FORMATS_NATIVE = [
-  "aztec",
-  "code_128",
-  "code_39",
-  "code_93",
-  "data_matrix",
-  "ean_13",
-  "ean_8",
-  "itf",
-  "pdf417",
-  "qr_code",
-  "upc_a",
-  "upc_e",
-];
+/**
+ * Barcode formats the scanner can recognise. Names follow the W3C Barcode
+ * Detection API; each maps to its ZXing equivalent for the software fallback.
+ */
+export type BarcodeFormatName =
+  | "aztec"
+  | "code_128"
+  | "code_39"
+  | "code_93"
+  | "data_matrix"
+  | "ean_13"
+  | "ean_8"
+  | "itf"
+  | "pdf417"
+  | "qr_code"
+  | "upc_a"
+  | "upc_e";
+
+// Maps each public format name to its ZXing enum (used by the software
+// fallback). The keys double as the native BarcodeDetector format strings, so
+// both decode paths stay in sync from a single source of truth.
+const FORMAT_TO_ZXING: Record<BarcodeFormatName, BarcodeFormat> = {
+  aztec: BarcodeFormat.AZTEC,
+  code_128: BarcodeFormat.CODE_128,
+  code_39: BarcodeFormat.CODE_39,
+  code_93: BarcodeFormat.CODE_93,
+  data_matrix: BarcodeFormat.DATA_MATRIX,
+  ean_13: BarcodeFormat.EAN_13,
+  ean_8: BarcodeFormat.EAN_8,
+  itf: BarcodeFormat.ITF,
+  pdf417: BarcodeFormat.PDF_417,
+  qr_code: BarcodeFormat.QR_CODE,
+  upc_a: BarcodeFormat.UPC_A,
+  upc_e: BarcodeFormat.UPC_E,
+};
+
+// Every supported format — the default set when the caller doesn't restrict it.
+const ALL_BARCODE_FORMATS = Object.keys(FORMAT_TO_ZXING) as BarcodeFormatName[];
 
 // ZXing software decode is CPU-heavy — throttle to ~8 fps.
 const ZXING_SCAN_INTERVAL_MS = 50;
@@ -103,6 +128,23 @@ export interface BarcodeCameraScannerProps {
    * @default 2000
    */
   scanCooldownMs?: number;
+  /**
+   * Restrict scanning to these barcode formats. Narrowing the set speeds up
+   * decoding and avoids false positives from unrelated symbologies. When
+   * omitted or empty, every supported format is scanned (the default).
+   *
+   * Note: this is read when the camera stream opens. Changing it restarts the
+   * stream so the new format set takes effect.
+   */
+  formats?: BarcodeFormatName[];
+  /**
+   * Logs scan-lifecycle events to the console (prefixed "[BarcodeScanner]"):
+   * camera open, chosen decode path, periodic loop heartbeats, decoded values,
+   * and init errors. Use it to diagnose why scanning isn't starting. Leave off
+   * in production.
+   * @default false
+   */
+  debug?: boolean;
   labels?: BarcodeCameraLabels;
 }
 
@@ -122,12 +164,23 @@ const DEFAULT_LABELS: Required<BarcodeCameraLabels> = {
 export function BarcodeCameraScanner({
   onScan,
   scanCooldownMs = 2000,
+  formats,
+  debug = false,
   labels,
 }: BarcodeCameraScannerProps) {
   const resolvedLabels = useMemo<Required<BarcodeCameraLabels>>(
     () => ({ ...DEFAULT_LABELS, ...labels }),
     [labels]
   );
+
+  const resolvedFormats = useMemo<BarcodeFormatName[]>(
+    () => (formats && formats.length > 0 ? formats : ALL_BARCODE_FORMATS),
+    [formats]
+  );
+  // Stable primitive key: an inline `formats` array gets a new reference on
+  // every render, but its contents rarely change — keying the scan effect on
+  // the joined string avoids needlessly reopening the camera.
+  const formatsKey = resolvedFormats.join(",");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -146,6 +199,38 @@ export function BarcodeCameraScanner({
     value: "",
     time: 0,
   });
+
+  // Debug logging, gated by the `debug` prop. Read through a ref so toggling
+  // debug never restarts the camera effect.
+  const debugRef = useRef(debug);
+  debugRef.current = debug;
+  // On-screen log buffer (newest first) rendered as an overlay when `debug` is
+  // on — for devices with no visible console (e.g. iPad / mobile Safari).
+  const [debugLogs, setDebugLogs] = useState<
+    { id: number; time: string; message: string; data?: string }[]
+  >([]);
+  const logSeqRef = useRef(0);
+  const log = useCallback((message: string, data?: unknown) => {
+    if (!debugRef.current) return;
+    if (data !== undefined) {
+      console.log(`[BarcodeScanner] ${message}`, data);
+    } else {
+      console.log(`[BarcodeScanner] ${message}`);
+    }
+    let dataStr: string | undefined;
+    if (data !== undefined) {
+      try {
+        dataStr = typeof data === "string" ? data : JSON.stringify(data);
+      } catch {
+        dataStr = String(data);
+      }
+    }
+    const id = (logSeqRef.current += 1);
+    const time = new Date().toLocaleTimeString();
+    setDebugLogs((prev) =>
+      [{ id, time, message, data: dataStr }, ...prev].slice(0, 30)
+    );
+  }, []);
 
   const [cameras, setCameras] = useState<CameraInfo[]>([]);
   // Reactive mirror of activeCameraIdRef for correct select display.
@@ -183,17 +268,23 @@ export function BarcodeCameraScanner({
           value === lastScanRef.current.value &&
           now - lastScanRef.current.time < scanCooldownMs
         ) {
+          log("scan suppressed by cooldown", value);
           return;
         }
         lastScanRef.current = { value, time: now };
       }
+      log("scan reported to onScan", value);
       onScanRef.current(value);
     },
-    [scanCooldownMs]
+    [scanCooldownMs, log]
   );
 
   useEffect(() => {
     setStatus("requesting");
+    log("requesting camera access", {
+      camera: selectedCameraId ?? "(default / environment-facing)",
+      formats: resolvedFormats,
+    });
     let active = true;
     let restoreConsole: (() => void) | null = null;
     const videoEl = videoRef.current;
@@ -234,6 +325,12 @@ export function BarcodeCameraScanner({
         const activeDeviceId = trackSettings?.deviceId;
         activeCameraIdRef.current = activeDeviceId;
         setActiveStreamDeviceId(activeDeviceId);
+        log("camera stream opened", {
+          deviceId: activeDeviceId,
+          facingMode: activeFacingMode,
+          width: trackSettings?.width,
+          height: trackSettings?.height,
+        });
 
         // ── Enumerate cameras and enrich with facing info ───────────────────
         const allDevices = await navigator.mediaDevices.enumerateDevices();
@@ -250,11 +347,17 @@ export function BarcodeCameraScanner({
         }));
 
         setCameras(enriched);
+        log("cameras enumerated", { count: enriched.length });
 
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
         if (!active) return;
         setStatus("ready");
+        log("video playing — status ready", {
+          readyState: videoRef.current.readyState,
+          videoWidth: videoRef.current.videoWidth,
+          videoHeight: videoRef.current.videoHeight,
+        });
 
         // ── Barcode detection ───────────────────────────────────────────────
 
@@ -266,32 +369,48 @@ export function BarcodeCameraScanner({
 
         if (BDCtor) {
           // ── Native path (Chrome/Edge/Safari 17+) ────────────────────────
-          let formats = BARCODE_FORMATS_NATIVE;
+          log("decode path: native BarcodeDetector");
+          let nativeFormats: string[] = resolvedFormats;
+          let supportedFormats: string[] | null = null;
           try {
             const supported = await BDCtor.getSupportedFormats();
+            supportedFormats = supported;
             const supportedSet = new Set(supported);
-            const filtered = BARCODE_FORMATS_NATIVE.filter((f) =>
-              supportedSet.has(f)
-            );
-            if (filtered.length > 0) formats = filtered;
+            const filtered = resolvedFormats.filter((f) => supportedSet.has(f));
+            if (filtered.length > 0) nativeFormats = filtered;
           } catch {
-            /* use defaults */
+            /* this browser couldn't report support — try the requested set */
           }
+          log("native formats resolved", {
+            requested: resolvedFormats,
+            supported: supportedFormats,
+            using: nativeFormats,
+          });
 
-          const detector = new BDCtor({ formats });
+          const detector = new BDCtor({ formats: nativeFormats });
           // Guard: don't stack async detect() calls if one is still pending.
           let isDetecting = false;
+          // Debug-only counters powering the heartbeat log.
+          let frameCount = 0;
+          let detectCount = 0;
+          let lastHeartbeat = 0;
 
           async function scanFrameNative() {
             if (!active || !videoRef.current) return;
+            frameCount++;
             if (
               !isDetecting &&
               videoRef.current.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
             ) {
               isDetecting = true;
+              detectCount++;
               try {
                 const results = await detector.detect(videoRef.current);
                 if (results.length > 0 && results[0]) {
+                  log("native barcode detected", {
+                    format: results[0].format,
+                    value: results[0].rawValue,
+                  });
                   reportScan(results[0].rawValue);
                 }
               } catch {
@@ -300,16 +419,33 @@ export function BarcodeCameraScanner({
                 isDetecting = false;
               }
             }
+            if (debugRef.current && videoRef.current) {
+              const now = performance.now();
+              if (now - lastHeartbeat > 2000) {
+                lastHeartbeat = now;
+                log("native scanning…", {
+                  frames: frameCount,
+                  detectAttempts: detectCount,
+                  readyState: videoRef.current.readyState,
+                  videoWidth: videoRef.current.videoWidth,
+                });
+              }
+            }
             if (active)
               rafRef.current = requestAnimationFrame(
                 () => void scanFrameNative()
               );
           }
+          log("native scan loop started");
           rafRef.current = requestAnimationFrame(() => void scanFrameNative());
         } else {
           // ── ZXing software fallback ─────────────────────────────────────
+          log("decode path: ZXing fallback (BarcodeDetector unavailable)");
           const canvas = canvasRef.current;
-          if (!canvas || !videoRef.current) return;
+          if (!canvas || !videoRef.current) {
+            log("ZXing setup aborted — canvas or video element missing");
+            return;
+          }
 
           // Suppress noisy ZXing internal log lines.
           // ZXing browser library uses the "[browser]" prefix; the core
@@ -340,24 +476,15 @@ export function BarcodeCameraScanner({
           };
 
           const hints = new Map();
-          hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-            BarcodeFormat.AZTEC,
-            BarcodeFormat.CODE_128,
-            BarcodeFormat.CODE_39,
-            BarcodeFormat.CODE_93,
-            BarcodeFormat.DATA_MATRIX,
-            BarcodeFormat.EAN_13,
-            BarcodeFormat.EAN_8,
-            BarcodeFormat.ITF,
-            BarcodeFormat.PDF_417,
-            BarcodeFormat.QR_CODE,
-            BarcodeFormat.UPC_A,
-            BarcodeFormat.UPC_E,
-          ]);
+          hints.set(
+            DecodeHintType.POSSIBLE_FORMATS,
+            resolvedFormats.map((f) => FORMAT_TO_ZXING[f])
+          );
           // TRY_HARDER performs exhaustive pattern matching and is very
           // CPU-intensive — omit it to keep the main thread unblocked.
 
           const reader = new BrowserMultiFormatReader(hints);
+          log("ZXing reader created", { formats: resolvedFormats });
 
           // Cap the decode canvas to this width. ZXing reads barcodes
           // reliably at 640 px; full HD (1920 px) just wastes CPU time.
@@ -367,9 +494,14 @@ export function BarcodeCameraScanner({
           // Cache canvas dimensions so we only reset (expensive) when they change.
           let cvW = 0;
           let cvH = 0;
+          // Debug-only counters powering the heartbeat log.
+          let frameCount = 0;
+          let decodeCount = 0;
+          let lastHeartbeat = 0;
 
           function scanFrameZXing() {
             if (!active || !videoRef.current || !canvas) return;
+            frameCount++;
             const now = performance.now();
             const video = videoRef.current;
 
@@ -379,6 +511,7 @@ export function BarcodeCameraScanner({
               video.videoWidth > 0
             ) {
               lastScanAt = now;
+              decodeCount++;
               // Scale down to MAX_DECODE_WIDTH, preserving aspect ratio.
               const scale = Math.min(1, MAX_DECODE_WIDTH / video.videoWidth);
               const targetW = Math.round(video.videoWidth * scale);
@@ -395,6 +528,10 @@ export function BarcodeCameraScanner({
                 try {
                   const result = reader.decodeFromCanvas(canvas);
                   if (result) {
+                    log("ZXing barcode detected", {
+                      format: BarcodeFormat[result.getBarcodeFormat()],
+                      value: result.getText(),
+                    });
                     reportScan(result.getText());
                   }
                 } catch {
@@ -403,13 +540,28 @@ export function BarcodeCameraScanner({
               }
             }
 
+            if (debugRef.current && now - lastHeartbeat > 2000) {
+              lastHeartbeat = now;
+              log("ZXing scanning…", {
+                frames: frameCount,
+                decodeAttempts: decodeCount,
+                readyState: video.readyState,
+                videoWidth: video.videoWidth,
+              });
+            }
+
             if (active) rafRef.current = requestAnimationFrame(scanFrameZXing);
           }
+          log("ZXing scan loop started");
           rafRef.current = requestAnimationFrame(scanFrameZXing);
         }
       } catch (err) {
         if (!active) return;
         const name = (err as { name?: string }).name ?? "";
+        log("camera init failed", {
+          name,
+          message: (err as { message?: string }).message,
+        });
         if (name === "NotFoundError" || name === "DevicesNotFoundError") {
           setStatus("no-camera");
         } else {
@@ -420,6 +572,7 @@ export function BarcodeCameraScanner({
 
     return () => {
       active = false;
+      log("cleanup — stopping camera stream");
       restoreConsole?.();
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
@@ -429,10 +582,11 @@ export function BarcodeCameraScanner({
       streamRef.current = null;
       if (videoEl) videoEl.srcObject = null;
     };
-    // selectedCameraId is the only intentional trigger: it changes only when the
-    // user explicitly picks a different camera from the selector.
+    // Intentional triggers only: selectedCameraId (user picks a camera) and
+    // formatsKey (caller changes the scanned formats). resolvedFormats is read
+    // inside the effect but tracked via the stable formatsKey instead.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCameraId]);
+  }, [selectedCameraId, formatsKey]);
 
   // The select value: explicit user choice → active stream's device → first camera.
   const selectValue =
@@ -508,6 +662,39 @@ export function BarcodeCameraScanner({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        )}
+
+        {/* On-screen debug log — visible on devices with no console (iPad etc.) */}
+        {debug && (
+          <div className="absolute inset-x-0 top-0 z-30 max-h-[55%] overflow-y-auto bg-black/40 p-2 font-mono text-[10px] leading-snug text-emerald-300 pt-0">
+            <div className="sticky top-0 -mt-2 -mx-2 mb-1 flex items-center justify-between bg-black/50 px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-emerald-400/90">
+              <span>Scanner debug · {debugLogs.length}</span>
+              <button
+                type="button"
+                data-testid="barcode-scanner-debug-clear"
+                className="rounded bg-white/10 px-1.5 py-0.5 text-emerald-200"
+                onClick={() => setDebugLogs([])}
+              >
+                clear
+              </button>
+            </div>
+            {debugLogs.length === 0 ? (
+              <div className="text-emerald-300/60">Waiting for events…</div>
+            ) : (
+              debugLogs.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="break-all border-b border-white/5 py-0.5"
+                >
+                  <span className="text-emerald-500/70">{entry.time}</span>{" "}
+                  <span className="text-white">{entry.message}</span>
+                  {entry.data ? (
+                    <span className="text-emerald-300/80"> {entry.data}</span>
+                  ) : null}
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
