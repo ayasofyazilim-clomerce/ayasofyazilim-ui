@@ -20,7 +20,7 @@ interface BarcodeDetectorResult {
   format: string;
 }
 interface BarcodeDetectorCtor {
-  new(options?: { formats: string[] }): {
+  new (options?: { formats: string[] }): {
     detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]>;
   };
   getSupportedFormats(): Promise<string[]>;
@@ -339,16 +339,16 @@ export function BarcodeCameraScanner({
         const stream = await navigator.mediaDevices.getUserMedia({
           video: selectedCameraId
             ? {
-              deviceId: { exact: selectedCameraId },
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
-            }
+                deviceId: { exact: selectedCameraId },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+              }
             : {
-              // Prefer the rear camera on mobile for barcode scanning.
-              facingMode: { ideal: "environment" },
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
-            },
+                // Prefer the rear camera on mobile for barcode scanning.
+                facingMode: { ideal: "environment" },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+              },
         });
 
         if (!active || !videoRef.current) {
@@ -406,7 +406,7 @@ export function BarcodeCameraScanner({
         const BDCtor =
           typeof window !== "undefined" && "BarcodeDetector" in window
             ? (window as unknown as { BarcodeDetector: BarcodeDetectorCtor })
-              .BarcodeDetector
+                .BarcodeDetector
             : null;
 
         if (BDCtor) {
