@@ -7,6 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@repo/ayasofyazilim-ui/components/select";
+import { toast } from "@repo/ayasofyazilim-ui/components/sonner";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
@@ -19,7 +20,7 @@ interface BarcodeDetectorResult {
   format: string;
 }
 interface BarcodeDetectorCtor {
-  new (options?: { formats: string[] }): {
+  new(options?: { formats: string[] }): {
     detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]>;
   };
   getSupportedFormats(): Promise<string[]>;
@@ -63,6 +64,47 @@ const FORMAT_TO_ZXING: Record<BarcodeFormatName, BarcodeFormat> = {
 
 // Every supported format — the default set when the caller doesn't restrict it.
 const ALL_BARCODE_FORMATS = Object.keys(FORMAT_TO_ZXING) as BarcodeFormatName[];
+
+// 1-D linear symbologies — tall, narrow bars read by a single horizontal beam.
+const LINEAR_1D_FORMATS: BarcodeFormatName[] = [
+  "code_128",
+  "code_39",
+  "code_93",
+  "ean_13",
+  "ean_8",
+  "itf",
+  "upc_a",
+  "upc_e",
+];
+// Square 2-D matrix symbologies.
+const SQUARE_2D_FORMATS: BarcodeFormatName[] = [
+  "qr_code",
+  "data_matrix",
+  "aztec",
+];
+
+/**
+ * Viewfinder shape that best matches the active format set, so the scanner
+ * overlay reflects what's actually being scanned:
+ *  - "square" → QR / Data Matrix / Aztec
+ *  - "linear" → 1-D barcodes (a short, wide strip with a single steady beam)
+ *  - "wide"   → PDF417 boarding passes, or any mixed / unrestricted set
+ */
+type ScanShape = "square" | "linear" | "wide";
+
+function getScanShape(formats: BarcodeFormatName[]): ScanShape {
+  if (formats.length === 0) return "wide";
+  if (formats.every((f) => SQUARE_2D_FORMATS.includes(f))) return "square";
+  if (formats.every((f) => LINEAR_1D_FORMATS.includes(f))) return "linear";
+  return "wide";
+}
+
+// Frame dimensions per shape — the aspect ratio is the main visual cue.
+const VIEWFINDER_BY_SHAPE: Record<ScanShape, string> = {
+  square: "h-52 w-52",
+  linear: "h-20 w-80",
+  wide: "h-36 w-80",
+};
 
 // ZXing software decode is CPU-heavy — throttle to ~8 fps.
 const ZXING_SCAN_INTERVAL_MS = 50;
@@ -297,16 +339,16 @@ export function BarcodeCameraScanner({
         const stream = await navigator.mediaDevices.getUserMedia({
           video: selectedCameraId
             ? {
-                deviceId: { exact: selectedCameraId },
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-              }
+              deviceId: { exact: selectedCameraId },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            }
             : {
-                // Prefer the rear camera on mobile for barcode scanning.
-                facingMode: { ideal: "environment" },
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-              },
+              // Prefer the rear camera on mobile for barcode scanning.
+              facingMode: { ideal: "environment" },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            },
         });
 
         if (!active || !videoRef.current) {
@@ -364,7 +406,7 @@ export function BarcodeCameraScanner({
         const BDCtor =
           typeof window !== "undefined" && "BarcodeDetector" in window
             ? (window as unknown as { BarcodeDetector: BarcodeDetectorCtor })
-                .BarcodeDetector
+              .BarcodeDetector
             : null;
 
         if (BDCtor) {
@@ -592,6 +634,9 @@ export function BarcodeCameraScanner({
   const selectValue =
     selectedCameraId ?? activeStreamDeviceId ?? cameras[0]?.deviceId;
 
+  // Viewfinder shape derived from the formats being scanned.
+  const scanShape = getScanShape(resolvedFormats);
+
   return (
     <div className="overflow-hidden rounded-lg border">
       <div className="relative aspect-video bg-black">
@@ -626,18 +671,28 @@ export function BarcodeCameraScanner({
         {status === "ready" && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             {/*
-              Viewfinder sized for wide 2-D barcodes (PDF417 boarding passes)
-              as well as square QR codes. The scan-line animation gives visual
-              feedback that the camera is actively scanning.
+              Viewfinder shape reflects the scanned format(s): a square frame for
+              QR/Data Matrix/Aztec, a short strip for 1-D barcodes, and a wide
+              frame for PDF417 boarding passes or a mixed set. 2-D shapes sweep a
+              line across the area; 1-D shows a single steady beam (laser-style).
             */}
-            <div className="relative h-36 w-80 overflow-hidden">
+            <div
+              className={cn(
+                "relative overflow-hidden",
+                VIEWFINDER_BY_SHAPE[scanShape]
+              )}
+            >
               {/* Corner marks */}
               <span className="absolute left-0 top-0 h-6 w-6 rounded-tl-md border-l-2 border-t-2 border-white" />
               <span className="absolute right-0 top-0 h-6 w-6 rounded-tr-md border-r-2 border-t-2 border-white" />
               <span className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-md border-b-2 border-l-2 border-white" />
               <span className="absolute bottom-0 right-0 h-6 w-6 rounded-br-md border-b-2 border-r-2 border-white" />
-              {/* Animated scan line */}
-              <span className="absolute inset-x-2.5 h-px animate-[scan_2s_linear_infinite] bg-white/60" />
+              {/* Animated scan line — 1-D shows a centered steady beam, 2-D sweeps. */}
+              {scanShape === "linear" ? (
+                <span className="absolute inset-x-2.5 top-1/2 h-0.5 -translate-y-1/2 animate-pulse bg-white/70" />
+              ) : (
+                <span className="absolute inset-x-2.5 h-px animate-[scan_2s_linear_infinite] bg-white/60" />
+              )}
             </div>
           </div>
         )}
