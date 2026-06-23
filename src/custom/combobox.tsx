@@ -1,6 +1,11 @@
 "use client";
 
-import { CheckIcon, ChevronsUpDown } from "lucide-react";
+import {
+  CheckIcon,
+  ChevronsUpDown,
+  ExternalLink,
+  type LucideIcon,
+} from "lucide-react";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
@@ -25,10 +30,31 @@ import { useMediaQuery } from "@repo/ayasofyazilim-ui/hooks/use-media-query";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { Label } from "@repo/ayasofyazilim-ui/components/label";
 import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@repo/ayasofyazilim-ui/components/tooltip";
 
 export type ComboboxBadgeOptions<T> = {
   className?: string;
   label: (item: T) => React.ReactNode;
+};
+
+export type ComboboxLinkOptions<T> = {
+  /** Where the link icon is rendered. Defaults to "both". */
+  linkLocation?: "trigger" | "item" | "both";
+  /** Opens the link in a new tab. Defaults to true. */
+  openInNewTab?: boolean;
+  /** Icon shown for the link. Defaults to the `ExternalLink` icon. */
+  linkIcon?: LucideIcon;
+  /** Optional tooltip shown on hover of the link icon. */
+  tooltip?: string;
+  /** Builds the href from the item, e.g. `(item) => `/tr/${item.id}/details``. */
+  linkBuilder: (values: T) => string;
+  className?: string;
+  /** Optional condition to determine if the link should be rendered. */
+  condition?: (item: T) => boolean;
 };
 
 export type ComboboxProps<T> = {
@@ -63,10 +89,79 @@ export type ComboboxProps<T> = {
   value?: T | null | undefined;
   defaultValue?: T | null | undefined;
   badges?: Partial<Record<keyof T, ComboboxBadgeOptions<T>>>;
+  /** Identifier values of items that should be rendered disabled. */
+  disabledItems?: T[keyof T][];
+  /** Renders link icons (built from the item) in the trigger and/or each item. */
+  link?: Partial<Record<keyof T, ComboboxLinkOptions<T>>>;
+  /** Replaces the default label/badge/link content of each item. */
+  customItemRenderer?: (item: T) => React.ReactNode;
 };
+
+function ComboboxLinks<T>({
+  item,
+  link,
+  location,
+  testIdPrefix,
+}: {
+  item: T;
+  link: Partial<Record<keyof T, ComboboxLinkOptions<T>>>;
+  location: "trigger" | "item";
+  testIdPrefix: string;
+}) {
+  const entries = (Object.keys(link) as (keyof T)[])
+    .map((key) => [key, link[key]] as const)
+    .filter((entry): entry is readonly [keyof T, ComboboxLinkOptions<T>] => {
+      const options = entry[1];
+      if (!options) return false;
+      if (options.condition && !options.condition(item)) return false;
+      const linkLocation = options.linkLocation ?? "both";
+      return linkLocation === "both" || linkLocation === location;
+    });
+  if (entries.length === 0) return null;
+
+  return (
+    <div
+      className={cn(
+        "flex shrink-0 items-center gap-1",
+        location === "item" && "ml-auto"
+      )}
+    >
+      {entries.map(([key, options]) => {
+        const Icon = options.linkIcon ?? ExternalLink;
+        const openInNewTab = options.openInNewTab !== false;
+        const anchor = (
+          <a
+            data-testid={`${testIdPrefix}-link-${String(key)}`}
+            href={options.linkBuilder(item)}
+            target={openInNewTab ? "_blank" : undefined}
+            rel={openInNewTab ? "noopener noreferrer" : undefined}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={cn(
+              "text-muted-foreground hover:text-foreground inline-flex items-center justify-center rounded p-0.5 transition-colors",
+              options.className
+            )}
+          >
+            <Icon className="h-4 w-4" />
+          </a>
+        );
+        if (options.tooltip) {
+          return (
+            <Tooltip key={String(key)}>
+              <TooltipTrigger asChild>{anchor}</TooltipTrigger>
+              <TooltipContent>{options.tooltip}</TooltipContent>
+            </Tooltip>
+          );
+        }
+        return <span key={String(key)}>{anchor}</span>;
+      })}
+    </div>
+  );
+}
 
 export function Combobox<T>(props: ComboboxProps<T>) {
   const {
+    id,
     label,
     list,
     value: controlledValue,
@@ -77,6 +172,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
     errorMessage,
     emptyValue,
     classNames,
+    link,
     onValueChange,
   } = props;
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -96,6 +192,16 @@ export function Combobox<T>(props: ComboboxProps<T>) {
     onValueChange?.(newValue);
   };
 
+  const triggerLink =
+    link && currentValue ? (
+      <ComboboxLinks
+        item={currentValue}
+        link={link}
+        location="trigger"
+        testIdPrefix={id ?? "combobox"}
+      />
+    ) : null;
+
   const fieldValue =
     (list?.find(
       (x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier]
@@ -105,34 +211,39 @@ export function Combobox<T>(props: ComboboxProps<T>) {
     "Please select";
   const DesktopContent = (
     <Popover open={open} onOpenChange={setOpen} modal>
-      <PopoverTrigger asChild>
-        <Button
-          disabled={disabled}
-          type="button"
-          variant="outline"
-          role="combobox"
-          className={cn(
-            "text-muted-foreground w-full justify-between font-normal",
-            currentValue && "text-foreground",
-            classNames?.trigger?.button
-          )}
-        >
-          <span
+      <div className="flex w-full items-center gap-1">
+        <PopoverTrigger asChild className="min-w-0 flex-1">
+          <Button
+            id={id}
+            data-testid={id}
+            disabled={disabled}
+            type="button"
+            variant="outline"
+            role="combobox"
             className={cn(
-              "overflow-hidden truncate has-[role=dialog]:max-w-xs",
-              classNames?.trigger?.label
+              "text-muted-foreground w-full justify-between font-normal",
+              currentValue && "text-foreground",
+              classNames?.trigger?.button
             )}
           >
-            {fieldValue}
-          </span>
-          <ChevronsUpDown
-            className={cn(
-              "ml-2 h-4 w-4 shrink-0 opacity-50",
-              classNames?.trigger?.icon
-            )}
-          />
-        </Button>
-      </PopoverTrigger>
+            <span
+              className={cn(
+                "overflow-hidden truncate has-[role=dialog]:max-w-xs",
+                classNames?.trigger?.label
+              )}
+            >
+              {fieldValue}
+            </span>
+            <ChevronsUpDown
+              className={cn(
+                "ml-2 h-4 w-4 shrink-0 opacity-50",
+                classNames?.trigger?.icon
+              )}
+            />
+          </Button>
+        </PopoverTrigger>
+        {triggerLink}
+      </div>
       <PopoverContent className="p-0">
         <List
           {...props}
@@ -146,28 +257,33 @@ export function Combobox<T>(props: ComboboxProps<T>) {
 
   const MobileContent = (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button
-          disabled={disabled}
-          type="button"
-          variant="outline"
-          className={cn(
-            "text-muted-foreground w-full justify-between font-normal",
-            currentValue && "text-foreground",
-            classNames?.trigger?.button
-          )}
-        >
-          <span className={cn("truncate", classNames?.trigger?.label)}>
-            {fieldValue}
-          </span>
-          <ChevronsUpDown
+      <div className="flex w-full items-center gap-1">
+        <DrawerTrigger asChild className="min-w-0 flex-1">
+          <Button
+            id={id}
+            data-testid={id}
+            disabled={disabled}
+            type="button"
+            variant="outline"
             className={cn(
-              "ml-2 h-4 w-4 shrink-0 opacity-50",
-              classNames?.trigger?.icon
+              "text-muted-foreground w-full justify-between font-normal",
+              currentValue && "text-foreground",
+              classNames?.trigger?.button
             )}
-          />
-        </Button>
-      </DrawerTrigger>
+          >
+            <span className={cn("truncate", classNames?.trigger?.label)}>
+              {fieldValue}
+            </span>
+            <ChevronsUpDown
+              className={cn(
+                "ml-2 h-4 w-4 shrink-0 opacity-50",
+                classNames?.trigger?.icon
+              )}
+            />
+          </Button>
+        </DrawerTrigger>
+        {triggerLink}
+      </div>
       <DrawerContent>
         <div className="mt-4 border-t">
           <List
@@ -229,11 +345,13 @@ function List<T>({
     id,
     classNames,
     badges,
+    link,
+    disabledItems,
+    customItemRenderer,
   } = props;
 
   return (
     <Command
-      id={id}
       filter={(value, search) => {
         const filterResult = list?.find(
           (i) =>
@@ -249,14 +367,17 @@ function List<T>({
       }}
     >
       <CommandInput
+        data-testid={id ? `${id}_search` : undefined}
         placeholder={searchPlaceholder || "Search..."}
         className="h-9"
       />
       <CommandList className="w-full min-w-full max-w-full">
         <CommandEmpty>{searchResultLabel || "0 search result."}</CommandEmpty>
         <CommandGroup>
-          {list?.map((item: T) => (
+          {list?.map((item: T, index) => (
             <CommandItem
+              data-testid={id ? `${id}_${index}` : undefined}
+              disabled={disabledItems?.includes(item[selectIdentifier])}
               onSelect={() => {
                 handleValueChange(item);
                 setOpen(false);
@@ -267,25 +388,39 @@ function List<T>({
               {item[selectIdentifier] === currentValue?.[selectIdentifier] && (
                 <CheckIcon className={cn("h-4 w-4")} />
               )}
-              <span className={cn(classNames?.list?.label)}>
-                {item[selectLabel] as string}
-              </span>
-              {badges && (
-                <div className="ml-auto">
-                  {Object.keys(badges).map((badgeKey) => {
-                    const badgeOptions = badges[badgeKey as keyof T];
-                    if (!badgeOptions) return null;
-                    return (
-                      <Badge
-                        key={badgeKey}
-                        variant="outline"
-                        className={cn("ml-2", badgeOptions.className)}
-                      >
-                        {badgeOptions.label(item)}
-                      </Badge>
-                    );
-                  })}
-                </div>
+              {customItemRenderer ? (
+                customItemRenderer(item)
+              ) : (
+                <>
+                  <span className={cn(classNames?.list?.label)}>
+                    {item[selectLabel] as string}
+                  </span>
+                  {badges && (
+                    <div className="ml-auto">
+                      {Object.keys(badges).map((badgeKey) => {
+                        const badgeOptions = badges[badgeKey as keyof T];
+                        if (!badgeOptions) return null;
+                        return (
+                          <Badge
+                            key={badgeKey}
+                            variant="outline"
+                            className={cn("ml-2", badgeOptions.className)}
+                          >
+                            {badgeOptions.label(item)}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {link && (
+                    <ComboboxLinks
+                      item={item}
+                      link={link}
+                      location="item"
+                      testIdPrefix={id ? `${id}_${index}` : `combobox_${index}`}
+                    />
+                  )}
+                </>
               )}
             </CommandItem>
           ))}
