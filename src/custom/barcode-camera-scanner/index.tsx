@@ -11,7 +11,13 @@ import { toast } from "@repo/ayasofyazilim-ui/components/sonner";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
-import { Loader2Icon, SwitchCameraIcon } from "lucide-react";
+import {
+  FlashlightIcon,
+  FlashlightOffIcon,
+  Loader2Icon,
+  RotateCcwIcon,
+  SwitchCameraIcon,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // ── W3C Barcode Detection API types (Chrome/Edge/Safari 17+) ─────────────────
@@ -21,9 +27,24 @@ interface BarcodeDetectorResult {
 }
 interface BarcodeDetectorCtor {
   new (options?: { formats: string[] }): {
-    detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]>;
+    detect(
+      source: HTMLVideoElement | HTMLCanvasElement
+    ): Promise<BarcodeDetectorResult[]>;
   };
   getSupportedFormats(): Promise<string[]>;
+}
+
+// ── Extended MediaTrack camera controls ──────────────────────────────────────
+// `focusMode`, `torch`, and `zoom` are real, widely-shipped camera capabilities
+// that the standard DOM lib types don't yet model. We read/apply them through
+// these narrow extensions, always capability-gated and wrapped in try/catch.
+interface ExtendedTrackCapabilities extends MediaTrackCapabilities {
+  focusMode?: string[];
+  torch?: boolean;
+}
+interface ExtendedConstraintSet {
+  focusMode?: string;
+  torch?: boolean;
 }
 
 /**
@@ -109,6 +130,82 @@ const VIEWFINDER_BY_SHAPE: Record<ScanShape, string> = {
 // ZXing software decode is CPU-heavy — throttle to ~8 fps.
 const ZXING_SCAN_INTERVAL_MS = 50;
 
+// Decode only the viewfinder region instead of the whole frame. This keeps the
+// barcode at near-native resolution (rather than downscaling the entire frame
+// and blurring narrow 1-D bars together) and strips background noise that
+// causes misses and false reads. The ROI is grown by this fraction on each side
+// so a barcode that isn't perfectly centred in the guide still decodes.
+const ROI_PADDING = 0.25;
+// Cap the decode canvas width. Because the ROI is already a fraction of the
+// frame, this higher cap (vs. a full-frame decode) preserves detail on dense
+// 1-D bars while still bounding per-frame CPU cost.
+const MAX_DECODE_WIDTH = 1024;
+
+/**
+ * Source crop rectangle (in video-intrinsic px) matching the on-screen
+ * viewfinder, accounting for the video element's `object-cover` scaling.
+ * Returns null when geometry isn't available yet — callers fall back to the
+ * full frame.
+ */
+function computeViewfinderRoi(
+  video: HTMLVideoElement,
+  viewfinderEl: HTMLElement | null
+): { sx: number; sy: number; sw: number; sh: number } | null {
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  if (!vw || !vh || !viewfinderEl) return null;
+  const videoRect = video.getBoundingClientRect();
+  const vfRect = viewfinderEl.getBoundingClientRect();
+  if (videoRect.width === 0 || videoRect.height === 0) return null;
+  // `object-cover` scales the video to cover the element box, cropping overflow.
+  const scale = Math.max(videoRect.width / vw, videoRect.height / vh);
+  // Top-left of the (overflowing) video content relative to the element box.
+  const contentLeft = (videoRect.width - vw * scale) / 2;
+  const contentTop = (videoRect.height - vh * scale) / 2;
+  // Map the viewfinder box from CSS px → intrinsic px.
+  let sx = (vfRect.left - videoRect.left - contentLeft) / scale;
+  let sy = (vfRect.top - videoRect.top - contentTop) / scale;
+  let sw = vfRect.width / scale;
+  let sh = vfRect.height / scale;
+  // Grow by padding and clamp to the frame bounds.
+  const padX = sw * ROI_PADDING;
+  const padY = sh * ROI_PADDING;
+  sx = Math.max(0, sx - padX);
+  sy = Math.max(0, sy - padY);
+  sw = Math.min(vw - sx, sw + padX * 2);
+  sh = Math.min(vh - sy, sh + padY * 2);
+  return { sx, sy, sw, sh };
+}
+
+/**
+ * Draw the viewfinder ROI (or the whole frame, until geometry is ready) into
+ * `canvas` at a capped resolution and return it to decode from. Returns null
+ * only when there's nothing to draw.
+ */
+function drawDecodeFrame(
+  video: HTMLVideoElement,
+  viewfinderEl: HTMLElement | null,
+  canvas: HTMLCanvasElement
+): HTMLCanvasElement | null {
+  const roi = computeViewfinderRoi(video, viewfinderEl);
+  const sx = roi?.sx ?? 0;
+  const sy = roi?.sy ?? 0;
+  const sw = roi?.sw ?? video.videoWidth;
+  const sh = roi?.sh ?? video.videoHeight;
+  if (!sw || !sh) return null;
+  const scale = Math.min(1, MAX_DECODE_WIDTH / sw);
+  const dw = Math.round(sw * scale);
+  const dh = Math.round(sh * scale);
+  if (canvas.width !== dw || canvas.height !== dh) {
+    canvas.width = dw;
+    canvas.height = dh;
+  }
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.drawImage(video, sx, sy, sw, sh, 0, 0, dw, dh);
+  return canvas;
+}
+
 // ── Camera metadata ───────────────────────────────────────────────────────────
 
 interface CameraInfo {
@@ -143,6 +240,25 @@ function cameraDisplayLabel(
   return `${labels.camera} ${index + 1}`;
 }
 
+// getUserMedia error names meaning the *stored* camera no longer matches a
+// usable device — we forget the saved selection and fall back to the default
+// camera instead of failing. (When no stored id was used, these instead mean
+// "no camera", handled separately.)
+const STALE_DEVICE_ERRORS = new Set([
+  "OverconstrainedError",
+  "NotFoundError",
+  "DevicesNotFoundError",
+]);
+// Error names meaning the camera is momentarily busy — typically another
+// scanner (e.g. the passport/MRZ scanner) is still releasing it, or another
+// browser tab/app holds it. Worth a brief automatic retry.
+const CAMERA_BUSY_ERRORS = new Set([
+  "NotReadableError",
+  "AbortError",
+  "TrackStartError",
+]);
+const MAX_CAMERA_BUSY_RETRIES = 2;
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
 export interface BarcodeCameraLabels {
@@ -160,6 +276,10 @@ export interface BarcodeCameraLabels {
   frontCamera?: string;
   /** Generic camera label prefix when facing mode is unknown. */
   camera?: string;
+  /** Accessible label for the torch / flashlight toggle button. */
+  torch?: string;
+  /** Label for the button that re-requests camera access after a failure. */
+  retry?: string;
 }
 
 export interface BarcodeCameraScannerProps {
@@ -187,6 +307,13 @@ export interface BarcodeCameraScannerProps {
    * @default false
    */
   debug?: boolean;
+  /**
+   * Aspect ratio of the camera viewport, as any valid CSS `aspect-ratio`
+   * value (e.g. "1 / 1", "16 / 9", "4 / 3", "3 / 4" for portrait). Applied via
+   * inline style so any ratio works without Tailwind safelisting.
+   * @default "1 / 1"
+   */
+  aspectRatio?: string;
   labels?: BarcodeCameraLabels;
 }
 
@@ -201,6 +328,8 @@ const DEFAULT_LABELS: Required<BarcodeCameraLabels> = {
   backCamera: "Back Camera",
   frontCamera: "Front Camera",
   camera: "Camera",
+  torch: "Toggle flashlight",
+  retry: "Try again",
 };
 
 export function BarcodeCameraScanner({
@@ -208,6 +337,7 @@ export function BarcodeCameraScanner({
   scanCooldownMs = 2000,
   formats,
   debug = false,
+  aspectRatio = "1 / 1",
   labels,
 }: BarcodeCameraScannerProps) {
   const resolvedLabels = useMemo<Required<BarcodeCameraLabels>>(
@@ -226,6 +356,8 @@ export function BarcodeCameraScanner({
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // The on-screen viewfinder box — its rect drives the decode ROI crop.
+  const viewfinderRef = useRef<HTMLDivElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
   const onScanRef = useRef(onScan);
@@ -293,6 +425,38 @@ export function BarcodeCameraScanner({
   );
   const [status, setStatus] = useState<ScannerStatus>("requesting");
 
+  // Bumped by the retry button to re-run the camera effect after a failure
+  // (denied permission or no camera) without remounting the component.
+  const [retryNonce, setRetryNonce] = useState(0);
+  const handleRetry = useCallback(() => {
+    setStatus("requesting");
+    setRetryNonce((n) => n + 1);
+  }, []);
+
+  // Torch / flashlight: only exposed when the active camera reports the
+  // capability. `torchOnRef` mirrors state so the toggle handler stays stable.
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
+  const torchOnRef = useRef(false);
+
+  const handleTorchToggle = useCallback(async () => {
+    const track = streamRef.current?.getVideoTracks()[0];
+    if (!track) return;
+    const next = !torchOnRef.current;
+    try {
+      await track.applyConstraints({
+        advanced: [{ torch: next } as ExtendedConstraintSet],
+      } as MediaTrackConstraints);
+      torchOnRef.current = next;
+      setTorchOn(next);
+      log("torch toggled", next);
+    } catch {
+      log("torch toggle failed");
+    }
+    // log is stable; intentionally omitted to keep this callback stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleCameraChange = useCallback((deviceId: string) => {
     setSelectedCameraId(deviceId);
     try {
@@ -323,6 +487,10 @@ export function BarcodeCameraScanner({
 
   useEffect(() => {
     setStatus("requesting");
+    // Torch belongs to the previous stream — reset before opening a new one.
+    setTorchSupported(false);
+    setTorchOn(false);
+    torchOnRef.current = false;
     log("requesting camera access", {
       camera: selectedCameraId ?? "(default / environment-facing)",
       formats: resolvedFormats,
@@ -336,20 +504,66 @@ export function BarcodeCameraScanner({
         // Stop any previous stream before opening a new one.
         streamRef.current?.getTracks().forEach((tr) => tr.stop());
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: selectedCameraId
-            ? {
-                deviceId: { exact: selectedCameraId },
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
+        // Camera needs a secure context (HTTPS or localhost); bail clearly if
+        // the API isn't even present rather than throwing a vague TypeError.
+        if (!navigator.mediaDevices?.getUserMedia) {
+          log("getUserMedia unavailable — insecure context or unsupported");
+          setStatus("denied");
+          return;
+        }
+
+        const baseVideo: MediaTrackConstraints = {
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        };
+        const videoConstraints = (deviceId?: string): MediaTrackConstraints =>
+          deviceId
+            ? { ...baseVideo, deviceId: { exact: deviceId } }
+            : // Prefer the rear camera on mobile for barcode scanning.
+              { ...baseVideo, facingMode: { ideal: "environment" } };
+
+        // Acquire the camera resiliently: heal a stale stored selection by
+        // falling back to the default camera, and ride out a camera that's
+        // momentarily busy (e.g. another scanner still releasing it).
+        const acquireStream = async (): Promise<MediaStream> => {
+          let useDeviceId = selectedCameraId;
+          for (let attempt = 0; ; attempt++) {
+            try {
+              return await navigator.mediaDevices.getUserMedia({
+                video: videoConstraints(useDeviceId),
+              });
+            } catch (err) {
+              const name = (err as { name?: string }).name ?? "";
+              if (useDeviceId && STALE_DEVICE_ERRORS.has(name)) {
+                log("stored camera unusable — falling back to default", {
+                  name,
+                });
+                try {
+                  localStorage.removeItem("barcode-scanner-camera-id");
+                } catch {
+                  /* localStorage may be unavailable (private browsing, etc.) */
+                }
+                useDeviceId = undefined;
+                continue;
               }
-            : {
-                // Prefer the rear camera on mobile for barcode scanning.
-                facingMode: { ideal: "environment" },
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-              },
-        });
+              if (
+                CAMERA_BUSY_ERRORS.has(name) &&
+                attempt < MAX_CAMERA_BUSY_RETRIES &&
+                active
+              ) {
+                log("camera busy — retrying shortly", { attempt, name });
+                await new Promise((resolve) => {
+                  setTimeout(resolve, 400);
+                });
+                if (!active) throw err;
+                continue;
+              }
+              throw err;
+            }
+          }
+        };
+
+        const stream = await acquireStream();
 
         if (!active || !videoRef.current) {
           stream.getTracks().forEach((tr) => tr.stop());
@@ -373,6 +587,32 @@ export function BarcodeCameraScanner({
           width: trackSettings?.width,
           height: trackSettings?.height,
         });
+
+        // ── Camera controls: continuous autofocus + torch ──────────────────
+        // Out-of-focus close-ups are the #1 reason 1-D barcodes fail to scan,
+        // so request continuous AF when the device supports it. Both calls are
+        // capability-gated and non-fatal: unsupported browsers just skip them.
+        if (activeTrack) {
+          try {
+            const caps = activeTrack.getCapabilities?.() as
+              | ExtendedTrackCapabilities
+              | undefined;
+            if (caps?.focusMode?.includes("continuous")) {
+              await activeTrack.applyConstraints({
+                advanced: [
+                  { focusMode: "continuous" } as ExtendedConstraintSet,
+                ],
+              } as MediaTrackConstraints);
+              log("continuous autofocus applied");
+            }
+            if (caps?.torch) {
+              setTorchSupported(true);
+              log("torch capability detected");
+            }
+          } catch {
+            log("focus/torch setup skipped (constraint unsupported)");
+          }
+        }
 
         // ── Enumerate cameras and enrich with facing info ───────────────────
         const allDevices = await navigator.mediaDevices.enumerateDevices();
@@ -439,15 +679,23 @@ export function BarcodeCameraScanner({
 
           async function scanFrameNative() {
             if (!active || !videoRef.current) return;
+            const video = videoRef.current;
             frameCount++;
             if (
               !isDetecting &&
-              videoRef.current.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+              video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
             ) {
               isDetecting = true;
               detectCount++;
               try {
-                const results = await detector.detect(videoRef.current);
+                // Detect on the cropped viewfinder ROI (falls back to the full
+                // video element until the overlay geometry is measurable).
+                const canvas = canvasRef.current;
+                const source =
+                  (canvas &&
+                    drawDecodeFrame(video, viewfinderRef.current, canvas)) ||
+                  video;
+                const results = await detector.detect(source);
                 if (results.length > 0 && results[0]) {
                   log("native barcode detected", {
                     format: results[0].format,
@@ -461,15 +709,15 @@ export function BarcodeCameraScanner({
                 isDetecting = false;
               }
             }
-            if (debugRef.current && videoRef.current) {
+            if (debugRef.current) {
               const now = performance.now();
               if (now - lastHeartbeat > 2000) {
                 lastHeartbeat = now;
                 log("native scanning…", {
                   frames: frameCount,
                   detectAttempts: detectCount,
-                  readyState: videoRef.current.readyState,
-                  videoWidth: videoRef.current.videoWidth,
+                  readyState: video.readyState,
+                  videoWidth: video.videoWidth,
                 });
               }
             }
@@ -522,20 +770,16 @@ export function BarcodeCameraScanner({
             DecodeHintType.POSSIBLE_FORMATS,
             resolvedFormats.map((f) => FORMAT_TO_ZXING[f])
           );
-          // TRY_HARDER performs exhaustive pattern matching and is very
-          // CPU-intensive — omit it to keep the main thread unblocked.
+          // TRY_HARDER enables exhaustive pattern matching — markedly better at
+          // rotated / imperfect 1-D codes. It's costly on a full frame, but we
+          // now decode only the small viewfinder ROI, so the cost stays bounded
+          // and the accuracy gain is worth it.
+          hints.set(DecodeHintType.TRY_HARDER, true);
 
           const reader = new BrowserMultiFormatReader(hints);
           log("ZXing reader created", { formats: resolvedFormats });
 
-          // Cap the decode canvas to this width. ZXing reads barcodes
-          // reliably at 640 px; full HD (1920 px) just wastes CPU time.
-          const MAX_DECODE_WIDTH = 640;
-
           let lastScanAt = 0;
-          // Cache canvas dimensions so we only reset (expensive) when they change.
-          let cvW = 0;
-          let cvH = 0;
           // Debug-only counters powering the heartbeat log.
           let frameCount = 0;
           let decodeCount = 0;
@@ -554,19 +798,9 @@ export function BarcodeCameraScanner({
             ) {
               lastScanAt = now;
               decodeCount++;
-              // Scale down to MAX_DECODE_WIDTH, preserving aspect ratio.
-              const scale = Math.min(1, MAX_DECODE_WIDTH / video.videoWidth);
-              const targetW = Math.round(video.videoWidth * scale);
-              const targetH = Math.round(video.videoHeight * scale);
-              if (targetW !== cvW || targetH !== cvH) {
-                cvW = targetW;
-                cvH = targetH;
-                canvas.width = cvW;
-                canvas.height = cvH;
-              }
-              const ctx = canvas.getContext("2d");
-              if (ctx) {
-                ctx.drawImage(video, 0, 0, cvW, cvH);
+              // Draw the viewfinder ROI (full frame until geometry is ready)
+              // into the decode canvas, then run ZXing on it.
+              if (drawDecodeFrame(video, viewfinderRef.current, canvas)) {
                 try {
                   const result = reader.decodeFromCanvas(canvas);
                   if (result) {
@@ -624,11 +858,12 @@ export function BarcodeCameraScanner({
       streamRef.current = null;
       if (videoEl) videoEl.srcObject = null;
     };
-    // Intentional triggers only: selectedCameraId (user picks a camera) and
-    // formatsKey (caller changes the scanned formats). resolvedFormats is read
-    // inside the effect but tracked via the stable formatsKey instead.
+    // Intentional triggers only: selectedCameraId (user picks a camera),
+    // formatsKey (caller changes the scanned formats), and retryNonce (user
+    // taps "try again"). resolvedFormats is read inside the effect but tracked
+    // via the stable formatsKey instead.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCameraId, formatsKey]);
+  }, [selectedCameraId, formatsKey, retryNonce]);
 
   // The select value: explicit user choice → active stream's device → first camera.
   const selectValue =
@@ -639,14 +874,14 @@ export function BarcodeCameraScanner({
 
   return (
     <div className="overflow-hidden rounded-lg border">
-      <div className="relative aspect-video bg-black">
+      <div className="relative bg-black" style={{ aspectRatio }}>
         <video
           ref={videoRef}
           className="h-full w-full object-cover"
           muted
           playsInline
         />
-        {/* Canvas is only used by the ZXing fallback path — kept hidden. */}
+        {/* Off-screen canvas: both decode paths crop the viewfinder ROI into it. */}
         <canvas ref={canvasRef} className="hidden" />
 
         {status === "requesting" && (
@@ -656,15 +891,25 @@ export function BarcodeCameraScanner({
           </div>
         )}
 
-        {status === "denied" && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4 text-center text-sm text-white">
-            {resolvedLabels.permissionDenied}
-          </div>
-        )}
-
-        {status === "no-camera" && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4 text-center text-sm text-white">
-            {resolvedLabels.noCamera}
+        {(status === "denied" || status === "no-camera") && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80 p-4 text-center text-sm text-white">
+            <p>
+              {status === "denied"
+                ? resolvedLabels.permissionDenied
+                : resolvedLabels.noCamera}
+            </p>
+            <button
+              type="button"
+              data-testid="barcode-camera-scanner-retry"
+              onClick={handleRetry}
+              className={cn(
+                buttonVariants({ size: "sm", variant: "outline" }),
+                "gap-1.5 border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+              )}
+            >
+              <RotateCcwIcon className="size-4" />
+              {resolvedLabels.retry}
+            </button>
           </div>
         )}
 
@@ -677,6 +922,7 @@ export function BarcodeCameraScanner({
               line across the area; 1-D shows a single steady beam (laser-style).
             */}
             <div
+              ref={viewfinderRef}
               className={cn(
                 "relative overflow-hidden",
                 VIEWFINDER_BY_SHAPE[scanShape]
@@ -694,6 +940,27 @@ export function BarcodeCameraScanner({
                 <span className="absolute inset-x-2.5 h-px animate-[scan_2s_linear_infinite] bg-white/60" />
               )}
             </div>
+          </div>
+        )}
+
+        {status === "ready" && torchSupported && (
+          <div className="absolute bottom-4 left-4 z-10">
+            <button
+              type="button"
+              data-testid="barcode-camera-scanner-torch"
+              aria-label={resolvedLabels.torch}
+              aria-pressed={torchOn}
+              onClick={() => void handleTorchToggle()}
+              className={cn(
+                buttonVariants({ size: "icon-xs", variant: "outline" }),
+                "aspect-square max-h-7 rounded-full border-white/20 backdrop-blur-sm",
+                torchOn
+                  ? "bg-white text-black hover:bg-white"
+                  : "bg-black/60 text-white"
+              )}
+            >
+              {torchOn ? <FlashlightIcon /> : <FlashlightOffIcon />}
+            </button>
           </div>
         )}
 
