@@ -205,9 +205,9 @@ export function CreditCardInput({
       : `${idPrefix}-cvc`;
 
   return (
-    <FieldGroup className={className}>
+    <FieldGroup className={cn("gap-2", className)}>
       {hasDetailsRow ? (
-        <Field data-invalid={numberInvalid || undefined}>
+        <Field data-invalid={numberInvalid || undefined} className="gap-1">
           <FieldLabel
             htmlFor={detailsLabelFor}
             data-testid={`${idPrefix}-card-details-label`}
@@ -288,7 +288,7 @@ export function CreditCardInput({
       ) : null}
 
       {show.name ? (
-        <Field>
+        <Field className="gap-1">
           <FieldLabel
             htmlFor={`${idPrefix}-name`}
             data-testid={`${idPrefix}-name-label`}
