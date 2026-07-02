@@ -123,7 +123,9 @@ function drawOcrFrame(
   // First pass: convert to luminance (stored in R) and track the range. The
   // RGBA buffer length is always a multiple of 4, so i+1/i+2 are in range.
   for (let i = 0; i < d.length; i += 4) {
-    const g = ((d[i] ?? 0) * 299 + (d[i + 1] ?? 0) * 587 + (d[i + 2] ?? 0) * 114) / 1000;
+    const g =
+      ((d[i] ?? 0) * 299 + (d[i + 1] ?? 0) * 587 + (d[i + 2] ?? 0) * 114) /
+      1000;
     d[i] = g;
     if (g < min) min = g;
     if (g > max) max = g;
@@ -351,7 +353,9 @@ export function CreditCardScanner({
     () => {
       if (typeof window === "undefined") return undefined;
       try {
-        return localStorage.getItem("credit-card-scanner-camera-id") ?? undefined;
+        return (
+          localStorage.getItem("credit-card-scanner-camera-id") ?? undefined
+        );
       } catch {
         return undefined;
       }
