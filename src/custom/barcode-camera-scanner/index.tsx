@@ -743,7 +743,8 @@ export function BarcodeCameraScanner({
                 // video element until the overlay geometry is measurable).
                 const canvas = canvasRef.current;
                 const roi =
-                  canvas && drawDecodeFrame(video, viewfinderRef.current, canvas);
+                  canvas &&
+                  drawDecodeFrame(video, viewfinderRef.current, canvas);
                 const source = roi || video;
                 let hit = (await detector.detect(source))[0] ?? null;
                 // Upright miss: retry one rotated orientation (round-robin) so a
