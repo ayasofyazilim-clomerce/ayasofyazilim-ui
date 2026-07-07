@@ -481,7 +481,9 @@ export function BarcodeCameraScanner({
             }
           }
           if (active)
-            rafRef.current = requestAnimationFrame(() => void scanFrameNative());
+            rafRef.current = requestAnimationFrame(
+              () => void scanFrameNative()
+            );
         }
         rafRef.current = requestAnimationFrame(() => void scanFrameNative());
       } else {

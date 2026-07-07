@@ -496,7 +496,10 @@ export function MrzCameraScanner({
           //    OCR-off capture path).
           const target = scoreTargetRef.current;
           if (docOk && sharp) {
-            scoreRef.current = Math.min(target, scoreRef.current + DOC_SHARP_GAIN);
+            scoreRef.current = Math.min(
+              target,
+              scoreRef.current + DOC_SHARP_GAIN
+            );
           } else if (!docOk) {
             scoreRef.current = Math.max(0, scoreRef.current - SCORE_DECAY);
           }
