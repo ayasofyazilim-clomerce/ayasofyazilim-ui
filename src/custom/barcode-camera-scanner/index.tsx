@@ -141,6 +141,15 @@ const ROI_PADDING = 0.25;
 // 1-D bars while still bounding per-frame CPU cost.
 const MAX_DECODE_WIDTH = 1024;
 
+// Directional symbologies — PDF417 (boarding passes) and every 1-D barcode —
+// encode along a single axis and, unlike QR / Data Matrix / Aztec, don't
+// self-orient. A code held sideways or upside-down therefore never decodes from
+// the upright frame alone. When such a format is in play we retry the frame
+// rotated: 0° is always attempted first (the common case), then these
+// orientations are cycled one per frame so the extra decode cost stays bounded
+// while a rotated code still resolves within a few frames.
+const ROTATED_ORIENTATIONS = [90, 270, 180] as const;
+
 /**
  * Source crop rectangle (in video-intrinsic px) matching the on-screen
  * viewfinder, accounting for the video element's `object-cover` scaling.
@@ -204,6 +213,38 @@ function drawDecodeFrame(
   if (!ctx) return null;
   ctx.drawImage(video, sx, sy, sw, sh, 0, 0, dw, dh);
   return canvas;
+}
+
+/**
+ * Draw `source` rotated clockwise by `deg` (90/180/270) into `dest` and return
+ * it, so the decoders can retry a sideways or upside-down frame. 90°/270° swap
+ * width and height. `dest` is a reusable scratch canvas: because both decode
+ * paths finish reading one orientation before requesting the next, a single
+ * scratch canvas is safe to share across orientations.
+ */
+function drawRotatedFrame(
+  source: HTMLCanvasElement,
+  deg: 90 | 180 | 270,
+  dest: HTMLCanvasElement
+): HTMLCanvasElement | null {
+  const sw = source.width;
+  const sh = source.height;
+  if (!sw || !sh) return null;
+  const swap = deg === 90 || deg === 270;
+  const dw = swap ? sh : sw;
+  const dh = swap ? sw : sh;
+  if (dest.width !== dw || dest.height !== dh) {
+    dest.width = dw;
+    dest.height = dh;
+  }
+  const ctx = dest.getContext("2d");
+  if (!ctx) return null;
+  ctx.save();
+  ctx.translate(dw / 2, dh / 2);
+  ctx.rotate((deg * Math.PI) / 180);
+  ctx.drawImage(source, -sw / 2, -sh / 2);
+  ctx.restore();
+  return dest;
 }
 
 // ── Camera metadata ───────────────────────────────────────────────────────────
@@ -643,6 +684,13 @@ export function BarcodeCameraScanner({
 
         // ── Barcode detection ───────────────────────────────────────────────
 
+        // Only sweep rotated orientations when a directional format (PDF417 or
+        // any 1-D) is present — QR / Data Matrix / Aztec already decode at any
+        // rotation, so the retry would be wasted CPU for a pure-2-D set.
+        const tryRotations = resolvedFormats.some(
+          (f) => !SQUARE_2D_FORMATS.includes(f)
+        );
+
         const BDCtor =
           typeof window !== "undefined" && "BarcodeDetector" in window
             ? (window as unknown as { BarcodeDetector: BarcodeDetectorCtor })
@@ -672,6 +720,9 @@ export function BarcodeCameraScanner({
           const detector = new BDCtor({ formats: nativeFormats });
           // Guard: don't stack async detect() calls if one is still pending.
           let isDetecting = false;
+          // Scratch canvas + round-robin cursor for the rotated-retry sweep.
+          const rotationCanvas = document.createElement("canvas");
+          let rotationIdx = 0;
           // Debug-only counters powering the heartbeat log.
           let frameCount = 0;
           let detectCount = 0;
@@ -691,17 +742,33 @@ export function BarcodeCameraScanner({
                 // Detect on the cropped viewfinder ROI (falls back to the full
                 // video element until the overlay geometry is measurable).
                 const canvas = canvasRef.current;
-                const source =
-                  (canvas &&
-                    drawDecodeFrame(video, viewfinderRef.current, canvas)) ||
-                  video;
-                const results = await detector.detect(source);
-                if (results.length > 0 && results[0]) {
+                const roi =
+                  canvas &&
+                  drawDecodeFrame(video, viewfinderRef.current, canvas);
+                const source = roi || video;
+                let hit = (await detector.detect(source))[0] ?? null;
+                // Upright miss: retry one rotated orientation (round-robin) so a
+                // sideways / upside-down PDF417 or 1-D code still decodes. Needs
+                // the ROI canvas — skip while still falling back to raw video.
+                if (!hit && tryRotations && roi) {
+                  const deg = ROTATED_ORIENTATIONS[rotationIdx];
+                  rotationIdx = (rotationIdx + 1) % ROTATED_ORIENTATIONS.length;
+                  const rotated =
+                    deg && drawRotatedFrame(roi, deg, rotationCanvas);
+                  if (rotated) {
+                    const r = (await detector.detect(rotated))[0];
+                    if (r) {
+                      hit = r;
+                      log("native hit on rotated frame", { deg });
+                    }
+                  }
+                }
+                if (hit) {
                   log("native barcode detected", {
-                    format: results[0].format,
-                    value: results[0].rawValue,
+                    format: hit.format,
+                    value: hit.rawValue,
                   });
-                  reportScan(results[0].rawValue);
+                  reportScan(hit.rawValue);
                 }
               } catch {
                 /* skip: thrown when video isn't ready */
@@ -779,6 +846,10 @@ export function BarcodeCameraScanner({
           const reader = new BrowserMultiFormatReader(hints);
           log("ZXing reader created", { formats: resolvedFormats });
 
+          // Scratch canvas + round-robin cursor for the rotated-retry sweep.
+          const rotationCanvas = document.createElement("canvas");
+          let rotationIdx = 0;
+
           let lastScanAt = 0;
           // Debug-only counters powering the heartbeat log.
           let frameCount = 0;
@@ -801,17 +872,35 @@ export function BarcodeCameraScanner({
               // Draw the viewfinder ROI (full frame until geometry is ready)
               // into the decode canvas, then run ZXing on it.
               if (drawDecodeFrame(video, viewfinderRef.current, canvas)) {
-                try {
-                  const result = reader.decodeFromCanvas(canvas);
-                  if (result) {
-                    log("ZXing barcode detected", {
-                      format: BarcodeFormat[result.getBarcodeFormat()],
-                      value: result.getText(),
-                    });
-                    reportScan(result.getText());
+                // decodeFromCanvas throws NotFoundException on every
+                // barcode-free frame — swallow it so one orientation missing
+                // doesn't skip the rotated retry.
+                const decode = (src: HTMLCanvasElement) => {
+                  try {
+                    return reader.decodeFromCanvas(src);
+                  } catch {
+                    return null;
                   }
-                } catch {
-                  // NotFoundException thrown on every frame without a barcode — expected.
+                };
+                let result = decode(canvas); // upright
+                // Upright miss: retry one rotated orientation (round-robin) so a
+                // sideways / upside-down PDF417 or 1-D code still decodes.
+                if (!result && tryRotations) {
+                  const deg = ROTATED_ORIENTATIONS[rotationIdx];
+                  rotationIdx = (rotationIdx + 1) % ROTATED_ORIENTATIONS.length;
+                  const rotated =
+                    deg && drawRotatedFrame(canvas, deg, rotationCanvas);
+                  if (rotated) {
+                    result = decode(rotated);
+                    if (result) log("ZXing hit on rotated frame", { deg });
+                  }
+                }
+                if (result) {
+                  log("ZXing barcode detected", {
+                    format: BarcodeFormat[result.getBarcodeFormat()],
+                    value: result.getText(),
+                  });
+                  reportScan(result.getText());
                 }
               }
             }
