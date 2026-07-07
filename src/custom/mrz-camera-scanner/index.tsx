@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Button,
-  buttonVariants,
-} from "@repo/ayasofyazilim-ui/components/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@repo/ayasofyazilim-ui/components/select";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import {
   CameraIcon,
@@ -17,10 +8,10 @@ import {
   Loader2Icon,
   RotateCcwIcon,
   ScanLineIcon,
-  SwitchCameraIcon,
   TriangleAlertIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CameraSurface, useCameraStream } from "../camera-stream";
 import {
   detectDocument,
   ensureOpenCVReady,
@@ -29,36 +20,6 @@ import {
   type NormalizedBox,
 } from "./lib";
 import { countFillerChars, readBandText } from "./ocr";
-
-// ── Camera metadata ─────────────────────────────────────────────────────────
-
-interface CameraInfo {
-  deviceId: string;
-  rawLabel: string;
-  facingMode: "environment" | "user" | undefined;
-}
-
-function inferFacingFromLabel(
-  label: string
-): "environment" | "user" | undefined {
-  const l = label.toLowerCase();
-  if (l.includes("back") || l.includes("rear") || l.includes("environment"))
-    return "environment";
-  if (l.includes("front") || l.includes("user") || l.includes("selfie"))
-    return "user";
-  return undefined;
-}
-
-function cameraDisplayLabel(
-  cam: CameraInfo,
-  index: number,
-  labels: Required<MrzCameraLabels>
-): string {
-  if (cam.facingMode === "environment") return labels.backCamera;
-  if (cam.facingMode === "user") return labels.frontCamera;
-  if (cam.rawLabel) return cam.rawLabel;
-  return `${labels.camera} ${index + 1}`;
-}
 
 // The frame is downscaled to this width before analysis — keeps per-frame
 // document detection + sharpness cheap enough to run in real time.
@@ -138,6 +99,10 @@ export interface MrzCameraLabels {
   frontCamera?: string;
   /** Generic camera label prefix when facing mode is unknown. */
   camera?: string;
+  /** Accessible label for the torch / flashlight toggle button. */
+  torch?: string;
+  /** Label for the button that re-requests camera access after a failure. */
+  retry?: string;
   /** Idle hint shown when no document is in view. */
   hint?: string;
   /** Shown while the OCR pass is confirming the MRZ. */
@@ -196,8 +161,6 @@ export interface MrzCameraScannerProps {
   labels?: MrzCameraLabels;
 }
 
-type ScannerStatus = "requesting" | "ready" | "denied" | "no-camera";
-
 const DEFAULT_LABELS: Required<MrzCameraLabels> = {
   requesting: "Requesting camera access…",
   permissionDenied:
@@ -206,6 +169,8 @@ const DEFAULT_LABELS: Required<MrzCameraLabels> = {
   backCamera: "Back Camera",
   frontCamera: "Front Camera",
   camera: "Camera",
+  torch: "Toggle flashlight",
+  retry: "Try again",
   hint: "Point the camera at a passport or ID",
   verifying: "Confirming MRZ…",
   mrzConfirmed: "MRZ confirmed",
@@ -240,7 +205,6 @@ export function MrzCameraScanner({
   const workCanvasRef = useRef<HTMLCanvasElement>(null);
   // Full-resolution canvas for the captured JPEG + OCR crops.
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
 
   // Mirror props into refs so the long-lived scan loop reads fresh values.
@@ -277,26 +241,14 @@ export function MrzCameraScanner({
   // Latest detected document box (or null), so manual capture can reuse it for
   // a tighter OCR crop without waiting on the loop.
   const lastDocBoxRef = useRef<NormalizedBox | null>(null);
-  const activeCameraIdRef = useRef<string | undefined>(undefined);
   // Native video dimensions, captured once — used to map the work-canvas
   // corner coordinates onto the (object-cover) displayed video.
   const videoDimsRef = useRef<{ w: number; h: number } | null>(null);
 
-  const [cameras, setCameras] = useState<CameraInfo[]>([]);
-  const [activeStreamDeviceId, setActiveStreamDeviceId] = useState<
-    string | undefined
-  >(undefined);
-  const [selectedCameraId, setSelectedCameraId] = useState<string | undefined>(
-    () => {
-      if (typeof window === "undefined") return undefined;
-      try {
-        return localStorage.getItem("mrz-scanner-camera-id") ?? undefined;
-      } catch {
-        return undefined;
-      }
-    }
-  );
-  const [status, setStatus] = useState<ScannerStatus>("requesting");
+  // The shared, ref-counted camera stream (see ../camera-stream). Requested once
+  // per flow and reused across scanners, so the camera permission is asked once.
+  const camera = useCameraStream({ storageKey: "mrz-scanner-camera-id" });
+
   const [detectorReady, setDetectorReady] = useState(() => isOpenCVReady());
   const [score, setScore] = useState(0);
   const [docDetected, setDocDetected] = useState(false);
@@ -329,15 +281,6 @@ export function MrzCameraScanner({
     return () => {
       active = false;
     };
-  }, []);
-
-  const handleCameraChange = useCallback((deviceId: string) => {
-    setSelectedCameraId(deviceId);
-    try {
-      localStorage.setItem("mrz-scanner-camera-id", deviceId);
-    } catch {
-      // localStorage may be unavailable (private browsing, etc.)
-    }
   }, []);
 
   const resetScanState = useCallback(() => {
@@ -467,193 +410,141 @@ export function MrzCameraScanner({
     setPaused(false);
   }, [resetScanState]);
 
-  // ── Camera open + real-time detection / scoring loop ───────────────────────
+  // ── Real-time detection / scoring loop ─────────────────────────────────────
+  // Attaches the shared stream to our own <video> and drives the OpenCV
+  // detection loop. The manager owns the stream's lifecycle — this effect only
+  // detaches (never stops) on cleanup, so a warm stream survives for the next
+  // scanner.
   useEffect(() => {
-    setStatus("requesting");
-    let active = true;
     const videoEl = videoRef.current;
+    const stream = camera.stream;
+    if (!videoEl || !stream || camera.status !== "ready") return undefined;
 
-    void (async () => {
-      try {
-        streamRef.current?.getTracks().forEach((tr) => tr.stop());
+    let active = true;
+    videoEl.srcObject = stream;
+    void videoEl.play().catch(() => {
+      /* play() can reject if interrupted; the loop still runs once frames flow */
+    });
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: selectedCameraId
-            ? {
-                deviceId: { exact: selectedCameraId },
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-              }
-            : {
-                facingMode: { ideal: "environment" },
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
-              },
-        });
+    let lastScanAt = 0;
+    function scanFrame() {
+      if (!active) return;
+      const video = videoRef.current;
+      const work = workCanvasRef.current;
+      const now = performance.now();
 
-        if (!active || !videoRef.current) {
-          stream.getTracks().forEach((tr) => tr.stop());
-          return;
+      if (
+        video &&
+        work &&
+        !pausedRef.current &&
+        isOpenCVReady() &&
+        now - lastScanAt >= scanIntervalMsRef.current &&
+        video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+        video.videoWidth > 0
+      ) {
+        lastScanAt = now;
+
+        const scale = Math.min(1, WORKING_WIDTH / video.videoWidth);
+        const w = Math.round(video.videoWidth * scale);
+        const h = Math.round(video.videoHeight * scale);
+        if (work.width !== w) work.width = w;
+        if (work.height !== h) work.height = h;
+
+        // Record native video size once, for the debug corner overlay.
+        if (
+          !videoDimsRef.current ||
+          videoDimsRef.current.w !== video.videoWidth
+        ) {
+          videoDimsRef.current = {
+            w: video.videoWidth,
+            h: video.videoHeight,
+          };
+          setVideoDims(videoDimsRef.current);
         }
-        streamRef.current = stream;
 
-        const activeTrack = stream.getVideoTracks()[0];
-        const trackSettings = activeTrack?.getSettings();
-        const activeFacingMode = trackSettings?.facingMode as
-          | "environment"
-          | "user"
-          | undefined;
-        const activeDeviceId = trackSettings?.deviceId;
-        activeCameraIdRef.current = activeDeviceId;
-        setActiveStreamDeviceId(activeDeviceId);
+        const ctx = work.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, w, h);
 
-        const allDevices = await navigator.mediaDevices.enumerateDevices();
-        if (!active) return;
-        const videoDevices = allDevices.filter((d) => d.kind === "videoinput");
-        const enriched: CameraInfo[] = videoDevices.map((d) => ({
-          deviceId: d.deviceId,
-          rawLabel: d.label,
-          facingMode:
-            d.deviceId === activeDeviceId
-              ? activeFacingMode
-              : inferFacingFromLabel(d.label),
-        }));
-        setCameras(enriched);
+          // 1) Document corners — used to locate the MRZ band, drive the
+          //    overlay/score, and (when OCR is off) trigger capture.
+          const doc = detectDocument(work);
+          const docOk = !!doc && doc.score >= minDocumentScoreRef.current;
+          lastDocBoxRef.current = doc ? doc.box : null;
 
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        if (!active) return;
-        setStatus("ready");
-
-        let lastScanAt = 0;
-        function scanFrame() {
-          if (!active) return;
-          const video = videoRef.current;
-          const work = workCanvasRef.current;
-          const now = performance.now();
-
-          if (
-            video &&
-            work &&
-            !pausedRef.current &&
-            isOpenCVReady() &&
-            now - lastScanAt >= scanIntervalMsRef.current &&
-            video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
-            video.videoWidth > 0
-          ) {
-            lastScanAt = now;
-
-            const scale = Math.min(1, WORKING_WIDTH / video.videoWidth);
-            const w = Math.round(video.videoWidth * scale);
-            const h = Math.round(video.videoHeight * scale);
-            if (work.width !== w) work.width = w;
-            if (work.height !== h) work.height = h;
-
-            // Record native video size once, for the debug corner overlay.
-            if (
-              !videoDimsRef.current ||
-              videoDimsRef.current.w !== video.videoWidth
-            ) {
-              videoDimsRef.current = {
-                w: video.videoWidth,
-                h: video.videoHeight,
-              };
-              setVideoDims(videoDimsRef.current);
-            }
-
-            const ctx = work.getContext("2d");
-            if (ctx) {
-              ctx.drawImage(video, 0, 0, w, h);
-
-              // 1) Document corners — used to locate the MRZ band, drive the
-              //    overlay/score, and (when OCR is off) trigger capture.
-              const doc = detectDocument(work);
-              const docOk = !!doc && doc.score >= minDocumentScoreRef.current;
-              lastDocBoxRef.current = doc ? doc.box : null;
-
-              // Debug: surface the detected corners (normalised) for the overlay.
-              if (debugRef.current) {
-                setDebugCorners(
-                  doc
-                    ? [
-                        doc.corners.topLeftCorner,
-                        doc.corners.topRightCorner,
-                        doc.corners.bottomRightCorner,
-                        doc.corners.bottomLeftCorner,
-                      ].map((c) => ({ x: c.x / w, y: c.y / h }))
-                    : null
-                );
-              }
-
-              // 2) Sharpness — measured every frame so MRZ-only capture (no
-              //    document) still works.
-              const threshold = blurThresholdRef.current;
-              const sharpness = measureSharpness(work);
-              const sharp = threshold <= 0 || sharpness >= threshold;
-
-              // 3) Update the document score (drives the bar; gates the
-              //    OCR-off capture path).
-              const target = scoreTargetRef.current;
-              if (docOk && sharp) {
-                scoreRef.current = Math.min(
-                  target,
-                  scoreRef.current + DOC_SHARP_GAIN
-                );
-              } else if (!docOk) {
-                scoreRef.current = Math.max(0, scoreRef.current - SCORE_DECAY);
-              }
-
-              setScore(scoreRef.current);
-              setDocDetected(docOk);
-              setTooBlurry(docOk && !sharp);
-
-              // 4) MRZ is the primary signal: verify whenever the frame is
-              //    sharp, with or without a detected document (async, never
-              //    blocks the loop). A confirmed MRZ captures immediately.
-              if (
-                autoCaptureRef.current &&
-                verifyTextRef.current &&
-                sharp &&
-                !mrzConfirmedRef.current &&
-                !verifyingRef.current &&
-                now - lastVerifyAtRef.current >= verifyCooldownMsRef.current
-              ) {
-                void verifyMrzRef.current(doc ? doc.box : null, false);
-              }
-
-              // 5) OCR-off fallback: capture on a stable, sharp document.
-              if (
-                autoCaptureRef.current &&
-                !verifyTextRef.current &&
-                scoreRef.current >= target
-              ) {
-                finalizeCaptureRef.current();
-              }
-
-              if (debugRef.current) {
-                setDebugInfo({
-                  score: Math.round(scoreRef.current),
-                  docScore: doc ? Math.round(doc.score * 100) / 100 : 0,
-                  sharpness: Math.round(sharpness),
-                  filler: lastFillerRef.current,
-                });
-              }
-            }
+          // Debug: surface the detected corners (normalised) for the overlay.
+          if (debugRef.current) {
+            setDebugCorners(
+              doc
+                ? [
+                    doc.corners.topLeftCorner,
+                    doc.corners.topRightCorner,
+                    doc.corners.bottomRightCorner,
+                    doc.corners.bottomLeftCorner,
+                  ].map((c) => ({ x: c.x / w, y: c.y / h }))
+                : null
+            );
           }
 
-          rafRef.current = requestAnimationFrame(scanFrame);
-        }
-        rafRef.current = requestAnimationFrame(scanFrame);
-      } catch (err) {
-        if (!active) return;
-        const name = (err as { name?: string }).name ?? "";
-        if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-          setStatus("no-camera");
-        } else {
-          setStatus("denied");
+          // 2) Sharpness — measured every frame so MRZ-only capture (no
+          //    document) still works.
+          const threshold = blurThresholdRef.current;
+          const sharpness = measureSharpness(work);
+          const sharp = threshold <= 0 || sharpness >= threshold;
+
+          // 3) Update the document score (drives the bar; gates the
+          //    OCR-off capture path).
+          const target = scoreTargetRef.current;
+          if (docOk && sharp) {
+            scoreRef.current = Math.min(
+              target,
+              scoreRef.current + DOC_SHARP_GAIN
+            );
+          } else if (!docOk) {
+            scoreRef.current = Math.max(0, scoreRef.current - SCORE_DECAY);
+          }
+
+          setScore(scoreRef.current);
+          setDocDetected(docOk);
+          setTooBlurry(docOk && !sharp);
+
+          // 4) MRZ is the primary signal: verify whenever the frame is
+          //    sharp, with or without a detected document (async, never
+          //    blocks the loop). A confirmed MRZ captures immediately.
+          if (
+            autoCaptureRef.current &&
+            verifyTextRef.current &&
+            sharp &&
+            !mrzConfirmedRef.current &&
+            !verifyingRef.current &&
+            now - lastVerifyAtRef.current >= verifyCooldownMsRef.current
+          ) {
+            void verifyMrzRef.current(doc ? doc.box : null, false);
+          }
+
+          // 5) OCR-off fallback: capture on a stable, sharp document.
+          if (
+            autoCaptureRef.current &&
+            !verifyTextRef.current &&
+            scoreRef.current >= target
+          ) {
+            finalizeCaptureRef.current();
+          }
+
+          if (debugRef.current) {
+            setDebugInfo({
+              score: Math.round(scoreRef.current),
+              docScore: doc ? Math.round(doc.score * 100) / 100 : 0,
+              sharpness: Math.round(sharpness),
+              filler: lastFillerRef.current,
+            });
+          }
         }
       }
-    })();
+
+      rafRef.current = requestAnimationFrame(scanFrame);
+    }
+    rafRef.current = requestAnimationFrame(scanFrame);
 
     return () => {
       active = false;
@@ -661,17 +552,11 @@ export function MrzCameraScanner({
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      streamRef.current?.getTracks().forEach((tr) => tr.stop());
-      streamRef.current = null;
-      if (videoEl) videoEl.srcObject = null;
+      // Detach from this element only — the manager owns (and keeps warm) the
+      // stream, so we must NOT stop its tracks here.
+      videoEl.srcObject = null;
     };
-    // selectedCameraId is the only dependency — every other value the loop
-    // needs is read through a ref, so the camera stream is not torn down on
-    // unrelated prop/state changes.
-  }, [selectedCameraId]);
-
-  const selectValue =
-    selectedCameraId ?? activeStreamDeviceId ?? cameras[0]?.deviceId;
+  }, [camera.stream, camera.status]);
 
   const scorePct = Math.min(
     100,
@@ -679,201 +564,158 @@ export function MrzCameraScanner({
   );
 
   return (
-    <div className="overflow-hidden rounded-lg border">
-      <div className="relative aspect-video bg-black">
-        <video
-          ref={videoRef}
-          className="h-full w-full object-cover"
-          muted
-          playsInline
-        />
-        {/* Hidden canvases: downscaled analysis + full-res capture/OCR. */}
-        <canvas ref={workCanvasRef} className="hidden" />
-        <canvas ref={captureCanvasRef} className="hidden" />
+    <CameraSurface
+      camera={camera}
+      videoRef={videoRef}
+      testIdPrefix="mrz-camera-scanner"
+      aspectRatio="16 / 9"
+      labels={resolvedLabels}
+      showControls={!paused}
+    >
+      {/* Hidden canvases: downscaled analysis + full-res capture/OCR. */}
+      <canvas ref={workCanvasRef} className="hidden" />
+      <canvas ref={captureCanvasRef} className="hidden" />
 
-        {/* Debug-only: live document corners. The SVG viewBox matches the
-            native video size with `slice`, replicating the video's object-cover
-            so the polygon lines up with what's on screen. */}
-        {debug &&
-          status === "ready" &&
-          !paused &&
-          videoDims &&
-          debugCorners && (
-            <svg
-              className="pointer-events-none absolute inset-0 z-10 h-full w-full"
-              viewBox={`0 0 ${videoDims.w} ${videoDims.h}`}
-              preserveAspectRatio="xMidYMid slice"
-            >
-              <polygon
-                points={debugCorners
-                  .map((c) => `${c.x * videoDims.w},${c.y * videoDims.h}`)
-                  .join(" ")}
-                fill="rgba(52,211,153,0.12)"
-                stroke="#34d399"
-                strokeWidth={3}
-                vectorEffect="non-scaling-stroke"
+      {/* Debug-only: live document corners. The SVG viewBox matches the
+          native video size with `slice`, replicating the video's object-cover
+          so the polygon lines up with what's on screen. */}
+      {debug &&
+        camera.status === "ready" &&
+        !paused &&
+        videoDims &&
+        debugCorners && (
+          <svg
+            className="pointer-events-none absolute inset-0 z-10 h-full w-full"
+            viewBox={`0 0 ${videoDims.w} ${videoDims.h}`}
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <polygon
+              points={debugCorners
+                .map((c) => `${c.x * videoDims.w},${c.y * videoDims.h}`)
+                .join(" ")}
+              fill="rgba(52,211,153,0.12)"
+              stroke="#34d399"
+              strokeWidth={3}
+              vectorEffect="non-scaling-stroke"
+            />
+            {debugCorners.map((c, i) => (
+              <circle
+                key={i}
+                cx={c.x * videoDims.w}
+                cy={c.y * videoDims.h}
+                r={Math.max(videoDims.w, videoDims.h) * 0.012}
+                fill="#34d399"
               />
-              {debugCorners.map((c, i) => (
-                <circle
-                  key={i}
-                  cx={c.x * videoDims.w}
-                  cy={c.y * videoDims.h}
-                  r={Math.max(videoDims.w, videoDims.h) * 0.012}
-                  fill="#34d399"
-                />
-              ))}
-            </svg>
+            ))}
+          </svg>
+        )}
+
+      {debug && debugInfo && camera.status === "ready" && !paused && (
+        <div className="pointer-events-none absolute left-2 top-2 z-20 space-y-0.5 rounded bg-black/70 px-2 py-1 font-mono text-[10px] leading-tight text-white">
+          <div>
+            score: {debugInfo.score} / {scoreTarget}
+          </div>
+          <div>
+            doc score: {debugInfo.docScore} (need ≥{minDocumentScore})
+          </div>
+          <div>
+            sharpness: {debugInfo.sharpness} / {blurThreshold}
+          </div>
+          {verifyText && (
+            <div>
+              last OCR &lt;: {debugInfo.filler} (need ≥{minFillerChars})
+            </div>
           )}
+          <div>mrz: {mrzConfirmed ? "confirmed" : "no"}</div>
+        </div>
+      )}
 
-        {debug && debugInfo && status === "ready" && !paused && (
-          <div className="pointer-events-none absolute left-2 top-2 z-20 space-y-0.5 rounded bg-black/70 px-2 py-1 font-mono text-[10px] leading-tight text-white">
-            <div>
-              score: {debugInfo.score} / {scoreTarget}
-            </div>
-            <div>
-              doc score: {debugInfo.docScore} (need ≥{minDocumentScore})
-            </div>
-            <div>
-              sharpness: {debugInfo.sharpness} / {blurThreshold}
-            </div>
-            {verifyText && (
-              <div>
-                last OCR &lt;: {debugInfo.filler} (need ≥{minFillerChars})
-              </div>
-            )}
-            <div>mrz: {mrzConfirmed ? "confirmed" : "no"}</div>
-          </div>
-        )}
-
-        {status === "requesting" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/70 text-white">
-            <Loader2Icon className="size-6 animate-spin" />
-            <p className="text-sm">{resolvedLabels.requesting}</p>
-          </div>
-        )}
-
-        {status === "denied" && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4 text-center text-sm text-white">
-            {resolvedLabels.permissionDenied}
-          </div>
-        )}
-
-        {status === "no-camera" && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4 text-center text-sm text-white">
-            {resolvedLabels.noCamera}
-          </div>
-        )}
-
-        {status === "ready" && !paused && (
-          <>
-            {/* Status pill */}
-            <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
-              <span
-                className={cn(
-                  "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-white backdrop-blur-sm",
-                  mrzConfirmed
-                    ? "bg-emerald-600/80"
-                    : verifying
-                      ? "bg-sky-600/80"
-                      : tooBlurry || noMrz
-                        ? "bg-amber-600/80"
-                        : docDetected
-                          ? "bg-slate-700/80"
-                          : "bg-black/60"
-                )}
-              >
-                {mrzConfirmed ? (
-                  <CheckCircle2Icon className="size-3.5" />
-                ) : verifying ? (
-                  <Loader2Icon className="size-3.5 animate-spin" />
-                ) : tooBlurry || noMrz ? (
-                  <TriangleAlertIcon className="size-3.5" />
-                ) : (
-                  <ScanLineIcon className="size-3.5" />
-                )}
-                {mrzConfirmed
-                  ? resolvedLabels.mrzConfirmed
+      {camera.status === "ready" && !paused && (
+        <>
+          {/* Status pill */}
+          <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
+            <span
+              className={cn(
+                "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-white backdrop-blur-sm",
+                mrzConfirmed
+                  ? "bg-emerald-600/80"
                   : verifying
-                    ? resolvedLabels.verifying
-                    : tooBlurry
-                      ? resolvedLabels.tooBlurry
-                      : noMrz
-                        ? resolvedLabels.noMrz
-                        : resolvedLabels.hint}
-              </span>
-            </div>
-
-            {/* Score progress bar */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-white/10">
-              <div
-                className={cn(
-                  "h-full transition-[width] duration-150",
-                  mrzConfirmed ? "bg-emerald-400" : "bg-sky-400"
-                )}
-                style={{ width: `${scorePct}%` }}
-              />
-            </div>
-
-            {/* Manual capture button */}
-            <div className="absolute inset-x-0 bottom-4 flex justify-center">
-              <Button
-                data-testid="mrz-camera-scanner-capture"
-                size="sm"
-                variant="secondary"
-                className="rounded-full"
-                disabled={!detectorReady || verifying}
-                onClick={handleManualCapture}
-              >
-                {detectorReady ? (
-                  <CameraIcon className="size-4" />
-                ) : (
-                  <Loader2Icon className="size-4 animate-spin" />
-                )}
-                {resolvedLabels.capture}
-              </Button>
-            </div>
-          </>
-        )}
-
-        {status === "ready" && paused && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 text-white">
-            <CheckCircle2Icon className="size-8 text-emerald-400" />
-            <p className="text-sm font-medium">{resolvedLabels.captured}</p>
-            <Button
-              data-testid="mrz-camera-scanner-scan-again"
-              variant="secondary"
-              size="sm"
-              onClick={handleScanAgain}
+                    ? "bg-sky-600/80"
+                    : tooBlurry || noMrz
+                      ? "bg-amber-600/80"
+                      : docDetected
+                        ? "bg-slate-700/80"
+                        : "bg-black/60"
+              )}
             >
-              <RotateCcwIcon className="size-4" />
-              {resolvedLabels.scanAgain}
+              {mrzConfirmed ? (
+                <CheckCircle2Icon className="size-3.5" />
+              ) : verifying ? (
+                <Loader2Icon className="size-3.5 animate-spin" />
+              ) : tooBlurry || noMrz ? (
+                <TriangleAlertIcon className="size-3.5" />
+              ) : (
+                <ScanLineIcon className="size-3.5" />
+              )}
+              {mrzConfirmed
+                ? resolvedLabels.mrzConfirmed
+                : verifying
+                  ? resolvedLabels.verifying
+                  : tooBlurry
+                    ? resolvedLabels.tooBlurry
+                    : noMrz
+                      ? resolvedLabels.noMrz
+                      : resolvedLabels.hint}
+            </span>
+          </div>
+
+          {/* Score progress bar */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-white/10">
+            <div
+              className={cn(
+                "h-full transition-[width] duration-150",
+                mrzConfirmed ? "bg-emerald-400" : "bg-sky-400"
+              )}
+              style={{ width: `${scorePct}%` }}
+            />
+          </div>
+
+          {/* Manual capture button */}
+          <div className="absolute inset-x-0 bottom-4 flex justify-center">
+            <Button
+              data-testid="mrz-camera-scanner-capture"
+              size="sm"
+              variant="secondary"
+              className="rounded-full"
+              disabled={!detectorReady || verifying}
+              onClick={handleManualCapture}
+            >
+              {detectorReady ? (
+                <CameraIcon className="size-4" />
+              ) : (
+                <Loader2Icon className="size-4 animate-spin" />
+              )}
+              {resolvedLabels.capture}
             </Button>
           </div>
-        )}
+        </>
+      )}
 
-        {cameras.length > 1 && (
-          <div className="absolute bottom-4 right-4 z-10">
-            <Select value={selectValue} onValueChange={handleCameraChange}>
-              <SelectTrigger
-                data-testid="mrz-camera-scanner-select"
-                className={cn(
-                  buttonVariants({ size: "icon-xs", variant: "outline" }),
-                  "aspect-square max-h-7 rounded-full border-white/20 bg-black/60 backdrop-blur-sm [&>.lucide-chevron-down]:hidden"
-                )}
-              >
-                <SwitchCameraIcon />
-              </SelectTrigger>
-              <SelectContent align="end">
-                {cameras.map((cam, i) => (
-                  <SelectItem key={cam.deviceId} value={cam.deviceId}>
-                    {cameraDisplayLabel(cam, i, resolvedLabels)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </div>
-    </div>
+      {camera.status === "ready" && paused && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 text-white">
+          <CheckCircle2Icon className="size-8 text-emerald-400" />
+          <p className="text-sm font-medium">{resolvedLabels.captured}</p>
+          <Button
+            data-testid="mrz-camera-scanner-scan-again"
+            variant="secondary"
+            size="sm"
+            onClick={handleScanAgain}
+          >
+            <RotateCcwIcon className="size-4" />
+            {resolvedLabels.scanAgain}
+          </Button>
+        </div>
+      )}
+    </CameraSurface>
   );
 }
