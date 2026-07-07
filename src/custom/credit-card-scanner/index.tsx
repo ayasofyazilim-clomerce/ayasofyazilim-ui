@@ -1,25 +1,9 @@
 "use client";
 
-import {
-  Button,
-  buttonVariants,
-} from "@repo/ayasofyazilim-ui/components/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@repo/ayasofyazilim-ui/components/select";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import {
-  CheckCircle2Icon,
-  FlashlightIcon,
-  FlashlightOffIcon,
-  Loader2Icon,
-  RotateCcwIcon,
-  SwitchCameraIcon,
-} from "lucide-react";
+import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { CheckCircle2Icon, Loader2Icon, RotateCcwIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CameraSurface, useCameraStream } from "../camera-stream";
 import {
   type CardBrand,
   detectBrand,
@@ -29,19 +13,6 @@ import {
   maskCardNumber,
 } from "./lib";
 import { readCardText } from "./ocr";
-
-// ── Extended MediaTrack camera controls ──────────────────────────────────────
-// `focusMode` and `torch` are real, widely-shipped camera capabilities that the
-// standard DOM lib types don't yet model. We read/apply them through these
-// narrow extensions, always capability-gated and wrapped in try/catch.
-interface ExtendedTrackCapabilities extends MediaTrackCapabilities {
-  focusMode?: string[];
-  torch?: boolean;
-}
-interface ExtendedConstraintSet {
-  focusMode?: string;
-  torch?: boolean;
-}
 
 // ── Decode region (ROI) ───────────────────────────────────────────────────────
 // We OCR only the card-shaped viewfinder region rather than the whole frame:
@@ -142,52 +113,6 @@ function drawOcrFrame(
   return canvas;
 }
 
-// ── Camera metadata ───────────────────────────────────────────────────────────
-
-interface CameraInfo {
-  deviceId: string;
-  rawLabel: string;
-  facingMode: "environment" | "user" | undefined;
-}
-
-function inferFacingFromLabel(
-  label: string
-): "environment" | "user" | undefined {
-  const l = label.toLowerCase();
-  if (l.includes("back") || l.includes("rear") || l.includes("environment"))
-    return "environment";
-  if (l.includes("front") || l.includes("user") || l.includes("selfie"))
-    return "user";
-  return undefined;
-}
-
-function cameraDisplayLabel(
-  cam: CameraInfo,
-  index: number,
-  labels: Required<CreditCardScannerLabels>
-): string {
-  if (cam.facingMode === "environment") return labels.backCamera;
-  if (cam.facingMode === "user") return labels.frontCamera;
-  if (cam.rawLabel) return cam.rawLabel;
-  return `${labels.camera} ${index + 1}`;
-}
-
-// getUserMedia error names meaning the *stored* camera no longer matches a
-// usable device — forget the saved selection and fall back to the default.
-const STALE_DEVICE_ERRORS = new Set([
-  "OverconstrainedError",
-  "NotFoundError",
-  "DevicesNotFoundError",
-]);
-// Error names meaning the camera is momentarily busy (another scanner still
-// releasing it, or another tab holds it) — worth a brief automatic retry.
-const CAMERA_BUSY_ERRORS = new Set([
-  "NotReadableError",
-  "AbortError",
-  "TrackStartError",
-]);
-const MAX_CAMERA_BUSY_RETRIES = 2;
-
 // ── Public API ────────────────────────────────────────────────────────────────
 
 export interface CreditCardData {
@@ -253,8 +178,6 @@ export interface CreditCardScannerProps {
   labels?: CreditCardScannerLabels;
 }
 
-type ScannerStatus = "requesting" | "ready" | "denied" | "no-camera";
-
 const DEFAULT_LABELS: Required<CreditCardScannerLabels> = {
   requesting: "Requesting camera access…",
   permissionDenied:
@@ -291,7 +214,6 @@ export function CreditCardScanner({
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   // The on-screen card-shaped viewfinder — its rect drives the OCR ROI crop.
   const viewfinderRef = useRef<HTMLDivElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number | null>(null);
 
   // Mirror props into refs so the long-lived scan loop reads fresh values.
@@ -316,7 +238,12 @@ export function CreditCardScanner({
     number: "",
     count: 0,
   });
-  const activeCameraIdRef = useRef<string | undefined>(undefined);
+
+  // The shared, ref-counted camera stream (see ../camera-stream). Requested once
+  // per flow and reused across scanners, so the camera permission is asked once.
+  const camera = useCameraStream({
+    storageKey: "credit-card-scanner-camera-id",
+  });
 
   // ── On-screen debug log (newest first) — for devices with no console ─────────
   const [debugLogs, setDebugLogs] = useState<
@@ -345,59 +272,7 @@ export function CreditCardScanner({
     );
   }, []);
 
-  const [cameras, setCameras] = useState<CameraInfo[]>([]);
-  const [activeStreamDeviceId, setActiveStreamDeviceId] = useState<
-    string | undefined
-  >(undefined);
-  const [selectedCameraId, setSelectedCameraId] = useState<string | undefined>(
-    () => {
-      if (typeof window === "undefined") return undefined;
-      try {
-        return (
-          localStorage.getItem("credit-card-scanner-camera-id") ?? undefined
-        );
-      } catch {
-        return undefined;
-      }
-    }
-  );
-  const [status, setStatus] = useState<ScannerStatus>("requesting");
   const [paused, setPaused] = useState(false);
-
-  const [torchSupported, setTorchSupported] = useState(false);
-  const [torchOn, setTorchOn] = useState(false);
-  const torchOnRef = useRef(false);
-
-  // Bumped by the retry button to re-run the camera effect after a failure.
-  const [retryNonce, setRetryNonce] = useState(0);
-  const handleRetry = useCallback(() => {
-    setStatus("requesting");
-    setRetryNonce((n) => n + 1);
-  }, []);
-
-  const handleTorchToggle = useCallback(async () => {
-    const track = streamRef.current?.getVideoTracks()[0];
-    if (!track) return;
-    const next = !torchOnRef.current;
-    try {
-      await track.applyConstraints({
-        advanced: [{ torch: next } as ExtendedConstraintSet],
-      } as MediaTrackConstraints);
-      torchOnRef.current = next;
-      setTorchOn(next);
-    } catch {
-      /* torch unsupported on this track — ignore */
-    }
-  }, []);
-
-  const handleCameraChange = useCallback((deviceId: string) => {
-    setSelectedCameraId(deviceId);
-    try {
-      localStorage.setItem("credit-card-scanner-camera-id", deviceId);
-    } catch {
-      // localStorage may be unavailable (private browsing, etc.)
-    }
-  }, []);
 
   const resetScanState = useCallback(() => {
     candidateRef.current = { number: "", count: 0 };
@@ -497,166 +372,41 @@ export function CreditCardScanner({
     setPaused(false);
   }, [resetScanState]);
 
-  // ── Camera open + OCR scan loop ─────────────────────────────────────────────
-  // useEffect is the right tool here: it subscribes to an external resource
-  // (the camera MediaStream) and drives a requestAnimationFrame loop.
+  // ── OCR scan loop ───────────────────────────────────────────────────────────
+  // Attaches the shared stream to our own <video> and drives the OCR loop. The
+  // manager owns the stream's lifecycle — this effect only detaches (never
+  // stops) on cleanup, so a warm stream survives for the next scanner.
   useEffect(() => {
-    setStatus("requesting");
-    setTorchSupported(false);
-    setTorchOn(false);
-    torchOnRef.current = false;
-    candidateRef.current = { number: "", count: 0 };
+    const video = videoRef.current;
+    const stream = camera.stream;
+    if (!video || !stream || camera.status !== "ready") return undefined;
+
     let active = true;
-    const videoEl = videoRef.current;
+    candidateRef.current = { number: "", count: 0 };
 
-    void (async () => {
-      try {
-        streamRef.current?.getTracks().forEach((tr) => tr.stop());
+    video.srcObject = stream;
+    void video.play().catch(() => {
+      /* play() can reject if interrupted; the loop still runs once frames flow */
+    });
 
-        if (!navigator.mediaDevices?.getUserMedia) {
-          log("getUserMedia unavailable — insecure context or unsupported");
-          setStatus("denied");
-          return;
-        }
-
-        const baseVideo: MediaTrackConstraints = {
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        };
-        const videoConstraints = (deviceId?: string): MediaTrackConstraints =>
-          deviceId
-            ? { ...baseVideo, deviceId: { exact: deviceId } }
-            : { ...baseVideo, facingMode: { ideal: "environment" } };
-
-        // Acquire resiliently: heal a stale stored selection, and ride out a
-        // camera that's momentarily busy (another scanner still releasing it).
-        const acquireStream = async (): Promise<MediaStream> => {
-          let useDeviceId = selectedCameraId;
-          for (let attempt = 0; ; attempt++) {
-            try {
-              return await navigator.mediaDevices.getUserMedia({
-                video: videoConstraints(useDeviceId),
-              });
-            } catch (err) {
-              const name = (err as { name?: string }).name ?? "";
-              if (useDeviceId && STALE_DEVICE_ERRORS.has(name)) {
-                log("stored camera unusable — falling back to default", {
-                  name,
-                });
-                try {
-                  localStorage.removeItem("credit-card-scanner-camera-id");
-                } catch {
-                  /* localStorage may be unavailable */
-                }
-                useDeviceId = undefined;
-                continue;
-              }
-              if (
-                CAMERA_BUSY_ERRORS.has(name) &&
-                attempt < MAX_CAMERA_BUSY_RETRIES &&
-                active
-              ) {
-                log("camera busy — retrying shortly", { attempt, name });
-                await new Promise((resolve) => {
-                  setTimeout(resolve, 400);
-                });
-                if (!active) throw err;
-                continue;
-              }
-              throw err;
-            }
-          }
-        };
-
-        const stream = await acquireStream();
-
-        if (!active || !videoRef.current) {
-          stream.getTracks().forEach((tr) => tr.stop());
-          return;
-        }
-        streamRef.current = stream;
-
-        const activeTrack = stream.getVideoTracks()[0];
-        const trackSettings = activeTrack?.getSettings();
-        const activeFacingMode = trackSettings?.facingMode as
-          | "environment"
-          | "user"
-          | undefined;
-        const activeDeviceId = trackSettings?.deviceId;
-        activeCameraIdRef.current = activeDeviceId;
-        setActiveStreamDeviceId(activeDeviceId);
-        log("camera stream opened", {
-          deviceId: activeDeviceId,
-          facingMode: activeFacingMode,
-        });
-
-        // Continuous autofocus is the #1 win for reading small card digits.
-        // Both calls are capability-gated and non-fatal.
-        if (activeTrack) {
-          try {
-            const caps = activeTrack.getCapabilities?.() as
-              | ExtendedTrackCapabilities
-              | undefined;
-            if (caps?.focusMode?.includes("continuous")) {
-              await activeTrack.applyConstraints({
-                advanced: [
-                  { focusMode: "continuous" } as ExtendedConstraintSet,
-                ],
-              } as MediaTrackConstraints);
-            }
-            if (caps?.torch) setTorchSupported(true);
-          } catch {
-            /* focus/torch setup skipped (constraint unsupported) */
-          }
-        }
-
-        const allDevices = await navigator.mediaDevices.enumerateDevices();
-        if (!active) return;
-        const videoDevices = allDevices.filter((d) => d.kind === "videoinput");
-        const enriched: CameraInfo[] = videoDevices.map((d) => ({
-          deviceId: d.deviceId,
-          rawLabel: d.label,
-          facingMode:
-            d.deviceId === activeDeviceId
-              ? activeFacingMode
-              : inferFacingFromLabel(d.label),
-        }));
-        setCameras(enriched);
-
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        if (!active) return;
-        setStatus("ready");
-
-        function scanFrame() {
-          if (!active) return;
-          const video = videoRef.current;
-          const now = performance.now();
-          if (
-            video &&
-            !pausedRef.current &&
-            !ocrBusyRef.current &&
-            now - lastOcrAtRef.current >= scanIntervalMsRef.current &&
-            video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
-            video.videoWidth > 0
-          ) {
-            // Fire-and-forget: the pass clears its own busy flag when done.
-            void runOcrPassRef.current();
-          }
-          rafRef.current = requestAnimationFrame(scanFrame);
-        }
-        rafRef.current = requestAnimationFrame(scanFrame);
-      } catch (err) {
-        if (!active) return;
-        const name = (err as { name?: string }).name ?? "";
-        log("camera init failed", { name });
-        if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-          setStatus("no-camera");
-        } else {
-          setStatus("denied");
-        }
+    function scanFrame() {
+      if (!active) return;
+      const v = videoRef.current;
+      const now = performance.now();
+      if (
+        v &&
+        !pausedRef.current &&
+        !ocrBusyRef.current &&
+        now - lastOcrAtRef.current >= scanIntervalMsRef.current &&
+        v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+        v.videoWidth > 0
+      ) {
+        // Fire-and-forget: the pass clears its own busy flag when done.
+        void runOcrPassRef.current();
       }
-    })();
+      rafRef.current = requestAnimationFrame(scanFrame);
+    }
+    rafRef.current = requestAnimationFrame(scanFrame);
 
     return () => {
       active = false;
@@ -664,185 +414,73 @@ export function CreditCardScanner({
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      streamRef.current?.getTracks().forEach((tr) => tr.stop());
-      streamRef.current = null;
-      if (videoEl) videoEl.srcObject = null;
+      // Detach from this element only — the manager owns (and keeps warm) the
+      // stream, so we must NOT stop its tracks here.
+      video.srcObject = null;
     };
-    // Intentional triggers only: selectedCameraId (user picks a camera) and
-    // retryNonce (user taps "try again"). Everything else the loop needs is
-    // read through a ref so the stream isn't torn down on unrelated changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCameraId, retryNonce]);
-
-  const selectValue =
-    selectedCameraId ?? activeStreamDeviceId ?? cameras[0]?.deviceId;
+  }, [camera.stream, camera.status]);
 
   return (
-    <div className="overflow-hidden rounded-lg border">
-      <div className="relative bg-black" style={{ aspectRatio }}>
-        <video
-          ref={videoRef}
-          className="h-full w-full object-cover"
-          muted
-          playsInline
-        />
-        {/* Hidden canvases: OCR ROI + full-res capture. */}
-        <canvas ref={ocrCanvasRef} className="hidden" />
-        <canvas ref={captureCanvasRef} className="hidden" />
+    <CameraSurface
+      camera={camera}
+      videoRef={videoRef}
+      testIdPrefix="credit-card-scanner"
+      aspectRatio={aspectRatio}
+      labels={resolvedLabels}
+      showControls={!paused}
+      debugLogs={debug ? debugLogs : undefined}
+      onClearDebugLogs={() => setDebugLogs([])}
+    >
+      {/* Hidden canvases: OCR ROI + full-res capture. */}
+      <canvas ref={ocrCanvasRef} className="hidden" />
+      <canvas ref={captureCanvasRef} className="hidden" />
 
-        {status === "requesting" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/70 text-white">
-            <Loader2Icon className="size-6 animate-spin" />
-            <p className="text-sm">{resolvedLabels.requesting}</p>
+      {camera.status === "ready" && !paused && (
+        <>
+          {/* Status pill — a calm, persistent "scanning" state. */}
+          <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-3">
+            <span className="flex max-w-full items-center gap-1.5 truncate rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+              <Loader2Icon className="size-3.5 animate-spin" />
+              <span className="truncate">{resolvedLabels.scanning}</span>
+            </span>
           </div>
-        )}
 
-        {(status === "denied" || status === "no-camera") && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80 p-4 text-center text-sm text-white">
-            <p>
-              {status === "denied"
-                ? resolvedLabels.permissionDenied
-                : resolvedLabels.noCamera}
-            </p>
-            <button
-              type="button"
-              data-testid="credit-card-scanner-retry"
-              onClick={handleRetry}
-              className={cn(
-                buttonVariants({ size: "sm", variant: "outline" }),
-                "gap-1.5 border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white"
-              )}
+          {/* Card-shaped viewfinder (ISO ID-1 ≈ 1.586 : 1). Its rect drives
+              the OCR ROI crop, so what's framed is what's read. */}
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div
+              ref={viewfinderRef}
+              className="relative w-[82%] max-w-md overflow-hidden rounded-xl"
+              style={{ aspectRatio: "1.586 / 1" }}
             >
-              <RotateCcwIcon className="size-4" />
-              {resolvedLabels.retry}
-            </button>
-          </div>
-        )}
-
-        {status === "ready" && !paused && (
-          <>
-            {/* Status pill — a calm, persistent "scanning" state. */}
-            <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-3">
-              <span className="flex max-w-full items-center gap-1.5 truncate rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                <Loader2Icon className="size-3.5 animate-spin" />
-                <span className="truncate">{resolvedLabels.scanning}</span>
-              </span>
+              <span className="absolute left-0 top-0 h-6 w-6 rounded-tl-md border-l-2 border-t-2 border-white" />
+              <span className="absolute right-0 top-0 h-6 w-6 rounded-tr-md border-r-2 border-t-2 border-white" />
+              <span className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-md border-b-2 border-l-2 border-white" />
+              <span className="absolute bottom-0 right-0 h-6 w-6 rounded-br-md border-b-2 border-r-2 border-white" />
+              {/* Number-band guide: a subtle line where the PAN usually sits. */}
+              <span className="absolute inset-x-4 top-[58%] h-px bg-white/40" />
+              <span className="absolute inset-x-2.5 h-px animate-[scan_2s_linear_infinite] bg-white/60" />
             </div>
-
-            {/* Card-shaped viewfinder (ISO ID-1 ≈ 1.586 : 1). Its rect drives
-                the OCR ROI crop, so what's framed is what's read. */}
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div
-                ref={viewfinderRef}
-                className="relative w-[82%] max-w-md overflow-hidden rounded-xl"
-                style={{ aspectRatio: "1.586 / 1" }}
-              >
-                <span className="absolute left-0 top-0 h-6 w-6 rounded-tl-md border-l-2 border-t-2 border-white" />
-                <span className="absolute right-0 top-0 h-6 w-6 rounded-tr-md border-r-2 border-t-2 border-white" />
-                <span className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-md border-b-2 border-l-2 border-white" />
-                <span className="absolute bottom-0 right-0 h-6 w-6 rounded-br-md border-b-2 border-r-2 border-white" />
-                {/* Number-band guide: a subtle line where the PAN usually sits. */}
-                <span className="absolute inset-x-4 top-[58%] h-px bg-white/40" />
-                <span className="absolute inset-x-2.5 h-px animate-[scan_2s_linear_infinite] bg-white/60" />
-              </div>
-            </div>
-          </>
-        )}
-
-        {status === "ready" && paused && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 text-white">
-            <CheckCircle2Icon className="size-8 text-emerald-400" />
-            <p className="text-sm font-medium">{resolvedLabels.captured}</p>
-            <Button
-              data-testid="credit-card-scanner-scan-again"
-              variant="secondary"
-              size="sm"
-              onClick={handleScanAgain}
-            >
-              <RotateCcwIcon className="size-4" />
-              {resolvedLabels.scanAgain}
-            </Button>
           </div>
-        )}
+        </>
+      )}
 
-        {status === "ready" && !paused && torchSupported && (
-          <div className="absolute bottom-4 left-4 z-10">
-            <button
-              type="button"
-              data-testid="credit-card-scanner-torch"
-              aria-label={resolvedLabels.torch}
-              aria-pressed={torchOn}
-              onClick={() => void handleTorchToggle()}
-              className={cn(
-                buttonVariants({ size: "icon-xs", variant: "outline" }),
-                "aspect-square max-h-7 rounded-full border-white/20 backdrop-blur-sm",
-                torchOn
-                  ? "bg-white text-black hover:bg-white"
-                  : "bg-black/60 text-white"
-              )}
-            >
-              {torchOn ? <FlashlightIcon /> : <FlashlightOffIcon />}
-            </button>
-          </div>
-        )}
-
-        {status === "ready" && !paused && cameras.length > 1 && (
-          <div className="absolute bottom-4 right-4 z-10">
-            <Select value={selectValue} onValueChange={handleCameraChange}>
-              <SelectTrigger
-                data-testid="credit-card-scanner-select"
-                className={cn(
-                  buttonVariants({ size: "icon-xs", variant: "outline" }),
-                  "aspect-square max-h-7 rounded-full border-white/20 bg-black/60 backdrop-blur-sm [&>.lucide-chevron-down]:hidden"
-                )}
-              >
-                <SwitchCameraIcon />
-              </SelectTrigger>
-              <SelectContent align="end">
-                {cameras.map((cam, i) => (
-                  <SelectItem key={cam.deviceId} value={cam.deviceId}>
-                    {cameraDisplayLabel(cam, i, resolvedLabels)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {/* On-screen debug log — visible on devices with no console. */}
-        {debug && (
-          <div className="absolute inset-x-0 top-0 z-30 max-h-[55%] overflow-y-auto bg-black/40 p-2 pt-0 font-mono text-[10px] leading-snug text-emerald-300">
-            <div className="sticky top-0 -mx-2 -mt-2 mb-1 flex items-center justify-between bg-black/50 px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-emerald-400/90">
-              <span>Scanner debug · {debugLogs.length}</span>
-              <button
-                type="button"
-                data-testid="credit-card-scanner-debug-clear"
-                className="rounded bg-white/10 px-1.5 py-0.5 text-emerald-200"
-                onClick={() => setDebugLogs([])}
-              >
-                clear
-              </button>
-            </div>
-            {debugLogs.length === 0 ? (
-              <div className="text-emerald-300/60">Waiting for events…</div>
-            ) : (
-              debugLogs.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="break-all border-b border-white/5 py-0.5"
-                >
-                  <span className="text-emerald-500/70">{entry.time}</span>{" "}
-                  <span className="text-white">{entry.message}</span>
-                  {entry.data ? (
-                    <span className="text-emerald-300/80"> {entry.data}</span>
-                  ) : null}
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+      {camera.status === "ready" && paused && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 text-white">
+          <CheckCircle2Icon className="size-8 text-emerald-400" />
+          <p className="text-sm font-medium">{resolvedLabels.captured}</p>
+          <Button
+            data-testid="credit-card-scanner-scan-again"
+            variant="secondary"
+            size="sm"
+            onClick={handleScanAgain}
+          >
+            <RotateCcwIcon className="size-4" />
+            {resolvedLabels.scanAgain}
+          </Button>
+        </div>
+      )}
+    </CameraSurface>
   );
 }
 

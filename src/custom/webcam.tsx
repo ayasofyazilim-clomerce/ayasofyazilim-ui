@@ -11,16 +11,21 @@
  * - Comprehensive feedback functions
  * - Camera switching support
  * - Internationalization support
+ *
+ * Camera acquisition goes through the shared `useCameraStream` manager (see
+ * ./camera-stream) rather than react-webcam, so this component reuses the same
+ * process-wide MediaStream as the other scanners — the camera permission is
+ * requested once per flow instead of once per component.
  */
 
 "use client";
 
 import { Camera, Pause, Play, RefreshCw, Square, Video } from "lucide-react";
 import * as React from "react";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import WebcamCore from "react-webcam";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { useCameraStream } from "./camera-stream";
 
 // Types
 export interface VideoDimensions {
@@ -113,7 +118,8 @@ export interface WebcamProps {
   };
 
   // Technical Settings
-  webcamRef?: React.RefObject<WebcamCore>;
+  /** Optional ref to the underlying <video> element (was a react-webcam ref). */
+  webcamRef?: React.RefObject<HTMLVideoElement | null>;
   videoCheckInterval?: number; // default: 500ms
   maxRetryCount?: number; // default: 10
   interfaceLocation?: "static" | "absolute"; // Location of controls (default: 'bottom')
@@ -170,7 +176,6 @@ export function Webcam(props: WebcamProps) {
   };
 
   // State
-  const [isPending, startTransition] = useTransition();
   const [facingMode, setFacingMode] = useState<"user" | "environment">(
     defaultCamera === "front" ? "user" : "environment"
   );
@@ -185,9 +190,12 @@ export function Webcam(props: WebcamProps) {
   // Auto capture state to track if it has been initially started
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
 
+  // The shared, ref-counted camera stream (front/back selected via facingMode).
+  const camera = useCameraStream({ facingMode });
+
   // Refs
-  const internalWebcamRef = useRef<WebcamCore>(null);
-  const webcamRef = externalWebcamRef || internalWebcamRef;
+  const internalVideoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = externalWebcamRef ?? internalVideoRef;
   const videoCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const autoCapturIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -226,10 +234,10 @@ export function Webcam(props: WebcamProps) {
 
   // Video Recording Functions
   const startVideoRecording = useCallback(() => {
-    if (!webcamRef.current?.stream || isRecording || !videoRecording) return;
+    const stream = camera.stream;
+    if (!stream || isRecording || !videoRecording) return;
 
     try {
-      const { stream } = webcamRef.current;
       const mimeType = videoRecording.mimeType || "video/webm";
 
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
@@ -277,7 +285,7 @@ export function Webcam(props: WebcamProps) {
       callbacks?.onError?.(`Failed to start video recording: ${error}`);
     }
   }, [
-    webcamRef,
+    camera.stream,
     isRecording,
     videoRecording,
     callbacks,
@@ -288,7 +296,7 @@ export function Webcam(props: WebcamProps) {
 
   // Photo Capture Functions
   const captureHighQualityPhoto = useCallback((): string | null => {
-    const video = webcamRef.current?.video;
+    const video = videoRef.current;
     if (!video) return null;
 
     const canvas = document.createElement("canvas");
@@ -304,7 +312,7 @@ export function Webcam(props: WebcamProps) {
 
     const quality = photoCapture?.quality || 0.95;
     return canvas.toDataURL("image/jpeg", quality);
-  }, [webcamRef, photoCapture]);
+  }, [videoRef, photoCapture]);
 
   const capturePhoto = useCallback(() => {
     if (!photoCapture) return;
@@ -325,7 +333,7 @@ export function Webcam(props: WebcamProps) {
   const captureAutoPhoto = useCallback(() => {
     if (!autoCapture) return;
 
-    const video = webcamRef.current?.video;
+    const video = videoRef.current;
     if (!video) return;
 
     const canvas = document.createElement("canvas");
@@ -350,7 +358,7 @@ export function Webcam(props: WebcamProps) {
         stopAutoCapture();
       }
     }
-  }, [webcamRef, autoCapture, callbacks, stopAutoCapture]);
+  }, [videoRef, autoCapture, callbacks, stopAutoCapture]);
 
   const startAutoCapture = useCallback(
     (isManual = false) => {
@@ -368,7 +376,7 @@ export function Webcam(props: WebcamProps) {
       }
 
       autoCapturIntervalRef.current = setInterval(() => {
-        if (webcamRef.current && isWebcamReady) {
+        if (videoRef.current && isWebcamReady) {
           captureAutoPhoto();
         }
       }, autoCapture.captureInterval * 1000);
@@ -378,7 +386,7 @@ export function Webcam(props: WebcamProps) {
       isWebcamReady,
       isAutoCapturing,
       captureAutoPhoto,
-      webcamRef,
+      videoRef,
       callbacks,
       hasAutoStarted,
     ]
@@ -386,28 +394,16 @@ export function Webcam(props: WebcamProps) {
 
   // Camera Management
   const switchCamera = useCallback(() => {
-    const newFacingMode = facingMode === "user" ? "environment" : "user";
-    setFacingMode(newFacingMode);
+    // Flipping facingMode re-requests the shared stream for the other camera.
+    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
     setIsWebcamReady(false);
     setHasAutoStarted(false); // Reset auto-start flag for new camera
     stopAutoCapture();
-  }, [facingMode, stopAutoCapture]);
-
-  // Add device detection for better browser compatibility
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detect mobile device on component mount
-  useEffect(() => {
-    const checkIsMobile = () =>
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
-    setIsMobile(checkIsMobile());
-  }, []);
+  }, [stopAutoCapture]);
 
   // Video Readiness Check
   const checkVideoReady = useCallback(() => {
-    const video = webcamRef.current?.video;
+    const video = videoRef.current;
     if (!video) return false;
 
     const isReady =
@@ -422,9 +418,10 @@ export function Webcam(props: WebcamProps) {
     }
 
     return isReady;
-  }, [webcamRef, callbacks]);
+  }, [videoRef, callbacks]);
 
-  // Video Initialization
+  // Video Initialization — polls until the attached stream has real frames,
+  // then flips ready and kicks off any auto-start features.
   const handleUserMedia = useCallback(() => {
     clearVideoCheckInterval();
     retryCountRef.current = 0;
@@ -453,10 +450,8 @@ export function Webcam(props: WebcamProps) {
             "Failed to initialize camera after maximum retries"
           );
 
-          // Try with default constraints as a fallback
-          const currentFacingMode = facingMode;
-          setFacingMode("user");
-          setTimeout(() => setFacingMode(currentFacingMode), 100);
+          // Try the other camera as a fallback.
+          setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
         }
       }
     }, videoCheckInterval);
@@ -472,7 +467,6 @@ export function Webcam(props: WebcamProps) {
     startAutoCapture,
     maxRetryCount,
     videoCheckInterval,
-    facingMode,
     callbacks,
   ]);
 
@@ -489,10 +483,8 @@ export function Webcam(props: WebcamProps) {
 
   // Manual capture function
   const handleCapturePhoto = useCallback(() => {
-    startTransition(() => {
-      capturePhoto();
-    });
-  }, [capturePhoto, startTransition]);
+    capturePhoto();
+  }, [capturePhoto]);
 
   // Manual auto capture start function for button
   const handleStartAutoCapture = useCallback(() => {
@@ -515,6 +507,35 @@ export function Webcam(props: WebcamProps) {
       clearRecordingInterval,
     ]
   );
+
+  // Attach the shared stream to our <video> and start readiness detection when
+  // the camera becomes ready. Detaches (never stops) on cleanup — the manager
+  // owns the stream so it can stay warm for the next consumer.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !camera.stream || camera.status !== "ready") return undefined;
+    video.srcObject = camera.stream;
+    void video.play().catch(() => {
+      /* play() can reject if interrupted; readiness polling still resolves */
+    });
+    const stop = handleUserMedia();
+    return () => {
+      stop();
+      setIsWebcamReady(false);
+      video.srcObject = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [camera.stream, camera.status]);
+
+  // Surface camera acquisition failures through the onError callback.
+  useEffect(() => {
+    if (camera.status === "denied") {
+      handleUserMediaError("Camera access was denied");
+    } else if (camera.status === "no-camera") {
+      handleUserMediaError("No camera found on this device");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [camera.status]);
 
   useEffect(() => {
     if (
@@ -578,7 +599,7 @@ export function Webcam(props: WebcamProps) {
       <Button
         key="photo-capture-controls"
         className="size-12 rounded-full border-2 border-white bg-white/10 p-0 text-white transition-all hover:bg-white hover:ring-4"
-        disabled={isPending || !isWebcamReady}
+        disabled={!isWebcamReady}
         onClick={handleCapturePhoto}
       >
         <Camera className="size-4" />
@@ -687,22 +708,16 @@ export function Webcam(props: WebcamProps) {
         )}
       >
         <div className="relative">
-          <WebcamCore
-            audio={false}
-            className="background-transparent h-auto w-full rounded-md"
-            mirrored={facingMode === "user"}
-            onUserMedia={handleUserMedia}
-            onUserMediaError={handleUserMediaError}
-            ref={webcamRef}
-            screenshotFormat="image/jpeg"
-            screenshotQuality={1}
-            videoConstraints={{
-              facingMode,
-              width: { ideal: 1920, min: 640 },
-              height: { ideal: 1920, min: 640 },
-              frameRate: { ideal: 30, min: 15 },
-              aspectRatio: isMobile ? 1.0 : 4 / 3,
-            }}
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            className={cn(
+              "background-transparent h-auto w-full rounded-md",
+              // Mirror the preview for the front camera, matching a selfie view.
+              facingMode === "user" && "-scale-x-100"
+            )}
           />
 
           {placeholder && isWebcamReady && (
