@@ -33,7 +33,9 @@ export function DescriptionFieldTemplate(props: DescriptionFieldProps) {
         >
           <InfoIcon className="size-3.5 ml-1 text-muted-foreground" />
         </TooltipTrigger>
-        <TooltipContent>{description}</TooltipContent>
+        <TooltipContent>
+          <p className="max-w-lg">{description}</p>
+        </TooltipContent>
       </Tooltip>
     </>
   );
