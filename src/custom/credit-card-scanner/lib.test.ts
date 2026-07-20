@@ -3,6 +3,7 @@ import {
   extractCardNumber,
   extractExpiry,
   formatCardNumber,
+  hasPlausibleDigitRun,
   luhnCheck,
   maskCardNumber,
   parseCardText,
@@ -104,6 +105,16 @@ describe("extractExpiry", () => {
   it("returns null when no date is present", () => {
     expect(extractExpiry("4242 4242 4242 4242")).toBeNull();
   });
+
+  it("prefers the latest date when several are printed", () => {
+    // "member since" / "valid from" dates precede the expiry on many cards.
+    expect(extractExpiry("MEMBER SINCE 09/20\n08/27")).toBe("08/27");
+    expect(extractExpiry("VALID FROM 01/2023 THRU 01/2028")).toBe("01/28");
+  });
+
+  it("treats two-digit 9x years as 19xx so they never beat a real expiry", () => {
+    expect(extractExpiry("SINCE 11/99\n08/27")).toBe("08/27");
+  });
 });
 
 describe("formatCardNumber", () => {
@@ -142,5 +153,28 @@ describe("parseCardText", () => {
       brand: "unknown",
       expiry: null,
     });
+  });
+});
+
+describe("hasPlausibleDigitRun", () => {
+  it("accepts a run that doesn't pass Luhn — an embossed misread still counts", () => {
+    expect(hasPlausibleDigitRun("4242 4242 4242 4241")).toBe(true);
+  });
+
+  it("accepts a run with no recognisable brand prefix", () => {
+    expect(hasPlausibleDigitRun("9999 8888 7777 6666")).toBe(true);
+  });
+
+  it("rejects text with no long digit run", () => {
+    expect(hasPlausibleDigitRun("just some words")).toBe(false);
+  });
+
+  it("rejects short digit fragments below the minimum length", () => {
+    expect(hasPlausibleDigitRun("12/25 007")).toBe(false);
+  });
+
+  it("respects a custom minLength", () => {
+    expect(hasPlausibleDigitRun("1234567", 8)).toBe(false);
+    expect(hasPlausibleDigitRun("1234567", 7)).toBe(true);
   });
 });

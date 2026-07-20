@@ -168,19 +168,53 @@ export function extractCardNumber(text: string): string | null {
 }
 
 /**
+ * Cheap, low-bar signal that OCR text plausibly contains a card number —
+ * unlike `extractCardNumber`, this doesn't require Luhn validity or a
+ * recognised brand, just a long-enough run of digits on one line (mirroring
+ * `extractCardNumber`'s own per-line digit extraction, so spacing between
+ * 4-digit groups doesn't fragment a genuine PAN into short runs).
+ *
+ * This exists to corroborate the pixel-level alignment probe before the
+ * scanner trusts it enough to fire the (paid, slower) backend-extraction
+ * fallback automatically: embossed digits Tesseract can't fully resolve into
+ * a Luhn-valid PAN often still yield a partial digit run, which is
+ * meaningfully stronger evidence of "there's a card here" than frame
+ * stillness/texture alone — those can't tell a card from a steady hand.
+ */
+export function hasPlausibleDigitRun(text: string, minLength = 8): boolean {
+  return text
+    .split(/[\r\n]+/)
+    .some((line) => line.replace(/\D/g, "").length >= minLength);
+}
+
+/**
  * Find an expiry date (MM/YY or MM/YYYY) in OCR text and normalise it to
  * "MM/YY". The month must be 01–12. Returns null when none is found. The
  * cardholder's PAN line won't match (no separator), so this targets the small
  * "valid thru" date printed below it.
+ *
+ * When several dates match, the chronologically latest wins: many cards print
+ * a "member since" / "valid from" date alongside the expiry, and the expiry
+ * is by definition the one furthest in the future.
  */
 export function extractExpiry(text: string): string | null {
   const re = /(0[1-9]|1[0-2])\s*[/-]\s*(\d{4}|\d{2})/g;
-  const match = re.exec(text);
-  if (!match) return null;
-  const month = match[1] ?? "";
-  const rawYear = match[2] ?? "";
-  const year = rawYear.length === 4 ? rawYear.slice(2) : rawYear;
-  return `${month}/${year}`;
+  // Two-digit years are pivoted (00–49 → 20xx, 50–99 → 19xx) so a 1990s
+  // "member since" never outranks a 2020s expiry.
+  const ordinal = (month: string, year: string) => {
+    const yy = Number(year);
+    return (yy >= 50 ? 1900 + yy : 2000 + yy) * 12 + Number(month);
+  };
+  let best: { month: string; year: string } | null = null;
+  for (let match = re.exec(text); match; match = re.exec(text)) {
+    const month = match[1] ?? "";
+    const rawYear = match[2] ?? "";
+    const year = rawYear.length === 4 ? rawYear.slice(2) : rawYear;
+    if (!best || ordinal(month, year) > ordinal(best.month, best.year)) {
+      best = { month, year };
+    }
+  }
+  return best ? `${best.month}/${best.year}` : null;
 }
 
 // ── Formatting ──────────────────────────────────────────────────────────────

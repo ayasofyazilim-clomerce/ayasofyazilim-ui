@@ -32,15 +32,32 @@ async function getWorker(): Promise<Worker> {
       });
       return worker;
     })();
+    // If init fails (e.g. the language model fetch dies mid-download), don't
+    // cache the rejection — that would leave OCR permanently dead for the
+    // session. Clearing lets the next scan pass retry from scratch.
+    workerPromise.catch(() => {
+      workerPromise = null;
+    });
   }
   return workerPromise;
 }
 
-/** Run OCR over a (pre-processed) card crop and return the raw recognised text. */
+/**
+ * Run OCR over a (pre-processed) card crop and return the raw recognised text.
+ *
+ * On a recognition error the shared worker is torn down before rethrowing, so
+ * the next pass builds a fresh one — a crashed/wedged worker must not poison
+ * every subsequent scan for the rest of the session.
+ */
 export async function readCardText(source: HTMLCanvasElement): Promise<string> {
   const worker = await getWorker();
-  const { data } = await worker.recognize(source);
-  return data.text ?? "";
+  try {
+    const { data } = await worker.recognize(source);
+    return data.text ?? "";
+  } catch (err) {
+    await terminateCardOcr();
+    throw err;
+  }
 }
 
 /** Tear down the shared worker (e.g. on app teardown). Safe to call if unused. */

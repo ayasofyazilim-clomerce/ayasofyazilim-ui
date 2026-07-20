@@ -12,13 +12,37 @@ import { useState } from "react";
 import {
   CreditCardScanner,
   type CreditCardData,
+  type ExternalCardExtractionResult,
+  type ExternalExtractionInput,
 } from "@repo/ayasofyazilim-ui/custom/credit-card-scanner";
 import { brandLabel } from "./lib";
+
+// Stand-in for the real backend call a consuming app would make here — e.g. a
+// server action that submits `input.croppedImageBase64` (and optionally the
+// other variants) as an extraction API's `documents` and maps whichever
+// comes back into { number, expiry }. This is only illustrative: the scanner
+// itself is backend-agnostic and never calls out on its own (see the
+// `externalExtraction` prop doc).
+async function fakeExternalExtraction(
+  input: ExternalExtractionInput
+): Promise<ExternalCardExtractionResult | null> {
+  void input;
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  return { number: "4111111111111111", expiry: "12/29", matchedVariant: "cropped" };
+}
 
 /**
  * Demo for the CreditCardScanner. Point the rear camera at a card and the
  * scanner reads the number, validates it (Luhn + brand), and — when present —
  * the expiry date. Captured cards appear in the panel on the right.
+ *
+ * Also demonstrates the `externalExtraction` fallback: after a few seconds of
+ * unsuccessful local OCR (the common case for embossed cards, whose raised
+ * digits defeat the flat-print contrast heuristics), the scanner starts
+ * polling `fakeExternalExtraction` above whenever its presence probe sees a
+ * card-like object in the viewfinder — brackets amber while a card is
+ * detected, pill sky-blue while a backend call is actually in flight. No tap
+ * required at any point.
  */
 export function CreditCardScannerDemo() {
   const [results, setResults] = useState<CreditCardData[]>([]);
@@ -48,7 +72,12 @@ export function CreditCardScannerDemo() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <CreditCardScanner onScan={handleScan} debug />
+            <CreditCardScanner
+              onScan={handleScan}
+              debug
+              externalExtraction={fakeExternalExtraction}
+              externalExtractionAfterMs={4000}
+            />
           </CardContent>
         </Card>
 
@@ -83,6 +112,10 @@ export function CreditCardScannerDemo() {
                     <div className="text-xs text-muted-foreground">
                       {brandLabel(r.brand)}
                       {r.expiry ? ` · exp ${r.expiry}` : ""}
+                      {" · "}
+                      {r.source === "external"
+                        ? `backend (${r.variant ?? "unknown"})`
+                        : "local OCR"}
                     </div>
                   </div>
                 </div>
