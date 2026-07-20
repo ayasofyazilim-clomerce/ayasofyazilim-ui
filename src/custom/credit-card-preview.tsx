@@ -76,7 +76,9 @@ export function CreditCardPreview({
   className,
 }: CreditCardPreviewProps) {
   const resolvedBrand = brand ?? getCardBrand(number ?? "");
-  const displayNumber = number?.trim() ? number : PLACEHOLDER_NUMBER;
+  const displayNumber = number
+    ? number.match(/.{1,4}/g)?.join(" ")
+    : PLACEHOLDER_NUMBER;
 
   return (
     <div className={cn("@container w-full", className)}>

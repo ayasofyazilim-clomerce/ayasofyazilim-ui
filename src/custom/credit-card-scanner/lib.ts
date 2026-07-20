@@ -174,12 +174,13 @@ export function extractCardNumber(text: string): string | null {
  * `extractCardNumber`'s own per-line digit extraction, so spacing between
  * 4-digit groups doesn't fragment a genuine PAN into short runs).
  *
- * This exists to corroborate the pixel-level alignment probe before the
- * scanner trusts it enough to fire the (paid, slower) backend-extraction
- * fallback automatically: embossed digits Tesseract can't fully resolve into
- * a Luhn-valid PAN often still yield a partial digit run, which is
- * meaningfully stronger evidence of "there's a card here" than frame
- * stillness/texture alone — those can't tell a card from a steady hand.
+ * This is one of the corroboration paths that lets the scanner fire the
+ * (paid, slower) backend-extraction fallback automatically: a partial digit
+ * run — which embossed digits Tesseract can't fully resolve into a Luhn-valid
+ * PAN often still yield — lets a weaker pixel-presence reading through. (The
+ * scanner's primary trigger no longer needs it: a frame the presence probe
+ * classifies as a card on edge coverage alone is enough, since those embossed
+ * cards may produce no OCR digit run at all.)
  */
 export function hasPlausibleDigitRun(text: string, minLength = 8): boolean {
   return text
