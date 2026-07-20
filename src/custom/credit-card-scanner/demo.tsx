@@ -28,7 +28,11 @@ async function fakeExternalExtraction(
 ): Promise<ExternalCardExtractionResult | null> {
   void input;
   await new Promise((resolve) => setTimeout(resolve, 1500));
-  return { number: "4111111111111111", expiry: "12/29", matchedVariant: "cropped" };
+  return {
+    number: "4111111111111111",
+    expiry: "12/29",
+    matchedVariant: "cropped",
+  };
 }
 
 /**

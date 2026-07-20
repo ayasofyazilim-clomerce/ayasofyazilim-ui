@@ -151,7 +151,9 @@ function probeCardPresence(
   for (let p = 0; p < count; p++) {
     const i = p * 4;
     const l =
-      ((data[i] ?? 0) * 299 + (data[i + 1] ?? 0) * 587 + (data[i + 2] ?? 0) * 114) /
+      ((data[i] ?? 0) * 299 +
+        (data[i + 1] ?? 0) * 587 +
+        (data[i + 2] ?? 0) * 114) /
       1000;
     luminance[p] = l;
     sum += l;
@@ -790,7 +792,12 @@ export function CreditCardScanner({
       firstEligibleAtRef.current = performance.now();
     }, externalExtractionAfterMs);
     return () => clearTimeout(timer);
-  }, [hasExternalExtraction, externalExtractionAfterMs, scanEpoch, camera.status]);
+  }, [
+    hasExternalExtraction,
+    externalExtractionAfterMs,
+    scanEpoch,
+    camera.status,
+  ]);
 
   // Build the cropped/inverted/full-frame variants and hand them to the
   // caller-supplied `externalExtraction` fallback. Called from the scan loop
@@ -825,7 +832,11 @@ export function CreditCardScanner({
     // capture resolution instead of `drawOcrFrame`'s Tesseract-sized
     // downscale, since this image goes to the backend, not the local OCR
     // engine.
-    const enhancedCanvas = drawEnhancedFrame(video, viewfinderRef.current, cropCanvas);
+    const enhancedCanvas = drawEnhancedFrame(
+      video,
+      viewfinderRef.current,
+      cropCanvas
+    );
     const invertedImageBase64 = enhancedCanvas
       ? invertCanvasToDataUrl(enhancedCanvas, quality)
       : null;
@@ -867,7 +878,7 @@ export function CreditCardScanner({
       // the documented "MM/YY", but pass through anything the normaliser
       // can't parse rather than dropping data the backend did return.
       const rawExpiry = extracted?.expiry ?? null;
-      const expiry = rawExpiry ? (extractExpiry(rawExpiry) ?? rawExpiry) : null;
+      const expiry = rawExpiry ? extractExpiry(rawExpiry) ?? rawExpiry : null;
       pausedRef.current = true;
       setPaused(true);
       consecutiveExternalFailuresRef.current = 0;
@@ -1121,17 +1132,19 @@ export function CreditCardScanner({
               back empty — clears itself on the next attempt (see
               `handleExternalExtraction`). Only reachable once
               `externalExtractionAfterMs` has elapsed. */}
-          {hasExternalExtraction && externalArmed && externalExtractionFailed && (
-            <div
-              role="status"
-              aria-live="polite"
-              className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-2 px-3"
-            >
-              <span className="max-w-full truncate rounded-md bg-black/60 px-2 py-1 text-xs text-white">
-                {resolvedLabels.extractionFailed}
-              </span>
-            </div>
-          )}
+          {hasExternalExtraction &&
+            externalArmed &&
+            externalExtractionFailed && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-2 px-3"
+              >
+                <span className="max-w-full truncate rounded-md bg-black/60 px-2 py-1 text-xs text-white">
+                  {resolvedLabels.extractionFailed}
+                </span>
+              </div>
+            )}
         </>
       )}
 
