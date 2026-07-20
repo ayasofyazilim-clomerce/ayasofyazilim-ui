@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import type { ReactNode } from "react";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import {
   CardBrandIcon,
@@ -28,11 +28,12 @@ function CardChip({ className }: { className?: string }) {
   );
 }
 
+/** Shared pill look for status/nickname chips rendered into `children` — kept
+ * here so callers match this card's visual language instead of guessing. */
+
 export interface CreditCardPreviewLabels {
   holderNameLabel?: string;
   expiryLabel?: string;
-  default?: string;
-  expired?: string;
 }
 
 export interface CreditCardPreviewProps {
@@ -43,19 +44,21 @@ export interface CreditCardPreviewProps {
   holderName?: string;
   /** Pre-formatted display string, e.g. "MM/YY". */
   expiry?: string;
-  nickname?: string;
-  isDefault?: boolean;
+  /** Dims the whole card face — purely visual, no behavior implied. */
   isExpired?: boolean;
   labels?: CreditCardPreviewLabels;
-  /** Rendered top-left, next to the chip — typically a small actions-menu trigger. */
-  actions?: React.ReactNode;
+  /** Rendered in the top-right cluster next to the chip — nickname pill,
+   * default/expired indicators, delete action, etc. Fully composed by the
+   * caller; this component only lays it out. */
+  children?: ReactNode;
   className?: string;
 }
 
 /**
  * A stylised, physical-card-like preview — chip, formatted number, holder
- * name, expiry and brand logo on a dark gradient face. Used both as a live
- * preview while entering a new card and to display already-saved cards.
+ * name, expiry and brand logo on a dark gradient face. Purely presentational:
+ * it has no notion of nicknames, defaults, or actions — callers compose that
+ * via `children`.
  *
  * Sizes itself off its own rendered width (container queries), not the
  * viewport, since the same component shows up both large (add-card dialog)
@@ -67,11 +70,9 @@ export function CreditCardPreview({
   number,
   holderName,
   expiry,
-  nickname,
-  isDefault,
   isExpired,
   labels,
-  actions,
+  children,
   className,
 }: CreditCardPreviewProps) {
   const resolvedBrand = brand ?? getCardBrand(number ?? "");
@@ -92,26 +93,9 @@ export function CreditCardPreview({
         />
         <div className="relative flex h-full flex-col justify-between">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              {actions}
-              <CardChip />
-            </div>
+            <CardChip />
             <div className="flex flex-wrap items-center justify-end gap-1">
-              {nickname ? (
-                <span className="max-w-24 truncate rounded-full bg-white/10 px-1.5 py-0.5 text-[9px] font-medium backdrop-blur @xs:max-w-32 @xs:px-2 @xs:text-[10px]">
-                  {nickname}
-                </span>
-              ) : null}
-              {isDefault ? (
-                <span className="rounded-full bg-white/15 px-1.5 py-0.5 text-[9px] font-medium tracking-wide uppercase backdrop-blur @xs:px-2 @xs:text-[10px]">
-                  {labels?.default ?? "Default"}
-                </span>
-              ) : null}
-              {isExpired ? (
-                <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[9px] font-medium tracking-wide text-red-200 uppercase backdrop-blur @xs:px-2 @xs:text-[10px]">
-                  {labels?.expired ?? "Expired"}
-                </span>
-              ) : null}
+              {children}
             </div>
           </div>
 
@@ -136,10 +120,7 @@ export function CreditCardPreview({
                 {expiry || "MM/YY"}
               </p>
             </div>
-            <CardBrandIcon
-              brand={resolvedBrand}
-              className="size-6 shrink-0 rounded-sm shadow @sm:size-8"
-            />
+            <CardBrandIcon brand={resolvedBrand} className="size-7" />
           </div>
         </div>
       </div>
