@@ -1,7 +1,7 @@
 import type { Worker } from "tesseract.js";
 
 /**
- * Minimal OCR confirmation for the MRZ band. We don't parse the MRZ — we only
+ * Minimal OCR confirmation for the MRZ band. We don't parse the MRZ - we only
  * read the candidate band and check that it contains the `<` filler character
  * that every MRZ uses heavily, as a final guard against false positives (a
  * dense block of ordinary text that happened to pass the morphology detector).

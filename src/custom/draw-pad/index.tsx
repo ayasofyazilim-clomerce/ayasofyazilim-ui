@@ -100,7 +100,7 @@ export interface DrawPadTranslations {
   "DrawPad.customColor": string;
 }
 
-/** Default English translations — spread and override to localise. */
+/** Default English translations - spread and override to localise. */
 export const DEFAULT_DRAW_PAD_TRANSLATIONS: DrawPadTranslations = {
   "DrawPad.clear": "Clear signature",
   "DrawPad.download": "Download signature",
@@ -355,7 +355,7 @@ export const DrawPad = forwardRef<DrawPadHandle, DrawPadProps>(function DrawPad(
     }
   }, []);
 
-  // Attach stroke listeners once on mount — legitimate external subscription.
+  // Attach stroke listeners once on mount - legitimate external subscription.
   // This useEffect is necessary for managing external DOM events from SignaturePad.
   // It's a proper use case for useEffect.
   // The throttling logic for color changes is handled by the useCallback, not here.

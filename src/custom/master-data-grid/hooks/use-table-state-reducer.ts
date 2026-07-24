@@ -100,7 +100,7 @@ function createInitialState<TData>(
   pageSize: number
 ): TableState {
   const baseVisibility = initializeColumnVisibility(config);
-  // Auto-hide groupBy columns — they must exist for grouping but should not be visible
+  // Auto-hide groupBy columns - they must exist for grouping but should not be visible
   const groupByColumns = config.grouping?.groupBy || [];
   const groupByVisibility = Object.fromEntries(
     groupByColumns.map((col) => [col, false])

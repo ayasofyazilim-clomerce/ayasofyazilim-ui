@@ -21,7 +21,7 @@ import {
 } from "./lib";
 import { countFillerChars, readBandText } from "./ocr";
 
-// The frame is downscaled to this width before analysis — keeps per-frame
+// The frame is downscaled to this width before analysis - keeps per-frame
 // document detection + sharpness cheap enough to run in real time.
 const WORKING_WIDTH = 480;
 
@@ -142,7 +142,7 @@ export interface MrzCameraScannerProps {
    */
   blurThreshold?: number;
   /**
-   * When false, never auto-captures — the user must press the capture button.
+   * When false, never auto-captures - the user must press the capture button.
    * @default true
    */
   autoCapture?: boolean;
@@ -174,8 +174,8 @@ const DEFAULT_LABELS: Required<MrzCameraLabels> = {
   hint: "Point the camera at a passport or ID",
   verifying: "Confirming MRZ…",
   mrzConfirmed: "MRZ confirmed",
-  tooBlurry: "Too blurry — hold steady",
-  noMrz: "No MRZ found — try again",
+  tooBlurry: "Too blurry - hold steady",
+  noMrz: "No MRZ found - try again",
   capture: "Capture",
   captured: "Photo captured",
   scanAgain: "Scan again",
@@ -241,7 +241,7 @@ export function MrzCameraScanner({
   // Latest detected document box (or null), so manual capture can reuse it for
   // a tighter OCR crop without waiting on the loop.
   const lastDocBoxRef = useRef<NormalizedBox | null>(null);
-  // Native video dimensions, captured once — used to map the work-canvas
+  // Native video dimensions, captured once - used to map the work-canvas
   // corner coordinates onto the (object-cover) displayed video.
   const videoDimsRef = useRef<{ w: number; h: number } | null>(null);
 
@@ -331,7 +331,7 @@ export function MrzCameraScanner({
   const finalizeCaptureRef = useRef(finalizeCapture);
   finalizeCaptureRef.current = finalizeCapture;
 
-  // OCR verification — runs async, does NOT pause the detection loop. On a
+  // OCR verification - runs async, does NOT pause the detection loop. On a
   // confirmed MRZ it captures the exact verified frame (MRZ is sufficient, even
   // with no document detected). `manual` surfaces failures as user feedback.
   const verifyMrz = useCallback(
@@ -362,16 +362,16 @@ export function MrzCameraScanner({
         lastFillerRef.current = filler;
 
         if (filler >= minFillerCharsRef.current) {
-          // Confirmed — capture this verified frame.
+          // Confirmed - capture this verified frame.
           mrzConfirmedRef.current = true;
           setMrzConfirmed(true);
           emitCapture(canvas);
         } else if (manual) {
-          // User pressed capture but there's no MRZ here — tell them.
+          // User pressed capture but there's no MRZ here - tell them.
           setNoMrz(true);
         }
       } catch {
-        /* OCR error — leave unconfirmed; the loop retries after cooldown */
+        /* OCR error - leave unconfirmed; the loop retries after cooldown */
       } finally {
         verifyingRef.current = false;
         setVerifying(false);
@@ -412,7 +412,7 @@ export function MrzCameraScanner({
 
   // ── Real-time detection / scoring loop ─────────────────────────────────────
   // Attaches the shared stream to our own <video> and drives the OpenCV
-  // detection loop. The manager owns the stream's lifecycle — this effect only
+  // detection loop. The manager owns the stream's lifecycle - this effect only
   // detaches (never stops) on cleanup, so a warm stream survives for the next
   // scanner.
   useEffect(() => {
@@ -466,7 +466,7 @@ export function MrzCameraScanner({
         if (ctx) {
           ctx.drawImage(video, 0, 0, w, h);
 
-          // 1) Document corners — used to locate the MRZ band, drive the
+          // 1) Document corners - used to locate the MRZ band, drive the
           //    overlay/score, and (when OCR is off) trigger capture.
           const doc = detectDocument(work);
           const docOk = !!doc && doc.score >= minDocumentScoreRef.current;
@@ -486,7 +486,7 @@ export function MrzCameraScanner({
             );
           }
 
-          // 2) Sharpness — measured every frame so MRZ-only capture (no
+          // 2) Sharpness - measured every frame so MRZ-only capture (no
           //    document) still works.
           const threshold = blurThresholdRef.current;
           const sharpness = measureSharpness(work);
@@ -552,7 +552,7 @@ export function MrzCameraScanner({
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      // Detach from this element only — the manager owns (and keeps warm) the
+      // Detach from this element only - the manager owns (and keeps warm) the
       // stream, so we must NOT stop its tracks here.
       videoEl.srcObject = null;
     };

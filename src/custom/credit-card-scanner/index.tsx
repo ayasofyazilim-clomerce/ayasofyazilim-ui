@@ -24,14 +24,14 @@ import { readCardText } from "./ocr";
 // that produces spurious digits. The ROI grows by this fraction on each side so
 // a card not perfectly inside the guide still reads.
 const ROI_PADDING = 0.08;
-// Cap the OCR canvas width — bounds Tesseract's per-pass cost while leaving the
+// Cap the OCR canvas width - bounds Tesseract's per-pass cost while leaving the
 // card number sharp (the ROI is already only the card, not the whole frame).
 const MAX_OCR_WIDTH = 1000;
 
 /**
  * Source crop rectangle (in video-intrinsic px) matching the on-screen
  * viewfinder, accounting for the video element's `object-cover` scaling.
- * Returns null when geometry isn't available yet — callers fall back to the
+ * Returns null when geometry isn't available yet - callers fall back to the
  * full frame.
  */
 function computeViewfinderRoi(
@@ -63,27 +63,27 @@ function computeViewfinderRoi(
 
 // ── Card-presence probe ──────────────────────────────────────────────────────
 // Two jobs, both about not wasting work on a frame that has no card in it:
-//   1. Gate the heavy local OCR pass — running Tesseract on a blank wall, a
+//   1. Gate the heavy local OCR pass - running Tesseract on a blank wall, a
 //      hand or a lens cap burns CPU and only ever produces noise.
-//   2. Gate the (paid, slower) backend fallback — the whole reason it isn't
+//   2. Gate the (paid, slower) backend fallback - the whole reason it isn't
 //      fired blindly on every frame.
 // Each tick we downsample the viewfinder ROI to a small grayscale probe (small
-// enough to compute every tick, large enough that a card's printed texture —
-// its number, chip, logo — survives) and derive two signals:
-//   • `stddev` — is there *any* content at all, vs a flat/blank surface;
-//   • `strongEdgeCoverage` — the fraction of pixels sitting on a sharp local
+// enough to compute every tick, large enough that a card's printed texture -
+// its number, chip, logo - survives) and derive two signals:
+//   • `stddev` - is there *any* content at all, vs a flat/blank surface;
+//   • `strongEdgeCoverage` - the fraction of pixels sitting on a sharp local
 //     luminance gradient. A card packs the frame with print (digits, name,
 //     chip, logos) so a large share of pixels are edges; skin and painted walls
 //     are smooth and stay well under, even when bright enough to clear the
 //     stddev floor.
 // That second signal is what lets us call the backend on a card the local OCR
-// *can't* read — the embossed case the fallback exists for — WITHOUT also
+// *can't* read - the embossed case the fallback exists for - WITHOUT also
 // firing on every hand that drifts through frame, and without waiting on local
 // OCR to corroborate first (for those cards it never will). See the scan loop
 // for how the three stages drive the trigger.
 //
-// (This used to gate the backend on frame *stillness* — frame-to-frame
-// luminance diffing — and then, after that was dropped as unreliable, on local
+// (This used to gate the backend on frame *stillness* - frame-to-frame
+// luminance diffing - and then, after that was dropped as unreliable, on local
 // OCR corroboration alone. That corroboration requirement permanently starved
 // the exact embossed cards the fallback is for, so it's now just one of several
 // trigger paths, not a hard gate.)
@@ -93,7 +93,7 @@ const MIN_CONTENT_STDDEV = 6; // guards against a blank wall / lens cap
 // A pixel counts as an "edge" once its combined horizontal+vertical luminance
 // gradient (0–255 scale) clears `EDGE_PIXEL_THRESHOLD`; a frame is classified
 // "card" when at least `MIN_CARD_EDGE_COVERAGE` of its pixels do. Both are
-// starting estimates, not measured — logged every tick (see the scan loop) so
+// starting estimates, not measured - logged every tick (see the scan loop) so
 // they can be tuned against real cards/cameras. Nothing hard-fails if they're
 // off: the OCR-corroboration and relax-timeout paths still fire the backend on
 // their own.
@@ -104,13 +104,13 @@ const EXTERNAL_RETRY_BASE_COOLDOWN_MS = 4000;
 const EXTERNAL_RETRY_MAX_COOLDOWN_MS = 16000;
 // A card that's clearly in frame (the edge-coverage gate above) but that local
 // OCR still can't get even a partial digit run out of, this long after the
-// camera came up, is one local recognition is not going to win — almost always
+// camera came up, is one local recognition is not going to win - almost always
 // embossed. Don't make the more-reliable backend wait out the full
 // `externalExtractionAfterMs` head start for it; arm it this early instead.
 const EARLY_ARM_MS = 1500;
 // Escape hatch: should the backend never get a green light from either the
 // edge-coverage gate or OCR corroboration, plain "content" becomes enough once
-// it's been eligible this long — so a card the probe misclassifies can never
+// it's been eligible this long - so a card the probe misclassifies can never
 // permanently block its own fallback.
 const OCR_GATE_RELAX_AFTER_MS = 12000;
 
@@ -139,7 +139,7 @@ function probeCardPresence(
   const sh = roi?.sh ?? video.videoHeight;
   if (!sw || !sh) return null;
 
-  // Only (re)allocate the backing buffer when the size actually changed —
+  // Only (re)allocate the backing buffer when the size actually changed -
   // this runs every probe tick, and re-setting width/height forces a clear +
   // realloc even when assigning the same values.
   if (
@@ -195,7 +195,7 @@ function probeCardPresence(
   // logo, hologram) isn't. `edgeEnergy` is the total (logged for tuning);
   // `strongEdgeCount` is how many pixels clear `EDGE_PIXEL_THRESHOLD`, which
   // turns into the coverage fraction the "card" classification actually gates
-  // on — a card's edges are spread across the whole frame, a stray textured
+  // on - a card's edges are spread across the whole frame, a stray textured
   // patch (a fingertip, a logo on a desk) lights up only a corner.
   let edgeEnergy = 0;
   let strongEdgeCount = 0;
@@ -234,7 +234,7 @@ function probeCardPresence(
 
 /**
  * Crop the current frame to the (padded) viewfinder ROI, in full color and at
- * capture resolution — unlike `drawOcrFrame`, this feeds a vision-model
+ * capture resolution - unlike `drawOcrFrame`, this feeds a vision-model
  * backend rather than Tesseract, so it skips the grayscale/contrast-stretch
  * pass entirely. This is what `externalExtraction` should be sent instead of
  * the raw full frame: a photo of "a card somewhere in a room" wastes most of
@@ -269,7 +269,7 @@ function cropViewfinderToDataUrl(
  * embossed cards: the raised digits' natural light/shadow contrast doesn't
  * always read well as-is, and inverting sometimes turns a faint shadow edge
  * into a much stronger, more legible one. Must be called right after
- * `cropViewfinderToDataUrl` drew into the same canvas — reads back exactly
+ * `cropViewfinderToDataUrl` drew into the same canvas - reads back exactly
  * what's currently on it. Returns null if nothing has been drawn yet.
  */
 function invertCanvasToDataUrl(
@@ -293,8 +293,8 @@ function invertCanvasToDataUrl(
 /**
  * Grayscale + min–max contrast stretch, applied in place to whatever is
  * currently drawn on `canvas`. High-contrast monochrome is what Tesseract
- * reads best — it lifts faint flat-printed digits off a busy card
- * background — and the same stretch also sharpens embossed-digit
+ * reads best - it lifts faint flat-printed digits off a busy card
+ * background - and the same stretch also sharpens embossed-digit
  * light/shadow edges for the backend "inverted" variant (see
  * `drawEnhancedFrame`). Shared so both consumers apply the identical pass;
  * only the resolution they draw at first differs.
@@ -332,7 +332,7 @@ function applyGrayscaleContrastStretch(canvas: HTMLCanvasElement): void {
  * Draw the viewfinder ROI (or the whole frame, until geometry is ready) into
  * `canvas`, capped to `MAX_OCR_WIDTH`, then apply the grayscale/contrast-
  * stretch pass. The width cap exists purely to bound Tesseract's per-frame
- * cost locally — see `drawEnhancedFrame` for the same pass at full
+ * cost locally - see `drawEnhancedFrame` for the same pass at full
  * resolution. Returns null when there's nothing to draw.
  */
 function drawOcrFrame(
@@ -362,7 +362,7 @@ function drawOcrFrame(
 
 /**
  * Same grayscale + contrast-stretch pass as `drawOcrFrame`, but drawn at full
- * capture resolution instead of downscaled to `MAX_OCR_WIDTH` — that cap only
+ * capture resolution instead of downscaled to `MAX_OCR_WIDTH` - that cap only
  * exists to bound Tesseract's local per-frame cost, and reusing it for the
  * image sent to the backend would throw away resolution the vision model
  * doesn't need thrown away. Returns null when there's nothing to draw.
@@ -410,7 +410,7 @@ export interface CreditCardData {
   source: "local" | "external";
   /**
    * Which image variant the `externalExtraction` fallback matched on (e.g.
-   * "cropped", "inverted") — whatever string it returned as
+   * "cropped", "inverted") - whatever string it returned as
    * `matchedVariant`. Undefined for local-OCR results. Purely diagnostic:
    * useful for logging/UI while tuning what a given backend actually needs.
    */
@@ -460,14 +460,14 @@ export interface ExternalCardExtractionResult {
 
 /**
  * Image variants handed to `externalExtraction`. The scanner generates these
- * from the current frame (plain canvas work — crop + invert, no backend
+ * from the current frame (plain canvas work - crop + invert, no backend
  * awareness); which one(s) to actually submit is the caller's call, e.g.
  * submitting several as separate `documents` in one extraction-API request
  * and picking whichever comes back with a result.
  */
 export interface ExternalExtractionInput {
   /**
-   * The card cropped to the viewfinder guide, full color, unprocessed — the
+   * The card cropped to the viewfinder guide, full color, unprocessed - the
    * recommended primary candidate. The full frame typically has the card
    * occupying a fraction of the picture surrounded by background; this
    * crop puts it at (near) full resolution instead.
@@ -475,24 +475,24 @@ export interface ExternalExtractionInput {
   croppedImageBase64: string;
   /**
    * The crop run through the same grayscale + contrast-stretch pass used for
-   * local OCR (see `drawOcrFrame`/`drawEnhancedFrame` — the pass already
+   * local OCR (see `drawOcrFrame`/`drawEnhancedFrame` - the pass already
    * tuned to lift faint digits off a busy card background), but at full
    * capture resolution rather than downscaled for Tesseract, then inverted.
    * A fallback for embossed cards whose natural light/shadow contrast
    * doesn't read well as-is.
    */
   invertedImageBase64: string;
-  /** The full, unprocessed camera frame — a fallback in case the card extends past the guide. */
+  /** The full, unprocessed camera frame - a fallback in case the card extends past the guide. */
   fullFrameImageBase64: string;
 }
 
 export interface CreditCardScannerProps {
   /**
-   * Called once a card number has been confirmed — the same Luhn-valid number
-   * read `requiredMatches` times — with the parsed data and the captured frame.
+   * Called once a card number has been confirmed - the same Luhn-valid number
+   * read `requiredMatches` times - with the parsed data and the captured frame.
    */
   onScan: (data: CreditCardData) => void;
-  /** Minimum interval between OCR passes, in ms. OCR is heavy — keep this high. @default 600 */
+  /** Minimum interval between OCR passes, in ms. OCR is heavy - keep this high. @default 600 */
   scanIntervalMs?: number;
   /**
    * How many times the *same* Luhn-valid number must be read before capturing.
@@ -511,20 +511,20 @@ export interface CreditCardScannerProps {
   labels?: CreditCardScannerLabels;
   /**
    * Optional server-side fallback for cards the local OCR can't read reliably
-   * — most commonly embossed cards, whose raised digits (and the shadows they
+   * - most commonly embossed cards, whose raised digits (and the shadows they
    * cast) defeat the flat-print contrast heuristics `ocr.ts` is tuned for.
    * Receives a few pre-cropped/inverted image variants (see
-   * `ExternalExtractionInput` — submitting more than one as separate
+   * `ExternalExtractionInput` - submitting more than one as separate
    * `documents` in a single extraction-API request is usually the right
    * move, since a raw full-frame photo wastes most of its resolution on
    * background) and should resolve with the extracted number/expiry, or
    * `null` when nothing could be extracted.
    *
-   * Fires automatically — never on every frame — and polls with exponential
+   * Fires automatically - never on every frame - and polls with exponential
    * backoff while a card sits in frame and keeps coming back empty. On each
    * probe tick (see the scan loop) it fires when the on-device presence probe
-   * classifies the viewfinder as holding a *card* — a frame dense with printed
-   * edges — which is the primary path and the reason embossed cards reach the
+   * classifies the viewfinder as holding a *card* - a frame dense with printed
+   * edges - which is the primary path and the reason embossed cards reach the
    * backend promptly even though local OCR can't read them. Two weaker paths
    * also trigger it: any card-like *content* that a recent OCR pass corroborated
    * with a plausible digit run, or (as a never-permanent-block escape hatch)
@@ -534,7 +534,7 @@ export interface CreditCardScannerProps {
    * deliberately no wait for the frame to hold still: this is a vision-model
    * backend, not a strict per-pixel OCR crop, and an on-device "steady" gate
    * tried here previously proved unreliable. The caller owns the actual network
-   * request (e.g. a server action proxying a document/OCR extraction API) —
+   * request (e.g. a server action proxying a document/OCR extraction API) -
    * this package has no backend of its own.
    */
   externalExtraction?: (
@@ -587,7 +587,7 @@ export function CreditCardScanner({
   const captureCanvasRef = useRef<HTMLCanvasElement>(null);
   // Tiny off-screen canvas the card-presence probe downsamples into.
   const probeCanvasRef = useRef<HTMLCanvasElement>(null);
-  // The on-screen card-shaped viewfinder — its rect drives the OCR ROI crop.
+  // The on-screen card-shaped viewfinder - its rect drives the OCR ROI crop.
   const viewfinderRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -627,30 +627,30 @@ export function CreditCardScanner({
   // can skip the heavy Tesseract pass on a blank ("empty") frame. Updated every
   // probe tick regardless of whether a backend is wired.
   const presenceStageRef = useRef<ProbeStage>("empty");
-  // When the camera became ready (or the last "scan again") — the anchor for
+  // When the camera became ready (or the last "scan again") - the anchor for
   // the local-OCR head start and the early-arm / relax timers below. Null until
   // the scan loop starts.
   const cameraReadyAtRef = useRef<number | null>(null);
-  // Set by `runOcrPass` on every pass (see `hasPlausibleDigitRun`) — real
+  // Set by `runOcrPass` on every pass (see `hasPlausibleDigitRun`) - real
   // evidence from the OCR engine that there's card-like printed content in
   // view, not just pixel content/texture. Required (with a relax-after-
   // timeout escape hatch) before the pixel probe below is trusted enough to
   // fire the backend fallback automatically.
   const recentOcrHadDigitsRef = useRef(false);
-  // Consecutive failed/empty external attempts — backs off the retry cooldown
+  // Consecutive failed/empty external attempts - backs off the retry cooldown
   // (capped) so a scanner pointed at the wrong thing doesn't hammer the
   // backend every time the probe re-settles. Reset on success or scan-again.
   const consecutiveExternalFailuresRef = useRef(0);
-  // Re-entrancy guard for the external call. Must be a ref, not state — the
+  // Re-entrancy guard for the external call. Must be a ref, not state - the
   // scan loop below reads it every animation frame, and a state update isn't
   // visible until the next render, which is too slow to prevent a double-fire.
   const externalExtractingRef = useRef(false);
   // True once the component has unmounted. A backend call resolving after
-  // that must not fire `onScan` — by then the consumer has moved on, and a
+  // that must not fire `onScan` - by then the consumer has moved on, and a
   // late result would look like a brand-new scan.
   const disposedRef = useRef(false);
   useEffect(() => {
-    // Reset on (re)mount — under StrictMode the cleanup below runs once
+    // Reset on (re)mount - under StrictMode the cleanup below runs once
     // between the double-invoke, and the flag must not stay latched.
     disposedRef.current = false;
     return () => {
@@ -664,7 +664,7 @@ export function CreditCardScanner({
     storageKey: "credit-card-scanner-camera-id",
   });
 
-  // ── On-screen debug log (newest first) — for devices with no console ─────────
+  // ── On-screen debug log (newest first) - for devices with no console ─────────
   const [debugLogs, setDebugLogs] = useState<
     { id: number; time: string; message: string; data?: string }[]
   >([]);
@@ -698,12 +698,12 @@ export function CreditCardScanner({
   // `cameraReadyAtRef`; this state only mirrors the two things the UI reacts to.
   const [externalExtractionFailed, setExternalExtractionFailed] =
     useState(false);
-  // Render mirror of `externalExtractingRef` — drives the status pill so the
+  // Render mirror of `externalExtractingRef` - drives the status pill so the
   // user can see when a backend attempt is actually in flight, rather than
   // the pill claiming "reading" the whole time a card sits in frame.
   const [externalExtracting, setExternalExtracting] = useState(false);
-  // Presence feedback driven by `probeCardPresence`: "searching" — nothing
-  // card-like in the viewfinder yet; "detected" — a card-like object was
+  // Presence feedback driven by `probeCardPresence`: "searching" - nothing
+  // card-like in the viewfinder yet; "detected" - a card-like object was
   // found, so the automatic backend-extraction trigger is being tried
   // periodically (see the scan loop).
   const [presenceStage, setPresenceStage] = useState<"searching" | "detected">(
@@ -771,7 +771,7 @@ export function CreditCardScanner({
       if (!source) return;
       const text = await readCardText(source);
       if (pausedRef.current) return;
-      // Set on every pass regardless of outcome below — this is the signal
+      // Set on every pass regardless of outcome below - this is the signal
       // the presence probe's auto-trigger corroborates against (see
       // `hasPlausibleDigitRun`'s doc comment).
       recentOcrHadDigitsRef.current = hasPlausibleDigitRun(text);
@@ -779,14 +779,14 @@ export function CreditCardScanner({
       const expiry = extractExpiry(text);
 
       if (!number) {
-        log("ocr pass — no valid number");
+        log("ocr pass - no valid number");
         return;
       }
 
       // Debug only: the candidate is masked here and never surfaced in the
-      // UI — the user sees a plain "scanning" state until a number is
+      // UI - the user sees a plain "scanning" state until a number is
       // confirmed, rather than partial brand/number guesses.
-      log("ocr pass — candidate", {
+      log("ocr pass - candidate", {
         masked: maskCardNumber(number),
         brand: detectBrand(number),
         expiry,
@@ -800,7 +800,7 @@ export function CreditCardScanner({
         confirmRef.current(number, expiry);
       }
     } catch {
-      /* OCR error — leave unconfirmed; the loop retries after cooldown */
+      /* OCR error - leave unconfirmed; the loop retries after cooldown */
     } finally {
       ocrBusyRef.current = false;
     }
@@ -849,7 +849,7 @@ export function CreditCardScanner({
       quality
     );
     // Reuses the exact grayscale + contrast-stretch pipeline already proven
-    // for local OCR (`drawOcrFrame`, feeding `ocr.ts`'s Tesseract worker) —
+    // for local OCR (`drawOcrFrame`, feeding `ocr.ts`'s Tesseract worker) -
     // then inverts it. `drawEnhancedFrame` applies the identical pass at full
     // capture resolution instead of `drawOcrFrame`'s Tesseract-sized
     // downscale, since this image goes to the backend, not the local OCR
@@ -872,7 +872,7 @@ export function CreditCardScanner({
     externalExtractingRef.current = true;
     setExternalExtracting(true);
     setExternalExtractionFailed(false);
-    log("external extraction — requesting");
+    log("external extraction - requesting");
     try {
       const extracted = await extract({
         croppedImageBase64,
@@ -880,7 +880,7 @@ export function CreditCardScanner({
         fullFrameImageBase64,
       });
       // The world may have moved on while we awaited: local OCR can confirm
-      // a card mid-flight (both paths run concurrently on purpose —
+      // a card mid-flight (both paths run concurrently on purpose -
       // whichever reads the card first wins), or the component can unmount.
       // A late backend result must not fire a second `onScan`.
       if (disposedRef.current || pausedRef.current) return;
@@ -890,7 +890,7 @@ export function CreditCardScanner({
       // than reporting a perfectly good read as a failure.
       const number = (extracted?.number ?? "").replace(/\D/g, "");
       if (!number || !luhnCheck(number)) {
-        log("external extraction — no valid number");
+        log("external extraction - no valid number");
         consecutiveExternalFailuresRef.current += 1;
         setExternalExtractionFailed(true);
         return;
@@ -904,7 +904,7 @@ export function CreditCardScanner({
       pausedRef.current = true;
       setPaused(true);
       consecutiveExternalFailuresRef.current = 0;
-      log("external extraction — confirmed", {
+      log("external extraction - confirmed", {
         masked: maskCardNumber(number),
         brand,
         variant: extracted?.matchedVariant,
@@ -920,7 +920,7 @@ export function CreditCardScanner({
       });
     } catch (err) {
       log(
-        "external extraction — error",
+        "external extraction - error",
         err instanceof Error ? err.message : String(err)
       );
       if (!disposedRef.current && !pausedRef.current) {
@@ -938,7 +938,7 @@ export function CreditCardScanner({
 
   // ── OCR scan loop ───────────────────────────────────────────────────────────
   // Attaches the shared stream to our own <video> and drives the OCR loop. The
-  // manager owns the stream's lifecycle — this effect only detaches (never
+  // manager owns the stream's lifecycle - this effect only detaches (never
   // stops) on cleanup, so a warm stream survives for the next scanner.
   useEffect(() => {
     const video = videoRef.current;
@@ -950,7 +950,7 @@ export function CreditCardScanner({
     recentOcrHadDigitsRef.current = false;
     presenceStageRef.current = "empty";
     // Anchor the head-start / early-arm / relax clocks to the camera actually
-    // being ready — counting from mount would let a slow permission prompt or
+    // being ready - counting from mount would let a slow permission prompt or
     // camera init eat local OCR's entire head start.
     cameraReadyAtRef.current = performance.now();
 
@@ -968,11 +968,11 @@ export function CreditCardScanner({
         v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
         v.videoWidth > 0;
 
-      // Card-presence probe — cheap, so it runs far more often than OCR and
+      // Card-presence probe - cheap, so it runs far more often than OCR and
       // regardless of whether a backend is wired: besides driving the backend
       // trigger and the viewfinder feedback, its stage gates the heavy OCR
       // pass below (no point running Tesseract on a blank frame). Paused while
-      // a backend call is in flight — the pill already reflects that state, and
+      // a backend call is in flight - the pill already reflects that state, and
       // freezing the stage keeps the brackets from flickering under it.
       if (
         v &&
@@ -1003,14 +1003,14 @@ export function CreditCardScanner({
           const afterMs = externalExtractionAfterMsRef.current;
           // Normally hold the backend until local OCR has had its head start,
           // but a card clearly in frame that OCR still can't read a digit off
-          // (embossed) shouldn't wait that out — arm it early.
+          // (embossed) shouldn't wait that out - arm it early.
           const timedArm = elapsedSinceReady >= afterMs;
           const earlyArm =
             isCard && !ocrCorroborated && elapsedSinceReady >= EARLY_ARM_MS;
           const armed = timedArm || earlyArm;
 
           // "Confident enough to spend a backend call": a card-like frame on
-          // its own (the edge-coverage gate — the main reason we now reach the
+          // its own (the edge-coverage gate - the main reason we now reach the
           // backend more), OR weaker content that a recent OCR pass
           // corroborated (the old bar), OR content that's stayed eligible long
           // enough that we stop insisting on either (never a permanent block).
@@ -1019,7 +1019,7 @@ export function CreditCardScanner({
           const readyToTrigger =
             hasContent && (isCard || ocrCorroborated || relaxed);
 
-          // Throttled to ~1 line/second so the metrics stay readable — this is
+          // Throttled to ~1 line/second so the metrics stay readable - this is
           // how the guessed edge/stddev thresholds actually get tuned against
           // real cards and cameras rather than blind re-guessing.
           if (now - lastMetricsLogAtRef.current >= 1000) {
@@ -1051,7 +1051,7 @@ export function CreditCardScanner({
         }
       }
 
-      // Local OCR pass — heavy, so throttled to `scanIntervalMs` and skipped
+      // Local OCR pass - heavy, so throttled to `scanIntervalMs` and skipped
       // entirely on a frame the probe calls blank ("empty"). The pass clears
       // its own busy flag when done.
       if (
@@ -1075,7 +1075,7 @@ export function CreditCardScanner({
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      // Detach from this element only — the manager owns (and keeps warm) the
+      // Detach from this element only - the manager owns (and keeps warm) the
       // stream, so we must NOT stop its tracks here.
       video.srcObject = null;
     };
@@ -1118,7 +1118,7 @@ export function CreditCardScanner({
 
       {camera.status === "ready" && !paused && (
         <>
-          {/* Status pill — searching, or a card-like object detected and the
+          {/* Status pill - searching, or a card-like object detected and the
               backend fallback is being tried periodically. */}
           <div
             role="status"
@@ -1176,7 +1176,7 @@ export function CreditCardScanner({
           </div>
 
           {/* Transient failure message after an auto-triggered attempt comes
-              back empty — clears itself on the next attempt (see
+              back empty - clears itself on the next attempt (see
               `handleExternalExtraction`). `externalExtractionFailed` is only
               ever set once a real backend attempt has run, so no extra
               armed/elapsed guard is needed here. */}

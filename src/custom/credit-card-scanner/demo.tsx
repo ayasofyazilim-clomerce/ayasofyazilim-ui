@@ -17,7 +17,7 @@ import {
 } from "@repo/ayasofyazilim-ui/custom/credit-card-scanner";
 import { brandLabel } from "./lib";
 
-// Stand-in for the real backend call a consuming app would make here — e.g. a
+// Stand-in for the real backend call a consuming app would make here - e.g. a
 // server action that submits `input.croppedImageBase64` (and optionally the
 // other variants) as an extraction API's `documents` and maps whichever
 // comes back into { number, expiry }. This is only illustrative: the scanner
@@ -37,14 +37,14 @@ async function fakeExternalExtraction(
 
 /**
  * Demo for the CreditCardScanner. Point the rear camera at a card and the
- * scanner reads the number, validates it (Luhn + brand), and — when present —
+ * scanner reads the number, validates it (Luhn + brand), and - when present -
  * the expiry date. Captured cards appear in the panel on the right.
  *
  * Also demonstrates the `externalExtraction` fallback: after a few seconds of
  * unsuccessful local OCR (the common case for embossed cards, whose raised
  * digits defeat the flat-print contrast heuristics), the scanner starts
  * polling `fakeExternalExtraction` above whenever its presence probe sees a
- * card-like object in the viewfinder — brackets amber while a card is
+ * card-like object in the viewfinder - brackets amber while a card is
  * detected, pill sky-blue while a backend call is actually in flight. No tap
  * required at any point.
  */
@@ -58,7 +58,7 @@ export function CreditCardScannerDemo() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold">CreditCardScanner — Demo</h1>
+        <h1 className="text-2xl font-semibold">CreditCardScanner - Demo</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Camera + Tesseract.js OCR. The card number is confirmed only once it
           passes the Luhn check and the same value is read twice, which guards
@@ -95,7 +95,7 @@ export function CreditCardScannerDemo() {
           <CardContent className="space-y-3">
             {results.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Nothing scanned yet — point the camera at a card.
+                Nothing scanned yet - point the camera at a card.
               </p>
             ) : (
               results.map((r, i) => (

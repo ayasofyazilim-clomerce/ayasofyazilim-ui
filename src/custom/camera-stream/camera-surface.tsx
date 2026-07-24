@@ -1,13 +1,13 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CameraSurface — the shared UI shell for every viewfinder-style scanner.
+// CameraSurface - the shared UI shell for every viewfinder-style scanner.
 //
 // It renders everything that was duplicated across the barcode / credit-card /
 // MRZ scanners: the <video>, the requesting / permission-denied / no-camera
 // overlays, the retry button, the torch toggle, the camera selector and the
-// on-screen debug log. Each scanner keeps only what's unique to it — its decode
-// loop, its result handling and its viewfinder — and passes the viewfinder (plus
+// on-screen debug log. Each scanner keeps only what's unique to it - its decode
+// loop, its result handling and its viewfinder - and passes the viewfinder (plus
 // any decode canvases) as `children`.
 //
 // The scanner owns the <video> ref and the `useCameraStream` result so its decode
@@ -55,7 +55,7 @@ export interface CameraSurfaceLabels {
 export interface CameraSurfaceProps {
   /** The result of `useCameraStream()` from the owning scanner. */
   camera: UseCameraStreamResult;
-  /** The scanner's own <video> ref — CameraSurface renders the element with it. */
+  /** The scanner's own <video> ref - CameraSurface renders the element with it. */
   videoRef: RefObject<HTMLVideoElement | null>;
   labels: CameraSurfaceLabels;
   /** Prefix for the interactive elements' data-testid (e.g. "barcode-camera-scanner"). */
@@ -178,7 +178,7 @@ export function CameraSurface({
           </div>
         )}
 
-        {/* On-screen debug log — visible on devices with no console (iPad etc.) */}
+        {/* On-screen debug log - visible on devices with no console (iPad etc.) */}
         {debugLogs && (
           <div className="absolute inset-x-0 top-0 z-30 max-h-[55%] overflow-y-auto bg-black/40 p-2 pt-0 font-mono text-[10px] leading-snug text-emerald-300">
             <div className="sticky top-0 -mx-2 -mt-2 mb-1 flex items-center justify-between bg-black/50 px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-emerald-400/90">

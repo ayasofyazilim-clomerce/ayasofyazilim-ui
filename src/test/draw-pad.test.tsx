@@ -446,7 +446,7 @@ describe("DrawPad", () => {
   describe("button visibility while drawing", () => {
     it("button group has opacity-0 class during a stroke", () => {
       render(<DrawPad showClear />);
-      // Before drawing — no opacity-0
+      // Before drawing - no opacity-0
       expect(
         screen.getByTestId("draw-pad-clear").closest("div")
       ).not.toHaveClass("opacity-0");

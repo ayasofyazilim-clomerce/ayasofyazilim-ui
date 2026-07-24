@@ -54,7 +54,7 @@ export function ensureOpenCVReady(): Promise<void> {
         resolve();
       };
     } catch {
-      /* some builds expose a read-only hook — polling covers it */
+      /* some builds expose a read-only hook - polling covers it */
     }
   });
 }
@@ -132,7 +132,7 @@ export function detectDocument(
 }
 
 /**
- * Returns the variance of the Laplacian of the (grayscale) frame — the standard
+ * Returns the variance of the Laplacian of the (grayscale) frame - the standard
  * focus measure. Higher means sharper; a low value indicates a blurry image.
  * The frame is downscaled to a fixed width first so the value is comparable
  * regardless of source resolution. Returns 0 if OpenCV isn't ready.

@@ -25,7 +25,7 @@ interface AnimatedCounterProps
   duration?: number;
   className?: string;
   fontSize?: number;
-  /** Controlled mode — when provided the internal counter is bypassed */
+  /** Controlled mode - when provided the internal counter is bypassed */
   value?: number;
   /** Minimum digits to render (enables leading zeros) */
   minDigits?: number;
