@@ -5,8 +5,8 @@
 //
 // Every camera scanner in this package (barcode, credit-card, MRZ, webcam) used
 // to call `getUserMedia` on its own and fully stop the stream on unmount. In a
-// flow that opens several scanners in sequence — e.g. the traveller "validate"
-// screen (boarding-pass → claim-tag → rescan) — that meant one camera
+// flow that opens several scanners in sequence - e.g. the traveller "validate"
+// screen (boarding-pass → claim-tag → rescan) - that meant one camera
 // acquisition per scanner, and one permission prompt per acquisition on
 // platforms that don't persist the grant (iOS Safari, in-app WKWebViews).
 //
@@ -14,7 +14,7 @@
 // that is *ref-counted* across consumers and *kept warm* for a short grace
 // period after the last consumer unmounts. The result:
 //   • The first scanner triggers exactly one `getUserMedia`; later scanners that
-//     want the same camera reuse the live stream — no second prompt, no restart
+//     want the same camera reuse the live stream - no second prompt, no restart
 //     flash, no "camera busy" race while the previous scanner releases.
 //   • Rapid transitions (reopening a modal, switching tabs, scanning several
 //     items back-to-back) never re-acquire.
@@ -22,7 +22,7 @@
 //
 // Note on long gaps: the keep-warm window is measured in seconds, so it collapses
 // *close-in-time* re-acquisitions. Steps separated by minutes (reading a result
-// before the next scan) still re-acquire — bridging those would mean holding the
+// before the next scan) still re-acquire - bridging those would mean holding the
 // camera (and its "in use" indicator) on the whole time, which we deliberately
 // don't do.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -83,13 +83,13 @@ export function cameraDisplayLabel(
 }
 
 // getUserMedia error names meaning the *stored* camera no longer matches a usable
-// device — we forget the saved selection and fall back to the default camera.
+// device - we forget the saved selection and fall back to the default camera.
 const STALE_DEVICE_ERRORS = new Set([
   "OverconstrainedError",
   "NotFoundError",
   "DevicesNotFoundError",
 ]);
-// Error names meaning the camera is momentarily busy — another consumer is still
+// Error names meaning the camera is momentarily busy - another consumer is still
 // releasing it, or another tab/app holds it. Worth a brief automatic retry.
 const CAMERA_BUSY_ERRORS = new Set([
   "NotReadableError",
@@ -120,7 +120,7 @@ interface CameraState {
   streamId: number;
 }
 
-// Stable reference returned during SSR — must never change identity or
+// Stable reference returned during SSR - must never change identity or
 // useSyncExternalStore loops.
 const SERVER_STATE: CameraState = {
   stream: null,
@@ -264,7 +264,7 @@ async function openStream(
 
     const stream = await acquireStream(req, storageKey);
 
-    // Superseded while awaiting getUserMedia — throw the fresh stream away.
+    // Superseded while awaiting getUserMedia - throw the fresh stream away.
     if (pendingSignature !== mySig) {
       stream.getTracks().forEach((tr) => tr.stop());
       return;
@@ -313,10 +313,10 @@ async function openStream(
               : inferFacingFromLabel(d.label),
         }));
     } catch {
-      /* enumeration may fail before permission settles — selector just hides */
+      /* enumeration may fail before permission settles - selector just hides */
     }
 
-    // Superseded during the post-acquire awaits — discard.
+    // Superseded during the post-acquire awaits - discard.
     if (pendingSignature !== mySig) {
       stream.getTracks().forEach((tr) => tr.stop());
       return;
@@ -349,9 +349,9 @@ async function openStream(
 
 function requestStream(req: CameraRequest, storageKey?: string) {
   const wantSig = signatureOf(req);
-  // Already live with these constraints — reuse the warm stream.
+  // Already live with these constraints - reuse the warm stream.
   if (state.stream && currentSignature === wantSig) return;
-  // Already opening exactly this — let it finish.
+  // Already opening exactly this - let it finish.
   if (pendingSignature === wantSig) return;
   pendingSignature = wantSig;
   acquireChain = acquireChain.then(() => openStream(req, storageKey, wantSig));
@@ -395,7 +395,7 @@ async function setTorch(on: boolean) {
     } as MediaTrackConstraints);
     setState({ torchOn: on });
   } catch {
-    /* torch unsupported on this track — ignore */
+    /* torch unsupported on this track - ignore */
   }
 }
 
@@ -420,7 +420,7 @@ export interface UseCameraStreamOptions {
 
 export interface UseCameraStreamResult {
   stream: MediaStream | null;
-  /** Increments on each fresh (re)open — handy as an effect dependency. */
+  /** Increments on each fresh (re)open - handy as an effect dependency. */
   streamId: number;
   status: CameraStatus;
   cameras: CameraInfo[];
@@ -440,7 +440,7 @@ export interface UseCameraStreamResult {
  * Subscribe to the process-wide shared camera stream. Each mounted consumer
  * ref-counts the stream; the first triggers `getUserMedia`, the rest reuse it.
  * Attach the returned `stream` to your own `<video>` and run your own decode
- * loop — do NOT stop the stream yourself; the manager owns its lifecycle.
+ * loop - do NOT stop the stream yourself; the manager owns its lifecycle.
  */
 export function useCameraStream(
   options: UseCameraStreamOptions = {}

@@ -63,7 +63,7 @@ function getDropdownItemProps(variant: ButtonVariant | undefined): {
   }
 }
 
-// Used in dropdown mode — avoids nesting a Button inside a DropdownMenuItem
+// Used in dropdown mode - avoids nesting a Button inside a DropdownMenuItem
 function DropdownDialogMenuItem<TData>({
   action,
   row,
@@ -143,7 +143,7 @@ function DropdownDialogMenuItem<TData>({
   );
 }
 
-// Used in inline/responsive mode — icon-only button with tooltip that opens a dialog
+// Used in inline/responsive mode - icon-only button with tooltip that opens a dialog
 function InlineDialogActionItem<TData>({
   action,
   row,

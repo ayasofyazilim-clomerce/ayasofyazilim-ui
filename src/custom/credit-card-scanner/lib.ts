@@ -3,8 +3,8 @@
  *
  * These have no DOM or React dependency so they're unit-testable in isolation.
  * The scanner's OCR pass produces noisy text; this module turns that text into
- * a validated card number (Luhn-checked), a recognised brand, and — when
- * present — an expiry date. The Luhn check is the scanner's main guard against
+ * a validated card number (Luhn-checked), a recognised brand, and - when
+ * present - an expiry date. The Luhn check is the scanner's main guard against
  * false positives, playing the same role the `<` filler check plays for the MRZ
  * scanner: a random run of digits almost never passes it.
  */
@@ -44,7 +44,7 @@ export function luhnCheck(digits: string): boolean {
 
 /**
  * Identify the card brand from its issuer prefix (BIN) and length. Returns
- * "unknown" when nothing matches — the number may still be valid (it passed
+ * "unknown" when nothing matches - the number may still be valid (it passed
  * Luhn), we just don't recognise the scheme. Order matters: narrower prefixes
  * (e.g. UnionPay 62, Discover 65) are checked before the broad Maestro range.
  */
@@ -168,7 +168,7 @@ export function extractCardNumber(text: string): string | null {
 }
 
 /**
- * Cheap, low-bar signal that OCR text plausibly contains a card number —
+ * Cheap, low-bar signal that OCR text plausibly contains a card number -
  * unlike `extractCardNumber`, this doesn't require Luhn validity or a
  * recognised brand, just a long-enough run of digits on one line (mirroring
  * `extractCardNumber`'s own per-line digit extraction, so spacing between
@@ -176,8 +176,8 @@ export function extractCardNumber(text: string): string | null {
  *
  * This is one of the corroboration paths that lets the scanner fire the
  * (paid, slower) backend-extraction fallback automatically: a partial digit
- * run — which embossed digits Tesseract can't fully resolve into a Luhn-valid
- * PAN often still yield — lets a weaker pixel-presence reading through. (The
+ * run - which embossed digits Tesseract can't fully resolve into a Luhn-valid
+ * PAN often still yield - lets a weaker pixel-presence reading through. (The
  * scanner's primary trigger no longer needs it: a frame the presence probe
  * classifies as a card on edge coverage alone is enough, since those embossed
  * cards may produce no OCR digit run at all.)
@@ -236,7 +236,7 @@ export function formatCardNumber(number: string, brand?: CardBrand): string {
 }
 
 /**
- * Mask all but the first and last four digits — used for on-screen feedback and
+ * Mask all but the first and last four digits - used for on-screen feedback and
  * debug logging so a full PAN is never rendered or written to the console.
  */
 export function maskCardNumber(number: string): string {

@@ -9,7 +9,7 @@ import {
   parseCardText,
 } from "./lib";
 
-// Canonical processor test PANs — all Luhn-valid by design.
+// Canonical processor test PANs - all Luhn-valid by design.
 const VISA = "4242424242424242";
 const MASTERCARD = "5555555555554444";
 const MASTERCARD_2SERIES = "2223003122003222";
@@ -78,7 +78,7 @@ describe("extractCardNumber", () => {
 
   it("prefers a known brand when several lines pass Luhn", () => {
     // The Amex line (15) and Visa line (16) both pass Luhn; both are known
-    // brands — the longer one wins the tie-break.
+    // brands - the longer one wins the tie-break.
     const text = `${AMEX}\n${VISA}`;
     expect(extractCardNumber(text)).toBe(VISA);
   });
@@ -157,7 +157,7 @@ describe("parseCardText", () => {
 });
 
 describe("hasPlausibleDigitRun", () => {
-  it("accepts a run that doesn't pass Luhn — an embossed misread still counts", () => {
+  it("accepts a run that doesn't pass Luhn - an embossed misread still counts", () => {
     expect(hasPlausibleDigitRun("4242 4242 4242 4241")).toBe(true);
   });
 

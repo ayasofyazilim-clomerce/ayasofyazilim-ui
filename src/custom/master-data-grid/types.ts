@@ -220,7 +220,7 @@ export interface GroupingConfig {
   groupLabelField?: string;
   /** Hide leaf rows whose `id` appears as a group value (they are already shown as group headers) */
   hideGroupParentRows?: boolean;
-  /** Custom renderer for the fallback group header (used when the parent row is not in the current page). `subRows` contains the original data of all child rows — use them to derive labels or any other display fields. */
+  /** Custom renderer for the fallback group header (used when the parent row is not in the current page). `subRows` contains the original data of all child rows - use them to derive labels or any other display fields. */
   groupFallbackRenderer?: (props: {
     groupValue: string;
     subRows: Record<string, unknown>[];
@@ -240,7 +240,7 @@ export interface SelectionConfig<TData = unknown> {
   enabled?: boolean;
   mode?: "single" | "multiple";
   defaultSelectedIds?: string[];
-  /** Controlled selection — grid always reflects this array; update it in onSelectionChange to keep in sync */
+  /** Controlled selection - grid always reflects this array; update it in onSelectionChange to keep in sync */
   selectedIds?: string[];
   onSelectionChange?: (selectedRows: TData[]) => void;
   rowSelectable?: (row: TData) => boolean;

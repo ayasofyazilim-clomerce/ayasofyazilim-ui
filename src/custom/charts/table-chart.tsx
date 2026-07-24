@@ -65,7 +65,7 @@ function renderCellContent(
 }
 
 /**
- * Tabular "chart" for comparison data that does not fit a plotted axis —
+ * Tabular "chart" for comparison data that does not fit a plotted axis -
  * e.g. cumulative period comparisons (This Week / Month / Year / All Time)
  * where wildly different magnitudes make a shared axis misleading.
  * Rendered inside the shared {@link ChartCard} so it matches the other charts.

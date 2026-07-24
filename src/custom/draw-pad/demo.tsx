@@ -307,7 +307,7 @@ export function DrawPadDemo() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold">DrawPad — Demo</h1>
+        <h1 className="text-2xl font-semibold">DrawPad - Demo</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           All configurable use cases.{" "}
           <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
@@ -317,16 +317,16 @@ export function DrawPadDemo() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {/* 1 — Default: canvas only */}
+        {/* 1 - Default: canvas only */}
         <Section
           title="Default"
-          description="No props — pure canvas, no buttons."
+          description="No props - pure canvas, no buttons."
           prop="<DrawPad />"
         >
           <DrawPad />
         </Section>
 
-        {/* 2 — Pen color picker */}
+        {/* 2 - Pen color picker */}
         <Section
           title="Pen Color Picker"
           description="6 presets + custom color input. Indicator dot shows current color."
@@ -335,7 +335,7 @@ export function DrawPadDemo() {
           <DrawPad showPenColor showFullscreen />
         </Section>
 
-        {/* 3 — Pen thickness picker */}
+        {/* 3 - Pen thickness picker */}
         <Section
           title="Pen Thickness Picker"
           description="6 preset weights + custom range slider (1–20px)."
@@ -344,19 +344,19 @@ export function DrawPadDemo() {
           <DrawPad showPenThickness showFullscreen />
         </Section>
 
-        {/* 4 — Pen controls combined */}
+        {/* 4 - Pen controls combined */}
         <Section
           title="Pen Controls"
-          description="Color + thickness pickers together — the full drawing toolbar."
+          description="Color + thickness pickers together - the full drawing toolbar."
           prop="showPenColor showPenThickness showFullscreen"
         >
           <DrawPad showPenColor showPenThickness showFullscreen />
         </Section>
 
-        {/* 5 — All buttons */}
+        {/* 5 - All buttons */}
         <Section
           title="All Buttons"
-          description="Color · Thickness · Eraser · Download · Fullscreen — all five grouped top-right."
+          description="Color · Thickness · Eraser · Download · Fullscreen - all five grouped top-right."
           prop="showPenColor showPenThickness showClear showDownload showFullscreen"
         >
           <DrawPad
@@ -368,7 +368,7 @@ export function DrawPadDemo() {
           />
         </Section>
 
-        {/* 6 — Clear confirmation */}
+        {/* 6 - Clear confirmation */}
         <Section
           title="Clear Confirmation"
           description="Prompts before erasing. Buttons still hide while drawing."
@@ -377,16 +377,16 @@ export function DrawPadDemo() {
           <DrawPad showClear clearConfirm showFullscreen />
         </Section>
 
-        {/* 7 — Download only */}
+        {/* 7 - Download only */}
         <Section
           title="Download Only"
-          description="No eraser exposed — user can only save."
+          description="No eraser exposed - user can only save."
           prop="showDownload showFullscreen"
         >
           <DrawPad showDownload showFullscreen />
         </Section>
 
-        {/* 8 — Custom filename */}
+        {/* 8 - Custom filename */}
         <Section
           title="Custom Download Filename"
           description='Files save as "traveller-signature.*".'
@@ -399,7 +399,7 @@ export function DrawPadDemo() {
           />
         </Section>
 
-        {/* 9 — Disabled toggle */}
+        {/* 9 - Disabled toggle */}
         <Section
           title="Disabled State"
           description="Canvas and all buttons non-interactive. Toggle to test."
@@ -408,7 +408,7 @@ export function DrawPadDemo() {
           <DisabledDemo />
         </Section>
 
-        {/* 10 — Turkish translations */}
+        {/* 10 - Turkish translations */}
         <Section
           title="Custom Translations (Turkish)"
           description="All UI strings localised including pen controls. Clear confirmation enabled."
@@ -425,7 +425,7 @@ export function DrawPadDemo() {
           />
         </Section>
 
-        {/* 11 — Partial override */}
+        {/* 11 - Partial override */}
         <Section
           title="Partial Translation Override"
           description="Spread defaults and replace only the labels you need."
@@ -447,7 +447,7 @@ export function DrawPadDemo() {
           />
         </Section>
 
-        {/* 12 — Custom className */}
+        {/* 12 - Custom className */}
         <Section
           title="Custom className"
           description="className applied to the outer container."
@@ -463,17 +463,17 @@ export function DrawPadDemo() {
           />
         </Section>
 
-        {/* 13 — Event log (full width) */}
+        {/* 13 - Event log (full width) */}
         <Section
           title="Event Handlers"
-          description="onBegin · onEnd(dataUrl) · onClear · onDownload(format, data) — live event log."
+          description="onBegin · onEnd(dataUrl) · onClear · onDownload(format, data) - live event log."
           prop="onBegin onEnd onClear onDownload"
           fullWidth
         >
           <EventLogDemo />
         </Section>
 
-        {/* 14 — Programmatic ref (full width) */}
+        {/* 14 - Programmatic ref (full width) */}
         <Section
           title="Programmatic Control via Ref"
           description="DrawPadHandle exposes clear · isEmpty · toDataURL · toSVG · fromDataURL · toData · download · toggleFullscreen · setPenColor · setPenThickness."

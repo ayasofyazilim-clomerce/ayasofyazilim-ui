@@ -24,7 +24,7 @@ export const CARD_BRAND_LABELS: Record<CardBrand, string> = {
 /**
  * Detect the card brand from a (possibly formatted) card number using the
  * standard IIN/BIN prefix ranges. Returns "unknown" when no range matches.
- * Order matters — more specific prefixes are tested before broader ones.
+ * Order matters - more specific prefixes are tested before broader ones.
  */
 export function getCardBrand(cardNumber: string): CardBrand {
   const digits = cardNumber.replace(/\D/g, "");

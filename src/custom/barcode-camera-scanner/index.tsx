@@ -56,10 +56,10 @@ const FORMAT_TO_ZXING: Record<BarcodeFormatName, BarcodeFormat> = {
   upc_e: BarcodeFormat.UPC_E,
 };
 
-// Every supported format — the default set when the caller doesn't restrict it.
+// Every supported format - the default set when the caller doesn't restrict it.
 const ALL_BARCODE_FORMATS = Object.keys(FORMAT_TO_ZXING) as BarcodeFormatName[];
 
-// 1-D linear symbologies — tall, narrow bars read by a single horizontal beam.
+// 1-D linear symbologies - tall, narrow bars read by a single horizontal beam.
 const LINEAR_1D_FORMATS: BarcodeFormatName[] = [
   "code_128",
   "code_39",
@@ -93,14 +93,14 @@ function getScanShape(formats: BarcodeFormatName[]): ScanShape {
   return "wide";
 }
 
-// Frame dimensions per shape — the aspect ratio is the main visual cue.
+// Frame dimensions per shape - the aspect ratio is the main visual cue.
 const VIEWFINDER_BY_SHAPE: Record<ScanShape, string> = {
   square: "h-52 w-52",
   linear: "h-20 w-80",
   wide: "h-36 w-80",
 };
 
-// ZXing software decode is CPU-heavy — throttle to ~8 fps.
+// ZXing software decode is CPU-heavy - throttle to ~8 fps.
 const ZXING_SCAN_INTERVAL_MS = 50;
 
 // Decode only the viewfinder region instead of the whole frame. This keeps the
@@ -114,7 +114,7 @@ const ROI_PADDING = 0.25;
 // 1-D bars while still bounding per-frame CPU cost.
 const MAX_DECODE_WIDTH = 1024;
 
-// Directional symbologies — PDF417 (boarding passes) and every 1-D barcode —
+// Directional symbologies - PDF417 (boarding passes) and every 1-D barcode -
 // encode along a single axis and, unlike QR / Data Matrix / Aztec, don't
 // self-orient. A code held sideways or upside-down therefore never decodes from
 // the upright frame alone. When such a format is in play we retry the frame
@@ -126,7 +126,7 @@ const ROTATED_ORIENTATIONS = [90, 270, 180] as const;
 /**
  * Source crop rectangle (in video-intrinsic px) matching the on-screen
  * viewfinder, accounting for the video element's `object-cover` scaling.
- * Returns null when geometry isn't available yet — callers fall back to the
+ * Returns null when geometry isn't available yet - callers fall back to the
  * full frame.
  */
 function computeViewfinderRoi(
@@ -308,13 +308,13 @@ export function BarcodeCameraScanner({
     [formats]
   );
   // Stable primitive key: an inline `formats` array gets a new reference on
-  // every render, but its contents rarely change — keying the decode effect on
+  // every render, but its contents rarely change - keying the decode effect on
   // the joined string avoids needlessly restarting the loop.
   const formatsKey = resolvedFormats.join(",");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  // The on-screen viewfinder box — its rect drives the decode ROI crop.
+  // The on-screen viewfinder box - its rect drives the decode ROI crop.
   const viewfinderRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const onScanRef = useRef(onScan);
@@ -336,7 +336,7 @@ export function BarcodeCameraScanner({
   const debugRef = useRef(debug);
   debugRef.current = debug;
   // On-screen log buffer (newest first) rendered as an overlay when `debug` is
-  // on — for devices with no visible console (e.g. iPad / mobile Safari).
+  // on - for devices with no visible console (e.g. iPad / mobile Safari).
   const [debugLogs, setDebugLogs] = useState<
     { id: number; time: string; message: string; data?: string }[]
   >([]);
@@ -384,7 +384,7 @@ export function BarcodeCameraScanner({
 
   // ── Decode loop ───────────────────────────────────────────────────────────
   // Attaches the shared stream to our own <video> and drives the decode loop.
-  // The manager owns the stream's lifecycle — this effect only detaches (never
+  // The manager owns the stream's lifecycle - this effect only detaches (never
   // stops) on cleanup, so a warm stream survives for the next scanner.
   useEffect(() => {
     const video = videoRef.current;
@@ -401,7 +401,7 @@ export function BarcodeCameraScanner({
     log("decode loop starting", { formats: resolvedFormats });
 
     // Only sweep rotated orientations when a directional format (PDF417 or any
-    // 1-D) is present — QR / Data Matrix / Aztec already decode at any rotation,
+    // 1-D) is present - QR / Data Matrix / Aztec already decode at any rotation,
     // so the retry would be wasted CPU for a pure-2-D set.
     const tryRotations = resolvedFormats.some(
       (f) => !SQUARE_2D_FORMATS.includes(f)
@@ -424,7 +424,7 @@ export function BarcodeCameraScanner({
           const filtered = resolvedFormats.filter((f) => supportedSet.has(f));
           if (filtered.length > 0) nativeFormats = filtered;
         } catch {
-          /* this browser couldn't report support — try the requested set */
+          /* this browser couldn't report support - try the requested set */
         }
         if (!active) return;
 
@@ -453,7 +453,7 @@ export function BarcodeCameraScanner({
               let hit = (await detector.detect(source))[0] ?? null;
               // Upright miss: retry one rotated orientation (round-robin) so a
               // sideways / upside-down PDF417 or 1-D code still decodes. Needs
-              // the ROI canvas — skip while still falling back to raw video.
+              // the ROI canvas - skip while still falling back to raw video.
               if (!hit && tryRotations && roi) {
                 const deg = ROTATED_ORIENTATIONS[rotationIdx];
                 rotationIdx = (rotationIdx + 1) % ROTATED_ORIENTATIONS.length;
@@ -491,7 +491,7 @@ export function BarcodeCameraScanner({
         log("decode path: ZXing fallback (BarcodeDetector unavailable)");
         const canvas = canvasRef.current;
         if (!canvas) {
-          log("ZXing setup aborted — canvas element missing");
+          log("ZXing setup aborted - canvas element missing");
           return;
         }
 
@@ -526,7 +526,7 @@ export function BarcodeCameraScanner({
           DecodeHintType.POSSIBLE_FORMATS,
           resolvedFormats.map((f) => FORMAT_TO_ZXING[f])
         );
-        // TRY_HARDER enables exhaustive pattern matching — markedly better at
+        // TRY_HARDER enables exhaustive pattern matching - markedly better at
         // rotated / imperfect 1-D codes. Bounded because we decode only the
         // small viewfinder ROI.
         hints.set(DecodeHintType.TRY_HARDER, true);
@@ -552,7 +552,7 @@ export function BarcodeCameraScanner({
             // into the decode canvas, then run ZXing on it.
             if (drawDecodeFrame(v, viewfinderRef.current, canvas)) {
               // decodeFromCanvas throws NotFoundException on every barcode-free
-              // frame — swallow it so one orientation missing doesn't skip the
+              // frame - swallow it so one orientation missing doesn't skip the
               // rotated retry.
               const decode = (src: HTMLCanvasElement) => {
                 try {
@@ -598,7 +598,7 @@ export function BarcodeCameraScanner({
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
-      // Detach from this element only — the manager owns (and keeps warm) the
+      // Detach from this element only - the manager owns (and keeps warm) the
       // stream, so we must NOT stop its tracks here.
       video.srcObject = null;
     };
@@ -643,7 +643,7 @@ export function BarcodeCameraScanner({
             <span className="absolute right-0 top-0 h-6 w-6 rounded-tr-md border-r-2 border-t-2 border-white" />
             <span className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-md border-b-2 border-l-2 border-white" />
             <span className="absolute bottom-0 right-0 h-6 w-6 rounded-br-md border-b-2 border-r-2 border-white" />
-            {/* Animated scan line — 1-D shows a centered steady beam, 2-D sweeps. */}
+            {/* Animated scan line - 1-D shows a centered steady beam, 2-D sweeps. */}
             {scanShape === "linear" ? (
               <span className="absolute inset-x-2.5 top-1/2 h-0.5 -translate-y-1/2 animate-pulse bg-white/70" />
             ) : (

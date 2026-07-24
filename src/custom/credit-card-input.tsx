@@ -90,7 +90,7 @@ export function formatCvc(raw: string, brand: CardBrand): string {
   return onlyDigits(raw).slice(0, BRAND_FORMAT[brand].cvcLength);
 }
 
-/** Luhn checksum — false for inputs shorter than 12 digits. */
+/** Luhn checksum - false for inputs shorter than 12 digits. */
 export function luhnValid(cardNumber: string): boolean {
   const digits = onlyDigits(cardNumber);
   if (digits.length < 12) return false;

@@ -14,7 +14,7 @@
  *
  * Camera acquisition goes through the shared `useCameraStream` manager (see
  * ./camera-stream) rather than react-webcam, so this component reuses the same
- * process-wide MediaStream as the other scanners — the camera permission is
+ * process-wide MediaStream as the other scanners - the camera permission is
  * requested once per flow instead of once per component.
  */
 
@@ -420,7 +420,7 @@ export function Webcam(props: WebcamProps) {
     return isReady;
   }, [videoRef, callbacks]);
 
-  // Video Initialization — polls until the attached stream has real frames,
+  // Video Initialization - polls until the attached stream has real frames,
   // then flips ready and kicks off any auto-start features.
   const handleUserMedia = useCallback(() => {
     clearVideoCheckInterval();
@@ -509,7 +509,7 @@ export function Webcam(props: WebcamProps) {
   );
 
   // Attach the shared stream to our <video> and start readiness detection when
-  // the camera becomes ready. Detaches (never stops) on cleanup — the manager
+  // the camera becomes ready. Detaches (never stops) on cleanup - the manager
   // owns the stream so it can stay warm for the next consumer.
   useEffect(() => {
     const video = videoRef.current;

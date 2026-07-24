@@ -28,7 +28,7 @@ function CardChip({ className }: { className?: string }) {
   );
 }
 
-/** Shared pill look for status/nickname chips rendered into `children` — kept
+/** Shared pill look for status/nickname chips rendered into `children` - kept
  * here so callers match this card's visual language instead of guessing. */
 
 export interface CreditCardPreviewLabels {
@@ -44,10 +44,10 @@ export interface CreditCardPreviewProps {
   holderName?: string;
   /** Pre-formatted display string, e.g. "MM/YY". */
   expiry?: string;
-  /** Dims the whole card face — purely visual, no behavior implied. */
+  /** Dims the whole card face - purely visual, no behavior implied. */
   isExpired?: boolean;
   labels?: CreditCardPreviewLabels;
-  /** Rendered in the top-right cluster next to the chip — nickname pill,
+  /** Rendered in the top-right cluster next to the chip - nickname pill,
    * default/expired indicators, delete action, etc. Fully composed by the
    * caller; this component only lays it out. */
   children?: ReactNode;
@@ -55,14 +55,14 @@ export interface CreditCardPreviewProps {
 }
 
 /**
- * A stylised, physical-card-like preview — chip, formatted number, holder
+ * A stylised, physical-card-like preview - chip, formatted number, holder
  * name, expiry and brand logo on a dark gradient face. Purely presentational:
- * it has no notion of nicknames, defaults, or actions — callers compose that
+ * it has no notion of nicknames, defaults, or actions - callers compose that
  * via `children`.
  *
  * Sizes itself off its own rendered width (container queries), not the
  * viewport, since the same component shows up both large (add-card dialog)
- * and small (saved-cards list) — `className` controls the width via the
+ * and small (saved-cards list) - `className` controls the width via the
  * outer `@container` wrapper, everything inside scales off of that.
  */
 export function CreditCardPreview({
@@ -111,7 +111,7 @@ export function CreditCardPreview({
                 {labels?.holderNameLabel ?? "Card holder"}
               </p>
               <p className="truncate text-xs font-medium tracking-wide uppercase @sm:text-sm">
-                {holderName || "—"}
+                {holderName || "-"}
               </p>
             </div>
             <div className="shrink-0 text-right">
