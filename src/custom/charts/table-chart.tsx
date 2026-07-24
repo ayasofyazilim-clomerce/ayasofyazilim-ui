@@ -47,10 +47,7 @@ export type TableChartProps = {
   };
 } & EmptyConfig;
 
-const alignClassName: Record<
-  NonNullable<TableChartColumn["align"]>,
-  string
-> = {
+const alignClassName: Record<NonNullable<TableChartColumn["align"]>, string> = {
   left: "text-left",
   right: "text-right tabular-nums",
   center: "text-center",
@@ -98,10 +95,7 @@ export function TableChart({
       emptyState={data.length === 0 ? emptyState : undefined}
     >
       <div
-        className={cn(
-          "w-full overflow-x-auto",
-          classNames?.chart?.container
-        )}
+        className={cn("w-full overflow-x-auto", classNames?.chart?.container)}
       >
         <Table className={cn(classNames?.chart?.table)}>
           <TableHeader>
