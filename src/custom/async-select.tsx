@@ -357,7 +357,7 @@ export default function AsyncSelect<T extends SearchItem = SearchItem>(
             </div>
           ) : (
             <div className="flex items-center justify-between w-full mx-auto">
-              <span className="text-sm text-background mx-3 font-normal">
+              <span className="text-sm text-muted-foreground mx-3 font-normal">
                 {props.searchText}
               </span>
               <ChevronDown className="h-4 cursor-pointer text-muted-foreground mx-2" />
