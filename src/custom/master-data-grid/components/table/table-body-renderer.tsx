@@ -307,7 +307,7 @@ export function TableBodyRenderer<TData>({
             colSpan={table.getAllColumns().length}
             className="h-24 text-center"
           >
-            {emptyMessage || "No results."}
+            {emptyMessage}
           </TableCell>
         </TableRow>
       )}

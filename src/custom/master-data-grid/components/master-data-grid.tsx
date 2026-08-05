@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "../../../components/table";
 import { cn } from "../../../lib/utils";
+import { useMasterDataGridResources } from "../context/resources";
 import { useColumns } from "../hooks/use-columns";
 import { useEditing } from "../hooks/use-editing";
 import { useTableStateReducer } from "../hooks/use-table-state-reducer";
@@ -54,7 +55,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
   const {
     schema,
     columns: customColumns,
-    t,
+    t: tProp,
     enableSearch = true,
     enableSorting = true,
     enableFiltering = true,
@@ -74,10 +75,15 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     },
   } = config;
 
+  // A grid may be given resources directly; otherwise take them from the provider.
+  const contextResources = useMasterDataGridResources();
+  const t = tProp ?? contextResources;
+
   const enableGrouping = config.grouping?.enabled ?? false;
 
   const configWithDefaults: MasterDataGridConfig<TData> = {
     ...config,
+    t,
     enableSearch,
     enableSorting,
     enableFiltering,
@@ -500,7 +506,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         )}
         {serverFilterLocation !== "toolbar" && (
           <div className="border-l hidden lg:block w-full max-w-xs">
-            <ServerFilterContent table={table} config={config} />
+            <ServerFilterContent table={table} config={configWithDefaults} />
           </div>
         )}
       </div>
