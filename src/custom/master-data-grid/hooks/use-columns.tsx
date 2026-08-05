@@ -373,7 +373,7 @@ export function useColumns<TData>({
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)
             }
-            aria-label={t?.["select_all"]}
+            aria-label={t?.["column.selectAll"]}
           />
         ),
         cell: ({ row }) => (
@@ -381,7 +381,7 @@ export function useColumns<TData>({
             checked={row.getIsSelected()}
             disabled={!row.getCanSelect()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label={t?.["select_row"]}
+            aria-label={t?.["column.selectRow"]}
           />
         ),
         enableSorting: false,
@@ -397,7 +397,7 @@ export function useColumns<TData>({
       const isResponsive = displayMode === "responsive";
       finalColumns.push({
         id: "actions",
-        header: t?.["actions"],
+        header: t?.["column.actions"],
         size: isInline || isResponsive ? 120 : 40,
         minSize: isInline || isResponsive ? 80 : 40,
         maxSize: isInline || isResponsive ? undefined : 40,
@@ -469,7 +469,7 @@ export function useColumns<TData>({
                   variant="ghost"
                   size="icon-xs"
                   className="w-full h-full rounded-none"
-                  aria-label={t?.["open_menu"]}
+                  aria-label={t?.["column.openMenu"]}
                 >
                   <MoreHorizontal />
                 </Button>
@@ -581,7 +581,7 @@ export function useColumns<TData>({
                     size="sm"
                     onClick={() => saveEditingRow(rowId, row.original)}
                     className="h-7 px-2"
-                    aria-label={t?.["save"]}
+                    aria-label={t?.["column.save"]}
                   >
                     <Save className="size-3.5" />
                     {t?.["column.save"]}
@@ -591,7 +591,7 @@ export function useColumns<TData>({
                     size="sm"
                     onClick={() => cancelEditingRow(rowId, row.original)}
                     className="h-7 px-2"
-                    aria-label={t?.["cancel"]}
+                    aria-label={t?.["column.cancel"]}
                   >
                     <X className="size-3.5" />
                     {t?.["column.cancel"]}
@@ -603,7 +603,7 @@ export function useColumns<TData>({
                   size="sm"
                   onClick={() => startEditingRow(rowId, row.original)}
                   className="h-7 px-2"
-                  aria-label={t?.["edit"]}
+                  aria-label={t?.["column.edit"]}
                 >
                   <Pencil className="size-3.5" />
                   {t?.["column.edit"]}
