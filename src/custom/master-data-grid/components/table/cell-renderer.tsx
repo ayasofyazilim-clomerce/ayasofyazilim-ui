@@ -58,8 +58,8 @@ function createZodSchema(
       if (schemaProperty.minLength !== undefined) {
         schema = (schema as z.ZodString).min(
           schemaProperty.minLength,
-          t?.["validation.min_length"]
-            ? (t["validation.min_length"] ?? "").replace(
+          t?.["validation.minLength"]
+            ? (t["validation.minLength"] ?? "").replace(
                 "{min}",
                 String(schemaProperty.minLength)
               )
@@ -69,8 +69,8 @@ function createZodSchema(
       if (schemaProperty.maxLength !== undefined) {
         schema = (schema as z.ZodString).max(
           schemaProperty.maxLength,
-          t?.["validation.max_length"]
-            ? (t["validation.max_length"] ?? "").replace(
+          t?.["validation.maxLength"]
+            ? (t["validation.maxLength"] ?? "").replace(
                 "{max}",
                 String(schemaProperty.maxLength)
               )
@@ -80,29 +80,29 @@ function createZodSchema(
 
       if (schemaProperty.format === "email") {
         schema = (schema as z.ZodString).email(
-          t?.["validation.invalid_email"] || "Must be a valid email address"
+          t?.["validation.invalidEmail"] || "Must be a valid email address"
         );
       }
       if (schemaProperty.format === "uri" || schemaProperty.format === "url") {
-        schema = z.url(t?.["validation.invalid_url"] || "Must be a valid URL");
+        schema = z.url(t?.["validation.invalidUrl"] || "Must be a valid URL");
       }
       if (schemaProperty.format === "uuid") {
         schema = z.uuid(
-          t?.["validation.invalid_uuid"] || "Must be a valid UUID"
+          t?.["validation.invalidUuid"] || "Must be a valid UUID"
         );
       }
       break;
 
     case "number":
       schema = z.number({
-        message: t?.["validation.invalid_number"] || "Must be a valid number",
+        message: t?.["validation.invalidNumber"] || "Must be a valid number",
       });
 
       if (schemaProperty.minimum !== undefined) {
         schema = (schema as z.ZodNumber).min(
           schemaProperty.minimum,
-          t?.["validation.min_value"]
-            ? (t["validation.min_value"] ?? "").replace(
+          t?.["validation.minValue"]
+            ? (t["validation.minValue"] ?? "").replace(
                 "{min}",
                 String(schemaProperty.minimum)
               )
@@ -112,8 +112,8 @@ function createZodSchema(
       if (schemaProperty.maximum !== undefined) {
         schema = (schema as z.ZodNumber).max(
           schemaProperty.maximum,
-          t?.["validation.max_value"]
-            ? (t["validation.max_value"] ?? "").replace(
+          t?.["validation.maxValue"]
+            ? (t["validation.maxValue"] ?? "").replace(
                 "{max}",
                 String(schemaProperty.maximum)
               )
@@ -126,15 +126,15 @@ function createZodSchema(
       schema = z
         .number({
           message:
-            t?.["validation.invalid_integer"] || "Must be a valid integer",
+            t?.["validation.invalidInteger"] || "Must be a valid integer",
         })
-        .int(t?.["validation.must_be_integer"] || "Must be an integer");
+        .int(t?.["validation.mustBeInteger"] || "Must be an integer");
 
       if (schemaProperty.minimum !== undefined) {
         schema = (schema as z.ZodNumber).min(
           schemaProperty.minimum,
-          t?.["validation.min_value"]
-            ? (t["validation.min_value"] ?? "").replace(
+          t?.["validation.minValue"]
+            ? (t["validation.minValue"] ?? "").replace(
                 "{min}",
                 String(schemaProperty.minimum)
               )
@@ -144,8 +144,8 @@ function createZodSchema(
       if (schemaProperty.maximum !== undefined) {
         schema = (schema as z.ZodNumber).max(
           schemaProperty.maximum,
-          t?.["validation.max_value"]
-            ? (t["validation.max_value"] ?? "").replace(
+          t?.["validation.maxValue"]
+            ? (t["validation.maxValue"] ?? "").replace(
                 "{max}",
                 String(schemaProperty.maximum)
               )
@@ -156,7 +156,7 @@ function createZodSchema(
 
     case "boolean":
       schema = z.boolean({
-        message: t?.["validation.invalid_boolean"] || "Must be true or false",
+        message: t?.["validation.invalidBoolean"] || "Must be true or false",
       });
       break;
 
@@ -167,7 +167,7 @@ function createZodSchema(
   if (schemaProperty.enum && Array.isArray(schemaProperty.enum)) {
     schema = z.enum(
       schemaProperty.enum as [string, ...string[]],
-      t?.["validation.invalid_enum"] || "Invalid value"
+      t?.["validation.invalidEnum"] || "Invalid value"
     );
   }
 

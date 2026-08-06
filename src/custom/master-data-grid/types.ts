@@ -494,90 +494,81 @@ export interface CellRendererProps<TData = unknown> {
   customRenderers?: CustomRenderers<TData>;
 }
 
+/**
+ * Every key MasterDataGrid looks up statically, all required, so a consumer that
+ * omits one fails to compile.
+ *
+ * The index signature is deliberate and load-bearing: getColumnName resolves
+ * per-column labels as `column.${column.id}`, an open namespace keyed by whatever
+ * columns the consuming app renders. Closing this interface makes that legitimate
+ * pattern uncompilable (86 errors across ~42 call sites when tried).
+ *
+ * It does mean a typo in a static read still type-checks. scripts/check-grid-keys.mjs
+ * in the web-app repo guards that instead.
+ */
 export interface MasterDataGridResources extends Record<string, string> {
-  "toolbar.search": string;
-  "toolbar.filters": string;
-  "toolbar.client": string;
-  "toolbar.server": string;
-  "toolbar.columns": string;
-  "toolbar.export": string;
-  "toolbar.refresh": string;
-  "toolbar.reset": string;
-  "toolbar.selected": string;
-  "toolbar.actions": string;
-
-  "pagination.rowsPerPage": string;
-  "pagination.page": string;
-  "pagination.of": string;
-  "pagination.rowsSelected": string;
-  "pagination.firstPage": string;
-  "pagination.previousPage": string;
-  "pagination.nextPage": string;
-  "pagination.lastPage": string;
-
-  "column.sortAsc": string;
-  "column.sortDesc": string;
+  "cell.boolean.no": string;
+  "cell.boolean.yes": string;
+  "column.actions": string;
+  "column.cancel": string;
+  "column.edit": string;
+  "column.filter": string;
+  "column.hide": string;
+  "column.openMenu": string;
   "column.pinLeft": string;
   "column.pinRight": string;
-  "column.unpin": string;
-  "column.filter": string;
   "column.resetSize": string;
-  "column.hide": string;
-  "column.edit": string;
   "column.save": string;
-  "column.cancel": string;
-  "column.actions": string;
-  "column.openMenu": string;
-
-  "cell.boolean.yes": string;
-  "cell.boolean.no": string;
-
-  "filter.title": string;
-  "filter.description": string;
-  "filter.where": string;
-  "filter.and": string;
-  "filter.selectColumn": string;
-  "filter.operator": string;
-  "filter.operator.equals": string;
-  "filter.operator.notEquals": string;
-  "filter.operator.contains": string;
-  "filter.operator.notContains": string;
-  "filter.operator.startsWith": string;
-  "filter.operator.endsWith": string;
-  "filter.operator.isEmpty": string;
-  "filter.operator.isNotEmpty": string;
-  "filter.operator.greaterThan": string;
-  "filter.operator.greaterThanOrEqual": string;
-  "filter.operator.lessThan": string;
-  "filter.operator.lessThanOrEqual": string;
-  "filter.operator.between": string;
-  "filter.operator.inRange": string;
-  "filter.operator.before": string;
-  "filter.operator.after": string;
-  "filter.operator.inList": string;
-  "filter.operator.notInList": string;
-  "filter.value": string;
-  "filter.value2": string;
-  "filter.valuePlaceholder": string;
-  "filter.value2Placeholder": string;
+  "column.selectAll": string;
+  "column.selectRow": string;
+  "column.sortAsc": string;
+  "column.sortDesc": string;
+  "column.unpin": string;
   "filter.addFilter": string;
-  "filter.resetFilters": string;
+  "filter.and": string;
   "filter.apply": string;
-  "filter.close": string;
   "filter.clear": string;
   "filter.clearFilter": string;
-  "filter.true": string;
   "filter.false": string;
-  "filter.min": string;
   "filter.max": string;
+  "filter.min": string;
+  "filter.resetFilters": string;
+  "filter.selectColumn": string;
+  "filter.title": string;
   "filter.to": string;
-
-  "columnSettings.title": string;
-  "columnSettings.description": string;
-  "columnSettings.showAll": string;
-  "columnSettings.hideAll": string;
-
+  "filter.true": string;
+  "filter.value": string;
+  "filter.where": string;
+  "pagination.firstPage": string;
+  "pagination.lastPage": string;
+  "pagination.nextPage": string;
+  "pagination.of": string;
+  "pagination.page": string;
+  "pagination.previousPage": string;
+  "pagination.rowsPerPage": string;
+  "pagination.rowsSelected": string;
   "table.noResults": string;
-
+  "toolbar.actions": string;
+  "toolbar.client": string;
+  "toolbar.columns": string;
+  "toolbar.export": string;
+  "toolbar.filters": string;
+  "toolbar.refresh": string;
+  "toolbar.reset": string;
+  "toolbar.search": string;
+  "toolbar.selected": string;
+  "toolbar.server": string;
+  "validation.invalidBoolean": string;
+  "validation.invalidEmail": string;
+  "validation.invalidEnum": string;
+  "validation.invalidInteger": string;
+  "validation.invalidNumber": string;
   "validation.invalidString": string;
+  "validation.invalidUrl": string;
+  "validation.invalidUuid": string;
+  "validation.maxLength": string;
+  "validation.maxValue": string;
+  "validation.minLength": string;
+  "validation.minValue": string;
+  "validation.mustBeInteger": string;
 }
