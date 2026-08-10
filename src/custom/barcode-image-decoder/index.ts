@@ -106,6 +106,8 @@ export async function decodeBarcodeFromImage(
       }
     }
     return null;
+  } catch {
+    return null;
   } finally {
     // Only close a bitmap we made; the caller still owns one they passed in.
     if (bitmap !== source) bitmap.close();
