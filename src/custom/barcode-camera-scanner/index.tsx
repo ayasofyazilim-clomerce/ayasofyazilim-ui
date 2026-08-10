@@ -4,60 +4,15 @@ import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { BarcodeFormat, DecodeHintType } from "@zxing/library";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ALL_BARCODE_FORMATS,
+  FORMAT_TO_ZXING,
+  getNativeBarcodeDetectorCtor,
+  type BarcodeFormatName,
+} from "../barcode-formats";
 import { CameraSurface, useCameraStream } from "../camera-stream";
 
-// ── W3C Barcode Detection API types (Chrome/Edge/Safari 17+) ─────────────────
-interface BarcodeDetectorResult {
-  rawValue: string;
-  format: string;
-}
-interface BarcodeDetectorCtor {
-  new (options?: { formats: string[] }): {
-    detect(
-      source: HTMLVideoElement | HTMLCanvasElement
-    ): Promise<BarcodeDetectorResult[]>;
-  };
-  getSupportedFormats(): Promise<string[]>;
-}
-
-/**
- * Barcode formats the scanner can recognise. Names follow the W3C Barcode
- * Detection API; each maps to its ZXing equivalent for the software fallback.
- */
-export type BarcodeFormatName =
-  | "aztec"
-  | "code_128"
-  | "code_39"
-  | "code_93"
-  | "data_matrix"
-  | "ean_13"
-  | "ean_8"
-  | "itf"
-  | "pdf417"
-  | "qr_code"
-  | "upc_a"
-  | "upc_e";
-
-// Maps each public format name to its ZXing enum (used by the software
-// fallback). The keys double as the native BarcodeDetector format strings, so
-// both decode paths stay in sync from a single source of truth.
-const FORMAT_TO_ZXING: Record<BarcodeFormatName, BarcodeFormat> = {
-  aztec: BarcodeFormat.AZTEC,
-  code_128: BarcodeFormat.CODE_128,
-  code_39: BarcodeFormat.CODE_39,
-  code_93: BarcodeFormat.CODE_93,
-  data_matrix: BarcodeFormat.DATA_MATRIX,
-  ean_13: BarcodeFormat.EAN_13,
-  ean_8: BarcodeFormat.EAN_8,
-  itf: BarcodeFormat.ITF,
-  pdf417: BarcodeFormat.PDF_417,
-  qr_code: BarcodeFormat.QR_CODE,
-  upc_a: BarcodeFormat.UPC_A,
-  upc_e: BarcodeFormat.UPC_E,
-};
-
-// Every supported format - the default set when the caller doesn't restrict it.
-const ALL_BARCODE_FORMATS = Object.keys(FORMAT_TO_ZXING) as BarcodeFormatName[];
+export type { BarcodeFormatName };
 
 // 1-D linear symbologies - tall, narrow bars read by a single horizontal beam.
 const LINEAR_1D_FORMATS: BarcodeFormatName[] = [
@@ -407,11 +362,7 @@ export function BarcodeCameraScanner({
       (f) => !SQUARE_2D_FORMATS.includes(f)
     );
 
-    const BDCtor =
-      typeof window !== "undefined" && "BarcodeDetector" in window
-        ? (window as unknown as { BarcodeDetector: BarcodeDetectorCtor })
-            .BarcodeDetector
-        : null;
+    const BDCtor = getNativeBarcodeDetectorCtor();
 
     void (async () => {
       if (BDCtor) {
