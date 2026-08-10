@@ -16,4 +16,8 @@ describe("buildDecodeScales", () => {
   it("measures the longest edge, not the width", () => {
     expect(buildDecodeScales(600, 2400)).toEqual([1600, 1024, 640]);
   });
+
+  it("does not repeat a cap the image's longest edge exactly matches", () => {
+    expect(buildDecodeScales(1024, 700)).toEqual([1024, 640]);
+  });
 });
