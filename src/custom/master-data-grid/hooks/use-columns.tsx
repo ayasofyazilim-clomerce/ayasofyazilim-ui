@@ -370,6 +370,11 @@ export function useColumns<TData>({
         header: ({ table }) => (
           <Checkbox
             checked={table.getIsAllPageRowsSelected()}
+            // Without this the select-all box stays lit while every row
+            // underneath it is unselectable, so pressing it does nothing.
+            disabled={
+              !table.getRowModel().rows.some((row) => row.getCanSelect())
+            }
             onCheckedChange={(value) =>
               table.toggleAllPageRowsSelected(!!value)
             }
