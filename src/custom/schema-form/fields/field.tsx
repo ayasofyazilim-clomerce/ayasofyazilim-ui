@@ -39,6 +39,13 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
         )}
       >
         {children}
+        {/* Without this the cell swallows its field's validation errors, and
+            since SchemaForm also defaults showErrorList to false, a failed
+            submit inside a table array reports nothing at all - the form just
+            refuses to save. Only the cell branch gets them: the object branch
+            above renders straight into a <TableRow>, where a stray node would
+            be invalid table markup. */}
+        {errors}
       </TableCell>
     );
   return (
