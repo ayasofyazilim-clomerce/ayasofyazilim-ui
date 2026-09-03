@@ -50,6 +50,7 @@ import {
 import type { MasterDataGridConfig, ServerFilterConfig } from "../../types";
 import { getColumnName, getTranslations } from "../../utils/translation-utils";
 import { MultiFilterDialog } from "../filters";
+import { RowCountSummary } from "../row-count-summary";
 
 interface ToolbarProps<TData> {
   table: TanStackTable<TData>;
@@ -448,13 +449,16 @@ export function Toolbar<TData>({
       return true;
     }) ?? false;
 
+  const showsRowCount = config.enablePagination === false;
+
   const hasAnyEnabledFeature =
     config.enableSearch ||
     config.enableFiltering ||
     config.enableColumnVisibility ||
     enableExport ||
     onRefresh ||
-    hasVisibleTableActions;
+    hasVisibleTableActions ||
+    showsRowCount;
 
   if (!hasAnyEnabledFeature) {
     return null;
@@ -467,6 +471,14 @@ export function Toolbar<TData>({
           value={searchValue}
           onChange={(event) => handleSearchChange(event.target.value)}
           className="md:max-w-sm h-8"
+        />
+      )}
+      {showsRowCount && (
+        <RowCountSummary
+          table={table}
+          t={t}
+          localization={config.localization}
+          unfilteredRowCount={config.unfilteredRowCount}
         />
       )}
       {selectedRows.length > 0 && (

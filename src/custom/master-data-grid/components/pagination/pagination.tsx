@@ -18,19 +18,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../components/select";
-import { MasterDataGridResources } from "../../types";
+import { Localization, MasterDataGridResources } from "../../types";
 import { getTranslations } from "../../utils/translation-utils";
+import { RowCountSummary } from "../row-count-summary";
 
 interface PaginationProps<TData> {
   table: Table<TData>;
   pageSizeOptions?: number[];
   t?: MasterDataGridResources;
+  localization?: Localization;
+  unfilteredRowCount?: number;
 }
 
 export function Pagination<TData>({
   table,
   pageSizeOptions = [10, 20, 30, 40, 50],
   t,
+  localization,
+  unfilteredRowCount,
 }: PaginationProps<TData>) {
   const { replace } = useRouter();
   const pathname = usePathname();
@@ -114,11 +119,18 @@ export function Pagination<TData>({
           </Select>
         </div>
 
-        <div className="flex items-center justify-center text-sm font-medium mr-auto">
+        <div className="flex items-center justify-center text-sm font-medium mr-auto gap-2">
           {getTranslations("pagination.page", t)}{" "}
           {table.getPageCount() === 0 ? 0 : pagination.pageIndex + 1}{" "}
-          {getTranslations("pagination.of", t)} {table.getPageCount()}
+        {getTranslations("pagination.of", t)} {table.getPageCount()}
+        <RowCountSummary
+        table={table}
+        t={t}
+        localization={localization}
+        unfilteredRowCount={unfilteredRowCount}
+      />
         </div>
+        
         <ButtonGroup>
           <Button
             variant="outline"
