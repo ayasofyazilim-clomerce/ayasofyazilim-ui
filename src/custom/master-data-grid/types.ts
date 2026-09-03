@@ -388,6 +388,9 @@ export interface MasterDataGridConfig<TData = unknown> {
   manualFiltering?: boolean;
   manualPagination?: boolean;
   rowCount?: number;
+  /** Row count before server-side filtering, when the API reports one.
+   *  Turns the row-count summary into "filtered of total". */
+  unfilteredRowCount?: number;
   onSortingChange?: (sorting: SortingState) => void;
   onFilteringChange?: (filters: ColumnFiltersState) => void;
   onPaginationChange?: (pagination: {

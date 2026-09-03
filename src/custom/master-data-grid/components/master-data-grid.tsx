@@ -511,7 +511,13 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         )}
       </div>
       {enablePagination && (
-        <Pagination table={table} pageSizeOptions={pageSizeOptions} t={t} />
+        <Pagination
+          table={table}
+          pageSizeOptions={pageSizeOptions}
+          t={t}
+          localization={configWithDefaults.localization}
+          unfilteredRowCount={configWithDefaults.unfilteredRowCount}
+        />
       )}
     </div>
   );
