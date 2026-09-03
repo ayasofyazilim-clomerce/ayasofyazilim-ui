@@ -53,8 +53,12 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
       className={cn(
         "flex flex-col gap-1.5 h-max",
         props.schema.type === "object" && "gap-3",
-        classNames,
-        label
+        classNames
+        // `label` used to be spread in here, which turned a field's own
+        // human-readable title into class names. Any label containing a
+        // Tailwind utility word silently applied it - "Fallback fixed fee"
+        // became `fixed`, giving the field position: fixed and lifting it out
+        // of the form onto the field above.
       )}
       style={style}
     >
