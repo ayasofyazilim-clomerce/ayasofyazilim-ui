@@ -3,8 +3,10 @@
 import { lodash } from "@repo/ayasofyazilim-ui/lib/utils";
 import { Form } from "@rjsf/shadcn";
 import { customizeValidator } from "@rjsf/validator-ajv8";
+import type { IChangeEvent } from "@rjsf/core";
 import type { RJSFValidationError, FormValidation } from "@rjsf/utils";
-import { useCallback, useMemo } from "react";
+import { deepEquals } from "@rjsf/utils";
+import { useCallback, useMemo, useRef } from "react";
 import {
   ArrayFieldItemTemplate,
   ArrayFieldTemplate,
@@ -79,9 +81,34 @@ export function SchemaForm<T = unknown>(props: SchemaFormProps<T>) {
     runtimeDependencyConfig,
     fieldDependencies,
     onSubmit: userOnSubmit,
+    onChange: userOnChange,
     customValidate: userCustomValidate,
     ...restProps
   } = props;
+
+  // transformErrors below has to ask "is this field empty right now?". The
+  // formData prop cannot answer that: it is the initial seed and never changes
+  // as the user types, so a field seeded "" read as empty forever and its
+  // minLength/format/pattern errors were suppressed for the life of the form -
+  // a required field seeded "" submitted blank with nothing reported.
+  // RJSF hands the live value to onChange, so mirror it into a ref and reset
+  // that ref only when the prop genuinely changes (a new row, a reset). The
+  // comparison must be deep: callers pass formData as an inline literal, so it
+  // is a new object on every parent render and identity would clobber edits.
+  const liveFormDataRef = useRef(formData);
+  const lastFormDataPropRef = useRef(formData);
+  if (!deepEquals(lastFormDataPropRef.current, formData)) {
+    lastFormDataPropRef.current = formData;
+    liveFormDataRef.current = formData;
+  }
+
+  const handleChange = useCallback(
+    (data: IChangeEvent<T>, id?: string) => {
+      liveFormDataRef.current = data.formData;
+      userOnChange?.(data, id);
+    },
+    [userOnChange]
+  );
 
   const validatorToUse = useMemo(() => {
     if (customValidator) return customValidator;
@@ -136,9 +163,10 @@ export function SchemaForm<T = unknown>(props: SchemaFormProps<T>) {
           .split(".")
           .filter(Boolean);
 
-        if (path.length === 0 || !formData) return true;
+        const liveFormData = liveFormDataRef.current;
+        if (path.length === 0 || !liveFormData) return true;
 
-        let value: unknown = formData;
+        let value: unknown = liveFormData;
         for (const key of path) {
           if (value && typeof value === "object" && key in value) {
             value = (value as Record<string, unknown>)[key];
@@ -156,7 +184,7 @@ export function SchemaForm<T = unknown>(props: SchemaFormProps<T>) {
 
       return filteredErrors;
     },
-    [formData, userTransformErrors]
+    [userTransformErrors]
   );
 
   const combinedCustomValidate = useCallback(
@@ -246,6 +274,7 @@ export function SchemaForm<T = unknown>(props: SchemaFormProps<T>) {
         useTableForArrayFields,
       }}
       formData={formData}
+      onChange={handleChange}
       onSubmit={handleSubmit}
       schema={processedSchema}
       transformErrors={transformErrors}
