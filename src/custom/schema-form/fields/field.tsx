@@ -39,6 +39,13 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
         )}
       >
         {children}
+        {/* Without this the cell swallows its field's validation errors, and
+            since SchemaForm also defaults showErrorList to false, a failed
+            submit inside a table array reports nothing at all - the form just
+            refuses to save. Only the cell branch gets them: the object branch
+            above renders straight into a <TableRow>, where a stray node would
+            be invalid table markup. */}
+        {errors}
       </TableCell>
     );
   return (
@@ -46,8 +53,12 @@ export const FieldTemplate = (props: FieldTemplateProps) => {
       className={cn(
         "flex flex-col gap-1.5 h-max",
         props.schema.type === "object" && "gap-3",
-        classNames,
-        label
+        classNames
+        // `label` used to be spread in here, which turned a field's own
+        // human-readable title into class names. Any label containing a
+        // Tailwind utility word silently applied it - "Fallback fixed fee"
+        // became `fixed`, giving the field position: fixed and lifting it out
+        // of the form onto the field above.
       )}
       style={style}
     >
