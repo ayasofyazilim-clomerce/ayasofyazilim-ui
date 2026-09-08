@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MasterDataGrid } from "../custom/master-data-grid/components/master-data-grid";
 import type {
   MasterDataGridConfig,
@@ -108,5 +109,25 @@ describe("server filter primacy", () => {
       />
     );
     expect(screen.queryByTestId("server-filter-add")).toBeNull();
+    expect(
+      screen.getByPlaceholderText("Filter with User Name")
+    ).toBeInTheDocument();
+  });
+
+  it("shows the server filter content behind the Filters button on a right-located grid", async () => {
+    const user = userEvent.setup();
+    render(
+      <MasterDataGrid
+        data={data}
+        config={{ ...base, serverFilters, serverFilterLocation: "right" }}
+      />
+    );
+    expect(
+      screen.getAllByPlaceholderText("Filter with User Name")
+    ).toHaveLength(1);
+    await user.click(screen.getByText("Filters"));
+    expect(
+      screen.getAllByPlaceholderText("Filter with User Name")
+    ).toHaveLength(2);
   });
 });

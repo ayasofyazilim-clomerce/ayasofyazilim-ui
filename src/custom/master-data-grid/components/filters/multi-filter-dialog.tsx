@@ -15,8 +15,10 @@ import {
   PopoverTrigger,
 } from "../../../../components/popover";
 import type { MasterDataGridConfig } from "../../types";
+import { visibleFilters } from "../../utils/server-filter-utils";
 import { getTranslations } from "../../utils/translation-utils";
 import { ClientFilterContent } from "./client-filter";
+import { ServerFilterContent } from "./server-filter";
 
 export interface BaseMultiFilterDialogProps<TData> {
   table: Table<TData>;
@@ -36,7 +38,13 @@ export function MultiFilterDialog<TData>({
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
-  const filterContent = (
+  const showsServerFilterContent =
+    visibleFilters(config.serverFilters).length > 0 &&
+    config.serverFilterLocation !== "toolbar";
+
+  const filterContent = showsServerFilterContent ? (
+    <ServerFilterContent table={table} config={config} />
+  ) : (
     <ClientFilterContent setOpen={setOpen} table={table} config={config} />
   );
 
