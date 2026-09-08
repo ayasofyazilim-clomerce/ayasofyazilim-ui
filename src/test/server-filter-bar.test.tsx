@@ -66,6 +66,35 @@ const filters: ServerFilterConfig[] = [
   },
 ];
 
+const statusFilter: ServerFilterConfig = {
+  type: "array",
+  key: "status",
+  label: "Status",
+  placeholder: "Filter with Status",
+  options: [
+    { label: "Active", value: "ACTIVE" },
+    { label: "Inactive", value: "INACTIVE" },
+  ],
+};
+
+const isActiveFilter: ServerFilterConfig = {
+  type: "boolean",
+  key: "isActive",
+  label: "Is Active",
+  placeholder: "Filter with Is Active",
+  options: [
+    { label: "Yes", value: true },
+    { label: "No", value: false },
+  ],
+};
+
+const issueDateFilter: ServerFilterConfig = {
+  type: "date",
+  key: "issueDate",
+  label: "Issue Date",
+  placeholder: "Filter with Issue Date",
+};
+
 function config(
   serverFilters: ServerFilterConfig[] = filters
 ): MasterDataGridConfig<{ name: string }> {
@@ -200,6 +229,77 @@ describe("ServerFilterBar", () => {
     fireEvent.change(input, { target: { value: "john" } });
     fireEvent.keyDown(input, { key: "Enter" });
     expect(lastPush()).toContain("userName=john");
+  });
+
+  it("commits a select value from a chip added via the palette, reproducing the reported bug", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config()} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-httpMethod"));
+    const trigger = document.getElementById("httpMethod") as HTMLElement;
+    await user.click(trigger);
+    await user.click(screen.getByText("GET"));
+    expect(lastPush()).toContain("httpMethod=GET");
+  });
+
+  it("commits an array value with two picks, writing both entries", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <ServerFilterBar config={config([statusFilter])} />
+    );
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-status"));
+    let trigger = document.getElementById("status") as HTMLElement;
+    await user.click(trigger);
+    await user.click(screen.getByText("Active"));
+    expect(lastPush()).toContain("status=ACTIVE");
+
+    search = new URLSearchParams("status=ACTIVE");
+    rerender(<ServerFilterBar config={config([statusFilter])} />);
+
+    await user.click(screen.getByTestId("server-filter-chip-status"));
+    trigger = document.getElementById("status") as HTMLElement;
+    await user.click(trigger);
+    await user.click(screen.getByText("Inactive"));
+    const url = lastPush();
+    expect(url).toContain("status=ACTIVE");
+    expect(url).toContain("status=INACTIVE");
+  });
+
+  it("commits a boolean value, including false", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config([isActiveFilter])} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-isActive"));
+    const trigger = document.getElementById("isActive") as HTMLElement;
+    await user.click(trigger);
+    await user.click(screen.getByText("No"));
+    expect(lastPush()).toContain("isActive=false");
+  });
+
+  it("commits a date value, writing the key", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config([issueDateFilter])} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-issueDate"));
+    const calendarIcon = screen.getByTestId("issueDate_calendar_icon");
+    await user.click(calendarIcon);
+    await user.click(screen.getByRole("button", { name: /^Today,/ }));
+    expect(lastPush()).toContain("issueDate=");
+  });
+
+  it("commits a date-range value, writing both keyFrom and keyTo", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config()} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-executionTime"));
+    const calendarIcon = screen.getByTestId("executionTime_calendar_icon");
+    await user.click(calendarIcon);
+    await user.click(screen.getByRole("button", { name: /^Today,/ }));
+    await user.keyboard("{ArrowRight}{Enter}");
+    const url = lastPush();
+    expect(url).toContain("startTime=");
+    expect(url).toContain("endTime=");
   });
 
   it("keeps a chip's editor open with no push after selecting it from the palette", async () => {

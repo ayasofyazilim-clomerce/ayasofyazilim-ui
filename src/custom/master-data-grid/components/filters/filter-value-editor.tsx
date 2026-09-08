@@ -23,7 +23,7 @@ export interface FilterValueEditorProps {
   resetSignal?: number;
   commitOnBlur?: boolean;
   onChange: (value: ServerFilterValue | undefined) => void;
-  onCommit?: () => void;
+  onCommit?: (value: ServerFilterValue | undefined) => void;
 }
 
 export function FilterValueEditor({
@@ -54,8 +54,9 @@ export function FilterValueEditor({
             locale={locale}
             defaultValue={current ? new Date(current) : undefined}
             onChange={(date) => {
-              onChange(date ? date.toISOString() : undefined);
-              onCommit?.();
+              const next = date ? date.toISOString() : undefined;
+              onChange(next);
+              onCommit?.(next);
             }}
           />
           {current && (
@@ -65,7 +66,7 @@ export function FilterValueEditor({
               onClick={() => {
                 setClearCount((prev) => prev + 1);
                 onChange(undefined);
-                onCommit?.();
+                onCommit?.(undefined);
               }}
             >
               <XCircle className="h-4 w-4" />
@@ -94,11 +95,15 @@ export function FilterValueEditor({
               end: range.to ? new Date(range.to) : undefined,
             }}
             onChange={(next) => {
-              onChange({
+              const nextRange = {
                 from: next.start?.toISOString(),
                 to: next.end?.toISOString(),
-              });
-              onCommit?.();
+              };
+              onChange(nextRange);
+              const unchanged =
+                (range.from ?? "") === (nextRange.from ?? "") &&
+                (range.to ?? "") === (nextRange.to ?? "");
+              if (!unchanged) onCommit?.(nextRange);
             }}
           />
           {(range.from || range.to) && (
@@ -108,7 +113,7 @@ export function FilterValueEditor({
               onClick={() => {
                 setClearCount((prev) => prev + 1);
                 onChange(undefined);
-                onCommit?.();
+                onCommit?.(undefined);
               }}
             >
               <XCircle className="h-4 w-4" />
@@ -137,7 +142,9 @@ export function FilterValueEditor({
               const input = event.currentTarget;
               const trimmed = input.value.trim();
               if (trimmed && !tags.includes(trimmed)) {
-                onChange([...tags, trimmed]);
+                const next = [...tags, trimmed];
+                onChange(next);
+                onCommit?.(next);
               }
               input.value = "";
             }}
@@ -151,7 +158,11 @@ export function FilterValueEditor({
                 <button
                   type="button"
                   className="ml-1 rounded-full hover:bg-muted"
-                  onClick={() => onChange(tags.filter((t) => t !== tag))}
+                  onClick={() => {
+                    const next = tags.filter((t) => t !== tag);
+                    onChange(next);
+                    onCommit?.(next);
+                  }}
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -187,12 +198,12 @@ export function FilterValueEditor({
           getLabel={(option) => option.label}
           onChange={(picked) => {
             const values = picked.map((option) => option.value);
-            onChange(
+            const next =
               filter.type === "array"
                 ? (values as string[])
-                : (values[0] as ServerFilterValue | undefined)
-            );
-            onCommit?.();
+                : (values[0] as ServerFilterValue | undefined);
+            onChange(next);
+            onCommit?.(next);
           }}
           searchPlaceholderText={filter.placeholder}
           makeAChoiceText={filter.placeholder}
@@ -221,10 +232,10 @@ export function FilterValueEditor({
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               event.preventDefault();
-              onCommit?.();
+              onCommit?.(value);
             }
           }}
-          onBlur={() => commitOnBlur && onCommit?.()}
+          onBlur={() => commitOnBlur && onCommit?.(value)}
           className={error ? "border-destructive" : ""}
         />
         {text !== "" && (

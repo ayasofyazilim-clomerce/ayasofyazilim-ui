@@ -207,7 +207,7 @@ export function ServerFilterBar<TData>({
                 onChange={(next) =>
                   setDrafts((prev) => ({ ...prev, [filter.key]: next }))
                 }
-                onCommit={() => commit(filter, draft)}
+                onCommit={(next) => commit(filter, next)}
               />
             </PopoverContent>
           </Popover>
