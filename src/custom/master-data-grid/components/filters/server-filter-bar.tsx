@@ -2,7 +2,14 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, X } from "lucide-react";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { Button } from "../../../../components/button";
 import {
   Command,
@@ -68,15 +75,57 @@ export function ServerFilterBar<TData>({
   >({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // The drafts state mirrors this ref, not the other way round: the popover's
+  // close event carries no value, so its handler has to read the drafts that
+  // exist now rather than the ones its render closed over.
+  const draftsRef = useRef(drafts);
+
+  const writeDraft = useCallback(
+    (key: string, value: ServerFilterValue | undefined) => {
+      draftsRef.current = { ...draftsRef.current, [key]: value };
+      setDrafts(draftsRef.current);
+    },
+    []
+  );
+
+  const dropDraft = useCallback((key: string) => {
+    if (!(key in draftsRef.current)) return;
+    const next = { ...draftsRef.current };
+    delete next[key];
+    draftsRef.current = next;
+    setDrafts(next);
+  }, []);
+
+  const dropAllDrafts = useCallback(() => {
+    draftsRef.current = {};
+    setDrafts(draftsRef.current);
+  }, []);
+
   const filters = useMemo(
     () => visibleFilters(config.serverFilters),
     [config.serverFilters]
   );
 
-  const params = useMemo(
-    () => new URLSearchParams(searchParams?.toString() ?? ""),
-    [searchParams]
-  );
+  // useSearchParams does not advance until the pushed navigation commits, which
+  // on a server-paged grid means a round-trip to the backend. Until then the
+  // bar's own last push is the truth: reading the URL instead would let a
+  // second commit drop the first, and would blank a just-committed chip while
+  // the palette re-offered it as unset. As soon as the URL moves off what it
+  // held when we pushed, whatever landed wins, so paging, Back or a link is
+  // never overruled by a stale optimistic value.
+  const urlQuery = searchParams?.toString() ?? "";
+  const pendingPush = useRef<{ from: string; to: string } | null>(null);
+  const [, notePush] = useState(0);
+
+  const pending = pendingPush.current;
+  const query = pending && pending.from === urlQuery ? pending.to : urlQuery;
+
+  useEffect(() => {
+    const stale = pendingPush.current;
+    if (stale && stale.from !== urlQuery) pendingPush.current = null;
+  }, [urlQuery]);
+
+  const params = useMemo(() => new URLSearchParams(query), [query]);
 
   const applied = useMemo(
     () =>
@@ -93,14 +142,31 @@ export function ServerFilterBar<TData>({
 
   const pushParams = useCallback(
     (next: URLSearchParams) => {
-      const query = next.toString();
+      const nextQuery = next.toString();
+      pendingPush.current = { from: urlQuery, to: nextQuery };
+      notePush((seq) => seq + 1);
       startTransition(() => {
-        router.push(query ? `${pathname}?${query}` : pathname, {
+        router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
           scroll: false,
         });
       });
     },
-    [pathname, router]
+    [pathname, router, urlQuery]
+  );
+
+  // skipCount is excluded because applyFilterToParams always drops it: a
+  // no-op edit must not silently send the user back to page one.
+  const pushIfChanged = useCallback(
+    (next: URLSearchParams) => {
+      if (
+        normalizedParams(next, ["skipCount"]) ===
+        normalizedParams(params, ["skipCount"])
+      ) {
+        return;
+      }
+      pushParams(next);
+    },
+    [params, pushParams]
   );
 
   const commit = useCallback(
@@ -116,37 +182,23 @@ export function ServerFilterBar<TData>({
         }
       }
       setErrors((prev) => ({ ...prev, [filter.key]: "" }));
-      setDrafts((prev) => {
-        const nextDrafts = { ...prev };
-        delete nextDrafts[filter.key];
-        return nextDrafts;
-      });
+      dropDraft(filter.key);
       setOpenKey(null);
-
-      const next = applyFilterToParams(params, filter, value);
-      if (
-        normalizedParams(next, ["skipCount"]) ===
-        normalizedParams(params, ["skipCount"])
-      ) {
-        return;
-      }
-      pushParams(next);
+      pushIfChanged(applyFilterToParams(params, filter, value));
     },
-    [params, pushParams]
+    [dropDraft, params, pushIfChanged]
   );
 
   const remove = useCallback(
     (filter: ServerFilterConfig) => {
-      setDrafts((prev) => {
-        const next = { ...prev };
-        delete next[filter.key];
-        return next;
-      });
+      dropDraft(filter.key);
       setErrors((prev) => ({ ...prev, [filter.key]: "" }));
       setOpenKey(null);
-      pushParams(applyFilterToParams(params, filter, undefined));
+      // Removing a chip that was only ever a draft changes no filter, and an
+      // unguarded push there would still drop skipCount and refetch the grid.
+      pushIfChanged(applyFilterToParams(params, filter, undefined));
     },
-    [params, pushParams]
+    [dropDraft, params, pushIfChanged]
   );
 
   if (!filters.length) return null;
@@ -176,11 +228,16 @@ export function ServerFilterBar<TData>({
                 setOpenKey(filter.key);
                 return;
               }
-              if (BATCH_ON_CLOSE_TYPES.has(filter.type) && filter.key in drafts) {
-                commit(filter, drafts[filter.key]);
+              const current = draftsRef.current;
+              if (BATCH_ON_CLOSE_TYPES.has(filter.type) && filter.key in current) {
+                commit(filter, current[filter.key]);
                 return;
               }
+              // Every other type commits as it is edited, so any draft still
+              // standing here was abandoned. Leaving it would keep the chip in
+              // the bar showing nothing but its placeholder.
               setOpenKey(null);
+              dropDraft(filter.key);
             }}
           >
             <div className="inline-flex h-7 items-stretch overflow-hidden rounded-full border bg-secondary text-xs">
@@ -220,9 +277,7 @@ export function ServerFilterBar<TData>({
                 locale={localization?.locale}
                 error={errors[filter.key]}
                 commitOnBlur
-                onChange={(next) =>
-                  setDrafts((prev) => ({ ...prev, [filter.key]: next }))
-                }
+                onChange={(next) => writeDraft(filter.key, next)}
                 onCommit={
                   BATCH_ON_CLOSE_TYPES.has(filter.type)
                     ? undefined
@@ -267,10 +322,7 @@ export function ServerFilterBar<TData>({
                   data-testid={`server-filter-option-${filter.key}`}
                   onSelect={() => {
                     setPaletteOpen(false);
-                    setDrafts((prev) => ({
-                      ...prev,
-                      [filter.key]: undefined,
-                    }));
+                    writeDraft(filter.key, undefined);
                     setOpenKey(filter.key);
                   }}
                 >
@@ -290,7 +342,7 @@ export function ServerFilterBar<TData>({
           data-testid="server-filter-reset"
           className="ml-auto h-7 text-xs text-muted-foreground"
           onClick={() => {
-            setDrafts({});
+            dropAllDrafts();
             setErrors({});
             setOpenKey(null);
             pushParams(clearFiltersFromParams(params, filters));

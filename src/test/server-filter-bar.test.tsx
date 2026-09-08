@@ -8,6 +8,7 @@ import type {
 
 const push = jest.fn();
 let search = new URLSearchParams();
+let rerenderBar: (() => void) | null = null;
 
 beforeAll(() => {
   window.matchMedia = ((query: string) => ({
@@ -31,6 +32,7 @@ jest.mock("next/navigation", () => ({
 beforeEach(() => {
   push.mockClear();
   search = new URLSearchParams();
+  rerenderBar = null;
 });
 
 const filters: ServerFilterConfig[] = [
@@ -118,6 +120,24 @@ function config(
 }
 
 const lastPush = () => String(push.mock.calls[push.mock.calls.length - 1][0]);
+
+function renderBar(
+  cfg: MasterDataGridConfig<{ name: string }> = config()
+): ReturnType<typeof render> {
+  const utils = render(<ServerFilterBar config={cfg} />);
+  rerenderBar = () => {
+    utils.rerender(<ServerFilterBar config={cfg} />);
+  };
+  return utils;
+}
+
+// Advances the mocked useSearchParams to the query of a pushed URL and
+// re-renders, standing in for the RSC round-trip the App Router waits on.
+function mockSearch(url: string): void {
+  const index = url.indexOf("?");
+  search = new URLSearchParams(index === -1 ? "" : url.slice(index + 1));
+  rerenderBar?.();
+}
 
 describe("ServerFilterBar", () => {
   it("renders nothing when no filters are configured", () => {
@@ -497,7 +517,6 @@ describe("ServerFilterBar", () => {
     ).toBeInTheDocument();
     expect(screen.queryByTestId("server-filter-option-url")).toBeNull();
   });
-
   it("keeps a date chip's editor open when the chip already carries a URL value", async () => {
     const user = userEvent.setup();
     search = new URLSearchParams("issueDate=2026-09-01T00:00:00.000Z");
@@ -519,5 +538,171 @@ describe("ServerFilterBar", () => {
     await user.click(chip);
     await user.click(chip);
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("keeps an earlier filter when a second is applied after the URL catches up", async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-userName"));
+    const first = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.change(first, { target: { value: "john" } });
+    fireEvent.keyDown(first, { key: "Enter" });
+    expect(lastPush()).toContain("userName=john");
+
+    mockSearch(lastPush());
+
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-url"));
+    const second = screen.getByPlaceholderText("Filter with URL");
+    fireEvent.change(second, { target: { value: "/api" } });
+    fireEvent.keyDown(second, { key: "Enter" });
+    const url = lastPush();
+    expect(url).toContain("userName=john");
+    expect(url).toContain("url=%2Fapi");
+  });
+
+  it("keeps an earlier filter when a second is applied before the URL catches up", async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-userName"));
+    const first = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.change(first, { target: { value: "john" } });
+    fireEvent.keyDown(first, { key: "Enter" });
+    expect(lastPush()).toContain("userName=john");
+
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-url"));
+    const second = screen.getByPlaceholderText("Filter with URL");
+    fireEvent.change(second, { target: { value: "/api" } });
+    fireEvent.keyDown(second, { key: "Enter" });
+    const url = lastPush();
+    expect(url).toContain("userName=john");
+    expect(url).toContain("url=%2Fapi");
+  });
+
+  it("still removes a filter from a URL the bar itself has not seen yet", async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-userName"));
+    const input = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.change(input, { target: { value: "john" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(lastPush()).toContain("userName=john");
+
+    fireEvent.click(screen.getByTestId("server-filter-remove-userName"));
+    expect(lastPush()).not.toContain("userName");
+    expect(screen.queryByTestId("server-filter-chip-userName")).toBeNull();
+  });
+
+  it("keeps a just-committed chip rendered and out of the palette before the URL catches up", async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-userName"));
+    const input = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.change(input, { target: { value: "john" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(lastPush()).toContain("userName=john");
+
+    expect(screen.getByTestId("server-filter-chip-userName")).toHaveTextContent(
+      "john"
+    );
+    expect(screen.getByTestId("server-filter-reset")).toBeInTheDocument();
+    await user.click(screen.getByTestId("server-filter-add"));
+    expect(screen.queryByTestId("server-filter-option-userName")).toBeNull();
+  });
+
+  it("follows the URL when a navigation lands somewhere other than what it pushed", async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-userName"));
+    const input = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.change(input, { target: { value: "john" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(
+      screen.getByTestId("server-filter-chip-userName")
+    ).toBeInTheDocument();
+
+    mockSearch("/en/management/logs/audit?url=%2Fapi");
+    expect(screen.queryByTestId("server-filter-chip-userName")).toBeNull();
+    expect(screen.getByTestId("server-filter-chip-url")).toBeInTheDocument();
+  });
+
+  it("does not resurrect a landed push when the URL returns to its pre-push value", async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-userName"));
+    const input = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.change(input, { target: { value: "john" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    mockSearch(lastPush());
+    expect(
+      screen.getByTestId("server-filter-chip-userName")
+    ).toBeInTheDocument();
+
+    mockSearch("/en/management/logs/audit");
+    expect(screen.queryByTestId("server-filter-chip-userName")).toBeNull();
+  });
+
+  it("pushes nothing when a never-applied chip is removed", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("skipCount=20");
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-httpMethod"));
+    fireEvent.click(screen.getByTestId("server-filter-remove-httpMethod"));
+    expect(push).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("server-filter-chip-httpMethod")).toBeNull();
+  });
+
+  it("drops a select chip added from the palette and closed without a pick, pushing nothing", async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-httpMethod"));
+    expect(
+      screen.getByTestId("server-filter-chip-httpMethod")
+    ).toBeInTheDocument();
+    await user.click(screen.getByTestId("server-filter-chip-httpMethod"));
+    expect(push).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("server-filter-chip-httpMethod")).toBeNull();
+  });
+
+  it("resets a filter that is still only in a pending push", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("sorting=url%20asc");
+    renderBar();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-userName"));
+    const input = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.change(input, { target: { value: "john" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(lastPush()).toContain("userName=john");
+
+    fireEvent.click(screen.getByTestId("server-filter-reset"));
+    const url = lastPush();
+    expect(url).not.toContain("userName");
+    expect(url).toContain("sorting=url+asc");
+    expect(screen.queryByTestId("server-filter-chip-userName")).toBeNull();
+    expect(screen.queryByTestId("server-filter-reset")).toBeNull();
+  });
+
+  it("keeps an applied select chip when its editor is opened and closed without a pick", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("httpMethod=POST");
+    renderBar();
+    const chip = screen.getByTestId("server-filter-chip-httpMethod");
+    await user.click(chip);
+    await user.click(chip);
+    expect(push).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("server-filter-chip-httpMethod")
+    ).toHaveTextContent("POST");
   });
 });
