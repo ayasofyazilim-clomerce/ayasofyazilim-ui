@@ -265,6 +265,32 @@ describe("ServerFilterBar", () => {
     expect(url).toContain("status=INACTIVE");
   });
 
+  it("merges a further pick into the URL value when a multi-value chip is reopened", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <ServerFilterBar config={config([statusFilter])} />
+    );
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-status"));
+    let trigger = document.getElementById("status") as HTMLElement;
+    await user.click(trigger);
+    await user.click(screen.getByText("Active"));
+    await user.click(screen.getByTestId("server-filter-chip-status"));
+    expect(lastPush()).toContain("status=ACTIVE");
+
+    search = new URLSearchParams("status=ACTIVE");
+    rerender(<ServerFilterBar config={config([statusFilter])} />);
+
+    await user.click(screen.getByTestId("server-filter-chip-status"));
+    trigger = document.getElementById("status") as HTMLElement;
+    await user.click(trigger);
+    await user.click(screen.getByText("Inactive"));
+    await user.click(screen.getByTestId("server-filter-chip-status"));
+    const url = lastPush();
+    expect(url).toContain("status=ACTIVE");
+    expect(url).toContain("status=INACTIVE");
+  });
+
   it("batches two array picks into a single push instead of one per pick", async () => {
     const user = userEvent.setup();
     render(<ServerFilterBar config={config([statusFilter])} />);
@@ -331,6 +357,7 @@ describe("ServerFilterBar", () => {
     await user.click(calendarIcon);
     await user.click(screen.getByRole("button", { name: /^Today,/ }));
     expect(lastPush()).toContain("issueDate=");
+    expect(push).toHaveBeenCalledTimes(1);
   });
 
   it("commits a date-range value, writing both keyFrom and keyTo", async () => {
