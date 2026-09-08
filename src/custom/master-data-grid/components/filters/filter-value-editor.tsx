@@ -21,6 +21,7 @@ export interface FilterValueEditorProps {
   locale?: string;
   error?: string;
   resetSignal?: number;
+  commitOnBlur?: boolean;
   onChange: (value: ServerFilterValue | undefined) => void;
   onCommit?: () => void;
 }
@@ -31,6 +32,7 @@ export function FilterValueEditor({
   locale,
   error,
   resetSignal = 0,
+  commitOnBlur = false,
   onChange,
   onCommit,
 }: FilterValueEditorProps) {
@@ -222,7 +224,7 @@ export function FilterValueEditor({
               onCommit?.();
             }
           }}
-          onBlur={() => onCommit?.()}
+          onBlur={() => commitOnBlur && onCommit?.()}
           className={error ? "border-destructive" : ""}
         />
         {text !== "" && (

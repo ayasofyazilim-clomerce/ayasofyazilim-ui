@@ -22,6 +22,22 @@ const str: ServerFilterConfig = {
   placeholder: "Filter with User Name",
 };
 
+const date: ServerFilterConfig = {
+  type: "date",
+  key: "issueDate",
+  label: "Issue Date",
+  placeholder: "Issue Date",
+};
+
+const dateRange: ServerFilterConfig = {
+  type: "date-range",
+  key: "issueDate",
+  keyFrom: "issueDateFrom",
+  keyTo: "issueDateTo",
+  label: "Issue Date",
+  placeholder: "Issue Date",
+};
+
 describe("FilterValueEditor", () => {
   it("renders a text input carrying the current value", () => {
     render(
@@ -53,7 +69,7 @@ describe("FilterValueEditor", () => {
     expect(onCommit).toHaveBeenCalledTimes(1);
   });
 
-  it("commits on blur", () => {
+  it("does not commit on blur by default", () => {
     const onCommit = jest.fn();
     render(
       <FilterValueEditor
@@ -61,6 +77,21 @@ describe("FilterValueEditor", () => {
         value="john"
         onChange={jest.fn()}
         onCommit={onCommit}
+      />
+    );
+    fireEvent.blur(screen.getByDisplayValue("john"));
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it("commits on blur when commitOnBlur is set", () => {
+    const onCommit = jest.fn();
+    render(
+      <FilterValueEditor
+        filter={str}
+        value="john"
+        onChange={jest.fn()}
+        onCommit={onCommit}
+        commitOnBlur
       />
     );
     fireEvent.blur(screen.getByDisplayValue("john"));
@@ -140,5 +171,38 @@ describe("FilterValueEditor", () => {
     fireEvent.change(input, { target: { value: "TR1" } });
     fireEvent.keyDown(input, { key: "Enter" });
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("shows a clear button for a date filter with a value, and clears it on click", () => {
+    const onChange = jest.fn();
+    render(
+      <FilterValueEditor
+        filter={date}
+        value="2024-01-01T00:00:00.000Z"
+        onChange={onChange}
+      />
+    );
+    fireEvent.click(screen.getByTestId("lucide-x-circle"));
+    expect(onChange).toHaveBeenCalledWith(undefined);
+  });
+
+  it("hides the clear button for a date filter with no value", () => {
+    render(
+      <FilterValueEditor filter={date} value={undefined} onChange={jest.fn()} />
+    );
+    expect(screen.queryByTestId("lucide-x-circle")).not.toBeInTheDocument();
+  });
+
+  it("shows a clear button for a date-range filter with only 'from' set, and clears it on click", () => {
+    const onChange = jest.fn();
+    render(
+      <FilterValueEditor
+        filter={dateRange}
+        value={{ from: "2024-01-01T00:00:00.000Z" }}
+        onChange={onChange}
+      />
+    );
+    fireEvent.click(screen.getByTestId("lucide-x-circle"));
+    expect(onChange).toHaveBeenCalledWith(undefined);
   });
 });

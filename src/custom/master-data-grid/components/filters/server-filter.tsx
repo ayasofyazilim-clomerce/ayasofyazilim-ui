@@ -80,13 +80,17 @@ export function ServerFilterContent<TData>({
       }
 
       if (filter.validator) {
-        const result = filter.validator.safeParse(processedValue);
-        setErrors((prev) => ({
-          ...prev,
-          [filter.key]: result.success
-            ? ""
-            : result.error.issues[0]?.message || "Hata",
-        }));
+        if (processedValue !== undefined) {
+          const result = filter.validator.safeParse(processedValue);
+          setErrors((prev) => ({
+            ...prev,
+            [filter.key]: result.success
+              ? ""
+              : result.error.issues[0]?.message || "Hata",
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, [filter.key]: "" }));
+        }
       }
 
       setLocalValues((prev) => ({ ...prev, [filter.key]: processedValue }));
