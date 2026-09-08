@@ -95,6 +95,13 @@ const issueDateFilter: ServerFilterConfig = {
   placeholder: "Filter with Issue Date",
 };
 
+const tagsFilter: ServerFilterConfig = {
+  type: "string-array",
+  key: "tags",
+  label: "Tags",
+  placeholder: "Filter with Tags",
+};
+
 function config(
   serverFilters: ServerFilterConfig[] = filters
 ): MasterDataGridConfig<{ name: string }> {
@@ -240,30 +247,67 @@ describe("ServerFilterBar", () => {
     await user.click(trigger);
     await user.click(screen.getByText("GET"));
     expect(lastPush()).toContain("httpMethod=GET");
+    expect(push).toHaveBeenCalledTimes(1);
   });
 
   it("commits an array value with two picks, writing both entries", async () => {
     const user = userEvent.setup();
-    const { rerender } = render(
-      <ServerFilterBar config={config([statusFilter])} />
-    );
+    render(<ServerFilterBar config={config([statusFilter])} />);
     await user.click(screen.getByTestId("server-filter-add"));
     await user.click(screen.getByTestId("server-filter-option-status"));
-    let trigger = document.getElementById("status") as HTMLElement;
+    const trigger = document.getElementById("status") as HTMLElement;
     await user.click(trigger);
     await user.click(screen.getByText("Active"));
-    expect(lastPush()).toContain("status=ACTIVE");
-
-    search = new URLSearchParams("status=ACTIVE");
-    rerender(<ServerFilterBar config={config([statusFilter])} />);
-
-    await user.click(screen.getByTestId("server-filter-chip-status"));
-    trigger = document.getElementById("status") as HTMLElement;
-    await user.click(trigger);
     await user.click(screen.getByText("Inactive"));
+    await user.click(screen.getByTestId("server-filter-chip-status"));
     const url = lastPush();
     expect(url).toContain("status=ACTIVE");
     expect(url).toContain("status=INACTIVE");
+  });
+
+  it("batches two array picks into a single push instead of one per pick", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config([statusFilter])} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-status"));
+    const trigger = document.getElementById("status") as HTMLElement;
+    await user.click(trigger);
+    await user.click(screen.getByText("Active"));
+    await user.click(screen.getByText("Inactive"));
+    expect(push).not.toHaveBeenCalled();
+    await user.click(screen.getByTestId("server-filter-chip-status"));
+    expect(push).toHaveBeenCalledTimes(1);
+  });
+
+  it("commits a string-array value with two tags, writing both entries", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config([tagsFilter])} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-tags"));
+    const input = screen.getByPlaceholderText("Filter with Tags");
+    fireEvent.change(input, { target: { value: "alpha" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.change(input, { target: { value: "beta" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(push).not.toHaveBeenCalled();
+    await user.click(screen.getByTestId("server-filter-chip-tags"));
+    const url = lastPush();
+    expect(url).toContain("tags=alpha");
+    expect(url).toContain("tags=beta");
+    expect(push).toHaveBeenCalledTimes(1);
+  });
+
+  it("drops a batching chip added from the palette and closed without a pick, pushing nothing", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config([statusFilter])} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-status"));
+    expect(
+      screen.getByTestId("server-filter-chip-status")
+    ).toBeInTheDocument();
+    await user.click(screen.getByTestId("server-filter-chip-status"));
+    expect(push).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("server-filter-chip-status")).toBeNull();
   });
 
   it("commits a boolean value, including false", async () => {
@@ -275,6 +319,7 @@ describe("ServerFilterBar", () => {
     await user.click(trigger);
     await user.click(screen.getByText("No"));
     expect(lastPush()).toContain("isActive=false");
+    expect(push).toHaveBeenCalledTimes(1);
   });
 
   it("commits a date value, writing the key", async () => {
@@ -297,9 +342,12 @@ describe("ServerFilterBar", () => {
     await user.click(calendarIcon);
     await user.click(screen.getByRole("button", { name: /^Today,/ }));
     await user.keyboard("{ArrowRight}{Enter}");
+    expect(push).not.toHaveBeenCalled();
+    await user.click(screen.getByTestId("server-filter-chip-executionTime"));
     const url = lastPush();
     expect(url).toContain("startTime=");
     expect(url).toContain("endTime=");
+    expect(push).toHaveBeenCalledTimes(1);
   });
 
   it("keeps a chip's editor open with no push after selecting it from the palette", async () => {

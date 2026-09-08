@@ -35,6 +35,12 @@ export interface ServerFilterBarProps<TData> {
   config: MasterDataGridConfig<TData>;
 }
 
+const BATCH_ON_CLOSE_TYPES = new Set<ServerFilterConfig["type"]>([
+  "array",
+  "string-array",
+  "date-range",
+]);
+
 function normalizedParams(
   params: URLSearchParams,
   exclude: string[] = []
@@ -165,7 +171,17 @@ export function ServerFilterBar<TData>({
           <Popover
             key={filter.key}
             open={openKey === filter.key}
-            onOpenChange={(open) => setOpenKey(open ? filter.key : null)}
+            onOpenChange={(open) => {
+              if (open) {
+                setOpenKey(filter.key);
+                return;
+              }
+              if (BATCH_ON_CLOSE_TYPES.has(filter.type) && filter.key in drafts) {
+                commit(filter, drafts[filter.key]);
+                return;
+              }
+              setOpenKey(null);
+            }}
           >
             <div className="inline-flex h-7 items-stretch overflow-hidden rounded-full border bg-secondary text-xs">
               <PopoverTrigger asChild>
@@ -207,7 +223,11 @@ export function ServerFilterBar<TData>({
                 onChange={(next) =>
                   setDrafts((prev) => ({ ...prev, [filter.key]: next }))
                 }
-                onCommit={(next) => commit(filter, next)}
+                onCommit={
+                  BATCH_ON_CLOSE_TYPES.has(filter.type)
+                    ? undefined
+                    : (next) => commit(filter, next)
+                }
               />
             </PopoverContent>
           </Popover>
