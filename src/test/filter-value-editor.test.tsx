@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { FilterValueEditor } from "../custom/master-data-grid/components/filters/filter-value-editor";
 import type { ServerFilterConfig } from "../custom/master-data-grid/types";
 
@@ -204,5 +205,56 @@ describe("FilterValueEditor", () => {
     );
     fireEvent.click(screen.getByTestId("lucide-x-circle"));
     expect(onChange).toHaveBeenCalledWith(undefined);
+  });
+
+  it("does not emit on mount for a date filter that already has a value", () => {
+    const onChange = jest.fn();
+    const onCommit = jest.fn();
+    render(
+      <FilterValueEditor
+        filter={date}
+        value="2026-09-01T00:00:00.000Z"
+        onChange={onChange}
+        onCommit={onCommit}
+      />
+    );
+    expect(onChange).not.toHaveBeenCalled();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it("does not emit on mount for a date-range filter that already has a value", () => {
+    const onChange = jest.fn();
+    const onCommit = jest.fn();
+    render(
+      <FilterValueEditor
+        filter={dateRange}
+        value={{
+          from: "2026-09-01T00:00:00.000Z",
+          to: "2026-09-08T00:00:00.000Z",
+        }}
+        onChange={onChange}
+        onCommit={onCommit}
+      />
+    );
+    expect(onChange).not.toHaveBeenCalled();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it("still reports a real pick on a date filter that mounted with a value", async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const onCommit = jest.fn();
+    render(
+      <FilterValueEditor
+        filter={date}
+        value="2026-09-01T00:00:00.000Z"
+        onChange={onChange}
+        onCommit={onCommit}
+      />
+    );
+    await user.click(screen.getByTestId("issueDate_calendar_icon"));
+    await user.click(screen.getByRole("button", { name: /^Today,/ }));
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onCommit).toHaveBeenCalledTimes(1);
   });
 });

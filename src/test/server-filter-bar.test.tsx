@@ -497,4 +497,27 @@ describe("ServerFilterBar", () => {
     ).toBeInTheDocument();
     expect(screen.queryByTestId("server-filter-option-url")).toBeNull();
   });
+
+  it("keeps a date chip's editor open when the chip already carries a URL value", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("issueDate=2026-09-01T00:00:00.000Z");
+    render(<ServerFilterBar config={config([issueDateFilter])} />);
+    const chip = screen.getByTestId("server-filter-chip-issueDate");
+    await user.click(chip);
+    expect(chip).toHaveAttribute("data-state", "open");
+    expect(screen.getByTestId("issueDate_calendar_icon")).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("pushes nothing when a date-range chip whose URL value is not local midnight is opened and closed", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams(
+      "startTime=2026-09-01T00:00:00.000Z&endTime=2026-09-08T00:00:00.000Z&skipCount=20"
+    );
+    render(<ServerFilterBar config={config()} />);
+    const chip = screen.getByTestId("server-filter-chip-executionTime");
+    await user.click(chip);
+    await user.click(chip);
+    expect(push).not.toHaveBeenCalled();
+  });
 });

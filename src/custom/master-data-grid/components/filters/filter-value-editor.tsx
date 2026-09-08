@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Badge } from "../../../../components/badge";
 import { Field, FieldError, FieldLabel } from "../../../../components/field";
 import {
@@ -14,6 +14,27 @@ import { Selectable } from "../../../selectable";
 import { X, XCircle } from "lucide-react";
 import type { ServerFilterConfig } from "../../types";
 import type { ServerFilterValue } from "../../utils/server-filter-utils";
+
+/**
+ * The shared date pickers fire a phantom `onChange` from their mount effect
+ * whenever they were handed a `defaultValue`, and it does not round-trip: the
+ * value is rebuilt from Y/M/D at the module-load timezone offset. Opening a
+ * chip that already has a value must not count as an edit, so that first
+ * emission is swallowed. Comparing the values instead is not enough — the
+ * drifted value differs from the stored one whenever it was not produced by
+ * this browser at this offset.
+ */
+function mountedWithPickerValue(
+  filter: ServerFilterConfig,
+  value: ServerFilterValue | undefined
+): boolean {
+  if (filter.type === "date") return Boolean(value);
+  if (filter.type === "date-range") {
+    const range = value as { from?: string; to?: string } | undefined;
+    return Boolean(range?.from || range?.to);
+  }
+  return false;
+}
 
 export interface FilterValueEditorProps {
   filter: ServerFilterConfig;
@@ -37,6 +58,7 @@ export function FilterValueEditor({
   onCommit,
 }: FilterValueEditorProps) {
   const [clearCount, setClearCount] = useState(0);
+  const swallowMountEmission = useRef(mountedWithPickerValue(filter, value));
   const label = <FieldLabel htmlFor={filter.key}>{filter.label}</FieldLabel>;
   const err = error ? <FieldError>{error}</FieldError> : null;
 
@@ -54,6 +76,10 @@ export function FilterValueEditor({
             locale={locale}
             defaultValue={current ? new Date(current) : undefined}
             onChange={(date) => {
+              if (swallowMountEmission.current) {
+                swallowMountEmission.current = false;
+                return;
+              }
               const next = date ? date.toISOString() : undefined;
               onChange(next);
               onCommit?.(next);
@@ -95,6 +121,10 @@ export function FilterValueEditor({
               end: range.to ? new Date(range.to) : undefined,
             }}
             onChange={(next) => {
+              if (swallowMountEmission.current) {
+                swallowMountEmission.current = false;
+                return;
+              }
               const nextRange = {
                 from: next.start?.toISOString(),
                 to: next.end?.toISOString(),
