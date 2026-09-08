@@ -226,6 +226,29 @@ describe("ServerFilterBar", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
+  it("does not push or disturb skipCount when a chip is committed without editing", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("userName=john&skipCount=20");
+    render(<ServerFilterBar config={config()} />);
+    await user.click(screen.getByTestId("server-filter-chip-userName"));
+    const input = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("still pushes and drops skipCount when a filter's value genuinely changes", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("userName=john&skipCount=20");
+    render(<ServerFilterBar config={config()} />);
+    await user.click(screen.getByTestId("server-filter-chip-userName"));
+    const input = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.change(input, { target: { value: "jane" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    const url = lastPush();
+    expect(url).toContain("userName=jane");
+    expect(url).not.toContain("skipCount");
+  });
+
   it("does not push while a validator is failing", async () => {
     const user = userEvent.setup();
     const withValidator: ServerFilterConfig[] = [
@@ -253,6 +276,38 @@ describe("ServerFilterBar", () => {
     fireEvent.keyDown(input, { key: "Enter" });
     expect(push).not.toHaveBeenCalled();
     expect(screen.getByText("Invalid email")).toBeInTheDocument();
+  });
+
+  it("clears a stale validation error when reverting to the committed value", async () => {
+    const user = userEvent.setup();
+    const withValidator: ServerFilterConfig[] = [
+      {
+        type: "string",
+        key: "email",
+        label: "Email",
+        placeholder: "Filter with Email",
+        validator: {
+          safeParse: (value: unknown) =>
+            String(value).includes("@")
+              ? { success: true, data: value }
+              : {
+                  success: false,
+                  error: { issues: [{ message: "Invalid email" }] },
+                },
+        },
+      } as unknown as ServerFilterConfig,
+    ];
+    search = new URLSearchParams("email=john%40example.com");
+    render(<ServerFilterBar config={config(withValidator)} />);
+    await user.click(screen.getByTestId("server-filter-chip-email"));
+    const input = screen.getByPlaceholderText("Filter with Email");
+    fireEvent.change(input, { target: { value: "not-an-email" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(screen.getByText("Invalid email")).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: "john@example.com" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(push).not.toHaveBeenCalled();
+    expect(screen.queryByText("Invalid email")).toBeNull();
   });
 
   it("filters the palette by the typed query", async () => {

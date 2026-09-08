@@ -35,8 +35,12 @@ export interface ServerFilterBarProps<TData> {
   config: MasterDataGridConfig<TData>;
 }
 
-function normalizedParams(params: URLSearchParams): string {
+function normalizedParams(
+  params: URLSearchParams,
+  exclude: string[] = []
+): string {
   return [...params.entries()]
+    .filter(([key]) => !exclude.includes(key))
     .map(([key, value]) => `${key}=${value}`)
     .sort()
     .join("&");
@@ -105,9 +109,6 @@ export function ServerFilterBar<TData>({
           return;
         }
       }
-      const next = applyFilterToParams(params, filter, value);
-      if (normalizedParams(next) === normalizedParams(params)) return;
-
       setErrors((prev) => ({ ...prev, [filter.key]: "" }));
       setDrafts((prev) => {
         const nextDrafts = { ...prev };
@@ -115,6 +116,14 @@ export function ServerFilterBar<TData>({
         return nextDrafts;
       });
       setOpenKey(null);
+
+      const next = applyFilterToParams(params, filter, value);
+      if (
+        normalizedParams(next, ["skipCount"]) ===
+        normalizedParams(params, ["skipCount"])
+      ) {
+        return;
+      }
       pushParams(next);
     },
     [params, pushParams]
