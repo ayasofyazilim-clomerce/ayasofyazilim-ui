@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Badge } from "../../../../components/badge";
 import { Field, FieldError, FieldLabel } from "../../../../components/field";
 import {
@@ -33,23 +34,42 @@ export function FilterValueEditor({
   onChange,
   onCommit,
 }: FilterValueEditorProps) {
+  const [clearCount, setClearCount] = useState(0);
   const label = <FieldLabel htmlFor={filter.key}>{filter.label}</FieldLabel>;
   const err = error ? <FieldError>{error}</FieldError> : null;
 
   if (filter.type === "date") {
     const current = value as string | undefined;
     return (
-      <Field key={`${filter.key}-${resetSignal}`} className="gap-1">
+      <Field
+        key={`${filter.key}-${resetSignal}-${clearCount}`}
+        className="gap-1"
+      >
         {label}
-        <DatePicker
-          id={filter.key}
-          locale={locale}
-          defaultValue={current ? new Date(current) : undefined}
-          onChange={(date) => {
-            onChange(date ? date.toISOString() : undefined);
-            onCommit?.();
-          }}
-        />
+        <div className="relative">
+          <DatePicker
+            id={filter.key}
+            locale={locale}
+            defaultValue={current ? new Date(current) : undefined}
+            onChange={(date) => {
+              onChange(date ? date.toISOString() : undefined);
+              onCommit?.();
+            }}
+          />
+          {current && (
+            <button
+              type="button"
+              className="absolute right-9 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                setClearCount((prev) => prev + 1);
+                onChange(undefined);
+                onCommit?.();
+              }}
+            >
+              <XCircle className="h-4 w-4" />
+            </button>
+          )}
+        </div>
         {err}
       </Field>
     );
@@ -58,23 +78,41 @@ export function FilterValueEditor({
   if (filter.type === "date-range") {
     const range = (value as { from?: string; to?: string } | undefined) ?? {};
     return (
-      <Field key={`${filter.key}-${resetSignal}`} className="gap-1">
+      <Field
+        key={`${filter.key}-${resetSignal}-${clearCount}`}
+        className="gap-1"
+      >
         {label}
-        <DateRangePicker
-          id={filter.key}
-          locale={locale}
-          defaultValues={{
-            start: range.from ? new Date(range.from) : undefined,
-            end: range.to ? new Date(range.to) : undefined,
-          }}
-          onChange={(next) => {
-            onChange({
-              from: next.start?.toISOString(),
-              to: next.end?.toISOString(),
-            });
-            onCommit?.();
-          }}
-        />
+        <div className="relative">
+          <DateRangePicker
+            id={filter.key}
+            locale={locale}
+            defaultValues={{
+              start: range.from ? new Date(range.from) : undefined,
+              end: range.to ? new Date(range.to) : undefined,
+            }}
+            onChange={(next) => {
+              onChange({
+                from: next.start?.toISOString(),
+                to: next.end?.toISOString(),
+              });
+              onCommit?.();
+            }}
+          />
+          {(range.from || range.to) && (
+            <button
+              type="button"
+              className="absolute right-9 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                setClearCount((prev) => prev + 1);
+                onChange(undefined);
+                onCommit?.();
+              }}
+            >
+              <XCircle className="h-4 w-4" />
+            </button>
+          )}
+        </div>
         {err}
       </Field>
     );
@@ -90,6 +128,7 @@ export function FilterValueEditor({
             id={filter.key}
             type="text"
             placeholder={filter.placeholder}
+            className={error ? "border-destructive" : ""}
             onKeyDown={(event) => {
               if (event.key !== "Enter") return;
               event.preventDefault();

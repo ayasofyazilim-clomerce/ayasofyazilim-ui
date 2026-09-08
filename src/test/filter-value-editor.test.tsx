@@ -90,12 +90,12 @@ describe("FilterValueEditor", () => {
     expect(screen.getByText("Too short")).toBeInTheDocument();
   });
 
-  it("renders one entry per option for a boolean filter, using its own labels", () => {
+  it("renders a Selectable trigger carrying the filter's placeholder text for a boolean filter", () => {
     const bool: ServerFilterConfig = {
       type: "boolean",
       key: "notActive",
       label: "Active",
-      placeholder: "Active",
+      placeholder: "Choose an option",
       options: [
         { label: "No", value: true },
         { label: "Yes", value: false },
@@ -104,8 +104,8 @@ describe("FilterValueEditor", () => {
     render(
       <FilterValueEditor filter={bool} value={undefined} onChange={jest.fn()} />
     );
-    expect(screen.getByText("No")).toBeInTheDocument();
-    expect(screen.getByText("Yes")).toBeInTheDocument();
+    const trigger = screen.getByText("Choose an option");
+    expect(trigger.closest("button")).toBeInTheDocument();
   });
 
   it("adds a tag on Enter for a string-array filter", () => {

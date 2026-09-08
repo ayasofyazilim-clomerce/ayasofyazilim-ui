@@ -94,31 +94,6 @@ export function ServerFilterContent<TData>({
     []
   );
 
-  const clearSingleFilter = useCallback((filter: ServerFilterConfig) => {
-    const emptyValue =
-      filter.type === "array" || filter.type === "string-array"
-        ? []
-        : filter.type === "boolean"
-          ? undefined
-          : filter.type === "date-range"
-            ? { from: undefined, to: undefined }
-            : "";
-    setLocalValues((prev) => ({ ...prev, [filter.key]: emptyValue }));
-    setErrors((prev) => ({ ...prev, [filter.key]: "" }));
-    if (
-      [
-        "select",
-        "array",
-        "string-array",
-        "boolean",
-        "date",
-        "date-range",
-      ].includes(filter.type)
-    ) {
-      setResetCount((prev) => prev + 1);
-    }
-  }, []);
-
   if (!serverFilters) return null;
 
   const handleApply = () => {
