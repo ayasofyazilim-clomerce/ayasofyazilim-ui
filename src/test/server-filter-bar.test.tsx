@@ -202,6 +202,30 @@ describe("ServerFilterBar", () => {
     expect(lastPush()).toContain("userName=john");
   });
 
+  it("keeps a chip's editor open with no push after selecting it from the palette", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config()} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-userName"));
+    expect(
+      screen.getByTestId("server-filter-chip-userName")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Filter with User Name")
+    ).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("does not push when a chip's editor is opened and closed without editing", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("userName=john");
+    render(<ServerFilterBar config={config()} />);
+    await user.click(screen.getByTestId("server-filter-chip-userName"));
+    const input = screen.getByPlaceholderText("Filter with User Name");
+    fireEvent.blur(input);
+    expect(push).not.toHaveBeenCalled();
+  });
+
   it("does not push while a validator is failing", async () => {
     const user = userEvent.setup();
     const withValidator: ServerFilterConfig[] = [

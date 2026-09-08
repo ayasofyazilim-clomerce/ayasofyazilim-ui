@@ -35,6 +35,13 @@ export interface ServerFilterBarProps<TData> {
   config: MasterDataGridConfig<TData>;
 }
 
+function normalizedParams(params: URLSearchParams): string {
+  return [...params.entries()]
+    .map(([key, value]) => `${key}=${value}`)
+    .sort()
+    .join("&");
+}
+
 export function ServerFilterBar<TData>({
   config,
 }: ServerFilterBarProps<TData>) {
@@ -98,14 +105,17 @@ export function ServerFilterBar<TData>({
           return;
         }
       }
+      const next = applyFilterToParams(params, filter, value);
+      if (normalizedParams(next) === normalizedParams(params)) return;
+
       setErrors((prev) => ({ ...prev, [filter.key]: "" }));
       setDrafts((prev) => {
-        const next = { ...prev };
-        delete next[filter.key];
-        return next;
+        const nextDrafts = { ...prev };
+        delete nextDrafts[filter.key];
+        return nextDrafts;
       });
       setOpenKey(null);
-      pushParams(applyFilterToParams(params, filter, value));
+      pushParams(next);
     },
     [params, pushParams]
   );
@@ -178,11 +188,7 @@ export function ServerFilterBar<TData>({
                 <X className="size-3" />
               </button>
             </div>
-            <PopoverContent
-              align="start"
-              className="w-72"
-              onOpenAutoFocus={(event) => event.preventDefault()}
-            >
+            <PopoverContent align="start" className="w-72">
               <FilterValueEditor
                 filter={filter}
                 value={draft}
