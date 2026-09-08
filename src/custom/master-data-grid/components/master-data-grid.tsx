@@ -32,6 +32,8 @@ import {
   getPinningHeaderStyles,
 } from "../utils/pinning-utils";
 import { getTranslations } from "../utils/translation-utils";
+import { visibleFilters } from "../utils/server-filter-utils";
+import { ServerFilterBar } from "./filters/server-filter-bar";
 import { ServerFilterContent } from "./filters/server-filter";
 import { Pagination } from "./pagination";
 import { TableBodyRenderer, VirtualBody } from "./table";
@@ -97,6 +99,10 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     serverFilterLocation,
     pinning,
   };
+
+  const isServerFiltered =
+    serverFilterLocation === "toolbar" &&
+    visibleFilters(serverFilters).length > 0;
 
   const {
     tableState,
@@ -368,7 +374,10 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         onExport={enableExport ? handleExport : undefined}
         onRefresh={configWithDefaults.onRefresh}
         onReset={handleReset}
+        isServerFiltered={isServerFiltered}
       />
+
+      {isServerFiltered && <ServerFilterBar config={configWithDefaults} />}
 
       <div
         className={cn(

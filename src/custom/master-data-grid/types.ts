@@ -552,7 +552,6 @@ export interface MasterDataGridResources extends Record<string, string> {
   "pagination.rowsSelected": string;
   "table.noResults": string;
   "toolbar.actions": string;
-  "toolbar.client": string;
   "toolbar.columns": string;
   "toolbar.export": string;
   "toolbar.filters": string;
@@ -560,7 +559,6 @@ export interface MasterDataGridResources extends Record<string, string> {
   "toolbar.reset": string;
   "toolbar.search": string;
   "toolbar.selected": string;
-  "toolbar.server": string;
   "validation.invalidBoolean": string;
   "validation.invalidEmail": string;
   "validation.invalidEnum": string;
