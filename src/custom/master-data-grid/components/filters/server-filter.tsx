@@ -178,7 +178,7 @@ export function ServerFilterContent<TData>({
       }
     });
     if (hasValidationError) return;
-    params.delete("page");
+    params.delete("skipCount");
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     });
