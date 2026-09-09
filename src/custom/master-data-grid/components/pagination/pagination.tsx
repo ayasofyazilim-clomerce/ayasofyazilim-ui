@@ -8,7 +8,7 @@ import {
   ChevronsLeftIcon,
   ChevronsRightIcon,
 } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "../../../../components/button";
 import {
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "../../../../components/select";
 import { Localization, MasterDataGridResources } from "../../types";
+import { useGridNavigation } from "../../hooks/use-grid-navigation";
 import { getTranslations } from "../../utils/translation-utils";
 import { RowCountSummary } from "../row-count-summary";
 
@@ -28,6 +29,8 @@ interface PaginationProps<TData> {
   t?: MasterDataGridResources;
   localization?: Localization;
   unfilteredRowCount?: number;
+  navigate?: (url: string, options?: { replace?: boolean }) => void;
+  pending?: boolean;
 }
 
 export function Pagination<TData>({
@@ -36,8 +39,11 @@ export function Pagination<TData>({
   t,
   localization,
   unfilteredRowCount,
+  navigate: navigateProp,
+  pending,
 }: PaginationProps<TData>) {
-  const { replace } = useRouter();
+  const { navigate: ownNavigate } = useGridNavigation();
+  const navigate = navigateProp ?? ownNavigate;
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const pagination = table.getState().pagination;
@@ -75,13 +81,13 @@ export function Pagination<TData>({
       params.delete("skipCount");
     }
 
-    replace(`${pathname}?${params.toString()}`);
+    navigate(`${pathname}?${params.toString()}`, { replace: true });
   }, [
     pagination.pageIndex,
     pagination.pageSize,
     pathname,
     searchParams,
-    replace,
+    navigate,
   ]);
 
   return (
@@ -128,6 +134,7 @@ export function Pagination<TData>({
         t={t}
         localization={localization}
         unfilteredRowCount={unfilteredRowCount}
+        pending={pending}
       />
         </div>
         

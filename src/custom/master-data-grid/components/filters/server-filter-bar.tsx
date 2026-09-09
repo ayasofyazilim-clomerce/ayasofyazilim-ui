@@ -1,15 +1,8 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Plus, X } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../../../../components/button";
 import {
   Command,
@@ -36,10 +29,12 @@ import {
   type ServerFilterValue,
 } from "../../utils/server-filter-utils";
 import { getTranslations } from "../../utils/translation-utils";
+import { useGridNavigation } from "../../hooks/use-grid-navigation";
 import { FilterValueEditor } from "./filter-value-editor";
 
 export interface ServerFilterBarProps<TData> {
   config: MasterDataGridConfig<TData>;
+  navigate?: (url: string, options?: { replace?: boolean }) => void;
 }
 
 const BATCH_ON_CLOSE_TYPES = new Set<ServerFilterConfig["type"]>([
@@ -61,12 +56,13 @@ function normalizedParams(
 
 export function ServerFilterBar<TData>({
   config,
+  navigate: navigateProp,
 }: ServerFilterBarProps<TData>) {
   const { t, localization } = config;
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [, startTransition] = useTransition();
+  const { navigate: ownNavigate } = useGridNavigation();
+  const navigate = navigateProp ?? ownNavigate;
 
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -145,13 +141,9 @@ export function ServerFilterBar<TData>({
       const nextQuery = next.toString();
       pendingPush.current = { from: urlQuery, to: nextQuery };
       notePush((seq) => seq + 1);
-      startTransition(() => {
-        router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
-          scroll: false,
-        });
-      });
+      navigate(nextQuery ? `${pathname}?${nextQuery}` : pathname);
     },
-    [pathname, router, urlQuery]
+    [pathname, navigate, urlQuery]
   );
 
   // skipCount is excluded because applyFilterToParams always drops it: a

@@ -23,7 +23,9 @@ import {
 import { cn } from "../../../lib/utils";
 import { useMasterDataGridResources } from "../context/resources";
 import { useColumns } from "../hooks/use-columns";
+import { useDelayedFlag } from "../hooks/use-delayed-flag";
 import { useEditing } from "../hooks/use-editing";
+import { useGridNavigation } from "../hooks/use-grid-navigation";
 import { useTableStateReducer } from "../hooks/use-table-state-reducer";
 import type { MasterDataGridConfig, MasterDataGridProps } from "../types";
 import { exportToCSV } from "../utils/export-utils";
@@ -117,6 +119,12 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     updateEditingRows,
     resetToDefaults,
   } = useTableStateReducer(configWithDefaults, pageSize);
+
+  const { navigate, isNavigating } = useGridNavigation();
+  const showPending = useDelayedFlag(
+    isNavigating || Boolean(configWithDefaults.loading),
+    150
+  );
 
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -329,7 +337,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     });
     return map;
   }, [data, configWithDefaults.grouping?.groupLabelField, enableGrouping]);
-  if (configWithDefaults.loading) {
+  if (configWithDefaults.loading && data.length === 0) {
     return (
       <div className={cn("space-y-4", configWithDefaults.containerClassName)}>
         <Skeleton className="h-10 w-full" />
@@ -377,11 +385,17 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         isServerFiltered={isServerFiltered}
       />
 
-      {isServerFiltered && <ServerFilterBar config={configWithDefaults} />}
+      {isServerFiltered && (
+        <ServerFilterBar config={configWithDefaults} navigate={navigate} />
+      )}
 
       <div
+        aria-busy={showPending || undefined}
         className={cn(
           "relative w-full border rounded-md overflow-hidden flex",
+          showPending &&
+            !configWithDefaults.loadingComponent &&
+            "**:data-[slot=table-body]:opacity-45 **:data-[slot=table-body]:pointer-events-none **:data-[slot=table-body]:transition-opacity",
           configWithDefaults.className
         )}
         style={{ height: enableVirtualization ? "600px" : "auto" }}
@@ -518,10 +532,17 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
             <ServerFilterContent table={table} config={configWithDefaults} />
           </div>
         )}
+        {showPending && configWithDefaults.loadingComponent && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80">
+            {configWithDefaults.loadingComponent}
+          </div>
+        )}
       </div>
       {enablePagination && (
         <Pagination
           table={table}
+          navigate={navigate}
+          pending={showPending && !configWithDefaults.loadingComponent}
           pageSizeOptions={pageSizeOptions}
           t={t}
           localization={configWithDefaults.localization}

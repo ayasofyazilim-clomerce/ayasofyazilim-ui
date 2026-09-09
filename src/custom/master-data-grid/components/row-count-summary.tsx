@@ -2,6 +2,7 @@
 "use no memo";
 
 import type { Table } from "@tanstack/react-table";
+import { Loader2 } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import type { Localization, MasterDataGridResources } from "../types";
 import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
@@ -12,6 +13,7 @@ interface RowCountSummaryProps<TData> {
   localization?: Localization;
   unfilteredRowCount?: number;
   className?: string;
+  pending?: boolean;
 }
 
 export function RowCountSummary<TData>({
@@ -20,6 +22,7 @@ export function RowCountSummary<TData>({
   localization,
   unfilteredRowCount,
   className,
+  pending,
 }: RowCountSummaryProps<TData>) {
   // Resolves to config.rowCount for server-paged grids and to the filtered row
   // count for client-paged ones, which is the total we want in both cases.
@@ -57,7 +60,13 @@ export function RowCountSummary<TData>({
       className={cn("rounded-md text-nowrap", className)}
       data-testid="row-count-summary"
     >
-      {label ? `${label}: ${count}` : count}
+      {pending ? (
+        <Loader2 aria-hidden className="size-3 animate-spin" />
+      ) : label ? (
+        `${label}: ${count}`
+      ) : (
+        count
+      )}
     </Badge>
   );
 }
