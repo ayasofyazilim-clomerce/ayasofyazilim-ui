@@ -238,6 +238,7 @@ export function ServerFilterBar<TData>({
               // the bar showing nothing but its placeholder.
               setOpenKey(null);
               dropDraft(filter.key);
+              setErrors((prev) => ({ ...prev, [filter.key]: "" }));
             }}
           >
             <div className="inline-flex h-7 items-stretch overflow-hidden rounded-full border bg-secondary text-xs">

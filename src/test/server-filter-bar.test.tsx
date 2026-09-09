@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { StrictMode } from "react";
 import { ServerFilterBar } from "../custom/master-data-grid/components/filters/server-filter-bar";
 import type {
   MasterDataGridConfig,
@@ -96,6 +97,22 @@ const issueDateFilter: ServerFilterConfig = {
   label: "Issue Date",
   placeholder: "Filter with Issue Date",
 };
+
+const emailFilter: ServerFilterConfig = {
+  type: "string",
+  key: "email",
+  label: "Email",
+  placeholder: "Filter with Email",
+  validator: {
+    safeParse: (value: unknown) =>
+      String(value).includes("@")
+        ? { success: true, data: value }
+        : {
+            success: false,
+            error: { issues: [{ message: "Invalid email" }] },
+          },
+  },
+} as unknown as ServerFilterConfig;
 
 const tagsFilter: ServerFilterConfig = {
   type: "string-array",
@@ -446,24 +463,7 @@ describe("ServerFilterBar", () => {
 
   it("does not push while a validator is failing", async () => {
     const user = userEvent.setup();
-    const withValidator: ServerFilterConfig[] = [
-      {
-        type: "string",
-        key: "email",
-        label: "Email",
-        placeholder: "Filter with Email",
-        validator: {
-          safeParse: (value: unknown) =>
-            String(value).includes("@")
-              ? { success: true, data: value }
-              : {
-                  success: false,
-                  error: { issues: [{ message: "Invalid email" }] },
-                },
-        },
-      } as unknown as ServerFilterConfig,
-    ];
-    render(<ServerFilterBar config={config(withValidator)} />);
+    render(<ServerFilterBar config={config([emailFilter])} />);
     await user.click(screen.getByTestId("server-filter-add"));
     await user.click(screen.getByTestId("server-filter-option-email"));
     const input = screen.getByPlaceholderText("Filter with Email");
@@ -475,25 +475,8 @@ describe("ServerFilterBar", () => {
 
   it("clears a stale validation error when reverting to the committed value", async () => {
     const user = userEvent.setup();
-    const withValidator: ServerFilterConfig[] = [
-      {
-        type: "string",
-        key: "email",
-        label: "Email",
-        placeholder: "Filter with Email",
-        validator: {
-          safeParse: (value: unknown) =>
-            String(value).includes("@")
-              ? { success: true, data: value }
-              : {
-                  success: false,
-                  error: { issues: [{ message: "Invalid email" }] },
-                },
-        },
-      } as unknown as ServerFilterConfig,
-    ];
     search = new URLSearchParams("email=john%40example.com");
-    render(<ServerFilterBar config={config(withValidator)} />);
+    render(<ServerFilterBar config={config([emailFilter])} />);
     await user.click(screen.getByTestId("server-filter-chip-email"));
     const input = screen.getByPlaceholderText("Filter with Email");
     fireEvent.change(input, { target: { value: "not-an-email" } });
@@ -502,6 +485,22 @@ describe("ServerFilterBar", () => {
     fireEvent.change(input, { target: { value: "john@example.com" } });
     fireEvent.keyDown(input, { key: "Enter" });
     expect(push).not.toHaveBeenCalled();
+    expect(screen.queryByText("Invalid email")).toBeNull();
+  });
+
+  it("clears an abandoned chip's validation error so re-adding the filter starts clean", async () => {
+    const user = userEvent.setup();
+    render(<ServerFilterBar config={config([emailFilter])} />);
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-email"));
+    const input = screen.getByPlaceholderText("Filter with Email");
+    fireEvent.change(input, { target: { value: "john" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(screen.getByText("Invalid email")).toBeInTheDocument();
+    await user.click(screen.getByTestId("server-filter-chip-email"));
+    expect(screen.queryByTestId("server-filter-chip-email")).toBeNull();
+    await user.click(screen.getByTestId("server-filter-add"));
+    await user.click(screen.getByTestId("server-filter-option-email"));
     expect(screen.queryByText("Invalid email")).toBeNull();
   });
 
@@ -538,6 +537,65 @@ describe("ServerFilterBar", () => {
     await user.click(chip);
     await user.click(chip);
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("keeps a date chip's editor open under StrictMode when the chip already carries a URL value", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("issueDate=2026-09-01T00:00:00.000Z");
+    render(
+      <StrictMode>
+        <ServerFilterBar config={config([issueDateFilter])} />
+      </StrictMode>
+    );
+    const chip = screen.getByTestId("server-filter-chip-issueDate");
+    await user.click(chip);
+    expect(chip).toHaveAttribute("data-state", "open");
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("pushes nothing under StrictMode when a date-range chip carrying a URL value is opened and closed", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams(
+      "startTime=2026-09-01T00:00:00.000Z&endTime=2026-09-08T00:00:00.000Z&skipCount=20"
+    );
+    render(
+      <StrictMode>
+        <ServerFilterBar config={config()} />
+      </StrictMode>
+    );
+    const chip = screen.getByTestId("server-filter-chip-executionTime");
+    await user.click(chip);
+    await user.click(chip);
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it("still commits a genuine pick on a date chip that mounted with a URL value", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams("issueDate=2026-09-01T00:00:00.000Z");
+    render(<ServerFilterBar config={config([issueDateFilter])} />);
+    await user.click(screen.getByTestId("server-filter-chip-issueDate"));
+    await user.click(screen.getByTestId("issueDate_calendar_icon"));
+    await user.click(screen.getByRole("button", { name: /^Today,/ }));
+    expect(push).toHaveBeenCalledTimes(1);
+    expect(lastPush()).toContain("issueDate=");
+  });
+
+  it("still commits a genuine pick on a date-range chip that mounted with a URL value", async () => {
+    const user = userEvent.setup();
+    search = new URLSearchParams(
+      "startTime=2026-09-01T00:00:00.000Z&endTime=2026-09-08T00:00:00.000Z"
+    );
+    render(<ServerFilterBar config={config()} />);
+    await user.click(screen.getByTestId("server-filter-chip-executionTime"));
+    await user.click(screen.getByTestId("executionTime_calendar_icon"));
+    await user.click(screen.getByRole("button", { name: /^Today,/ }));
+    await user.keyboard("{ArrowRight}{Enter}");
+    expect(push).not.toHaveBeenCalled();
+    await user.click(screen.getByTestId("server-filter-chip-executionTime"));
+    const url = lastPush();
+    expect(url).toContain("startTime=");
+    expect(url).toContain("endTime=");
+    expect(push).toHaveBeenCalledTimes(1);
   });
 
   it("keeps an earlier filter when a second is applied after the URL catches up", async () => {

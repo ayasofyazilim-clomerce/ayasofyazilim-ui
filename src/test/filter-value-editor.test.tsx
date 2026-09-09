@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { StrictMode } from "react";
 import { FilterValueEditor } from "../custom/master-data-grid/components/filters/filter-value-editor";
 import type { ServerFilterConfig } from "../custom/master-data-grid/types";
 
@@ -240,6 +241,43 @@ describe("FilterValueEditor", () => {
     expect(onCommit).not.toHaveBeenCalled();
   });
 
+  it("does not emit on a StrictMode double mount for a date filter that already has a value", () => {
+    const onChange = jest.fn();
+    const onCommit = jest.fn();
+    render(
+      <StrictMode>
+        <FilterValueEditor
+          filter={date}
+          value="2026-09-01T00:00:00.000Z"
+          onChange={onChange}
+          onCommit={onCommit}
+        />
+      </StrictMode>
+    );
+    expect(onChange).not.toHaveBeenCalled();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
+  it("does not emit on a StrictMode double mount for a date-range filter that already has a value", () => {
+    const onChange = jest.fn();
+    const onCommit = jest.fn();
+    render(
+      <StrictMode>
+        <FilterValueEditor
+          filter={dateRange}
+          value={{
+            from: "2026-09-01T00:00:00.000Z",
+            to: "2026-09-08T00:00:00.000Z",
+          }}
+          onChange={onChange}
+          onCommit={onCommit}
+        />
+      </StrictMode>
+    );
+    expect(onChange).not.toHaveBeenCalled();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
   it("still reports a real pick on a date filter that mounted with a value", async () => {
     const user = userEvent.setup();
     const onChange = jest.fn();
@@ -256,5 +294,24 @@ describe("FilterValueEditor", () => {
     await user.click(screen.getByRole("button", { name: /^Today,/ }));
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onCommit).toHaveBeenCalledTimes(1);
+  });
+
+  it("still reports a real pick on a date-range filter that mounted with a value", async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    render(
+      <FilterValueEditor
+        filter={dateRange}
+        value={{
+          from: "2026-09-01T00:00:00.000Z",
+          to: "2026-09-08T00:00:00.000Z",
+        }}
+        onChange={onChange}
+      />
+    );
+    await user.click(screen.getByTestId("issueDate_calendar_icon"));
+    await user.click(screen.getByRole("button", { name: /^Today,/ }));
+    await user.keyboard("{ArrowRight}{Enter}");
+    expect(onChange).toHaveBeenCalled();
   });
 });
