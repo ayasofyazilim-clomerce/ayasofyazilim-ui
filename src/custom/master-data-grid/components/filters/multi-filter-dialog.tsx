@@ -1,9 +1,3 @@
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@repo/ayasofyazilim-ui/components/tabs";
 import type { Table } from "@tanstack/react-table";
 
 import { useIsMobile } from "@repo/ayasofyazilim-ui/hooks/use-mobile";
@@ -21,6 +15,7 @@ import {
   PopoverTrigger,
 } from "../../../../components/popover";
 import type { MasterDataGridConfig } from "../../types";
+import { visibleFilters } from "../../utils/server-filter-utils";
 import { getTranslations } from "../../utils/translation-utils";
 import { ClientFilterContent } from "./client-filter";
 import { ServerFilterContent } from "./server-filter";
@@ -43,24 +38,14 @@ export function MultiFilterDialog<TData>({
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
-  const filterContent = (
-    <Tabs defaultValue="client">
-      {config.serverFilters && (
-        <TabsList>
-          <TabsTrigger value="client">{t?.["toolbar.client"]}</TabsTrigger>
-          <TabsTrigger value="server">{t?.["toolbar.server"]}</TabsTrigger>
-        </TabsList>
-      )}
-      <TabsContent value="client" className="w-full">
-        <ClientFilterContent setOpen={setOpen} table={table} config={config} />
-      </TabsContent>
-      <TabsContent
-        value="server"
-        className="w-full min-w-lg max-w-lg [&>fieldset]:p-0"
-      >
-        <ServerFilterContent table={table} config={config} />
-      </TabsContent>
-    </Tabs>
+  const showsServerFilterContent =
+    visibleFilters(config.serverFilters).length > 0 &&
+    config.serverFilterLocation !== "toolbar";
+
+  const filterContent = showsServerFilterContent ? (
+    <ServerFilterContent table={table} config={config} />
+  ) : (
+    <ClientFilterContent setOpen={setOpen} table={table} config={config} />
   );
 
   if (isMobile) {

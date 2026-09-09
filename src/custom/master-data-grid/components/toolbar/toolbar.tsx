@@ -60,6 +60,7 @@ interface ToolbarProps<TData> {
   onExport?: (format: string) => void;
   onRefresh?: () => void;
   onReset?: () => void;
+  isServerFiltered?: boolean;
 }
 
 export function Toolbar<TData>({
@@ -69,6 +70,7 @@ export function Toolbar<TData>({
   onExport,
   onRefresh,
   onReset,
+  isServerFiltered = false,
 }: ToolbarProps<TData>) {
   const { t, tableActions, enableExport } = config;
 
@@ -168,7 +170,7 @@ export function Toolbar<TData>({
 
   const renderTableButtons = (isMobile = false) => (
     <>
-      {config.enableFiltering && (
+      {config.enableFiltering && !isServerFiltered && (
         <MultiFilterDialog table={table} config={config}>
           <Button
             size={"sm"}

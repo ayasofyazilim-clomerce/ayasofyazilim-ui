@@ -1,30 +1,18 @@
 "use client";
 
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
 import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import {
   Field,
-  FieldError,
   FieldGroup,
-  FieldLabel,
   FieldSet,
 } from "@repo/ayasofyazilim-ui/components/field";
-import { Selectable } from "@repo/ayasofyazilim-ui/custom/selectable";
-import { Loader2, RotateCcw, Search, X, XCircle } from "lucide-react";
-import {
-  DatePicker,
-  DateRangePicker,
-} from "@repo/ayasofyazilim-ui/custom/date-picker";
+import { Loader2, RotateCcw, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";
 import { ServerFilterConfig } from "../../types";
+import type { ServerFilterValue } from "../../utils/server-filter-utils";
 import { BaseMultiFilterDialogProps } from "./multi-filter-dialog";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@repo/ayasofyazilim-ui/components/input-group";
+import { FilterValueEditor } from "./filter-value-editor";
 import {
   ScrollArea,
   ScrollBar,
@@ -92,44 +80,23 @@ export function ServerFilterContent<TData>({
       }
 
       if (filter.validator) {
-        const result = filter.validator.safeParse(processedValue);
-        setErrors((prev) => ({
-          ...prev,
-          [filter.key]: result.success
-            ? ""
-            : result.error.issues[0]?.message || "Hata",
-        }));
+        if (processedValue !== undefined) {
+          const result = filter.validator.safeParse(processedValue);
+          setErrors((prev) => ({
+            ...prev,
+            [filter.key]: result.success
+              ? ""
+              : result.error.issues[0]?.message || "Hata",
+          }));
+        } else {
+          setErrors((prev) => ({ ...prev, [filter.key]: "" }));
+        }
       }
 
       setLocalValues((prev) => ({ ...prev, [filter.key]: processedValue }));
     },
     []
   );
-
-  const clearSingleFilter = useCallback((filter: ServerFilterConfig) => {
-    const emptyValue =
-      filter.type === "array" || filter.type === "string-array"
-        ? []
-        : filter.type === "boolean"
-          ? undefined
-          : filter.type === "date-range"
-            ? { from: undefined, to: undefined }
-            : "";
-    setLocalValues((prev) => ({ ...prev, [filter.key]: emptyValue }));
-    setErrors((prev) => ({ ...prev, [filter.key]: "" }));
-    if (
-      [
-        "select",
-        "array",
-        "string-array",
-        "boolean",
-        "date",
-        "date-range",
-      ].includes(filter.type)
-    ) {
-      setResetCount((prev) => prev + 1);
-    }
-  }, []);
 
   if (!serverFilters) return null;
 
@@ -208,210 +175,21 @@ export function ServerFilterContent<TData>({
         <FieldGroup className={"gap-3 max-h-80"}>
           {serverFilters.map((filter) => {
             if (filter.when === false) return null;
-            const value = localValues[filter.key];
-
-            if (filter.type === "date") {
-              const dateVal = value as string | undefined;
-              return (
-                <Field key={`${filter.key}-${resetCount}`} className="gap-1">
-                  <FieldLabel htmlFor={filter.key}>{filter.label}</FieldLabel>
-                  <div className="relative">
-                    <DatePicker
-                      id={filter.key}
-                      locale={locale}
-                      defaultValue={dateVal ? new Date(dateVal) : undefined}
-                      onChange={(date) =>
-                        onValueChange(
-                          filter,
-                          date ? date.toISOString() : undefined
-                        )
-                      }
-                    />
-                    {dateVal && (
-                      <button
-                        type="button"
-                        className="absolute right-9 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        onClick={() => clearSingleFilter(filter)}
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                  {errors[filter.key] && (
-                    <FieldError>{errors[filter.key]}</FieldError>
-                  )}
-                </Field>
-              );
-            }
-
-            if (filter.type === "date-range") {
-              const rangeVal = value as DateRangeValue | undefined;
-              return (
-                <Field key={`${filter.key}-${resetCount}`} className="gap-1">
-                  <FieldLabel>{filter.label}</FieldLabel>
-                  <div className="relative">
-                    <DateRangePicker
-                      id={filter.key}
-                      locale={locale}
-                      defaultValues={{
-                        start: rangeVal?.from
-                          ? new Date(rangeVal.from)
-                          : undefined,
-                        end: rangeVal?.to ? new Date(rangeVal.to) : undefined,
-                      }}
-                      onChange={(range) =>
-                        onValueChange(filter, {
-                          from: range.start?.toISOString(),
-                          to: range.end?.toISOString(),
-                        })
-                      }
-                    />
-                    {(rangeVal?.from || rangeVal?.to) && (
-                      <button
-                        type="button"
-                        className="absolute right-9 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        onClick={() => clearSingleFilter(filter)}
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                  {errors[filter.key] && (
-                    <FieldError>{errors[filter.key]}</FieldError>
-                  )}
-                </Field>
-              );
-            }
-
-            if (filter.type === "string-array") {
-              const tags = (value as string[] | undefined) ?? [];
-              return (
-                <Field key={filter.key} className="gap-1">
-                  <FieldLabel htmlFor={filter.key}>{filter.label}</FieldLabel>
-                  <InputGroup>
-                    <InputGroupInput
-                      id={filter.key}
-                      type="text"
-                      placeholder={filter.placeholder}
-                      className={errors[filter.key] ? "border-destructive" : ""}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          const input = e.currentTarget;
-                          const trimmed = input.value.trim();
-                          if (trimmed && !tags.includes(trimmed)) {
-                            onValueChange(filter, [...tags, trimmed]);
-                          }
-                          input.value = "";
-                        }
-                      }}
-                    />
-                  </InputGroup>
-                  {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {tags.map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="gap-1 pr-1"
-                        >
-                          {tag}
-                          <button
-                            type="button"
-                            className="ml-1 rounded-full hover:bg-muted"
-                            onClick={() =>
-                              onValueChange(
-                                filter,
-                                tags.filter((t) => t !== tag)
-                              )
-                            }
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  {errors[filter.key] && (
-                    <FieldError>{errors[filter.key]}</FieldError>
-                  )}
-                </Field>
-              );
-            }
-
-            const isSelectable =
-              filter.type === "select" ||
-              filter.type === "array" ||
-              filter.type === "boolean";
-            if (isSelectable) {
-              return (
-                <Field key={filter.key} className="gap-1">
-                  <FieldLabel htmlFor={filter.key}>{filter.label}</FieldLabel>
-                  <Selectable
-                    id={filter.key}
-                    key={`${filter.key}-${resetCount}`}
-                    singular={filter.type !== "array"}
-                    options={filter.options}
-                    defaultValue={filter.options.filter((opt) =>
-                      Array.isArray(value)
-                        ? value.some(
-                            (v) =>
-                              v === opt.value || String(v) === String(opt.value)
-                          )
-                        : value === opt.value ||
-                          String(value) === String(opt.value)
-                    )}
-                    getKey={(opt) => String(opt.value)}
-                    getLabel={(opt) => opt.label}
-                    onChange={(selected) => {
-                      const values = selected.map((s) => s.value);
-                      onValueChange(
-                        filter,
-                        filter.type === "array"
-                          ? values
-                          : values[0] ?? undefined
-                      );
-                    }}
-                    searchPlaceholderText={filter.placeholder}
-                    makeAChoiceText={filter.placeholder}
-                  />
-                  {errors[filter.key] && (
-                    <FieldError>{errors[filter.key]}</FieldError>
-                  )}
-                </Field>
-              );
-            }
             return (
-              <Field key={filter.key} className="gap-1">
-                <FieldLabel htmlFor={filter.key}>{filter.label}</FieldLabel>
-                <InputGroup>
-                  <InputGroupInput
-                    id={filter.key}
-                    type={filter.type === "number" ? "number" : "text"}
-                    value={
-                      typeof value === "boolean" || typeof value === "object"
-                        ? ""
-                        : value ?? ""
-                    }
-                    placeholder={filter.placeholder}
-                    onKeyDown={(e) => e.key === "Enter" && handleApply()}
-                    onChange={(e) => onValueChange(filter, e.target.value)}
-                    className={errors[filter.key] ? "border-destructive" : ""}
-                  />
-                  {localValues[filter.key] && (
-                    <InputGroupAddon align="inline-end">
-                      <InputGroupButton
-                        onClick={() => clearSingleFilter(filter)}
-                      >
-                        <XCircle />
-                      </InputGroupButton>
-                    </InputGroupAddon>
-                  )}
-                </InputGroup>
-                {errors[filter.key] && (
-                  <FieldError>{errors[filter.key]}</FieldError>
-                )}
-              </Field>
+              <FilterValueEditor
+                key={filter.key}
+                filter={filter}
+                value={localValues[filter.key] as ServerFilterValue | undefined}
+                locale={locale}
+                error={errors[filter.key]}
+                resetSignal={resetCount}
+                onChange={(next) => onValueChange(filter, next as FilterValue)}
+                onCommit={
+                  filter.type === "string" || filter.type === "number"
+                    ? handleApply
+                    : undefined
+                }
+              />
             );
           })}
         </FieldGroup>
