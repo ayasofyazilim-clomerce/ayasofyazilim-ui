@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  type CheckboxItem,
-} from "@radix-ui/react-dropdown-menu";
+import { type CheckboxItem } from "@radix-ui/react-dropdown-menu";
 import type {
   Circle,
   CircleMarker,
@@ -90,8 +83,13 @@ import type { MarkerClusterGroupProps } from "react-leaflet-markercluster";
 import { cn } from "../lib/utils";
 import { Button } from "./button";
 import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { ButtonGroup } from "./button-group";
@@ -477,6 +475,12 @@ function MapLayersControl({
     );
   }
 
+  // The wrapper's `focus:bg-accent` is a 3% lightness step against the popover
+  // in the light theme, which barely reads as a highlight; a foreground overlay
+  // stays tokenised and works in both themes. Its `cursor-default` also leaves
+  // the items reading as inert text.
+  const itemClassName = "cursor-pointer focus:bg-foreground/8";
+
   const showTileLayersDropdown = tileLayers.length > 1;
   const showLayerGroupsDropdown = layerGroups.length > 0;
 
@@ -509,6 +513,7 @@ function MapLayersControl({
             >
               {tileLayers.map((tileLayer) => (
                 <DropdownMenuRadioItem
+                  className={itemClassName}
                   key={tileLayer.name}
                   value={tileLayer.name}
                 >
@@ -526,6 +531,7 @@ function MapLayersControl({
             <DropdownMenuLabel>{layerGroupsLabel}</DropdownMenuLabel>
             {layerGroups.map((layerGroup) => (
               <DropdownMenuCheckboxItem
+                className={itemClassName}
                 key={layerGroup.name}
                 checked={activeLayerGroups.includes(layerGroup.name)}
                 disabled={layerGroup.disabled}
