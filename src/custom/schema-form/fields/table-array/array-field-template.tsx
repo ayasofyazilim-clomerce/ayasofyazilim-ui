@@ -15,12 +15,14 @@ import {
   getUiOptions,
 } from "@rjsf/utils";
 import { PlusCircle } from "lucide-react";
+import { type RowClassName, RowClassNameContext } from "./row-class-name";
 
 export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
   const {
     canAdd,
     disabled,
     fieldPathId,
+    formData,
     uiSchema,
     items,
     optionalDataControl,
@@ -43,6 +45,8 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
     uiOptions
   );
   const showOptionalDataControlInTitle = !readonly && !disabled;
+  const rowClassName = uiOptions.rowClassName as RowClassName | undefined;
+  const rows: unknown[] = Array.isArray(formData) ? formData : [];
 
   return (
     <div className="border rounded-md overflow-hidden">
@@ -107,7 +111,15 @@ export function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
           </TableRow>
         </TableHeader>
         <TableBody className="[&_tr:last-child>td]:rounded-md">
-          {items}
+          <RowClassNameContext.Provider
+            value={
+              rowClassName
+                ? (index) => rowClassName(rows[index], index)
+                : undefined
+            }
+          >
+            {items}
+          </RowClassNameContext.Provider>
         </TableBody>
       </Table>
     </div>

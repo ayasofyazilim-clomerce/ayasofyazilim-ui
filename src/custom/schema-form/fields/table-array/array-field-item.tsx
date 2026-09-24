@@ -21,13 +21,16 @@ import {
   MoreHorizontal,
   Trash2,
 } from "lucide-react";
+import { useRowClassName } from "./row-class-name";
 
 export function ArrayFieldItemTemplate<
   T = unknown,
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = GenericObjectType,
 >(props: ArrayFieldItemTemplateProps<T, S, F>) {
-  const { children, buttonsProps, hasToolbar } = props;
+  const { children, buttonsProps, hasToolbar, index } = props;
+  const rowClassName = useRowClassName(index);
+  const locked = buttonsProps.disabled || buttonsProps.readonly;
   const {
     hasCopy,
     hasMoveDown,
@@ -40,13 +43,17 @@ export function ArrayFieldItemTemplate<
   } = buttonsProps;
   const isMultipleToolbar = hasRemove && (hasCopy || hasMoveDown || hasMoveUp);
   return (
-    <TableRow className={cn("divide-x", props.className)} key={props.itemKey}>
+    <TableRow
+      className={cn("divide-x", props.className, rowClassName)}
+      key={props.itemKey}
+    >
       {children}
       <TableCell className="p-0">
         {hasToolbar && hasRemove && !isMultipleToolbar && (
           <Button
             variant="ghost"
             type="button"
+            disabled={locked}
             onClick={buttonsProps.onRemoveItem}
           >
             <Trash2 className="size-4" />
@@ -55,7 +62,12 @@ export function ArrayFieldItemTemplate<
         {hasToolbar && isMultipleToolbar && (
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" type="button" className="">
+              <Button
+                variant="ghost"
+                type="button"
+                className=""
+                disabled={locked}
+              >
                 <MoreHorizontal className="size-4" />
               </Button>
             </PopoverTrigger>
