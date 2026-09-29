@@ -10,6 +10,7 @@ import {
   Group,
   I18nProvider,
   Label,
+  useLocale,
   // Popover,
 } from "react-aria-components";
 import {
@@ -44,7 +45,7 @@ export function DatePicker({
   disabled = false,
   useTime = false,
   showIcon = true,
-  locale = "en-US",
+  locale,
   minDate,
   maxDate,
   translations = defaultTranslations,
@@ -59,6 +60,7 @@ export function DatePicker({
   useTime?: boolean;
   defaultValue?: Date;
   onChange?: (date: Date) => void;
+  /** Formatting locale. Omit to inherit the nearest react-aria I18nProvider. */
   locale?: string;
   minDate?: Date;
   maxDate?: Date;
@@ -67,6 +69,8 @@ export function DatePicker({
     "DatePicker.to": string;
   };
 }) {
+  const inheritedLocale = useLocale().locale;
+  const effectiveLocale = locale ?? inheritedLocale;
   const [dateValue, setDateValue] = useState(
     createDate({ date: defaultValue, offset })
   );
@@ -99,7 +103,7 @@ export function DatePicker({
 
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <I18nProvider locale={locale}>
+    <I18nProvider locale={effectiveLocale}>
       <DefaultDatePicker
         aria-label="x"
         minValue={createDate({ date: minDate, offset })}
@@ -136,10 +140,10 @@ export function DatePicker({
                 </TooltipTrigger>
                 <TooltipContent>
                   {minDate && maxDate
-                    ? `${minDate.toLocaleDateString(locale, { dateStyle: "medium" })} – ${maxDate.toLocaleDateString(locale, { dateStyle: "medium" })}`
+                    ? `${minDate.toLocaleDateString(effectiveLocale, { dateStyle: "medium" })} – ${maxDate.toLocaleDateString(effectiveLocale, { dateStyle: "medium" })}`
                     : minDate
-                      ? `${translations["DatePicker.from"]} ${minDate.toLocaleDateString(locale, { dateStyle: "medium" })}`
-                      : `${translations["DatePicker.to"]} ${maxDate!.toLocaleDateString(locale, { dateStyle: "medium" })}`}
+                      ? `${translations["DatePicker.from"]} ${minDate.toLocaleDateString(effectiveLocale, { dateStyle: "medium" })}`
+                      : `${translations["DatePicker.to"]} ${maxDate!.toLocaleDateString(effectiveLocale, { dateStyle: "medium" })}`}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -205,7 +209,7 @@ export function DateRangePicker({
   defaultValues,
   disabled = false,
   showIcon = true,
-  locale = "en-US",
+  locale,
 }: {
   id: string;
   label?: string;
@@ -216,8 +220,11 @@ export function DateRangePicker({
   showIcon?: boolean;
   defaultValues?: DateRange;
   onChange?: (date: DateRange) => void;
+  /** Formatting locale. Omit to inherit the nearest react-aria I18nProvider. */
   locale?: string;
 }) {
+  const inheritedLocale = useLocale().locale;
+  const effectiveLocale = locale ?? inheritedLocale;
   const [dateValue, setDateValue] = useState({
     start: createDate({ date: defaultValues?.start, offset }),
     end: createDate({ date: defaultValues?.end, offset }),
@@ -248,7 +255,7 @@ export function DateRangePicker({
     }
   }, [dateValue]);
   return (
-    <I18nProvider locale={locale}>
+    <I18nProvider locale={effectiveLocale}>
       <DefaultDateRangePicker
         aria-label="x"
         startName="start"
