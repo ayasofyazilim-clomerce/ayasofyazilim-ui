@@ -8,7 +8,13 @@ import {
   TooltipTrigger,
 } from "@repo/ayasofyazilim-ui/components/tooltip";
 
-export type Localization = { locale: string; timeZone: string; lang: string };
+export type Localization = {
+  locale: string;
+  timeZone: string;
+  lang: string;
+  /** Formats dates when given; otherwise they follow `lang`. */
+  dateLocale?: string;
+};
 
 function DateTooltip({
   icon = <ClockIcon className="w-4 h-4" />,
@@ -90,9 +96,9 @@ export function formatToLocalizedDate({
   timeZone?: string;
 }) {
   const _date = typeof date === "string" ? new Date(date) : date;
-  const dateString = _date.toLocaleDateString(localization.lang, {
-    ...dateOptions,
-    timeZone,
-  });
+  const dateString = _date.toLocaleDateString(
+    localization.dateLocale || localization.lang,
+    { ...dateOptions, timeZone }
+  );
   return dateString;
 }

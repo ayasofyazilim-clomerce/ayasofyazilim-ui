@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import {
   DateFieldProps,
   DateField as DateFieldRac,
@@ -65,20 +66,39 @@ interface DateInputProps extends DateInputPropsRac {
   unstyled?: boolean;
 }
 
+const subscribeToNothing = () => () => {};
+
+/**
+ * False on the server and while hydrating, true after. Segment text is Intl
+ * output, and Node's ICU and the browser's disagree on it for some locales
+ * (U+202F vs U+0020 before AM in en-US; en-JP resolves differently), so it is
+ * only rendered once there is no server markup left to match.
+ */
+function useIsHydrated() {
+  return useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false
+  );
+}
+
 const DateInput = ({
   className,
   unstyled = false,
   ...props
-}: Omit<DateInputProps, "children">) => (
-  <DateInputRac
-    className={composeRenderProps(className, (className) =>
-      cn(!unstyled && dateInputStyle, className)
-    )}
-    {...props}
-  >
-    {(segment) => <DateSegment segment={segment} />}
-  </DateInputRac>
-);
+}: Omit<DateInputProps, "children">) => {
+  const isHydrated = useIsHydrated();
+  return (
+    <DateInputRac
+      className={composeRenderProps(className, (className) =>
+        cn(!unstyled && dateInputStyle, className)
+      )}
+      {...props}
+    >
+      {(segment) => (isHydrated ? <DateSegment segment={segment} /> : <></>)}
+    </DateInputRac>
+  );
+};
 
 export { DateField, DateInput, DateSegment, TimeField, dateInputStyle };
 export type { DateInputProps };
