@@ -36,6 +36,34 @@ beforeEach(() => {
   rerenderBar = null;
 });
 
+// The date fixtures sit in September 2026 and some tests click the calendar's
+// "Today" cell, which is only selectable while today falls in the shown month.
+beforeEach(() => {
+  jest.useFakeTimers({
+    now: Date.parse("2026-09-15T12:00:00.000Z"),
+    doNotFake: [
+      "nextTick",
+      "setImmediate",
+      "clearImmediate",
+      "setInterval",
+      "clearInterval",
+      "setTimeout",
+      "clearTimeout",
+      "queueMicrotask",
+      "requestAnimationFrame",
+      "cancelAnimationFrame",
+      "requestIdleCallback",
+      "cancelIdleCallback",
+      "hrtime",
+      "performance",
+    ],
+  });
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+});
+
 const filters: ServerFilterConfig[] = [
   {
     type: "string",
