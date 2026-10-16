@@ -43,11 +43,17 @@ describe("SchemaForm keeps the user's edits", () => {
 
   it("when the seed is a new but equal object on every render", () => {
     const { container, rerender } = render(
-      <SchemaForm schema={schema} formData={{ name: "Saved" }} disabled={false} />
+      <SchemaForm
+        schema={schema}
+        formData={{ name: "Saved" }}
+        disabled={false}
+      />
     );
     type(container, "Edited");
 
-    rerender(<SchemaForm schema={schema} formData={{ name: "Saved" }} disabled />);
+    rerender(
+      <SchemaForm schema={schema} formData={{ name: "Saved" }} disabled />
+    );
     expect(nameInput(container).value).toBe("Edited");
   });
 
