@@ -6,7 +6,7 @@ import { customizeValidator } from "@rjsf/validator-ajv8";
 import type { IChangeEvent } from "@rjsf/core";
 import type { RJSFValidationError, FormValidation } from "@rjsf/utils";
 import { deepEquals } from "@rjsf/utils";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ArrayFieldItemTemplate,
   ArrayFieldTemplate,
@@ -95,16 +95,26 @@ export function SchemaForm<T = unknown>(props: SchemaFormProps<T>) {
   // that ref only when the prop genuinely changes (a new row, a reset). The
   // comparison must be deep: callers pass formData as an inline literal, so it
   // is a new object on every parent render and identity would clobber edits.
+  //
+  // The same rule decides what RJSF is given. RJSF re-reads `formData` from
+  // props whenever ANY prop changes, so passing the seed straight through threw
+  // the user's edits away on an unrelated change - `disabled={isPending}`
+  // flipping on submit left a failed save showing the old values. A seeded
+  // form therefore gets the live value, reset only when the seed changes.
+  // An unseeded form stays uncontrolled, which RJSF already handles.
   const liveFormDataRef = useRef(formData);
   const lastFormDataPropRef = useRef(formData);
+  const [liveFormData, setLiveFormData] = useState(formData);
   if (!deepEquals(lastFormDataPropRef.current, formData)) {
     lastFormDataPropRef.current = formData;
     liveFormDataRef.current = formData;
+    setLiveFormData(formData);
   }
 
   const handleChange = useCallback(
     (data: IChangeEvent<T>, id?: string) => {
       liveFormDataRef.current = data.formData;
+      setLiveFormData(data.formData);
       userOnChange?.(data, id);
     },
     [userOnChange]
@@ -273,7 +283,7 @@ export function SchemaForm<T = unknown>(props: SchemaFormProps<T>) {
         ...restProps.formContext,
         useTableForArrayFields,
       }}
-      formData={formData}
+      formData={formData === undefined ? undefined : liveFormData}
       onChange={handleChange}
       onSubmit={handleSubmit}
       schema={processedSchema}
