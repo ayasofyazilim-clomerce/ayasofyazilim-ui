@@ -149,7 +149,7 @@ const defaultTranslations: Required<FileUploaderTranslations> = {
     "Drag'n drop files here, or click to select files",
   "FileUploader.YouCanUpload{0}files{1}each":
     "You can upload {0} files (up to {1} each)",
-  "FileUploader.CanUploadSingle": "You can upload a file with {0}",
+  "FileUploader.CanUploadSingle": "You can upload one file (up to {0})",
   "FileUploader.CannotUploadMoreThanOne":
     "Cannot upload more than 1 file at a time",
   "FileUploader.CannotUploadMoreThan{0}": "Cannot upload more than {0} files",
@@ -287,6 +287,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
     []
   );
 
+  // A full uploader stops taking files, but its files stay removable.
   const isDisabled = disabled || (files?.length ?? 0) >= maxFileCount;
   const isMultiple = maxFileCount > 1 || multiple;
   const hiddenInputRef = React.useRef<HTMLInputElement>(null);
@@ -336,7 +337,7 @@ export function FileUploader(props: BaseFileUploaderProps) {
             <Button
               variant="outline"
               className="gap-2"
-              disabled={isDisabled || !files?.length}
+              disabled={disabled || !files?.length}
             >
               <FolderOpen className="w-4 group-data-[state=open]/trigger:hidden" />
               <Folder className="w-4 group-data-[state=closed]/trigger:hidden" />
@@ -397,12 +398,12 @@ export function FileUploader(props: BaseFileUploaderProps) {
             fileCardRenderer={fileCardRenderer}
             progresses={progresses}
             onRemove={onRemove}
-            disabled={isDisabled}
+            disabled={disabled}
           />
         </CollapsibleContent>
       ) : (
         <FileListSection
-          disabled={isDisabled}
+          disabled={disabled}
           files={files}
           showFileList={showFileList}
           variant={props.variant}
@@ -669,7 +670,7 @@ function DropzoneTrigger(props: DropzoneTriggerProps) {
                     formatBytes(maxSize)
                   )
                 : tReplace(
-                    t["FileUploader.YouCanUpload{0}files{1}each"],
+                    t["FileUploader.CanUploadSingle"],
                     formatBytes(maxSize)
                   )}
             </p>
