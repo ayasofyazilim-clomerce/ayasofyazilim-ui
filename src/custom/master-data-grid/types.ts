@@ -550,6 +550,7 @@ export interface MasterDataGridResources extends Record<string, string> {
   "pagination.previousPage": string;
   "pagination.rowsPerPage": string;
   "pagination.rowsSelected": string;
+  "pagination.totalItems": string;
   "table.noResults": string;
   "toolbar.actions": string;
   "toolbar.columns": string;
