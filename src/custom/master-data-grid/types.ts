@@ -1,5 +1,5 @@
 import type React from "react";
-import { z } from "@repo/ayasofyazilim-ui/lib/zod";
+import type { z } from "@repo/ayasofyazilim-ui/lib/zod";
 import { GenericObjectType } from "@rjsf/utils";
 import type {
   CellContext,
