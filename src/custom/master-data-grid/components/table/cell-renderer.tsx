@@ -1,6 +1,5 @@
 import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { z } from "zod";
 import { Badge } from "../../../../components/badge";
 import { Input } from "../../../../components/input";
 import {
@@ -16,14 +15,10 @@ import {
   TooltipTrigger,
 } from "../../../../components/tooltip";
 import { cn } from "../../../../lib/utils";
-import { DatePicker } from "../../../date-picker";
+import { LazyDatePicker as DatePicker } from "../../../date-picker/lazy";
 import DateTooltip from "../../../date-tooltip";
-import type {
-  CellRendererProps,
-  JSONSchemaProperty,
-  MasterDataGridResources,
-} from "../../types";
-import { getTranslations } from "../../utils/translation-utils";
+import type { CellRendererProps } from "../../types";
+import { createCellValidator } from "../../utils/cell-validation";
 import { EmptyCell } from "../helpers/empty-cell";
 
 const DEBOUNCE_DELAY = 150;
@@ -40,143 +35,6 @@ const BADGE_VARIANT_MAP: Record<
   warning: "destructive",
   error: "destructive",
 };
-
-function createZodSchema(
-  schemaProperty?: JSONSchemaProperty,
-  t?: MasterDataGridResources
-): z.ZodType {
-  if (!schemaProperty) return z.unknown();
-
-  let schema: z.ZodType;
-
-  switch (schemaProperty.type) {
-    case "string":
-      schema = z.string({
-        message: getTranslations("validation.invalidString", t),
-      });
-
-      if (schemaProperty.minLength !== undefined) {
-        schema = (schema as z.ZodString).min(
-          schemaProperty.minLength,
-          t?.["validation.minLength"]
-            ? (t["validation.minLength"] ?? "").replace(
-                "{min}",
-                String(schemaProperty.minLength)
-              )
-            : `Must be at least ${schemaProperty.minLength} characters`
-        );
-      }
-      if (schemaProperty.maxLength !== undefined) {
-        schema = (schema as z.ZodString).max(
-          schemaProperty.maxLength,
-          t?.["validation.maxLength"]
-            ? (t["validation.maxLength"] ?? "").replace(
-                "{max}",
-                String(schemaProperty.maxLength)
-              )
-            : `Must be at most ${schemaProperty.maxLength} characters`
-        );
-      }
-
-      if (schemaProperty.format === "email") {
-        schema = (schema as z.ZodString).email(
-          t?.["validation.invalidEmail"] || "Must be a valid email address"
-        );
-      }
-      if (schemaProperty.format === "uri" || schemaProperty.format === "url") {
-        schema = z.url(t?.["validation.invalidUrl"] || "Must be a valid URL");
-      }
-      if (schemaProperty.format === "uuid") {
-        schema = z.uuid(
-          t?.["validation.invalidUuid"] || "Must be a valid UUID"
-        );
-      }
-      break;
-
-    case "number":
-      schema = z.number({
-        message: t?.["validation.invalidNumber"] || "Must be a valid number",
-      });
-
-      if (schemaProperty.minimum !== undefined) {
-        schema = (schema as z.ZodNumber).min(
-          schemaProperty.minimum,
-          t?.["validation.minValue"]
-            ? (t["validation.minValue"] ?? "").replace(
-                "{min}",
-                String(schemaProperty.minimum)
-              )
-            : `Must be at least ${schemaProperty.minimum}`
-        );
-      }
-      if (schemaProperty.maximum !== undefined) {
-        schema = (schema as z.ZodNumber).max(
-          schemaProperty.maximum,
-          t?.["validation.maxValue"]
-            ? (t["validation.maxValue"] ?? "").replace(
-                "{max}",
-                String(schemaProperty.maximum)
-              )
-            : `Must be at most ${schemaProperty.maximum}`
-        );
-      }
-      break;
-
-    case "integer":
-      schema = z
-        .number({
-          message:
-            t?.["validation.invalidInteger"] || "Must be a valid integer",
-        })
-        .int(t?.["validation.mustBeInteger"] || "Must be an integer");
-
-      if (schemaProperty.minimum !== undefined) {
-        schema = (schema as z.ZodNumber).min(
-          schemaProperty.minimum,
-          t?.["validation.minValue"]
-            ? (t["validation.minValue"] ?? "").replace(
-                "{min}",
-                String(schemaProperty.minimum)
-              )
-            : `Must be at least ${schemaProperty.minimum}`
-        );
-      }
-      if (schemaProperty.maximum !== undefined) {
-        schema = (schema as z.ZodNumber).max(
-          schemaProperty.maximum,
-          t?.["validation.maxValue"]
-            ? (t["validation.maxValue"] ?? "").replace(
-                "{max}",
-                String(schemaProperty.maximum)
-              )
-            : `Must be at most ${schemaProperty.maximum}`
-        );
-      }
-      break;
-
-    case "boolean":
-      schema = z.boolean({
-        message: t?.["validation.invalidBoolean"] || "Must be true or false",
-      });
-      break;
-
-    default:
-      schema = z.unknown();
-  }
-
-  if (schemaProperty.enum && Array.isArray(schemaProperty.enum)) {
-    schema = z.enum(
-      schemaProperty.enum as [string, ...string[]],
-      t?.["validation.invalidEnum"] || "Invalid value"
-    );
-  }
-
-  if (!schemaProperty.required) {
-    schema = schema.optional().nullable();
-  }
-
-  return schema;
-}
 
 interface ErrorWrapperProps {
   error: string | null;
@@ -259,8 +117,8 @@ export function CellRenderer<TData = unknown>({
   const datePickerMountedRef = useRef<boolean>(false);
   const handleDateChangeRef = useRef<((date: Date) => void) | null>(null);
 
-  const validationSchema = useMemo(
-    () => (schemaProperty ? createZodSchema(schemaProperty, t) : null),
+  const validate = useMemo(
+    () => createCellValidator(schemaProperty, t),
     [schemaProperty, t]
   );
 
@@ -297,14 +155,7 @@ export function CellRenderer<TData = unknown>({
     (newValue: unknown) => {
       setLocalValue(newValue);
 
-      const err = validationSchema
-        ? (() => {
-            const result = validationSchema.safeParse(newValue);
-            return result.success
-              ? null
-              : result.error.issues[0]?.message || "Invalid value";
-          })()
-        : null;
+      const err = validate(newValue);
 
       setValidationError(err);
 
@@ -312,7 +163,7 @@ export function CellRenderer<TData = unknown>({
         debouncedUpdate(newValue);
       }
     },
-    [validationSchema, debouncedUpdate]
+    [validate, debouncedUpdate]
   );
 
   const inputClassName = useMemo(
