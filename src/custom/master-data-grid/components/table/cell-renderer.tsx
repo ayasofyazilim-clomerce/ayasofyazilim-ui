@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from "../../../../components/tooltip";
 import { cn } from "../../../../lib/utils";
-import { DatePicker } from "../../../date-picker";
+import { LazyDatePicker as DatePicker } from "../../../date-picker/lazy";
 import DateTooltip from "../../../date-tooltip";
 import type { CellRendererProps } from "../../types";
 import { createCellValidator } from "../../utils/cell-validation";

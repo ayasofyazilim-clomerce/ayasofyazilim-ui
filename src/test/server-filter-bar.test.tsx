@@ -418,7 +418,7 @@ describe("ServerFilterBar", () => {
     render(<ServerFilterBar config={config([issueDateFilter])} />);
     await user.click(screen.getByTestId("server-filter-add"));
     await user.click(screen.getByTestId("server-filter-option-issueDate"));
-    const calendarIcon = screen.getByTestId("issueDate_calendar_icon");
+    const calendarIcon = await screen.findByTestId("issueDate_calendar_icon");
     await user.click(calendarIcon);
     await user.click(screen.getByRole("button", { name: /^Today,/ }));
     expect(lastPush()).toContain("issueDate=");
@@ -430,7 +430,7 @@ describe("ServerFilterBar", () => {
     render(<ServerFilterBar config={config()} />);
     await user.click(screen.getByTestId("server-filter-add"));
     await user.click(screen.getByTestId("server-filter-option-executionTime"));
-    const calendarIcon = screen.getByTestId("executionTime_calendar_icon");
+    const calendarIcon = await screen.findByTestId("executionTime_calendar_icon");
     await user.click(calendarIcon);
     await user.click(screen.getByRole("button", { name: /^Today,/ }));
     await user.keyboard("{ArrowRight}{Enter}");

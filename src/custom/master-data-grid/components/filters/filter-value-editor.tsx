@@ -9,7 +9,10 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "../../../../components/input-group";
-import { DatePicker, DateRangePicker } from "../../../date-picker";
+import {
+  LazyDatePicker as DatePicker,
+  LazyDateRangePicker as DateRangePicker,
+} from "../../../date-picker/lazy";
 import { Selectable } from "../../../selectable";
 import { X, XCircle } from "lucide-react";
 import type { ServerFilterConfig } from "../../types";
