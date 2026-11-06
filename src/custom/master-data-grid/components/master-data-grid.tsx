@@ -35,7 +35,11 @@ import {
 import { paginationFromUrl } from "../utils/grid-url-params";
 import { getTranslations } from "../utils/translation-utils";
 import { readFilterValues, visibleFilters } from "../utils/server-filter-utils";
-import { isPrefixUrlState, scopedKey } from "../utils/url-scope";
+import {
+  isBlankPrefixUrlState,
+  isPrefixUrlState,
+  scopedKey,
+} from "../utils/url-scope";
 import { ServerFilterBar } from "./filters/server-filter-bar";
 import { ServerFilterContent } from "./filters/server-filter";
 import { Pagination } from "./pagination";
@@ -68,6 +72,18 @@ export function MasterDataGrid<TData = Record<string, unknown>>(
   props: MasterDataGridProps<TData>
 ) {
   const { urlState } = props.config;
+  // `{ prefix: "" }` would write the un-prefixed keys default grids use, so it
+  // runs as a default grid (see isPrefixUrlState); say so while developing.
+  const blankPrefix = isBlankPrefixUrlState(urlState);
+  useEffect(() => {
+    // NODE_ENV is inlined by the app's bundler, not read from turbo's env.
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    if (blankPrefix && process.env.NODE_ENV !== "production") {
+      logWarning(
+        "urlState.prefix is empty, so this grid runs in default mode (un-prefixed URL keys). Pass a non-empty prefix, or leave urlState out."
+      );
+    }
+  }, [blankPrefix]);
   if (isPrefixUrlState(urlState)) {
     return <PrefixedMasterDataGrid {...props} prefix={urlState.prefix} />;
   }

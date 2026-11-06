@@ -324,7 +324,8 @@ export type ServerFilterValue =
  *   filter's key). A deep-linked `skipCount` is reset to page one on mount.
  * - `{ prefix }`: every key becomes `<prefix>.<key>`, so several grids can
  *   share one URL, and the grid starts on the page the URL names. A missing
- *   `<prefix>.maxResultCount` means the grid's `pageSize`.
+ *   `<prefix>.maxResultCount` means the grid's `pageSize`. An empty or
+ *   whitespace prefix is treated as absent (with a development warning).
  * - `"none"`: component state only; the grid never navigates. Read changes
  *   from `onPaginationChange` and `onServerFiltersChange`.
  */
