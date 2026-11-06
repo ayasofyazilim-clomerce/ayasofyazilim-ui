@@ -1,5 +1,9 @@
 import type { Table } from "@tanstack/react-table";
-import type { ExportColumnDef, MasterDataGridResources } from "../types";
+import type {
+  ColumnMeta,
+  ExportColumnDef,
+  MasterDataGridResources,
+} from "../types";
 import { getColumnName } from "./translation-utils";
 
 export interface ExportOptions {
@@ -11,7 +15,9 @@ export interface ExportOptions {
 export interface BuildExportTableOptions {
   /**
    * "legacy": header string, else the column id (CSV's historical rule).
-   * "translated": getColumnName(column, t).
+   * "translated": the `column.<id>` key in t, else the header string, else
+   * the schema title, else the column id; a schema column's screen header
+   * resolves the same way.
    */
   headers: "legacy" | "translated";
   t?: MasterDataGridResources;
@@ -33,7 +39,10 @@ export function buildExportTable<TData>(
     .filter((col) => !EXCLUDED_COLUMNS.includes(col.id));
 
   const headers = columns.map((col) => {
-    if (options.headers === "translated") return getColumnName(col, options.t);
+    if (options.headers === "translated") {
+      const meta = col.columnDef.meta as ColumnMeta | undefined;
+      return getColumnName(col, options.t, meta?.schemaProperty?.title);
+    }
     const header = col.columnDef.header;
     return typeof header === "string" ? header : col.id;
   });
