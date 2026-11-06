@@ -254,6 +254,8 @@ export function useColumns<TData>({
   cancelEditingRow,
   saveEditingRow,
 }: UseColumnsProps<TData>): ColumnDef<TData>[] {
+  const { localization, cellClassName, dateOptions, customRenderers } = config;
+  const errorDisplayMode = config.editing?.errorDisplayMode;
   return useMemo<ColumnDef<TData>[]>(() => {
     const editingContext = config.editing?.enabled
       ? {
@@ -268,13 +270,13 @@ export function useColumns<TData>({
     const generatedColumns = schema
       ? generateColumnsFromSchema<TData>(
           schema,
-          configRef.current.localization,
+          localization,
           t,
           editingContext,
-          configRef.current.cellClassName,
-          configRef.current.dateOptions,
-          configRef.current.customRenderers,
-          configRef.current.editing?.errorDisplayMode,
+          cellClassName,
+          dateOptions,
+          customRenderers,
+          errorDisplayMode,
           enableColumnVisibility,
           config.expansion?.expanderColumns,
           config.schemaColumns
@@ -292,7 +294,7 @@ export function useColumns<TData>({
       schema && missingGroupByKeys.length > 0
         ? generateColumnsFromSchema<TData>(
             schema,
-            configRef.current.localization,
+            localization,
             t,
             editingContext,
             undefined,
@@ -664,7 +666,25 @@ export function useColumns<TData>({
     schema,
     customColumns,
     enableColumnVisibility,
-    config,
+    // Fields of `config` read while building (directly or inside cell/header
+    // closures). `config` itself is a fresh object every render, so depending
+    // on it would rebuild the columns every time.
+    config.editing,
+    config.expansion,
+    config.grouping?.groupBy,
+    config.selection?.enabled,
+    config.rowActions,
+    config.rowActionsDisplay,
+    config.columnOrder,
+    config.columnVisibility,
+    config.schemaColumns,
+    // Passed to generateColumnsFromSchema by value (not via a ref),
+    // so they are captured at build time and must invalidate the columns.
+    localization,
+    cellClassName,
+    dateOptions,
+    customRenderers,
+    errorDisplayMode,
     configRef,
     editingRowsRef,
     updateCellValue,

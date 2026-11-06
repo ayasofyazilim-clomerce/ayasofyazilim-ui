@@ -5,7 +5,7 @@ import type {
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useReducer } from "react";
+import { useCallback, useReducer } from "react";
 import type { MasterDataGridConfig, TableState } from "../types";
 
 type TableStateAction =
@@ -134,6 +134,19 @@ export function useTableStateReducer<TData>(
     createInitialState(config, pageSize)
   );
 
+  // Stable identity: useEditing's callbacks (and so the grid columns) depend
+  // on it, and dispatch itself never changes.
+  const updateEditingRows = useCallback(
+    (
+      payload:
+        | Record<string, Record<string, unknown>>
+        | ((
+            prev: Record<string, Record<string, unknown>>
+          ) => Record<string, Record<string, unknown>>)
+    ) => dispatch({ type: "UPDATE_EDITING_ROWS", payload }),
+    []
+  );
+
   return {
     tableState,
     setSorting: (payload: SortingState) =>
@@ -152,13 +165,7 @@ export function useTableStateReducer<TData>(
       dispatch({ type: "SET_EXPANDED", payload }),
     setPagination: (payload: { pageIndex: number; pageSize: number }) =>
       dispatch({ type: "SET_PAGINATION", payload }),
-    updateEditingRows: (
-      payload:
-        | Record<string, Record<string, unknown>>
-        | ((
-            prev: Record<string, Record<string, unknown>>
-          ) => Record<string, Record<string, unknown>>)
-    ) => dispatch({ type: "UPDATE_EDITING_ROWS", payload }),
+    updateEditingRows,
     resetToDefaults: () =>
       dispatch({
         type: "RESET",
