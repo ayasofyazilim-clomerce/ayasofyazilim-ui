@@ -68,7 +68,7 @@ const schema: JSONSchema = {
   },
 };
 // A key for one column only: the other has nothing but its schema title.
-const t = { "column.note": "Note" } as MasterDataGridResources;
+const t = { "column.note": "Note" } as unknown as MasterDataGridResources;
 
 const schemaTable = () =>
   renderHook(function useSchemaTable() {
