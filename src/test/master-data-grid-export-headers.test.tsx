@@ -144,7 +144,9 @@ describe("translated export headers fall back like the screen header", () => {
     await userEvent.click(
       screen.getAllByRole("button", { name: /export/i })[0] as HTMLElement
     );
-    await userEvent.click(await screen.findByRole("menuitem", { name: "JSON" }));
+    await userEvent.click(
+      await screen.findByRole("menuitem", { name: "JSON" })
+    );
     expect(Object.keys(JSON.parse(parts[0] as string)[0])).toEqual(shown);
   });
 });

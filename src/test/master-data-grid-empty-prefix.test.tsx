@@ -46,70 +46,77 @@ beforeEach(() => {
 });
 afterEach(() => warn.mockRestore());
 
-describe.each(blankPrefixes)("urlState with %s is default mode", (_, urlState) => {
-  it("removes a deep-linked skipCount on mount and pages with un-prefixed keys", async () => {
-    const user = userEvent.setup();
-    setSearchParams("skipCount=20");
-    renderGrid(rows(10), { rowCount: 50, pageSize: 10, urlState });
-    expect(navigateMock).toHaveBeenNthCalledWith(1, `${PATH}?`, {
-      replace: true,
-    });
-    expect(navigateMock).toHaveBeenCalledTimes(1);
-    expect(pageText()).toBe("pagination.page 1 pagination.of 5");
+describe.each(blankPrefixes)(
+  "urlState with %s is default mode",
+  (_, urlState) => {
+    it("removes a deep-linked skipCount on mount and pages with un-prefixed keys", async () => {
+      const user = userEvent.setup();
+      setSearchParams("skipCount=20");
+      renderGrid(rows(10), { rowCount: 50, pageSize: 10, urlState });
+      expect(navigateMock).toHaveBeenNthCalledWith(1, `${PATH}?`, {
+        replace: true,
+      });
+      expect(navigateMock).toHaveBeenCalledTimes(1);
+      expect(pageText()).toBe("pagination.page 1 pagination.of 5");
 
-    setSearchParams("");
-    navigateMock.mockClear();
-    await user.click(screen.getByTitle("pagination.nextPage"));
-    expect(navigateMock).toHaveBeenNthCalledWith(1, `${PATH}?skipCount=10`, {
-      replace: true,
-    });
-    expect(navigateMock).toHaveBeenCalledTimes(1);
-  });
-
-  it("clears every key from the right-side panel, as a default grid does", async () => {
-    const user = userEvent.setup();
-    setSearchParams("userName=john&other=keep");
-    renderGrid(rows(10), {
-      rowCount: 50,
-      serverFilters,
-      serverFilterLocation: "right",
-      urlState,
+      setSearchParams("");
+      navigateMock.mockClear();
+      await user.click(screen.getByTitle("pagination.nextPage"));
+      expect(navigateMock).toHaveBeenNthCalledWith(1, `${PATH}?skipCount=10`, {
+        replace: true,
+      });
+      expect(navigateMock).toHaveBeenCalledTimes(1);
     });
 
-    fireEvent.change(screen.getByPlaceholderText("Type a name"), {
-      target: { value: "jane" },
+    it("clears every key from the right-side panel, as a default grid does", async () => {
+      const user = userEvent.setup();
+      setSearchParams("userName=john&other=keep");
+      renderGrid(rows(10), {
+        rowCount: 50,
+        serverFilters,
+        serverFilterLocation: "right",
+        urlState,
+      });
+
+      fireEvent.change(screen.getByPlaceholderText("Type a name"), {
+        target: { value: "jane" },
+      });
+      await user.click(screen.getByRole("button", { name: /filter\.apply/ }));
+      await user.click(screen.getByRole("button", { name: /filter\.clear/ }));
+
+      expect(routerPushMock).toHaveBeenNthCalledWith(
+        1,
+        `${PATH}?other=keep&userName=jane`,
+        { scroll: false }
+      );
+      expect(routerPushMock).toHaveBeenNthCalledWith(2, PATH, {
+        scroll: false,
+      });
+      expect(routerPushMock).toHaveBeenCalledTimes(2);
     });
-    await user.click(screen.getByRole("button", { name: /filter\.apply/ }));
-    await user.click(screen.getByRole("button", { name: /filter\.clear/ }));
 
-    expect(routerPushMock).toHaveBeenNthCalledWith(
-      1,
-      `${PATH}?other=keep&userName=jane`,
-      { scroll: false }
-    );
-    expect(routerPushMock).toHaveBeenNthCalledWith(2, PATH, { scroll: false });
-    expect(routerPushMock).toHaveBeenCalledTimes(2);
-  });
-
-  it("warns in development", () => {
-    renderGrid(rows(1), { urlState });
-    expect(warn).toHaveBeenCalledTimes(1);
-    expect(String(warn.mock.calls[0]?.[0])).toMatch(/urlState\.prefix is empty/);
-  });
-
-  it("reads un-prefixed keys in getGridUrlParams", () => {
-    const prefix = (urlState as { prefix: string }).prefix;
-    const { skipCount, maxResultCount, filters } = getGridUrlParams(
-      { skipCount: "20", userName: "x", "a.skipCount": "40" },
-      { prefix, filters: serverFilters }
-    );
-    expect({ skipCount, maxResultCount, filters }).toEqual({
-      skipCount: 20,
-      maxResultCount: 10,
-      filters: { userName: "x" },
+    it("warns in development", () => {
+      renderGrid(rows(1), { urlState });
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0]?.[0])).toMatch(
+        /urlState\.prefix is empty/
+      );
     });
-  });
-});
+
+    it("reads un-prefixed keys in getGridUrlParams", () => {
+      const prefix = (urlState as { prefix: string }).prefix;
+      const { skipCount, maxResultCount, filters } = getGridUrlParams(
+        { skipCount: "20", userName: "x", "a.skipCount": "40" },
+        { prefix, filters: serverFilters }
+      );
+      expect({ skipCount, maxResultCount, filters }).toEqual({
+        skipCount: 20,
+        maxResultCount: 10,
+        filters: { userName: "x" },
+      });
+    });
+  }
+);
 
 describe("the blank-prefix warning", () => {
   it("stays silent in production", () => {
