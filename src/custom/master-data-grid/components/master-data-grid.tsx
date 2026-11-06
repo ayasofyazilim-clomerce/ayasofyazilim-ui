@@ -10,6 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { Skeleton } from "../../../components/skeleton";
@@ -27,8 +28,10 @@ import {
   exportToExcel,
   exportToJSON,
 } from "../utils/export-utils";
+import { paginationFromUrl } from "../utils/grid-url-params";
 import { getTranslations } from "../utils/translation-utils";
 import { visibleFilters } from "../utils/server-filter-utils";
+import { isPrefixUrlState } from "../utils/url-scope";
 import { ServerFilterBar } from "./filters/server-filter-bar";
 import { ServerFilterContent } from "./filters/server-filter";
 import { Pagination } from "./pagination";
@@ -45,11 +48,42 @@ const logWarning = (message: string, data?: unknown) => {
   console.warn(`[${COMPONENT_NAME}] ${message}`, data || "");
 };
 
-export function MasterDataGrid<TData = Record<string, unknown>>({
+type GridPagination = { pageIndex: number; pageSize: number };
+
+export function MasterDataGrid<TData = Record<string, unknown>>(
+  props: MasterDataGridProps<TData>
+) {
+  const { urlState } = props.config;
+  if (isPrefixUrlState(urlState)) {
+    return <PrefixedMasterDataGrid {...props} prefix={urlState.prefix} />;
+  }
+  return <MasterDataGridView {...props} />;
+}
+
+// A prefix-mode grid starts on the page its URL names. The URL is read here
+// rather than in the grid itself, so default-mode grids call no extra
+// useSearchParams (a grid without pagination or server filters calls none).
+function PrefixedMasterDataGrid<TData>({
+  prefix,
+  ...props
+}: MasterDataGridProps<TData> & { prefix: string }) {
+  const searchParams = useSearchParams();
+  const initialPagination = paginationFromUrl(
+    searchParams,
+    prefix,
+    props.config.pageSize ?? 10
+  );
+  return (
+    <MasterDataGridView {...props} initialPagination={initialPagination} />
+  );
+}
+
+function MasterDataGridView<TData = Record<string, unknown>>({
   data,
   config,
   onDataChange,
-}: MasterDataGridProps<TData>) {
+  initialPagination,
+}: MasterDataGridProps<TData> & { initialPagination?: GridPagination }) {
   const {
     schema,
     columns: customColumns,
@@ -112,7 +146,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
     setPagination,
     updateEditingRows,
     resetToDefaults,
-  } = useTableStateReducer(configWithDefaults, pageSize);
+  } = useTableStateReducer(configWithDefaults, pageSize, initialPagination);
 
   const { navigate, isNavigating } = useGridNavigation();
   const showPending = useDelayedFlag(
@@ -490,6 +524,8 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
           t={t}
           localization={configWithDefaults.localization}
           unfilteredRowCount={configWithDefaults.unfilteredRowCount}
+          urlState={configWithDefaults.urlState}
+          defaultPageSize={pageSize}
         />
       )}
     </div>

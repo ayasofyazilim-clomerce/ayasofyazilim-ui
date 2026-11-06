@@ -1,17 +1,19 @@
 import type { Localization } from "../../date-tooltip";
-import type { ServerFilterConfig } from "../types";
+import type { ServerFilterConfig, ServerFilterValue } from "../types";
+import { scopedKey } from "./url-scope";
 
-export type ServerFilterValue =
-  | string
-  | number
-  | boolean
-  | string[]
-  | { from?: string; to?: string };
+export type { ServerFilterValue };
 
-export function urlKeysOf(filter: ServerFilterConfig): string[] {
-  return filter.type === "date-range"
-    ? [filter.keyFrom, filter.keyTo]
-    : [filter.key];
+/** The URL keys a filter writes, under `prefix` when one is given. */
+export function urlKeysOf(
+  filter: ServerFilterConfig,
+  prefix?: string
+): string[] {
+  const keys =
+    filter.type === "date-range"
+      ? [filter.keyFrom, filter.keyTo]
+      : [filter.key];
+  return keys.map((key) => scopedKey(key, prefix));
 }
 
 export function visibleFilters(
@@ -20,22 +22,26 @@ export function visibleFilters(
   return (filters ?? []).filter((filter) => filter.when !== false);
 }
 
+/** A filter's value from its URL keys (under `prefix` when one is given). */
 export function readFilterValue(
   filter: ServerFilterConfig,
-  params: URLSearchParams
+  params: URLSearchParams,
+  prefix?: string
 ): ServerFilterValue | undefined {
   if (filter.type === "date-range") {
-    const from = params.get(filter.keyFrom) ?? undefined;
-    const to = params.get(filter.keyTo) ?? undefined;
+    const from = params.get(scopedKey(filter.keyFrom, prefix)) ?? undefined;
+    const to = params.get(scopedKey(filter.keyTo, prefix)) ?? undefined;
     return from || to ? { from, to } : undefined;
   }
 
+  const key = scopedKey(filter.key, prefix);
+
   if (filter.type === "array" || filter.type === "string-array") {
-    const all = params.getAll(filter.key).filter(Boolean);
+    const all = params.getAll(key).filter(Boolean);
     return all.length ? all : undefined;
   }
 
-  const raw = params.get(filter.key);
+  const raw = params.get(key);
   if (raw === null || raw === "") return undefined;
 
   if (filter.type === "boolean") {
@@ -50,6 +56,20 @@ export function readFilterValue(
   }
 
   return raw;
+}
+
+/** Every applied filter's value, keyed by the filter's own (un-prefixed) key. */
+export function readFilterValues(
+  filters: ServerFilterConfig[],
+  params: URLSearchParams,
+  prefix?: string
+): Record<string, ServerFilterValue> {
+  const values: Record<string, ServerFilterValue> = {};
+  filters.forEach((filter) => {
+    const value = readFilterValue(filter, params, prefix);
+    if (value !== undefined) values[filter.key] = value;
+  });
+  return values;
 }
 
 function formatDate(value: string, localization?: Localization): string {

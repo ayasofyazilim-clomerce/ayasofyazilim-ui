@@ -310,6 +310,26 @@ interface DateRangeServerFilterConfig extends BaseServerFilterConfig {
   validator?: z.ZodType<{ from?: string; to?: string } | undefined>;
 }
 
+/** A committed server filter value, as read back from the URL. */
+export type ServerFilterValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | { from?: string; to?: string };
+
+/**
+ * Where a grid keeps its page and its server filters.
+ * - absent: today's un-prefixed URL keys (`skipCount`, `maxResultCount`, each
+ *   filter's key). A deep-linked `skipCount` is reset to page one on mount.
+ * - `{ prefix }`: every key becomes `<prefix>.<key>`, so several grids can
+ *   share one URL, and the grid starts on the page the URL names. A missing
+ *   `<prefix>.maxResultCount` means the grid's `pageSize`.
+ * - `"none"`: component state only; the grid never navigates. Read changes
+ *   from `onPaginationChange` and `onServerFiltersChange`.
+ */
+export type GridUrlState = { prefix: string } | "none";
+
 export type ServerFilterConfig =
   | StringServerFilterConfig
   | NumberServerFilterConfig
@@ -329,6 +349,12 @@ export interface MasterDataGridConfig<TData = unknown> {
 
   serverFilters?: ServerFilterConfig[];
   serverFilterLocation?: "left" | "right" | "top" | "bottom" | "toolbar";
+  /** Where paging and server filters live. Absent keeps today's behaviour;
+   *  see GridUrlState. */
+  urlState?: GridUrlState;
+  /** With `urlState: "none"`, called in place of navigating, with every
+   *  applied server filter keyed by its `key`. */
+  onServerFiltersChange?: (values: Record<string, ServerFilterValue>) => void;
   enableSorting?: boolean;
   enableFiltering?: boolean;
   enablePinning?: boolean;

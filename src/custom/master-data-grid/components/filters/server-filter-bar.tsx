@@ -25,10 +25,12 @@ import {
 import {
   formatFilterValue,
   readFilterValue,
+  readFilterValues,
   visibleFilters,
   type ServerFilterValue,
 } from "../../utils/server-filter-utils";
 import { getTranslations } from "../../utils/translation-utils";
+import { scopedKey, urlPrefixOf } from "../../utils/url-scope";
 import { useGridNavigation } from "../../hooks/use-grid-navigation";
 import { FilterValueEditor } from "./filter-value-editor";
 
@@ -58,7 +60,12 @@ export function ServerFilterBar<TData>({
   config,
   navigate: navigateProp,
 }: ServerFilterBarProps<TData>) {
-  const { t, localization } = config;
+  const { t, localization, urlState, onServerFiltersChange } = config;
+  // Prefix mode reads and writes `<prefix>.<key>`; "none" mode keeps the
+  // applied filters in localQuery below and never navigates.
+  const isLocal = urlState === "none";
+  const prefix = urlPrefixOf(urlState);
+  const skipKey = scopedKey("skipCount", prefix);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { navigate: ownNavigate } = useGridNavigation();
@@ -109,7 +116,11 @@ export function ServerFilterBar<TData>({
   // the palette re-offered it as unset. As soon as the URL moves off what it
   // held when we pushed, whatever landed wins, so paging, Back or a link is
   // never overruled by a stale optimistic value.
-  const urlQuery = searchParams?.toString() ?? "";
+  //
+  // In "none" mode the same query string is held here instead, written by the
+  // same helpers, and there is never a push pending.
+  const [localQuery, setLocalQuery] = useState("");
+  const urlQuery = isLocal ? localQuery : searchParams?.toString() ?? "";
   const pendingPush = useRef<{ from: string; to: string } | null>(null);
   const [, notePush] = useState(0);
 
@@ -128,37 +139,50 @@ export function ServerFilterBar<TData>({
       filters
         .map((filter) => ({
           filter,
-          value: readFilterValue(filter, params),
+          value: readFilterValue(filter, params, prefix),
         }))
         .filter(
           (entry) => entry.value !== undefined || entry.filter.key in drafts
         ),
-    [filters, params, drafts]
+    [filters, params, drafts, prefix]
   );
 
+  const serverFilters = config.serverFilters;
   const pushParams = useCallback(
     (next: URLSearchParams) => {
       const nextQuery = next.toString();
+      if (isLocal) {
+        setLocalQuery(nextQuery);
+        onServerFiltersChange?.(readFilterValues(serverFilters ?? [], next));
+        return;
+      }
       pendingPush.current = { from: urlQuery, to: nextQuery };
       notePush((seq) => seq + 1);
       navigate(nextQuery ? `${pathname}?${nextQuery}` : pathname);
     },
-    [pathname, navigate, urlQuery]
+    [
+      pathname,
+      navigate,
+      urlQuery,
+      isLocal,
+      onServerFiltersChange,
+      serverFilters,
+    ]
   );
 
-  // skipCount is excluded because applyFilterToParams always drops it: a
-  // no-op edit must not silently send the user back to page one.
+  // skipCount (this grid's own) is excluded because applyFilterToParams always
+  // drops it: a no-op edit must not silently send the user back to page one.
   const pushIfChanged = useCallback(
     (next: URLSearchParams) => {
       if (
-        normalizedParams(next, ["skipCount"]) ===
-        normalizedParams(params, ["skipCount"])
+        normalizedParams(next, [skipKey]) ===
+        normalizedParams(params, [skipKey])
       ) {
         return;
       }
       pushParams(next);
     },
-    [params, pushParams]
+    [params, pushParams, skipKey]
   );
 
   const commit = useCallback(
@@ -176,9 +200,9 @@ export function ServerFilterBar<TData>({
       setErrors((prev) => ({ ...prev, [filter.key]: "" }));
       dropDraft(filter.key);
       setOpenKey(null);
-      pushIfChanged(applyFilterToParams(params, filter, value));
+      pushIfChanged(applyFilterToParams(params, filter, value, prefix));
     },
-    [dropDraft, params, pushIfChanged]
+    [dropDraft, params, pushIfChanged, prefix]
   );
 
   const remove = useCallback(
@@ -188,19 +212,20 @@ export function ServerFilterBar<TData>({
       setOpenKey(null);
       // Removing a chip that was only ever a draft changes no filter, and an
       // unguarded push there would still drop skipCount and refetch the grid.
-      pushIfChanged(applyFilterToParams(params, filter, undefined));
+      pushIfChanged(applyFilterToParams(params, filter, undefined, prefix));
     },
-    [dropDraft, params, pushIfChanged]
+    [dropDraft, params, pushIfChanged, prefix]
   );
 
   if (!filters.length) return null;
 
   const unset = filters.filter(
     (filter) =>
-      readFilterValue(filter, params) === undefined && !(filter.key in drafts)
+      readFilterValue(filter, params, prefix) === undefined &&
+      !(filter.key in drafts)
   );
   const hasApplied = filters.some(
-    (filter) => readFilterValue(filter, params) !== undefined
+    (filter) => readFilterValue(filter, params, prefix) !== undefined
   );
 
   return (
@@ -338,7 +363,7 @@ export function ServerFilterBar<TData>({
             dropAllDrafts();
             setErrors({});
             setOpenKey(null);
-            pushParams(clearFiltersFromParams(params, filters));
+            pushParams(clearFiltersFromParams(params, filters, prefix));
           }}
         >
           {getTranslations("filter.resetFilters", t)}

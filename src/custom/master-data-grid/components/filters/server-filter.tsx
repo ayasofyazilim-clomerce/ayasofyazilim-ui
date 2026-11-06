@@ -10,7 +10,16 @@ import { Loader2, RotateCcw, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";
 import { ServerFilterConfig } from "../../types";
-import type { ServerFilterValue } from "../../utils/server-filter-utils";
+import { clearFiltersFromParams } from "../../utils/server-filter-url";
+import {
+  readFilterValues,
+  type ServerFilterValue,
+} from "../../utils/server-filter-utils";
+import {
+  isPrefixUrlState,
+  scopedKey,
+  urlPrefixOf,
+} from "../../utils/url-scope";
 import { BaseMultiFilterDialogProps } from "./multi-filter-dialog";
 import { FilterValueEditor } from "./filter-value-editor";
 import {
@@ -32,23 +41,29 @@ type FilterValue =
 export function ServerFilterContent<TData>({
   config,
 }: BaseMultiFilterDialogProps<TData>) {
-  const { locale } = config;
+  const { locale, urlState, onServerFiltersChange } = config;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
   const { serverFilters } = config;
+  // Prefix mode reads and writes `<prefix>.<key>`; "none" mode starts empty,
+  // reports through onServerFiltersChange and never pushes.
+  const isLocal = urlState === "none";
+  const prefix = urlPrefixOf(urlState);
 
   const [resetCount, setResetCount] = useState(0);
 
   const [localValues, setLocalValues] = useState<Record<string, FilterValue>>(
     () => {
       const initial: Record<string, FilterValue> = {};
+      const source = isLocal ? new URLSearchParams() : searchParams;
       serverFilters?.forEach((filter) => {
-        const val = searchParams.get(filter.key);
+        const key = scopedKey(filter.key, prefix);
+        const val = source.get(key);
         if (filter.type === "array" || filter.type === "string-array") {
-          initial[filter.key] = searchParams.getAll(filter.key);
+          initial[filter.key] = source.getAll(key);
         } else if (filter.type === "boolean") {
           initial[filter.key] =
             val === "true" ? true : val === "false" ? false : undefined;
@@ -56,8 +71,8 @@ export function ServerFilterContent<TData>({
           initial[filter.key] = val ? Number(val) : undefined;
         } else if (filter.type === "date-range") {
           initial[filter.key] = {
-            from: searchParams.get(filter.keyFrom) || undefined,
-            to: searchParams.get(filter.keyTo) || undefined,
+            from: source.get(scopedKey(filter.keyFrom, prefix)) || undefined,
+            to: source.get(scopedKey(filter.keyTo, prefix)) || undefined,
           };
         } else {
           initial[filter.key] = val || undefined;
@@ -101,22 +116,26 @@ export function ServerFilterContent<TData>({
   if (!serverFilters) return null;
 
   const handleApply = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    // "none" mode builds the same params from nothing, only to read them back.
+    const params = new URLSearchParams(isLocal ? "" : searchParams.toString());
     let hasValidationError = false;
 
     serverFilters.forEach((filter) => {
       const val = localValues[filter.key];
 
       if (filter.type === "date-range") {
-        params.delete(filter.keyFrom);
-        params.delete(filter.keyTo);
+        const keyFrom = scopedKey(filter.keyFrom, prefix);
+        const keyTo = scopedKey(filter.keyTo, prefix);
+        params.delete(keyFrom);
+        params.delete(keyTo);
         const rangeVal = val as DateRangeValue | undefined;
-        if (rangeVal?.from) params.set(filter.keyFrom, rangeVal.from);
-        if (rangeVal?.to) params.set(filter.keyTo, rangeVal.to);
+        if (rangeVal?.from) params.set(keyFrom, rangeVal.from);
+        if (rangeVal?.to) params.set(keyTo, rangeVal.to);
         return;
       }
 
-      params.delete(filter.key);
+      const key = scopedKey(filter.key, prefix);
+      params.delete(key);
       const isEmpty =
         val === undefined ||
         val === null ||
@@ -136,16 +155,20 @@ export function ServerFilterContent<TData>({
           }
         }
         if (Array.isArray(val)) {
-          val.forEach((v) => params.append(filter.key, String(v)));
+          val.forEach((v) => params.append(key, String(v)));
         } else {
-          params.set(filter.key, String(val));
+          params.set(key, String(val));
         }
       } else {
         setErrors((prev) => ({ ...prev, [filter.key]: "" }));
       }
     });
     if (hasValidationError) return;
-    params.delete("skipCount");
+    params.delete(scopedKey("skipCount", prefix));
+    if (isLocal) {
+      onServerFiltersChange?.(readFilterValues(serverFilters, params));
+      return;
+    }
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     });
@@ -165,6 +188,22 @@ export function ServerFilterContent<TData>({
     setLocalValues(initial);
     setErrors({});
     setResetCount((prev) => prev + 1);
+    if (isLocal) {
+      onServerFiltersChange?.({});
+      return;
+    }
+    if (isPrefixUrlState(urlState)) {
+      // Clear only this grid's filters and page; other grids keep theirs.
+      const next = clearFiltersFromParams(
+        new URLSearchParams(searchParams.toString()),
+        serverFilters,
+        prefix
+      ).toString();
+      startTransition(() =>
+        router.push(next ? `${pathname}?${next}` : pathname, { scroll: false })
+      );
+      return;
+    }
     startTransition(() => router.push(pathname, { scroll: false }));
   };
 
