@@ -1,5 +1,5 @@
 import type { ServerFilterConfig, ServerFilterValue } from "../types";
-import { readFilterValues } from "./server-filter-utils";
+import { readFilterValues, urlKeysOf } from "./server-filter-utils";
 import { scopedKey } from "./url-scope";
 
 /** The page size a grid assumes when the URL names none and no pageSize is given. */
@@ -8,8 +8,20 @@ const DEFAULT_PAGE_SIZE = 10;
 export interface GridUrlParams {
   skipCount: number;
   maxResultCount: number;
-  /** Applied server filters, keyed by each filter's own (un-prefixed) key. */
+  /**
+   * Applied server filters, keyed by each filter's own (un-prefixed) `key`,
+   * parsed: a date range as `{ from, to }` under its `key`, an array as
+   * `string[]`, a number or boolean as such.
+   */
   filters: Record<string, ServerFilterValue>;
+  /**
+   * The given filters' URL params, un-prefixed and raw, exactly as a default
+   * grid's URL holds them: a date range as its `keyFrom` / `keyTo`, an array
+   * as `string[]`, anything else as a string. Holds no other key (not
+   * `skipCount`, nor another grid's), so a server page can spread it into an
+   * ABP list call: `{ ...query, skipCount, maxResultCount }`.
+   */
+  query: Record<string, string | string[]>;
 }
 
 type SearchParamsInput =
@@ -32,6 +44,24 @@ function toSearchParams(input: SearchParamsInput): URLSearchParams {
   return params;
 }
 
+/** The filters' non-empty URL values under their un-prefixed keys. */
+function readFilterQuery(
+  filters: ServerFilterConfig[],
+  params: URLSearchParams,
+  prefix?: string
+): Record<string, string | string[]> {
+  const query: Record<string, string | string[]> = {};
+  filters.forEach((filter) => {
+    const isArray = filter.type === "array" || filter.type === "string-array";
+    urlKeysOf(filter).forEach((key) => {
+      const values = params.getAll(scopedKey(key, prefix)).filter(Boolean);
+      if (!values.length) return;
+      query[key] = isArray ? values : (values[0] as string);
+    });
+  });
+  return query;
+}
+
 function count(raw: string | null, minimum: number): number | undefined {
   if (raw === null || raw === "") return undefined;
   const value = Math.floor(Number(raw));
@@ -46,6 +76,8 @@ function count(raw: string | null, minimum: number): number | undefined {
  *   `<prefix>.maxResultCount` out of the URL while it equals that pageSize.
  * - Default grids: omit `pageSize`. They leave `maxResultCount` out of the URL
  *   only when it is 10, which is the fallback used here.
+ * Spread `query` (not `filters`) into the API call: it holds the filters'
+ * URL params as the API takes them, e.g. a date range's `keyFrom` / `keyTo`.
  * Keys belonging to other grids, or to no grid, are ignored. A `skipCount`
  * that falls inside a page is rounded down to that page's first row, which is
  * the page a prefix-mode grid shows for it.
@@ -70,6 +102,7 @@ export function getGridUrlParams(
     skipCount: Math.floor(skipCount / maxResultCount) * maxResultCount,
     maxResultCount,
     filters: readFilterValues(filters, params, prefix),
+    query: readFilterQuery(filters, params, prefix),
   };
 }
 

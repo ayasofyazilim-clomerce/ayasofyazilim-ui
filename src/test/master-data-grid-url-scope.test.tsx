@@ -411,6 +411,7 @@ describe("getGridUrlParams", () => {
       skipCount: 20,
       maxResultCount: 10,
       filters: { userName: "x" },
+      query: { userName: "x" },
     });
   });
 
@@ -428,6 +429,10 @@ describe("getGridUrlParams", () => {
       filters: {
         statuses: ["Paid", "Sent"],
         creationTime: { from: "2026-01-01", to: undefined },
+      },
+      query: {
+        statuses: ["Paid", "Sent"],
+        minCreationTime: "2026-01-01",
       },
     });
   });
@@ -455,10 +460,11 @@ describe("getGridUrlParams", () => {
       skipCount: 0,
       maxResultCount: 25,
       filters: {},
+      query: {},
     });
     expect(
       getGridUrlParams({ skipCount: "-5", maxResultCount: "abc" })
-    ).toEqual({ skipCount: 0, maxResultCount: 10, filters: {} });
+    ).toEqual({ skipCount: 0, maxResultCount: 10, filters: {}, query: {} });
   });
 });
 
