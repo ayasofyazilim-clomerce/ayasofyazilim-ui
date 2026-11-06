@@ -174,7 +174,7 @@ describe("MasterDataGrid today (characterization)", () => {
       });
       expect(triggers).toHaveLength(3);
       expect(screen.queryByText("Edit-action")).toBeNull();
-      await user.click(triggers[0]);
+      await user.click(triggers[0]!);
       expect(
         await screen.findByRole("menuitem", { name: "Edit-action" })
       ).toBeInTheDocument();
@@ -240,7 +240,7 @@ describe("MasterDataGrid today (characterization)", () => {
     });
 
     const editButtons = screen.getAllByRole("button", { name: "column.edit" });
-    await user.click(editButtons[0]);
+    await user.click(editButtons[0]!);
 
     const input = screen.getByDisplayValue("Charlie");
     fireEvent.change(input, { target: { value: "Charles" } });
