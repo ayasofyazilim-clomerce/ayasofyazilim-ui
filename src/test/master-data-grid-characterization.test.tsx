@@ -244,6 +244,18 @@ describe("MasterDataGrid today (characterization)", () => {
     expect(screen.queryByRole("button", { name: "column.save" })).toBeNull();
   });
 
+  it("normal mode body cells have neither border-r nor border-dashed without editing", () => {
+    const { container } = renderGrid(data, {
+      columns: [{ id: "name", accessorKey: "name" }],
+    });
+    const cells = container.querySelectorAll("tbody td");
+    expect(cells.length).toBeGreaterThan(0);
+    cells.forEach((td) => {
+      expect(td).not.toHaveClass("border-r");
+      expect(td).not.toHaveClass("border-dashed");
+    });
+  });
+
   describe("virtual mode", () => {
     it("renders virtual mode rows with 'border-b border-r' cell classes", () => {
       const { container } = renderGrid(data, {
@@ -289,6 +301,22 @@ describe("MasterDataGrid today (characterization)", () => {
         within(firstCell as HTMLElement).getByRole("checkbox")
       ).toBeInTheDocument();
       expect(firstCell.querySelector(".justify-center")).toBeNull();
+      // Positive: the checkbox is the cell's direct child, with no wrapper.
+      const checkbox = within(firstCell as HTMLElement).getByRole("checkbox");
+      expect(checkbox.parentElement).toBe(firstCell);
+      expect(firstCell.children).toHaveLength(1);
+    });
+
+    it("has no grouping branch: grouping.enabled renders flat rows, no group header colSpan", () => {
+      const { container } = renderGrid(data, {
+        columns: [{ id: "name", accessorKey: "name" }],
+        enableVirtualization: true,
+        grouping: { enabled: true, groupBy: ["name"], expanded: true },
+      } as never);
+      // Virtual mode has no grouping branch: with 3 distinct names, the grouped
+      // row model yields 3 group rows + 3 leaves, all drawn as plain rows.
+      expect(bodyRows(container)).toHaveLength(6);
+      expect(container.querySelectorAll("td[colspan]")).toHaveLength(0);
     });
   });
 });
