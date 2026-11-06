@@ -18,13 +18,25 @@ import {
 
 const writeXlsxFile = jest.fn();
 const toFile = jest.fn().mockResolvedValue(undefined);
-jest.mock("write-excel-file/browser", () => ({
-  __esModule: true,
-  default: (...args: unknown[]) => {
-    writeXlsxFile(...args);
-    return { toFile };
-  },
-}));
+// Delegates to the real writer so invalid input (e.g. a Date cell without a
+// format) throws. Only toFile (the DOM download) is replaced, after toBlob()
+// has built the real workbook in memory.
+jest.mock("write-excel-file/browser", () => {
+  const actual = jest.requireActual("write-excel-file/browser");
+  return {
+    __esModule: true,
+    default: (...args: unknown[]) => {
+      writeXlsxFile(...args);
+      const real = actual.default(...args);
+      return {
+        toFile: async (name: string) => {
+          await real.toBlob();
+          return toFile(name);
+        },
+      };
+    },
+  };
+});
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ replace: jest.fn() }),
@@ -171,6 +183,25 @@ describe("exportToExcel", () => {
     expect(sheet[0]?.map(plain)).toEqual(["Name", "Town", "Sum"]);
     expect(sheet[1]?.map(plain)).toEqual(["Ann, Jr", "Oslo", 10]);
     expect(toFile).toHaveBeenCalledWith("f.xlsx");
+  });
+});
+
+describe("exportToExcel with Date values", () => {
+  it("passes dateFormat in the sheet options and builds a real workbook", async () => {
+    const dated = [{ when: new Date(Date.UTC(2024, 0, 15, 10, 30)) }];
+    const table = renderHook(() =>
+      useReactTable({
+        data: dated,
+        columns: [{ accessorKey: "when", header: "When" }],
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+      })
+    ).result.current;
+    await exportToExcel(table, { filename: "d" });
+    expect(writeXlsxFile.mock.calls[0]?.[1]).toEqual({
+      dateFormat: "yyyy-mm-dd hh:mm",
+    });
+    expect(toFile).toHaveBeenCalledWith("d.xlsx");
   });
 });
 

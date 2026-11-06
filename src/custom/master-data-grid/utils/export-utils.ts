@@ -118,6 +118,9 @@ export function exportToJSON<TData>(
   download(blob, `${filename}.json`);
 }
 
+// Required by write-excel-file for any Date cell (passed as a sheet option).
+const EXCEL_DATE_FORMAT = "yyyy-mm-dd hh:mm";
+
 const toExcelValue = (value: unknown) => {
   if (value === null || value === undefined) return null;
   if (
@@ -149,5 +152,7 @@ export async function exportToExcel<TData>(
     ...rows.map((row) => row.map(toExcelValue)),
   ];
 
-  await writeXlsxFile(sheet).toFile(`${filename}.xlsx`);
+  await writeXlsxFile(sheet, { dateFormat: EXCEL_DATE_FORMAT }).toFile(
+    `${filename}.xlsx`
+  );
 }
