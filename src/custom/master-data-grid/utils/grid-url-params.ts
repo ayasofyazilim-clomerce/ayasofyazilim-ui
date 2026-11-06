@@ -40,9 +40,12 @@ function count(raw: string | null, minimum: number): number | undefined {
 
 /**
  * Reads one grid's page and server filters from a URL, for the server page that
- * fetches its rows. Pass the grid's `urlState` prefix (none for a default grid),
- * its `serverFilters`, and its `pageSize`: a grid in prefix mode leaves
- * `<prefix>.maxResultCount` out of the URL while it equals that pageSize.
+ * fetches its rows. Pass the grid's `urlState` prefix (none for a default grid)
+ * and its `serverFilters`.
+ * - Prefix grids: also pass the grid's `pageSize`. Such a grid leaves
+ *   `<prefix>.maxResultCount` out of the URL while it equals that pageSize.
+ * - Default grids: omit `pageSize`. They leave `maxResultCount` out of the URL
+ *   only when it is 10, which is the fallback used here.
  * Keys belonging to other grids, or to no grid, are ignored. A `skipCount`
  * that falls inside a page is rounded down to that page's first row, which is
  * the page a prefix-mode grid shows for it.
