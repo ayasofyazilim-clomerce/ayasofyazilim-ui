@@ -8,11 +8,12 @@ import {
 } from "@repo/ayasofyazilim-ui/components/field";
 import { Loader2, RotateCcw, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useLocalServerFilters } from "../../context/local-server-filters";
 import { ServerFilterConfig } from "../../types";
 import { clearFiltersFromParams } from "../../utils/server-filter-url";
 import {
-  readFilterValues,
+  urlKeysOf,
   type ServerFilterValue,
 } from "../../utils/server-filter-utils";
 import {
@@ -38,51 +39,98 @@ type FilterValue =
   | DateRangeValue
   | undefined;
 
+type ParamsSource = Pick<URLSearchParams, "get" | "getAll">;
+
+function seedValues(
+  serverFilters: ServerFilterConfig[] | undefined,
+  source: ParamsSource,
+  prefix: string | undefined
+): Record<string, FilterValue> {
+  const initial: Record<string, FilterValue> = {};
+  serverFilters?.forEach((filter) => {
+    const key = scopedKey(filter.key, prefix);
+    const val = source.get(key);
+    if (filter.type === "array" || filter.type === "string-array") {
+      initial[filter.key] = source.getAll(key);
+    } else if (filter.type === "boolean") {
+      initial[filter.key] =
+        val === "true" ? true : val === "false" ? false : undefined;
+    } else if (filter.type === "number") {
+      initial[filter.key] = val ? Number(val) : undefined;
+    } else if (filter.type === "date-range") {
+      initial[filter.key] = {
+        from: source.get(scopedKey(filter.keyFrom, prefix)) || undefined,
+        to: source.get(scopedKey(filter.keyTo, prefix)) || undefined,
+      };
+    } else {
+      initial[filter.key] = val || undefined;
+    }
+  });
+  return initial;
+}
+
+/** This grid's filter keys and values in `source`, to notice a change. */
+function filterSnapshot(
+  serverFilters: ServerFilterConfig[] | undefined,
+  source: ParamsSource,
+  prefix: string | undefined
+): string {
+  return JSON.stringify(
+    (serverFilters ?? [])
+      .flatMap((filter) => urlKeysOf(filter, prefix))
+      .map((key) => source.getAll(key))
+  );
+}
+
 export function ServerFilterContent<TData>({
   config,
 }: BaseMultiFilterDialogProps<TData>) {
-  const { locale, urlState, onServerFiltersChange } = config;
+  const { locale, urlState } = config;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
   const { serverFilters } = config;
-  // Prefix mode reads and writes `<prefix>.<key>`; "none" mode starts empty,
-  // reports through onServerFiltersChange and never pushes.
+  // Prefix mode reads and writes `<prefix>.<key>`. "none" mode reads and
+  // commits the grid's own store (useLocalServerFilters) and never pushes.
   const isLocal = urlState === "none";
+  const localFilters = useLocalServerFilters();
+  const localQuery = localFilters?.query ?? "";
   const prefix = urlPrefixOf(urlState);
 
   const [resetCount, setResetCount] = useState(0);
 
   const [localValues, setLocalValues] = useState<Record<string, FilterValue>>(
-    () => {
-      const initial: Record<string, FilterValue> = {};
-      const source = isLocal ? new URLSearchParams() : searchParams;
-      serverFilters?.forEach((filter) => {
-        const key = scopedKey(filter.key, prefix);
-        const val = source.get(key);
-        if (filter.type === "array" || filter.type === "string-array") {
-          initial[filter.key] = source.getAll(key);
-        } else if (filter.type === "boolean") {
-          initial[filter.key] =
-            val === "true" ? true : val === "false" ? false : undefined;
-        } else if (filter.type === "number") {
-          initial[filter.key] = val ? Number(val) : undefined;
-        } else if (filter.type === "date-range") {
-          initial[filter.key] = {
-            from: source.get(scopedKey(filter.keyFrom, prefix)) || undefined,
-            to: source.get(scopedKey(filter.keyTo, prefix)) || undefined,
-          };
-        } else {
-          initial[filter.key] = val || undefined;
-        }
-      });
-      return initial;
-    }
+    () =>
+      seedValues(
+        serverFilters,
+        isLocal ? new URLSearchParams(localQuery) : searchParams,
+        prefix
+      )
   );
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Prefix and "none" mode show what their source holds now: when this grid's
+  // filters change there (Back, a link, another instance of this panel such as
+  // the toolbar's popover), the panel re-reads them. A default grid keeps
+  // today's read-once behaviour.
+  const sourceQuery = isLocal ? localQuery : searchParams.toString();
+  const snapshot =
+    isLocal || isPrefixUrlState(urlState)
+      ? filterSnapshot(serverFilters, new URLSearchParams(sourceQuery), prefix)
+      : "";
+  const seededSnapshot = useRef(snapshot);
+  useEffect(() => {
+    if (seededSnapshot.current === snapshot) return;
+    seededSnapshot.current = snapshot;
+    setLocalValues(
+      seedValues(serverFilters, new URLSearchParams(sourceQuery), prefix)
+    );
+    setErrors({});
+    setResetCount((prev) => prev + 1);
+  }, [snapshot, serverFilters, sourceQuery, prefix]);
 
   const onValueChange = useCallback(
     (filter: ServerFilterConfig, rawValue: FilterValue) => {
@@ -116,8 +164,10 @@ export function ServerFilterContent<TData>({
   if (!serverFilters) return null;
 
   const handleApply = () => {
-    // "none" mode builds the same params from nothing, only to read them back.
-    const params = new URLSearchParams(isLocal ? "" : searchParams.toString());
+    // "none" mode builds on the grid's applied filters instead of the URL.
+    const params = new URLSearchParams(
+      isLocal ? localQuery : searchParams.toString()
+    );
     let hasValidationError = false;
 
     serverFilters.forEach((filter) => {
@@ -166,7 +216,7 @@ export function ServerFilterContent<TData>({
     if (hasValidationError) return;
     params.delete(scopedKey("skipCount", prefix));
     if (isLocal) {
-      onServerFiltersChange?.(readFilterValues(serverFilters, params));
+      localFilters?.commit(params);
       return;
     }
     startTransition(() => {
@@ -189,7 +239,9 @@ export function ServerFilterContent<TData>({
     setErrors({});
     setResetCount((prev) => prev + 1);
     if (isLocal) {
-      onServerFiltersChange?.({});
+      localFilters?.commit(
+        clearFiltersFromParams(new URLSearchParams(localQuery), serverFilters)
+      );
       return;
     }
     if (isPrefixUrlState(urlState)) {

@@ -18,18 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../components/select";
-import {
-  GridUrlState,
-  Localization,
-  MasterDataGridResources,
-} from "../../types";
+import { Localization, MasterDataGridResources } from "../../types";
 import { useGridNavigation } from "../../hooks/use-grid-navigation";
 import { getTranslations } from "../../utils/translation-utils";
-import {
-  isPrefixUrlState,
-  scopedKey,
-  urlPrefixOf,
-} from "../../utils/url-scope";
 import { RowCountSummary } from "../row-count-summary";
 
 interface PaginationProps<TData> {
@@ -40,10 +31,9 @@ interface PaginationProps<TData> {
   unfilteredRowCount?: number;
   navigate?: (url: string, options?: { replace?: boolean }) => void;
   pending?: boolean;
-  /** The grid's urlState. Absent: today's un-prefixed URL sync. */
-  urlState?: GridUrlState;
-  /** Prefix mode only: the grid's pageSize, which the URL leaves out. */
-  defaultPageSize?: number;
+  /** Write the page to the un-prefixed URL keys (a default-mode grid). A grid
+   *  with `urlState` keeps its page itself, so this effect stays out. */
+  syncsUrl?: boolean;
 }
 
 export function Pagination<TData>({
@@ -54,8 +44,7 @@ export function Pagination<TData>({
   unfilteredRowCount,
   navigate: navigateProp,
   pending,
-  urlState,
-  defaultPageSize = 10,
+  syncsUrl = true,
 }: PaginationProps<TData>) {
   const { navigate: ownNavigate } = useGridNavigation();
   const navigate = navigateProp ?? ownNavigate;
@@ -67,25 +56,15 @@ export function Pagination<TData>({
     ? pageSizeOptions
     : [...pageSizeOptions, pagination.pageSize].sort((a, b) => a - b);
 
-  // "none" keeps the page in table state only (onPaginationChange reports it).
-  const syncsUrl = urlState !== "none";
-  const prefix = urlPrefixOf(urlState);
-  // Default mode keeps today's fixed 10. Prefix mode leaves the grid's own
-  // pageSize out, matching what getGridUrlParams and the first render assume.
-  const omittedPageSize = isPrefixUrlState(urlState) ? defaultPageSize : 10;
-
   useEffect(() => {
     if (!syncsUrl) return;
-    const skipKey = scopedKey("skipCount", prefix);
-    const maxKey = scopedKey("maxResultCount", prefix);
-
     const params = new URLSearchParams(searchParams.toString());
     const skipCount = pagination.pageIndex * pagination.pageSize;
     const maxResultCount = pagination.pageSize;
 
-    const currentSkipCount = Number(searchParams?.get(skipKey)) || 0;
+    const currentSkipCount = Number(searchParams?.get("skipCount")) || 0;
     const currentMaxResultCount =
-      Number(searchParams?.get(maxKey)) || omittedPageSize;
+      Number(searchParams?.get("maxResultCount")) || 10;
 
     const needsUpdate =
       currentSkipCount !== skipCount ||
@@ -94,17 +73,17 @@ export function Pagination<TData>({
     if (!needsUpdate) return;
 
     if (currentMaxResultCount !== maxResultCount) {
-      params.set(maxKey, maxResultCount.toString());
+      params.set("maxResultCount", maxResultCount.toString());
     }
     if (currentSkipCount !== skipCount) {
-      params.set(skipKey, skipCount.toString());
+      params.set("skipCount", skipCount.toString());
     }
 
-    if (maxResultCount === omittedPageSize) {
-      params.delete(maxKey);
+    if (maxResultCount === 10) {
+      params.delete("maxResultCount");
     }
     if (skipCount === 0) {
-      params.delete(skipKey);
+      params.delete("skipCount");
     }
 
     navigate(`${pathname}?${params.toString()}`, { replace: true });
@@ -115,8 +94,6 @@ export function Pagination<TData>({
     searchParams,
     navigate,
     syncsUrl,
-    prefix,
-    omittedPageSize,
   ]);
 
   return (

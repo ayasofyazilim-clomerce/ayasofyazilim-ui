@@ -95,12 +95,9 @@ function initializeColumnVisibility<TData>(
   return {};
 }
 
-type Pagination = { pageIndex: number; pageSize: number };
-
 function createInitialState<TData>(
   config: MasterDataGridConfig<TData>,
-  pageSize: number,
-  initialPagination?: Pagination
+  pageSize: number
 ): TableState {
   const baseVisibility = initializeColumnVisibility(config);
   // Auto-hide groupBy columns - they must exist for grouping but should not be visible
@@ -121,7 +118,7 @@ function createInitialState<TData>(
       config.expansion?.defaultExpanded === true
         ? true
         : config.grouping?.expanded || {},
-    pagination: initialPagination ?? {
+    pagination: {
       pageIndex: 0,
       pageSize,
     },
@@ -129,17 +126,12 @@ function createInitialState<TData>(
   };
 }
 
-/**
- * `initialPagination` sets the first page only (a prefix-mode grid passes the
- * page its URL names); a reset still returns to page one at `pageSize`.
- */
 export function useTableStateReducer<TData>(
   config: MasterDataGridConfig<TData>,
-  pageSize: number,
-  initialPagination?: Pagination
+  pageSize: number
 ) {
   const [tableState, dispatch] = useReducer(tableStateReducer, undefined, () =>
-    createInitialState(config, pageSize, initialPagination)
+    createInitialState(config, pageSize)
   );
 
   // Stable identity: useEditing's callbacks (and so the grid columns) depend

@@ -10,12 +10,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Skeleton } from "../../../components/skeleton";
 import { Table } from "../../../components/table";
 import { cn } from "../../../lib/utils";
+import {
+  LocalServerFiltersContext,
+  type LocalServerFilters,
+} from "../context/local-server-filters";
 import { useMasterDataGridResources } from "../context/resources";
 import { useColumns } from "../hooks/use-columns";
 import { useDelayedFlag } from "../hooks/use-delayed-flag";
@@ -30,8 +34,8 @@ import {
 } from "../utils/export-utils";
 import { paginationFromUrl } from "../utils/grid-url-params";
 import { getTranslations } from "../utils/translation-utils";
-import { visibleFilters } from "../utils/server-filter-utils";
-import { isPrefixUrlState } from "../utils/url-scope";
+import { readFilterValues, visibleFilters } from "../utils/server-filter-utils";
+import { isPrefixUrlState, scopedKey } from "../utils/url-scope";
 import { ServerFilterBar } from "./filters/server-filter-bar";
 import { ServerFilterContent } from "./filters/server-filter";
 import { Pagination } from "./pagination";
@@ -50,6 +54,16 @@ const logWarning = (message: string, data?: unknown) => {
 
 type GridPagination = { pageIndex: number; pageSize: number };
 
+/** The URL a prefix-mode grid reads its page from and writes it to. */
+interface UrlScope {
+  prefix: string;
+  searchParams: URLSearchParams;
+  pathname: string;
+}
+
+const samePage = (a: GridPagination, b: GridPagination) =>
+  a.pageIndex === b.pageIndex && a.pageSize === b.pageSize;
+
 export function MasterDataGrid<TData = Record<string, unknown>>(
   props: MasterDataGridProps<TData>
 ) {
@@ -60,21 +74,20 @@ export function MasterDataGrid<TData = Record<string, unknown>>(
   return <MasterDataGridView {...props} />;
 }
 
-// A prefix-mode grid starts on the page its URL names. The URL is read here
-// rather than in the grid itself, so default-mode grids call no extra
+// A prefix-mode grid takes its page from the URL on every render. The URL is
+// read here rather than in the grid itself, so default-mode grids call no extra
 // useSearchParams (a grid without pagination or server filters calls none).
 function PrefixedMasterDataGrid<TData>({
   prefix,
   ...props
 }: MasterDataGridProps<TData> & { prefix: string }) {
   const searchParams = useSearchParams();
-  const initialPagination = paginationFromUrl(
-    searchParams,
-    prefix,
-    props.config.pageSize ?? 10
-  );
+  const pathname = usePathname();
   return (
-    <MasterDataGridView {...props} initialPagination={initialPagination} />
+    <MasterDataGridView
+      {...props}
+      urlScope={{ prefix, searchParams, pathname }}
+    />
   );
 }
 
@@ -82,8 +95,8 @@ function MasterDataGridView<TData = Record<string, unknown>>({
   data,
   config,
   onDataChange,
-  initialPagination,
-}: MasterDataGridProps<TData> & { initialPagination?: GridPagination }) {
+  urlScope,
+}: MasterDataGridProps<TData> & { urlScope?: UrlScope }) {
   const {
     schema,
     columns: customColumns,
@@ -146,9 +159,77 @@ function MasterDataGridView<TData = Record<string, unknown>>({
     setPagination,
     updateEditingRows,
     resetToDefaults,
-  } = useTableStateReducer(configWithDefaults, pageSize, initialPagination);
+  } = useTableStateReducer(configWithDefaults, pageSize);
 
   const { navigate, isNavigating } = useGridNavigation();
+
+  // Who owns the page:
+  // - default: table state, mirrored to `skipCount` by Pagination (today's).
+  // - prefix: the URL. Paging writes the URL, and the page is read back from
+  //   it on every render, so Back/Forward and links move the grid, and a filter
+  //   push that drops `<prefix>.skipCount` lands on page one with nothing to
+  //   undo it. Until a paging navigation lands, the page it asked for is shown,
+  //   by the filter bar's pendingPush rule: once the URL moves at all, the URL
+  //   wins, so a different navigation landing first is never overruled.
+  // - "none": table state; changes go to onPaginationChange.
+  const isLocal = configWithDefaults.urlState === "none";
+  const isDefaultUrl = !urlScope && !isLocal;
+  const urlPagination = urlScope
+    ? paginationFromUrl(urlScope.searchParams, urlScope.prefix, pageSize)
+    : undefined;
+  const urlQuery = urlScope ? urlScope.searchParams.toString() : "";
+  const [pendingPage, setPendingPage] = useState<{
+    from: string;
+    to: GridPagination;
+  } | null>(null);
+  useEffect(() => {
+    if (pendingPage && pendingPage.from !== urlQuery) setPendingPage(null);
+  }, [pendingPage, urlQuery]);
+  const currentPagination: GridPagination = urlPagination
+    ? pendingPage && pendingPage.from === urlQuery
+      ? pendingPage.to
+      : urlPagination
+    : tableState.pagination;
+
+  const writeUrlPage = (next: GridPagination) => {
+    if (!urlScope) return;
+    const params = new URLSearchParams(urlScope.searchParams.toString());
+    const skipKey = scopedKey("skipCount", urlScope.prefix);
+    const maxKey = scopedKey("maxResultCount", urlScope.prefix);
+    const skipCount = next.pageIndex * next.pageSize;
+    // The grid's own pageSize stays out of the URL, as getGridUrlParams expects.
+    if (next.pageSize === pageSize) params.delete(maxKey);
+    else params.set(maxKey, next.pageSize.toString());
+    if (skipCount === 0) params.delete(skipKey);
+    else params.set(skipKey, skipCount.toString());
+    setPendingPage({ from: urlQuery, to: next });
+    navigate(`${urlScope.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  // Moves a prefix or "none" grid to `next` and reports it (filter commits and
+  // the toolbar Reset); a default grid never calls this.
+  const goToPage = (next: GridPagination) => {
+    if (samePage(next, currentPagination)) return;
+    if (urlScope) writeUrlPage(next);
+    else setPagination(next);
+    configWithDefaults.onPaginationChange?.(next);
+  };
+
+  // "none" mode keeps its applied server filters here, where they outlive the
+  // skeleton and empty states, for every filter UI below to share.
+  const [localFilterQuery, setLocalFilterQuery] = useState("");
+  const localServerFilters: LocalServerFilters | null = isLocal
+    ? {
+        query: localFilterQuery,
+        commit: (next) => {
+          setLocalFilterQuery(next.toString());
+          configWithDefaults.onServerFiltersChange?.(
+            readFilterValues(serverFilters ?? [], next)
+          );
+          goToPage({ pageIndex: 0, pageSize: currentPagination.pageSize });
+        },
+      }
+    : null;
   const showPending = useDelayedFlag(
     isNavigating || Boolean(configWithDefaults.loading),
     150
@@ -220,7 +301,7 @@ function MasterDataGridView<TData = Record<string, unknown>>({
       columnPinning: tableState.columnPinning,
       grouping: tableState.grouping,
       expanded: tableState.expanded,
-      pagination: tableState.pagination,
+      pagination: currentPagination,
       globalFilter,
     },
     onSortingChange: (updater) => {
@@ -280,10 +361,12 @@ function MasterDataGridView<TData = Record<string, unknown>>({
     },
     onPaginationChange: (updater) => {
       const newPagination =
-        typeof updater === "function"
-          ? updater(tableState.pagination)
-          : updater;
-      setPagination(newPagination);
+        typeof updater === "function" ? updater(currentPagination) : updater;
+      if (!urlScope) {
+        setPagination(newPagination);
+      } else if (!samePage(newPagination, currentPagination)) {
+        writeUrlPage(newPagination);
+      }
       configWithDefaults.onPaginationChange?.(newPagination);
     },
     onGlobalFilterChange: setGlobalFilter,
@@ -363,6 +446,14 @@ function MasterDataGridView<TData = Record<string, unknown>>({
     table.resetGlobalFilter();
     setGlobalFilter("");
   }, [table, resetToDefaults]);
+  // A default grid's reset page reaches the URL through Pagination's effect.
+  // The other modes keep the page outside table state, so move and report it.
+  const onReset = isDefaultUrl
+    ? handleReset
+    : () => {
+        handleReset();
+        goToPage({ pageIndex: 0, pageSize });
+      };
   const groupRowLookup = useMemo(() => {
     const labelField = configWithDefaults.grouping?.groupLabelField;
     if (!labelField || !enableGrouping) return undefined;
@@ -403,131 +494,132 @@ function MasterDataGridView<TData = Record<string, unknown>>({
   const rows = table.getRowModel().rows;
 
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-2",
-        configWithDefaults.containerClassName
-      )}
-    >
-      <Toolbar
-        table={table}
-        serverFilters={
-          serverFilterLocation === "toolbar" ? serverFilters : undefined
-        }
-        config={configWithDefaults}
-        selectedRows={selectedRows}
-        onExport={enableExport ? handleExport : undefined}
-        onRefresh={configWithDefaults.onRefresh}
-        onReset={handleReset}
-        isServerFiltered={isServerFiltered}
-      />
-
-      {isServerFiltered && (
-        <ServerFilterBar config={configWithDefaults} navigate={navigate} />
-      )}
-
+    <LocalServerFiltersContext.Provider value={localServerFilters}>
       <div
-        aria-busy={showPending || undefined}
         className={cn(
-          "relative w-full border rounded-md overflow-hidden flex",
-          showPending &&
-            !configWithDefaults.loadingComponent &&
-            "**:data-[slot=table-body]:opacity-45 **:data-[slot=table-body]:pointer-events-none **:data-[slot=table-body]:transition-opacity",
-          configWithDefaults.className
+          "flex flex-col gap-2",
+          configWithDefaults.containerClassName
         )}
-        style={{ height: enableVirtualization ? "600px" : "auto" }}
       >
-        {enableVirtualization ? (
-          <Table
-            className={cn(
-              "border-separate border-spacing-0",
-              configWithDefaults.tableClassName
-            )}
-          >
-            <GridHeader
-              table={table}
-              mode="virtual"
-              headerClassName={configWithDefaults.headerClassName}
-            />
-            <VirtualBody
-              rows={rows}
-              estimateSize={configWithDefaults.virtualization?.estimateSize}
-              overscan={configWithDefaults.virtualization?.overscan}
-              rowClassName={configWithDefaults.rowClassName}
-              cellClassName={configWithDefaults.cellClassName}
-              editingRows={tableState.editingRows}
-              getRowId={getRowId}
-              editingEnabled={configWithDefaults.editing?.enabled}
-              expansionEnabled={configWithDefaults.expansion?.enabled}
-              expansionRenderContent={
-                configWithDefaults.expansion?.renderContent
-              }
-            />
-            <GridFooter table={table} />
-          </Table>
-        ) : (
-          <Table
-            className={cn(
-              "border-spacing-0",
-              configWithDefaults.tableClassName
-            )}
-            wrapperClassName="overflow-auto size-full"
-          >
-            <GridHeader
-              table={table}
-              mode="normal"
-              headerClassName={configWithDefaults.headerClassName}
-            />
-            <TableBodyRenderer
-              table={table}
-              rows={rows}
-              rowClassName={configWithDefaults.rowClassName}
-              cellClassName={configWithDefaults.cellClassName}
-              editingRows={tableState.editingRows}
-              getRowId={getRowId}
-              editingEnabled={configWithDefaults.editing?.enabled}
-              emptyMessage={getTranslations("table.noResults", t)}
-              expansionEnabled={configWithDefaults.expansion?.enabled}
-              expansionRenderContent={
-                configWithDefaults.expansion?.renderContent
-              }
-              bodyClassName={configWithDefaults.bodyClassName}
-              hideNullGroups={configWithDefaults.grouping?.hideNullGroups}
-              groupRowLookup={groupRowLookup}
-              groupFallbackRenderer={
-                configWithDefaults.grouping?.groupFallbackRenderer
-              }
-              hideGroupParentRows={
-                configWithDefaults.grouping?.hideGroupParentRows
-              }
-            />
-            <GridFooter table={table} />
-          </Table>
+        <Toolbar
+          table={table}
+          serverFilters={
+            serverFilterLocation === "toolbar" ? serverFilters : undefined
+          }
+          config={configWithDefaults}
+          selectedRows={selectedRows}
+          onExport={enableExport ? handleExport : undefined}
+          onRefresh={configWithDefaults.onRefresh}
+          onReset={onReset}
+          isServerFiltered={isServerFiltered}
+        />
+
+        {isServerFiltered && (
+          <ServerFilterBar config={configWithDefaults} navigate={navigate} />
         )}
-        {serverFilterLocation !== "toolbar" && (
-          <div className="border-l hidden lg:block w-full max-w-xs">
-            <ServerFilterContent table={table} config={configWithDefaults} />
-          </div>
-        )}
-        {showPending && configWithDefaults.loadingComponent && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80">
-            {configWithDefaults.loadingComponent}
-          </div>
+
+        <div
+          aria-busy={showPending || undefined}
+          className={cn(
+            "relative w-full border rounded-md overflow-hidden flex",
+            showPending &&
+              !configWithDefaults.loadingComponent &&
+              "**:data-[slot=table-body]:opacity-45 **:data-[slot=table-body]:pointer-events-none **:data-[slot=table-body]:transition-opacity",
+            configWithDefaults.className
+          )}
+          style={{ height: enableVirtualization ? "600px" : "auto" }}
+        >
+          {enableVirtualization ? (
+            <Table
+              className={cn(
+                "border-separate border-spacing-0",
+                configWithDefaults.tableClassName
+              )}
+            >
+              <GridHeader
+                table={table}
+                mode="virtual"
+                headerClassName={configWithDefaults.headerClassName}
+              />
+              <VirtualBody
+                rows={rows}
+                estimateSize={configWithDefaults.virtualization?.estimateSize}
+                overscan={configWithDefaults.virtualization?.overscan}
+                rowClassName={configWithDefaults.rowClassName}
+                cellClassName={configWithDefaults.cellClassName}
+                editingRows={tableState.editingRows}
+                getRowId={getRowId}
+                editingEnabled={configWithDefaults.editing?.enabled}
+                expansionEnabled={configWithDefaults.expansion?.enabled}
+                expansionRenderContent={
+                  configWithDefaults.expansion?.renderContent
+                }
+              />
+              <GridFooter table={table} />
+            </Table>
+          ) : (
+            <Table
+              className={cn(
+                "border-spacing-0",
+                configWithDefaults.tableClassName
+              )}
+              wrapperClassName="overflow-auto size-full"
+            >
+              <GridHeader
+                table={table}
+                mode="normal"
+                headerClassName={configWithDefaults.headerClassName}
+              />
+              <TableBodyRenderer
+                table={table}
+                rows={rows}
+                rowClassName={configWithDefaults.rowClassName}
+                cellClassName={configWithDefaults.cellClassName}
+                editingRows={tableState.editingRows}
+                getRowId={getRowId}
+                editingEnabled={configWithDefaults.editing?.enabled}
+                emptyMessage={getTranslations("table.noResults", t)}
+                expansionEnabled={configWithDefaults.expansion?.enabled}
+                expansionRenderContent={
+                  configWithDefaults.expansion?.renderContent
+                }
+                bodyClassName={configWithDefaults.bodyClassName}
+                hideNullGroups={configWithDefaults.grouping?.hideNullGroups}
+                groupRowLookup={groupRowLookup}
+                groupFallbackRenderer={
+                  configWithDefaults.grouping?.groupFallbackRenderer
+                }
+                hideGroupParentRows={
+                  configWithDefaults.grouping?.hideGroupParentRows
+                }
+              />
+              <GridFooter table={table} />
+            </Table>
+          )}
+          {serverFilterLocation !== "toolbar" && (
+            <div className="border-l hidden lg:block w-full max-w-xs">
+              <ServerFilterContent table={table} config={configWithDefaults} />
+            </div>
+          )}
+          {showPending && configWithDefaults.loadingComponent && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80">
+              {configWithDefaults.loadingComponent}
+            </div>
+          )}
+        </div>
+        {enablePagination && (
+          <Pagination
+            table={table}
+            navigate={navigate}
+            pending={showPending && !configWithDefaults.loadingComponent}
+            pageSizeOptions={pageSizeOptions}
+            t={t}
+            localization={configWithDefaults.localization}
+            unfilteredRowCount={configWithDefaults.unfilteredRowCount}
+            syncsUrl={isDefaultUrl}
+          />
         )}
       </div>
-      {enablePagination && (
-        <Pagination
-          table={table}
-          navigate={navigate}
-          pending={showPending && !configWithDefaults.loadingComponent}
-          pageSizeOptions={pageSizeOptions}
-          t={t}
-          localization={configWithDefaults.localization}
-          unfilteredRowCount={configWithDefaults.unfilteredRowCount}
-          urlState={configWithDefaults.urlState}
-          defaultPageSize={pageSize}
-        />
-      )}
-    </div>
+    </LocalServerFiltersContext.Provider>
   );
 }

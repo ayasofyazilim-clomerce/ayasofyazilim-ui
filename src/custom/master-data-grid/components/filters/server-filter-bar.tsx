@@ -25,12 +25,12 @@ import {
 import {
   formatFilterValue,
   readFilterValue,
-  readFilterValues,
   visibleFilters,
   type ServerFilterValue,
 } from "../../utils/server-filter-utils";
 import { getTranslations } from "../../utils/translation-utils";
 import { scopedKey, urlPrefixOf } from "../../utils/url-scope";
+import { useLocalServerFilters } from "../../context/local-server-filters";
 import { useGridNavigation } from "../../hooks/use-grid-navigation";
 import { FilterValueEditor } from "./filter-value-editor";
 
@@ -60,10 +60,11 @@ export function ServerFilterBar<TData>({
   config,
   navigate: navigateProp,
 }: ServerFilterBarProps<TData>) {
-  const { t, localization, urlState, onServerFiltersChange } = config;
-  // Prefix mode reads and writes `<prefix>.<key>`; "none" mode keeps the
-  // applied filters in localQuery below and never navigates.
+  const { t, localization, urlState } = config;
+  // Prefix mode reads and writes `<prefix>.<key>`; "none" mode reads and
+  // commits the grid's own store (useLocalServerFilters) and never navigates.
   const isLocal = urlState === "none";
+  const localFilters = useLocalServerFilters();
   const prefix = urlPrefixOf(urlState);
   const skipKey = scopedKey("skipCount", prefix);
   const pathname = usePathname();
@@ -117,10 +118,11 @@ export function ServerFilterBar<TData>({
   // held when we pushed, whatever landed wins, so paging, Back or a link is
   // never overruled by a stale optimistic value.
   //
-  // In "none" mode the same query string is held here instead, written by the
-  // same helpers, and there is never a push pending.
-  const [localQuery, setLocalQuery] = useState("");
-  const urlQuery = isLocal ? localQuery : searchParams?.toString() ?? "";
+  // In "none" mode the same query string comes from the grid's store instead,
+  // written by the same helpers, and there is never a push pending.
+  const urlQuery = isLocal
+    ? localFilters?.query ?? ""
+    : searchParams?.toString() ?? "";
   const pendingPush = useRef<{ from: string; to: string } | null>(null);
   const [, notePush] = useState(0);
 
@@ -147,27 +149,18 @@ export function ServerFilterBar<TData>({
     [filters, params, drafts, prefix]
   );
 
-  const serverFilters = config.serverFilters;
   const pushParams = useCallback(
     (next: URLSearchParams) => {
-      const nextQuery = next.toString();
       if (isLocal) {
-        setLocalQuery(nextQuery);
-        onServerFiltersChange?.(readFilterValues(serverFilters ?? [], next));
+        localFilters?.commit(next);
         return;
       }
+      const nextQuery = next.toString();
       pendingPush.current = { from: urlQuery, to: nextQuery };
       notePush((seq) => seq + 1);
       navigate(nextQuery ? `${pathname}?${nextQuery}` : pathname);
     },
-    [
-      pathname,
-      navigate,
-      urlQuery,
-      isLocal,
-      onServerFiltersChange,
-      serverFilters,
-    ]
+    [pathname, navigate, urlQuery, isLocal, localFilters]
   );
 
   // skipCount (this grid's own) is excluded because applyFilterToParams always

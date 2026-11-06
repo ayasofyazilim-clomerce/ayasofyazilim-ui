@@ -43,7 +43,9 @@ function count(raw: string | null, minimum: number): number | undefined {
  * fetches its rows. Pass the grid's `urlState` prefix (none for a default grid),
  * its `serverFilters`, and its `pageSize`: a grid in prefix mode leaves
  * `<prefix>.maxResultCount` out of the URL while it equals that pageSize.
- * Keys belonging to other grids, or to no grid, are ignored.
+ * Keys belonging to other grids, or to no grid, are ignored. A `skipCount`
+ * that falls inside a page is rounded down to that page's first row, which is
+ * the page a prefix-mode grid shows for it.
  *
  * `searchParams` may be a `URLSearchParams` or a Next.js page's
  * `searchParams` record.
@@ -58,15 +60,17 @@ export function getGridUrlParams(
 ): GridUrlParams {
   const { prefix, filters = [], pageSize = DEFAULT_PAGE_SIZE } = options;
   const params = toSearchParams(searchParams);
+  const maxResultCount =
+    count(params.get(scopedKey("maxResultCount", prefix)), 1) ?? pageSize;
+  const skipCount = count(params.get(scopedKey("skipCount", prefix)), 0) ?? 0;
   return {
-    skipCount: count(params.get(scopedKey("skipCount", prefix)), 0) ?? 0,
-    maxResultCount:
-      count(params.get(scopedKey("maxResultCount", prefix)), 1) ?? pageSize,
+    skipCount: Math.floor(skipCount / maxResultCount) * maxResultCount,
+    maxResultCount,
     filters: readFilterValues(filters, params, prefix),
   };
 }
 
-/** The table pagination a prefix-mode grid starts on: the page the URL names. */
+/** The table pagination of a prefix-mode grid: the page its URL names. */
 export function paginationFromUrl(
   searchParams: SearchParamsInput,
   prefix: string,
