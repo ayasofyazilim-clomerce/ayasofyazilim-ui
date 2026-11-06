@@ -28,7 +28,7 @@ import { visibleFilters } from "../utils/server-filter-utils";
 import { ServerFilterBar } from "./filters/server-filter-bar";
 import { ServerFilterContent } from "./filters/server-filter";
 import { Pagination } from "./pagination";
-import { GridHeader, TableBodyRenderer, VirtualBody } from "./table";
+import { GridFooter, GridHeader, TableBodyRenderer, VirtualBody } from "./table";
 import { Toolbar } from "./toolbar";
 
 const COMPONENT_NAME = "MasterDataGrid";
@@ -416,6 +416,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                 configWithDefaults.expansion?.renderContent
               }
             />
+            <GridFooter table={table} />
           </Table>
         ) : (
           <Table
@@ -453,6 +454,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
                 configWithDefaults.grouping?.hideGroupParentRows
               }
             />
+            <GridFooter table={table} />
           </Table>
         )}
         {serverFilterLocation !== "toolbar" && (

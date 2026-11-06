@@ -4,3 +4,4 @@ export * from "./virtual-body";
 export * from "./grid-header";
 export * from "./grid-row";
 export * from "./header-cell";
+export * from "./grid-footer";

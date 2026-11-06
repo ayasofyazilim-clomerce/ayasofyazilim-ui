@@ -66,12 +66,13 @@ describe("MasterDataGrid today (characterization)", () => {
     }
   );
 
-  it("ignores ColumnConfig.footer (today's behaviour)", () => {
+  it("renders ColumnConfig.footer in a tfoot", () => {
     const { container } = renderGrid(data, {
       columns: [{ id: "name", accessorKey: "name", footer: () => "TOTAL" }],
     });
-    expect(screen.queryByText("TOTAL")).toBeNull();
-    expect(container.querySelector("tfoot")).toBeNull();
+    expect(
+      within(container.querySelector("tfoot")!).getByText("TOTAL")
+    ).toBeInTheDocument();
   });
 
   it("sorts ascending from the header menu", async () => {
