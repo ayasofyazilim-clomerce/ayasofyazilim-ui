@@ -89,15 +89,15 @@ const columns: ColumnDef<Row>[] = [
 ];
 
 const useFixtureTable = (): Table<Row> =>
-  renderHook(() =>
-    useReactTable({
+  renderHook(function useFixture() {
+    return useReactTable({
       data,
       columns,
       state: { columnVisibility: { amount: false } },
       getCoreRowModel: getCoreRowModel(),
       getFilteredRowModel: getFilteredRowModel(),
-    })
-  ).result.current;
+    });
+  }).result.current;
 
 const t = { "column.total": "Sum", "column.meta_city": "Town" } as never;
 
@@ -151,7 +151,7 @@ describe("exportToCSV", () => {
     const { parts } = captureBlob();
     exportToCSV(table, { filename: "f" });
     expect(parts).toEqual([
-      '﻿Name,meta_city,Total\n"Ann, Jr",Oslo,10\n"Bob ""B""",,14',
+      '\uFEFFName,meta_city,Total\n"Ann, Jr",Oslo,10\n"Bob ""B""",,14',
     ]);
   });
 });

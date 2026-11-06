@@ -91,7 +91,7 @@ export function exportToCSV<TData>(
     ),
   ].join("\n");
 
-  const csvWithBOM = "﻿" + csv;
+  const csvWithBOM = "\uFEFF" + csv;
   const blob = new Blob([csvWithBOM], {
     type: "text/csv;charset=utf-8;",
   });
