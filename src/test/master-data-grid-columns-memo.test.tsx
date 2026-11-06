@@ -1,4 +1,5 @@
-import { render } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { useEffect } from "react";
 import { MasterDataGrid } from "../custom/master-data-grid/components/master-data-grid";
 import * as columnGenerator from "../custom/master-data-grid/utils/column-generator";
 import type { MasterDataGridConfig } from "../custom/master-data-grid/types";
@@ -89,5 +90,75 @@ describe("MasterDataGrid column memoization", () => {
       />
     );
     expect(spy.mock.calls.length).toBe(callsAfterMount + 1);
+  });
+});
+
+// Columns built once keep their cell and header functions, and TanStack renders
+// those functions as components. Before the memo every grid re-render made new
+// ones, so every library-built cell remounted (losing focus, open menus and
+// dialogs). These pin the memoized behaviour.
+describe("MasterDataGrid library-built cells keep their identity", () => {
+  const localization = { locale: "en-US", timeZone: "UTC", lang: "en" };
+
+  it("mounts an inline row-action render once across a mount and three parent rerenders", () => {
+    let mounts = 0;
+    function Probe() {
+      useEffect(() => {
+        mounts += 1;
+      }, []);
+      return <span>probe</span>;
+    }
+    const rowActions: MasterDataGridConfig<Row>["rowActions"] = [
+      { id: "probe", render: () => <Probe /> },
+    ];
+    const config = {
+      schema,
+      localization,
+      rowActionsDisplay: "inline",
+      rowActions,
+    } as MasterDataGridConfig<Row>;
+
+    const { rerender } = render(
+      <MasterDataGrid<Row> data={data} config={config} />
+    );
+    for (let i = 0; i < 3; i++) {
+      rerender(<MasterDataGrid<Row> data={data} config={config} />);
+    }
+
+    expect(screen.getByText("probe")).toBeTruthy();
+    expect(mounts).toBe(1);
+  });
+
+  it("keeps the row-edit input focused and mounted after the debounce and a parent rerender", async () => {
+    const editing = { enabled: true, mode: "row" as const };
+    const getRowId = (row: Row) => row.id;
+    const t = { "column.edit": "Edit" } as MasterDataGridConfig<Row>["t"];
+    const config = {
+      schema,
+      localization,
+      editing,
+      getRowId,
+      t,
+    } as MasterDataGridConfig<Row>;
+
+    const { rerender } = render(
+      <MasterDataGrid<Row> data={data} config={config} />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    const input = within(screen.getByRole("table")).getByDisplayValue(
+      "Alpha"
+    ) as HTMLInputElement;
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: "AlphaX" } });
+
+    // The cell debounces its update (150 ms) before it reaches the grid state.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    });
+    rerender(<MasterDataGrid<Row> data={data} config={config} />);
+
+    expect(input.isConnected).toBe(true);
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe("AlphaX");
   });
 });
