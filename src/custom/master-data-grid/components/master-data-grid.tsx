@@ -2,7 +2,6 @@
 
 import type { FilterFn } from "@tanstack/react-table";
 import {
-  flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
@@ -14,12 +13,7 @@ import {
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { Skeleton } from "../../../components/skeleton";
-import {
-  Table,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../../components/table";
+import { Table } from "../../../components/table";
 import { cn } from "../../../lib/utils";
 import { useMasterDataGridResources } from "../context/resources";
 import { useColumns } from "../hooks/use-columns";
@@ -29,16 +23,12 @@ import { useGridNavigation } from "../hooks/use-grid-navigation";
 import { useTableStateReducer } from "../hooks/use-table-state-reducer";
 import type { MasterDataGridConfig, MasterDataGridProps } from "../types";
 import { exportToCSV } from "../utils/export-utils";
-import {
-  getPinningHeaderClassNames,
-  getPinningHeaderStyles,
-} from "../utils/pinning-utils";
 import { getTranslations } from "../utils/translation-utils";
 import { visibleFilters } from "../utils/server-filter-utils";
 import { ServerFilterBar } from "./filters/server-filter-bar";
 import { ServerFilterContent } from "./filters/server-filter";
 import { Pagination } from "./pagination";
-import { TableBodyRenderer, VirtualBody } from "./table";
+import { GridHeader, TableBodyRenderer, VirtualBody } from "./table";
 import { Toolbar } from "./toolbar";
 
 const COMPONENT_NAME = "MasterDataGrid";
@@ -407,42 +397,11 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
               configWithDefaults.tableClassName
             )}
           >
-            <TableHeader
-              className={cn(
-                "sticky top-0 z-10 bg-background",
-                configWithDefaults.headerClassName
-              )}
-            >
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      style={getPinningHeaderStyles(header)}
-                      className={cn(
-                        getPinningHeaderClassNames(header),
-                        "has-[button]:px-0 not-last:border-r",
-                        header.id === "select" ? "min-w-10" : ""
-                      )}
-                    >
-                      {header.id === "select" ? (
-                        <div className="flex items-center justify-center">
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </div>
-                      ) : header.isPlaceholder ? null : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )
-                      )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
+            <GridHeader
+              table={table}
+              mode="virtual"
+              headerClassName={configWithDefaults.headerClassName}
+            />
             <VirtualBody
               rows={rows}
               estimateSize={configWithDefaults.virtualization?.estimateSize}
@@ -466,42 +425,11 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
             )}
             wrapperClassName="overflow-auto size-full"
           >
-            <TableHeader
-              className={cn(
-                "sticky top-0 z-10 bg-background",
-                configWithDefaults.headerClassName
-              )}
-            >
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      style={getPinningHeaderStyles(header)}
-                      className={cn(
-                        getPinningHeaderClassNames(header),
-                        "has-[button]:px-0 not-last:border-r",
-                        header.id === "select" ? "min-w-10 max-w-10" : ""
-                      )}
-                    >
-                      {header.id === "select" ? (
-                        <div className="flex items-center justify-center">
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </div>
-                      ) : header.isPlaceholder ? null : (
-                        flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )
-                      )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
+            <GridHeader
+              table={table}
+              mode="normal"
+              headerClassName={configWithDefaults.headerClassName}
+            />
             <TableBodyRenderer
               table={table}
               rows={rows}

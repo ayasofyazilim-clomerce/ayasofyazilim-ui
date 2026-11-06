@@ -1,14 +1,9 @@
 "use no memo";
 import type { Row } from "@tanstack/react-table";
-import { flexRender } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import React, { useRef } from "react";
-import { TableBody, TableCell, TableRow } from "../../../../components/table";
-import { cn } from "../../../../lib/utils";
-import {
-  getPinningCellClassNames,
-  getPinningCellStyles,
-} from "../../utils/pinning-utils";
+import { TableBody } from "../../../../components/table";
+import { GridRow } from "./grid-row";
 
 interface VirtualBodyProps<TData> {
   rows: Row<TData>[];
@@ -69,62 +64,19 @@ export function VirtualBody<TData>({
         const row = rows[virtualRow.index];
         if (!row) return null;
 
-        const rowClass =
-          typeof rowClassName === "function"
-            ? rowClassName(row.original)
-            : rowClassName;
-
         return (
-          <React.Fragment key={row.id}>
-            <TableRow
-              data-state={row.getIsSelected() && "selected"}
-              className={cn(rowClass, "group")}
-            >
-              {row.getVisibleCells().map((cell) => {
-                const cellClass =
-                  typeof cellClassName === "function"
-                    ? cellClassName({
-                        row: row.original,
-                        columnId: cell.column.id,
-                      })
-                    : cellClassName;
-
-                const rowId = getRowId
-                  ? getRowId(row.original, row.index)
-                  : String(row.index);
-                const isEditing = editingRows?.[rowId] !== undefined;
-
-                return (
-                  <TableCell
-                    key={cell.id}
-                    style={getPinningCellStyles(cell)}
-                    className={cn(
-                      cellClass,
-                      isEditing && "py-0",
-                      getPinningCellClassNames(cell),
-                      "border-b border-r",
-                      editingEnabled &&
-                        "border border-dashed border-muted-foreground/20",
-                      editingEnabled &&
-                        !isEditing &&
-                        "hover:border-muted-foreground/40"
-                    )}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-            {row.getIsExpanded() &&
-              expansionEnabled &&
-              expansionRenderContent && (
-                <TableRow>
-                  <TableCell colSpan={row.getVisibleCells().length}>
-                    {expansionRenderContent(row.original)}
-                  </TableCell>
-                </TableRow>
-              )}
-          </React.Fragment>
+          <GridRow
+            key={row.id}
+            row={row}
+            mode="virtual"
+            rowClassName={rowClassName}
+            cellClassName={cellClassName}
+            editingRows={editingRows}
+            getRowId={getRowId}
+            editingEnabled={editingEnabled}
+            expansionEnabled={expansionEnabled}
+            expansionRenderContent={expansionRenderContent}
+          />
         );
       })}
 

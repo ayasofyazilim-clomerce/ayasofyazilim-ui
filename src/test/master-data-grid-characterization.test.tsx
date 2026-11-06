@@ -52,6 +52,20 @@ describe("MasterDataGrid today (characterization)", () => {
     expect(container.querySelector("tfoot")).toBeNull();
   });
 
+  it.each([false, true])(
+    "sets colSpan=1 on every header cell (virtualization=%s)",
+    (enableVirtualization) => {
+      const { container } = renderGrid(data, {
+        columns: [{ id: "name", accessorKey: "name" }],
+        selection: { enabled: true },
+        enableVirtualization,
+      });
+      const ths = Array.from(container.querySelectorAll("thead th"));
+      expect(ths.length).toBeGreaterThan(1);
+      ths.forEach((th) => expect(th.getAttribute("colspan")).toBe("1"));
+    }
+  );
+
   it("ignores ColumnConfig.footer (today's behaviour)", () => {
     const { container } = renderGrid(data, {
       columns: [{ id: "name", accessorKey: "name", footer: () => "TOTAL" }],
