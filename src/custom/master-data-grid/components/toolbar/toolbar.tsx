@@ -1,7 +1,9 @@
+"use no memo";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ayasofyazilim-ui/components/dropdown-menu";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
@@ -52,6 +54,12 @@ import { getColumnName, getTranslations } from "../../utils/translation-utils";
 import { MultiFilterDialog } from "../filters";
 import { RowCountSummary } from "../row-count-summary";
 
+const EXPORT_FORMAT_LABELS = {
+  csv: "CSV",
+  excel: "Excel",
+  json: "JSON",
+} as const;
+
 interface ToolbarProps<TData> {
   table: TanStackTable<TData>;
   config: MasterDataGridConfig<TData>;
@@ -73,6 +81,7 @@ export function Toolbar<TData>({
   isServerFiltered = false,
 }: ToolbarProps<TData>) {
   const { t, tableActions, enableExport } = config;
+  const exportFormats = config.export?.formats ?? [];
 
   const [searchValue, setSearchValue] = useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -235,7 +244,7 @@ export function Toolbar<TData>({
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-      {enableExport && onExport && (
+      {enableExport && onExport && exportFormats.length === 0 && (
         <Button
           variant="outline"
           size={"sm"}
@@ -248,6 +257,34 @@ export function Toolbar<TData>({
           <Download className="h-4 w-4" />
           <span>{getTranslations("toolbar.export", t)}</span>
         </Button>
+      )}
+      {enableExport && onExport && exportFormats.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size={"sm"}
+              className={isMobile ? "w-full justify-start" : ""}
+            >
+              <Download className="h-4 w-4" />
+              <span>{getTranslations("toolbar.export", t)}</span>
+              <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {exportFormats.map((format) => (
+              <DropdownMenuItem
+                key={format}
+                onSelect={() => {
+                  onExport(format);
+                  if (isMobile) setMobileMenuOpen(false);
+                }}
+              >
+                {t?.[`toolbar.export.${format}`] ?? EXPORT_FORMAT_LABELS[format]}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
       {onRefresh && (
         <Button

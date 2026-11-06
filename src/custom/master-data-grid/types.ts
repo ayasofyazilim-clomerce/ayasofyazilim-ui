@@ -253,7 +253,7 @@ export interface PinningConfig {
 
 export interface ExportConfig<TData = unknown> {
   enabled?: boolean;
-  formats?: Array<"csv" | "excel" | "json" | "pdf">;
+  formats?: Array<"csv" | "excel" | "json">;
   filename?: string;
   customExport?: (data: TData[], format: string) => void | Promise<void>;
 }

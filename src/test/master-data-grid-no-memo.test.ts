@@ -21,7 +21,6 @@ const TANSTACK_TYPES = ["Table", "Row", "Header", "Column", "Cell"];
 const KNOWN_UNGUARDED = [
   "filters/inline-column-filter.tsx",
   "filters/multi-filter-dialog.tsx",
-  "toolbar/toolbar.tsx",
 ];
 
 const walk = (dir: string): string[] =>

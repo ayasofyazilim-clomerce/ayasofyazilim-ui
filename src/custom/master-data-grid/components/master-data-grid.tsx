@@ -22,7 +22,11 @@ import { useEditing } from "../hooks/use-editing";
 import { useGridNavigation } from "../hooks/use-grid-navigation";
 import { useTableStateReducer } from "../hooks/use-table-state-reducer";
 import type { MasterDataGridConfig, MasterDataGridProps } from "../types";
-import { exportToCSV } from "../utils/export-utils";
+import {
+  exportToCSV,
+  exportToExcel,
+  exportToJSON,
+} from "../utils/export-utils";
 import { getTranslations } from "../utils/translation-utils";
 import { visibleFilters } from "../utils/server-filter-utils";
 import { ServerFilterBar } from "./filters/server-filter-bar";
@@ -293,12 +297,21 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
   );
 
   const handleExport = useCallback(
-    (format: string) => {
+    async (format: string) => {
       try {
-        if (configWithDefaults.export?.customExport) {
-          configWithDefaults.export.customExport(data, format);
+        const exportConfig = configWithDefaults.export;
+        const options = {
+          filename: exportConfig?.filename,
+          t: configWithDefaults.t,
+        };
+        if (exportConfig?.customExport) {
+          await exportConfig.customExport(data, format);
         } else if (format === "csv") {
-          exportToCSV(table, { filename: configWithDefaults.export?.filename });
+          exportToCSV(table, options);
+        } else if (format === "excel") {
+          await exportToExcel(table, options);
+        } else if (format === "json") {
+          exportToJSON(table, options);
         } else {
           logWarning(`Unsupported export format: ${format}`);
         }
@@ -306,7 +319,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>({
         logError("Export failed:", error);
       }
     },
-    [table, data, configWithDefaults.export]
+    [table, data, configWithDefaults.export, configWithDefaults.t]
   );
 
   const handleReset = useCallback(() => {
