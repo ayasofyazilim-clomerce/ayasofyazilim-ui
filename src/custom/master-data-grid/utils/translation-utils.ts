@@ -38,5 +38,5 @@ export function getColumnName<TData>(
   if (typeof header === "string") {
     return header;
   }
-  return column.id;
+  return fallback ?? column.id;
 }

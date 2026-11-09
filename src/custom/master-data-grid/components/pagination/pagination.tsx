@@ -31,6 +31,9 @@ interface PaginationProps<TData> {
   unfilteredRowCount?: number;
   navigate?: (url: string, options?: { replace?: boolean }) => void;
   pending?: boolean;
+  /** Write the page to the un-prefixed URL keys (a default-mode grid). A grid
+   *  with `urlState` keeps its page itself, so this effect stays out. */
+  syncsUrl?: boolean;
 }
 
 export function Pagination<TData>({
@@ -41,6 +44,7 @@ export function Pagination<TData>({
   unfilteredRowCount,
   navigate: navigateProp,
   pending,
+  syncsUrl = true,
 }: PaginationProps<TData>) {
   const { navigate: ownNavigate } = useGridNavigation();
   const navigate = navigateProp ?? ownNavigate;
@@ -53,6 +57,7 @@ export function Pagination<TData>({
     : [...pageSizeOptions, pagination.pageSize].sort((a, b) => a - b);
 
   useEffect(() => {
+    if (!syncsUrl) return;
     const params = new URLSearchParams(searchParams.toString());
     const skipCount = pagination.pageIndex * pagination.pageSize;
     const maxResultCount = pagination.pageSize;
@@ -88,6 +93,7 @@ export function Pagination<TData>({
     pathname,
     searchParams,
     navigate,
+    syncsUrl,
   ]);
 
   return (
