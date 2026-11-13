@@ -91,15 +91,18 @@ describe("StarRating input mode", () => {
     expect(onValueChange.mock.calls.every(([v]) => v === 5)).toBe(true);
   });
 
-  it("hover previews without calling onValueChange and restores on leave", () => {
+  it("hover previews the fill without calling onValueChange and restores on leave", () => {
     const onValueChange = jest.fn();
-    render(<StarRating value={2} onValueChange={onValueChange} />);
-    const group = screen.getByRole("radiogroup");
-    fireEvent.mouseEnter(radio(3));
-    fireEvent.mouseOver(radio(3));
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(radio(1)).toHaveAttribute("aria-checked", "true");
-    fireEvent.mouseLeave(group);
+    const { container } = render(
+      <StarRating value={2} onValueChange={onValueChange} />,
+    );
+    const filled = () =>
+      container.querySelectorAll('[data-filled="true"]').length;
+    expect(filled()).toBe(2);
+    fireEvent.mouseEnter(radio(2));
+    expect(filled()).toBe(3);
+    fireEvent.mouseLeave(screen.getByRole("radiogroup"));
+    expect(filled()).toBe(2);
     expect(onValueChange).not.toHaveBeenCalled();
   });
 

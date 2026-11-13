@@ -44,7 +44,11 @@ function StarGlyph({
 }) {
   const pct = Math.min(Math.max(fill, 0), 1) * 100;
   return (
-    <span className="relative inline-flex" aria-hidden="true">
+    <span
+      className="relative inline-flex"
+      aria-hidden="true"
+      data-filled={fill >= 1 ? "true" : "false"}
+    >
       <Star
         aria-hidden="true"
         className={cn(starVariants({ size }), "text-muted-foreground")}
