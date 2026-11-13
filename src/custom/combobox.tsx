@@ -220,6 +220,9 @@ export function Combobox<T>(props: ComboboxProps<T>) {
     (list?.find(
       (x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier]
     )?.[props.selectLabel] as string) ||
+    (props.freeText && currentValue
+      ? String(currentValue[props.selectLabel])
+      : undefined) ||
     emptyValue ||
     (label && `Please select an ${label.toLocaleLowerCase()}`) ||
     "Please select";

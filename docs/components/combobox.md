@@ -31,10 +31,10 @@ type Model = { id: string; name: string };
 | `freeText.toItem` | required when `freeText` is set | Builds the item passed to `onValueChange` when the typed text is chosen. It receives the trimmed text |
 | `freeText.label` | `(text) => \`Use "${text}"\`` | Text of the extra option |
 
-The extra option is the last entry of the list. It appears only when the trimmed search text is non-empty and equals no item's `selectLabel` (compared case-insensitively) or `selectIdentifier` (compared exactly). Choosing it calls `onValueChange(freeText.toItem(trimmedText))` and closes the list.
+The extra option is the last entry of the list. It appears only when the trimmed search text is non-empty and equals no item's `selectLabel` (compared case-insensitively) or `selectIdentifier` (compared exactly). Choosing it calls `onValueChange(freeText.toItem(trimmedText))` and closes the list. When `freeText` is set and the current `value` is not in `list`, the trigger shows that value's own `selectLabel`; without `freeText` it shows the empty text as before.
 
 ## Common mistakes
 
-- Expecting the typed text to be a listed item afterwards. The trigger shows the label of the item found in `list`, so add the chosen item to `list` (or render the trigger from your own state) or it falls back to the empty label.
+- Leaving `selectLabel` empty on the item built by `toItem`. The trigger shows `String(value[selectLabel])` for a value missing from `list`, so an empty label falls back to the empty text.
 - Hardcoding the English default in a localized app. Pass `freeText.label`.
 - Returning an item from `toItem` whose `selectIdentifier` collides with a listed item.

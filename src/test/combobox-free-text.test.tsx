@@ -92,4 +92,19 @@ describe("Combobox freeText", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/^Use "/)).not.toBeInTheDocument();
   });
+
+  it("shows a free-text value's own label in the trigger when it is not in the list", () => {
+    renderCombobox({
+      value: { id: "gpt-x", name: "gpt-x" },
+      freeText: { toItem: (text) => ({ id: text, name: text }) },
+    });
+    expect(screen.getByRole("combobox")).toHaveTextContent("gpt-x");
+  });
+
+  it("without freeText an unlisted value still shows the empty label", () => {
+    renderCombobox({ value: { id: "gpt-x", name: "gpt-x" } });
+    const trigger = screen.getByRole("combobox");
+    expect(trigger).toHaveTextContent("Please select");
+    expect(trigger).not.toHaveTextContent("gpt-x");
+  });
 });
