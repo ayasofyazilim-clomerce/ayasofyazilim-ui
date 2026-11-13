@@ -30,7 +30,7 @@ const ok = await copy("text"); // never throws
 
 ## Props
 
-`CopyButton`: all `ButtonProps` except `onClick` and `children`, plus
+`CopyButton`: all `ButtonProps` except `onClick`, `children` and the native `onCopy` (replaced by the `onCopy` below), plus
 
 | Prop | Default | Purpose |
 | --- | --- | --- |
