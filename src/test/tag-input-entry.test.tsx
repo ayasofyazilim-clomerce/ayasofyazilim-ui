@@ -141,4 +141,28 @@ describe("TagInput", () => {
     fireEvent.click(screen.getByRole("button", { name: "Remove a" }));
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  it("never turns rejected paste pieces into one tag on blur or Enter", async () => {
+    const onValueChange = jest.fn();
+    render(
+      <TagInput
+        value={["a", "b"]}
+        onValueChange={onValueChange}
+        aria-label="Tags"
+      />
+    );
+    const input = screen.getByRole("textbox");
+    await userEvent.click(input);
+    await userEvent.paste("a,b,c");
+    expect(onValueChange).toHaveBeenLastCalledWith(["a", "b", "c"]);
+    onValueChange.mockClear();
+    expect(input).toHaveValue("a, b");
+    fireEvent.blur(input);
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(input).toHaveValue("a, b");
+    expect(screen.getByRole("alert")).toHaveTextContent("Already added");
+    await userEvent.type(input, "{Enter}");
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(input).toHaveValue("a, b");
+  });
 });

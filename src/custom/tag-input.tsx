@@ -81,7 +81,7 @@ export function TagInput({
   }
 
   function addText() {
-    setText(commit([text]).join(", "));
+    setText(commit(text.split(/[,\r\n]/)).join(", "));
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -133,7 +133,7 @@ export function TagInput({
               aria-label={removeLabel(tag)}
               disabled={disabled}
               onClick={() => removeTag(index)}
-              className="hover:text-destructive focus-visible:ring-ring/50 inline-flex rounded-full focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none"
+              className="hover:text-destructive focus-visible:ring-ring/50 inline-flex rounded-full focus-visible:outline-none focus-visible:ring-[3px] disabled:pointer-events-none"
             >
               <X className="size-3" aria-hidden />
             </button>
