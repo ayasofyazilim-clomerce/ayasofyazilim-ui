@@ -61,7 +61,7 @@ export function LanguageSwitcher({
   const labelId = React.useId();
   const valueId = React.useId();
   if (languages.length < 2) return null;
-  const text = { ...defaultLabels, ...labels };
+  const text = { trigger: labels?.trigger ?? defaultLabels.trigger };
   const current = languages.find((language) => language.code === value);
 
   return (
