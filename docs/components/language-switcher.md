@@ -30,7 +30,7 @@ import { LanguageSwitcher } from "@repo/ayasofyazilim-ui/custom/language-switche
 | `languages`     | `LanguageOption[]`                 | required     | `{ code, label, flag? }`                     |
 | `value`         | `string`                           | required     | Current code; an unknown code is shown as is |
 | `onValueChange` | `(code: string) => void`           | required     | Called with the chosen code                  |
-| `labels`        | `{ trigger?: string }`             | `"Language"` | Accessible name of the trigger               |
+| `labels`        | `{ trigger?: string }`             | `"Language"` | Label part of the trigger name (read with the current language)             |
 | `disabled`      | `boolean`                          | `false`      |                                              |
 | `className`     | `string`                           |              | Applied to the trigger                       |
 

@@ -1,6 +1,6 @@
 "use client";
 
-import type * as React from "react";
+import * as React from "react";
 import {
   Select,
   SelectContent,
@@ -33,9 +33,17 @@ const defaultLabels: Required<LanguageSwitcherLabels> = {
   trigger: "Language",
 };
 
-function LanguageContent({ flag, label }: { flag?: React.ReactNode; label: string }) {
+function LanguageContent({
+  flag,
+  label,
+  id,
+}: {
+  flag?: React.ReactNode;
+  label: string;
+  id?: string;
+}) {
   return (
-    <span className="flex items-center gap-2">
+    <span id={id} className="flex items-center gap-2">
       {flag ? <span aria-hidden="true">{flag}</span> : null}
       <span>{label}</span>
     </span>
@@ -50,15 +58,27 @@ export function LanguageSwitcher({
   disabled,
   className,
 }: LanguageSwitcherProps) {
+  const labelId = React.useId();
+  const valueId = React.useId();
   if (languages.length < 2) return null;
   const text = { ...defaultLabels, ...labels };
   const current = languages.find((language) => language.code === value);
 
   return (
     <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-      <SelectTrigger aria-label={text.trigger} className={cn("w-fit", className)}>
+      <SelectTrigger
+        aria-labelledby={`${labelId} ${valueId}`}
+        className={cn("w-fit", className)}
+      >
+        <span id={labelId} className="sr-only">
+          {text.trigger}
+        </span>
         <SelectValue>
-          <LanguageContent flag={current?.flag} label={current?.label ?? value} />
+          <LanguageContent
+            id={valueId}
+            flag={current?.flag}
+            label={current?.label ?? value}
+          />
         </SelectValue>
       </SelectTrigger>
       <SelectContent>

@@ -21,7 +21,7 @@ describe("LanguageSwitcher", () => {
     render(
       <LanguageSwitcher languages={languages} value="tr" onValueChange={jest.fn()} />
     );
-    const trigger = screen.getByRole("combobox", { name: "Language" });
+    const trigger = screen.getByRole("combobox", { name: "Language Türkçe" });
     expect(trigger).toHaveTextContent("Türkçe");
     expect(within(trigger).getByTestId("flag-tr")).toBeInTheDocument();
   });
@@ -43,6 +43,19 @@ describe("LanguageSwitcher", () => {
     await userEvent.click(screen.getByRole("combobox"));
     const option = await screen.findByRole("option", { name: /English/ });
     expect(within(option).getByTestId("flag-en")).toBeInTheDocument();
+  });
+
+  it("includes both the trigger label and the current language in the name", () => {
+    render(
+      <LanguageSwitcher
+        languages={languages}
+        value="tr"
+        onValueChange={jest.fn()}
+        labels={{ trigger: "Dil" }}
+      />
+    );
+    expect(screen.getByRole("combobox", { name: /Dil/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /Türkçe/ })).toBeInTheDocument();
   });
 
   it("renders nothing with fewer than two languages", () => {
@@ -72,7 +85,7 @@ describe("LanguageSwitcher", () => {
         labels={{ trigger: "Dil" }}
       />
     );
-    await userEvent.click(screen.getByRole("combobox", { name: "Dil" }));
+    await userEvent.click(screen.getByRole("combobox", { name: /Dil/ }));
     await screen.findByRole("option", { name: /Türkçe/ });
     const withSrc = Array.from(document.body.querySelectorAll("[src]"));
     expect(withSrc.filter((el) => /^http/i.test(el.getAttribute("src") ?? ""))).toHaveLength(0);
