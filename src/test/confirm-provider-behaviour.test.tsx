@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   ConfirmOptions,
@@ -54,7 +54,27 @@ describe("useConfirm", () => {
     expect(cancel).toHaveFocus();
     await userEvent.keyboard("{Escape}");
     await expect(result).resolves.toBe(false);
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument()
+    );
+  });
+
+  it("stays open and pending when the user clicks outside", async () => {
+    const { ask } = setup();
+    let settled = false;
+    const result = ask({ title: "Delete?" }).then((v) => {
+      settled = true;
+      return v;
+    });
+    await screen.findByRole("alertdialog");
+    const overlay = document.querySelector(
+      '[data-slot="alert-dialog-overlay"]'
+    ) as HTMLElement;
+    await userEvent.setup({ pointerEventsCheck: 0 }).click(overlay);
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(settled).toBe(false);
+    await userEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    await expect(result).resolves.toBe(true);
   });
 
   it("styles the confirm button as destructive for the destructive variant", async () => {

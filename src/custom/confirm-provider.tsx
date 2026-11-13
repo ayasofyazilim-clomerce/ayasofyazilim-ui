@@ -33,6 +33,7 @@ const ConfirmContext = React.createContext<ConfirmFn | null>(null);
 
 export function ConfirmProvider({ children, labels }: ConfirmProviderProps) {
   const [options, setOptions] = React.useState<ConfirmOptions | null>(null);
+  const [open, setOpen] = React.useState(false);
   const resolverRef = React.useRef<((value: boolean) => void) | null>(null);
 
   const settle = React.useCallback((value: boolean) => {
@@ -48,6 +49,7 @@ export function ConfirmProvider({ children, labels }: ConfirmProviderProps) {
       return new Promise<boolean>((resolve) => {
         resolverRef.current = resolve;
         setOptions(next);
+        setOpen(true);
       });
     },
     [settle]
@@ -58,14 +60,15 @@ export function ConfirmProvider({ children, labels }: ConfirmProviderProps) {
 
   const close = (value: boolean) => {
     settle(value);
-    setOptions(null);
+    // Keep the last options mounted so the exit animation can play.
+    setOpen(false);
   };
 
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
       <AlertDialog
-        open={options !== null}
+        open={open}
         onOpenChange={(open) => {
           if (!open) close(false);
         }}
