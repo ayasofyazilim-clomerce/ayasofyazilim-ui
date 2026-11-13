@@ -238,6 +238,7 @@ function AppShellCommandMenu({
       onOpenChange={onOpenChange}
       title={labels.commandTitle}
       description={labels.commandPlaceholder}
+      inputLabel={labels.commandPlaceholder}
       closeLabel={labels.close}
     >
       <CommandInput placeholder={labels.commandPlaceholder} />

@@ -108,26 +108,28 @@ export function Frame({
 | `headerActions` | `ReactNode`                                   | none              | Right side of the header, before the search button.                                                                                                                              |
 | `commands`      | `AppShellCommand[]`                           | `[]`              | `{ id, label, group, icon?, keywords?, onSelect }`. Listed in ⌘K after the nav groups, grouped by `group` in first-seen order. `keywords` are extra search terms.                |
 | `defaultOpen`   | `boolean`                                     | `true`            | The sidebar's state on the first render, server included.                                                                                                                        |
-| `onOpenChange`  | `(open: boolean) => void`                     | none              | Called after each sidebar change. The library has already written the cookie.                                                                                                    |
+| `onOpenChange`  | `(open: boolean) => void`                     | none              | Called after each sidebar change, and also when the mobile sheet opens or closes (with the unchanged value). The library has already written the cookie.                         |
 | `isActive`      | `(href: string, pathname: string) => boolean` | `matchActiveHref` | Decides the highlighted item. Without it, the item whose `href` is the longest whole-segment prefix of the path is highlighted.                                                  |
 | `labels`        | `AppShellLabels`                              | English           | See below. Each key falls back to its own default.                                                                                                                               |
 | `className`     | `string`                                      | none              | Merged onto the outer wrapper.                                                                                                                                                   |
 | `classNames`    | `{ sidebar?, header?, main? }`                | none              | Merged onto the sidebar container, the `<header>` and the `<main>`.                                                                                                              |
 | `children`      | `ReactNode`                                   | required          | The page, inside `<main>`.                                                                                                                                                       |
 
-`AppShellNavItem` is `{ id, href, label, icon?, badge?, dataAttributes? }`. `icon` is an element (`<PlayIcon />`), rendered at 16px and hidden from assistive technology. `badge` sits at the right of the label in the sidebar (hidden in the icon rail) and in ⌘K. `dataAttributes` (`{ "data-tour": "…" }`) are spread onto the sidebar link.
+`AppShellNavItem` is `{ id, href, label, icon?, badge?, dataAttributes? }`. `icon` is an element (`<PlayIcon />`), rendered at 16px and hidden from assistive technology. `badge` sits at the right of the label in the sidebar (hidden in the icon rail) and in ⌘K. `dataAttributes` (`{ "data-tour": "…" }`) are spread onto the sidebar link. The active link gets `data-active="true"` and `aria-current="page"`. On mobile, choosing a link closes the sheet.
 
-| `labels` key         | Default                        | Used for                                                       |
-| -------------------- | ------------------------------ | -------------------------------------------------------------- |
-| `toggleSidebar`      | `"Toggle Sidebar"`             | Header trigger (sr-only) and the sidebar rail (`aria-label`).  |
-| `search`             | `"Search…"`                    | Search button.                                                 |
-| `commandTitle`       | `"Command menu"`               | ⌘K dialog title and its result list's label.                   |
-| `commandPlaceholder` | `"Search pages and commands…"` | ⌘K input placeholder and the dialog's description.             |
-| `commandEmpty`       | `"No results."`                | ⌘K empty state.                                                |
-| `breadcrumb`         | `"Breadcrumb"`                 | Breadcrumb `<nav>` `aria-label`.                               |
-| `navigation`         | `"Main navigation"`            | Sidebar `<nav>` `aria-label` and the mobile sheet description. |
-| `close`              | `"Close"`                      | ⌘K close button.                                               |
-| `mobileTitle`        | `"Navigation"`                 | Mobile sheet title.                                            |
+| `labels` key         | Default                        | Used for                                                                |
+| -------------------- | ------------------------------ | ----------------------------------------------------------------------- |
+| `toggleSidebar`      | `"Toggle Sidebar"`             | Header trigger (sr-only) and the sidebar rail (`aria-label`).           |
+| `search`             | `"Search…"`                    | Search button.                                                          |
+| `commandTitle`       | `"Command menu"`               | ⌘K dialog title (its accessible name) and its result list's label.      |
+| `commandPlaceholder` | `"Search pages and commands…"` | ⌘K input placeholder and accessible name, and the dialog's description. |
+| `commandEmpty`       | `"No results."`                | ⌘K empty state.                                                         |
+| `breadcrumb`         | `"Breadcrumb"`                 | Breadcrumb `<nav>` `aria-label`.                                        |
+| `navigation`         | `"Main navigation"`            | Sidebar `<nav>` `aria-label` and the mobile sheet description.          |
+| `close`              | `"Close"`                      | ⌘K close button.                                                        |
+| `mobileTitle`        | `"Navigation"`                 | Mobile sheet title.                                                     |
+
+The primitives' own English defaults never reach the page: the ⌘K dialog's description, its input's name and its list's label, and the mobile sheet's description all reuse the keys above.
 
 Keyboard: ⌘K and Ctrl+K open the menu from anywhere, text fields included; the search button does too. ⌘B / Ctrl+B toggles the sidebar, except while typing in a text field.
 

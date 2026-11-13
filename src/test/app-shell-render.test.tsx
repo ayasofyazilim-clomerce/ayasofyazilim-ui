@@ -443,6 +443,43 @@ describe("AppShell: ⌘K", () => {
   });
 });
 
+describe("AppShell: ⌘K dialog labelling", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("puts no command-menu heading in the page while closed", () => {
+    renderShell();
+    expect(
+      screen.queryByRole("heading", { name: "Command menu" })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Command menu")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Search pages and commands…")
+    ).not.toBeInTheDocument();
+  });
+
+  it("names the dialog and the search input once open, without dialog warnings", async () => {
+    // The spies call through, so any other message still shows in the output.
+    const spies = [jest.spyOn(console, "error"), jest.spyOn(console, "warn")];
+    renderShell();
+    pressKey({ key: "k", ctrlKey: true });
+    const dialog = await screen.findByRole("dialog", { name: "Command menu" });
+    expect(
+      within(dialog).getByRole("combobox", {
+        name: "Search pages and commands…",
+      })
+    ).toBeInTheDocument();
+    const dialogWarnings = spies
+      .flatMap((spy) => spy.mock.calls)
+      .map((args) => args.map(String).join(" "))
+      .filter((text) =>
+        /DialogTitle|DialogContent|aria-describedby/.test(text)
+      );
+    expect(dialogWarnings).toEqual([]);
+  });
+});
+
 describe("AppShell: labels", () => {
   async function expectLabels(labels: Required<AppShellLabels>) {
     const english = [
@@ -476,6 +513,7 @@ describe("AppShell: labels", () => {
     ).toBeInTheDocument();
     const input = within(dialog).getByRole("combobox");
     expect(input).toHaveAttribute("placeholder", labels.commandPlaceholder);
+    expect(input).toHaveAccessibleName(labels.commandPlaceholder);
     expect(
       within(dialog).getByRole("button", { name: labels.close })
     ).toBeInTheDocument();

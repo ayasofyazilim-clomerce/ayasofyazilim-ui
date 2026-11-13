@@ -30,6 +30,7 @@ import {
 | `SidebarTrigger` | `label` | `"Toggle Sidebar"` | sr-only text |
 | `SidebarRail` | `label` | `"Toggle Sidebar"` | aria-label and title |
 | `CommandDialog` | `closeLabel` | `"Close"` | close button sr-only text |
+| `CommandDialog` | `inputLabel` | its `title` | accessible name of the search input |
 | `Sidebar` (mobile sheet) | `mobileTitle` | `"Sidebar"` | sr-only sheet title |
 | `Sidebar` (mobile sheet) | `mobileDescription` | `"Displays the mobile sidebar."` | sr-only sheet description |
 | `PaginationPrevious` | `label` | `"Previous"` | visible text |
@@ -41,6 +42,8 @@ import {
 | `Carousel` | `roleDescription` | `"carousel"` | `aria-roledescription` |
 | `CarouselItem` | `roleDescription` | `"slide"` | `aria-roledescription` |
 | `TourProvider` | `closeLabel` | `"Close"` | `aria-label` of the close button (it had none before) |
+
+`CommandDialog`'s `title` and `description` (defaults `"Command Palette"`, `"Search for a command to run..."`) are rendered sr-only inside the dialog: they name and describe it, and nothing of them is in the page while it is closed. Its search input is named by `inputLabel`, because cmdk labels the input itself and that label wins over an `aria-label` passed to `CommandInput`.
 
 `Pagination` and `Breadcrumb` keep their default `aria-label`s (`"pagination"`, `"breadcrumb"`); a passed `aria-label` replaces them.
 
