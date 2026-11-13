@@ -29,7 +29,9 @@ export function CodeBlock({
   className,
   classNames,
 }: CodeBlockProps) {
-  const [revealed, setRevealed] = useState(false);
+  // Derived from the code it was revealed for, so a new secret starts masked.
+  const [revealedFor, setRevealedFor] = useState<string | null>(null);
+  const revealed = revealedFor === code;
   const hidden = masked && !revealed;
   const toggleLabel = revealed
     ? (labels?.hide ?? "Hide")
@@ -56,7 +58,7 @@ export function CodeBlock({
             className="size-6"
             aria-label={toggleLabel}
             title={toggleLabel}
-            onClick={() => setRevealed((r) => !r)}
+            onClick={() => setRevealedFor(revealed ? null : code)}
           >
             {revealed ? (
               <EyeOff aria-hidden="true" className="size-4" />
@@ -74,6 +76,7 @@ export function CodeBlock({
       </div>
       <pre
         data-language={language}
+        tabIndex={maxHeight === undefined ? undefined : 0}
         className={cn(
           "overflow-auto p-3 pr-16 font-mono text-xs",
           classNames?.pre

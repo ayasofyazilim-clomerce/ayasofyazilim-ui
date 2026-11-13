@@ -71,4 +71,26 @@ describe("CodeBlock masking", () => {
     await user.click(screen.getByRole("button", { name: "Göster" }));
     expect(screen.getByRole("button", { name: "Gizle" })).toBeTruthy();
   });
+
+  it("masks a new secret again when code changes after a reveal", async () => {
+    const user = userEvent.setup();
+    const NEXT = "sk-live-ANOTHER-1a2b3c";
+    const { container, rerender } = render(<CodeBlock code={SECRET} masked />);
+    await user.click(screen.getByRole("button", { name: "Reveal" }));
+    expect(container.textContent).toContain(SECRET);
+
+    rerender(<CodeBlock code={NEXT} masked />);
+    expect(container.innerHTML).not.toContain(NEXT);
+    expect(container.textContent).toContain(BULLETS);
+
+    await user.click(screen.getByRole("button", { name: "Reveal" }));
+    expect(container.textContent).toContain(NEXT);
+  });
+
+  it("makes the scrollable pre focusable only when maxHeight is set", () => {
+    const { container, rerender } = render(<CodeBlock code="x" />);
+    expect(container.querySelector("pre")).not.toHaveAttribute("tabindex");
+    rerender(<CodeBlock code="x" maxHeight={80} />);
+    expect(container.querySelector("pre")).toHaveAttribute("tabindex", "0");
+  });
 });
