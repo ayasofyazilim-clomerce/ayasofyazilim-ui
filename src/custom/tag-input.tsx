@@ -47,36 +47,41 @@ export function TagInput({
   const duplicateLabel = labels?.duplicate ?? "Already added";
   const maxReachedLabel = labels?.maxReached ?? "Maximum reached";
 
-  // Adds the given raw entries in order. Returns true when nothing was
-  // rejected (empty entries are skipped silently).
+  // Adds the given raw entries in order and returns the rejected ones.
+  // The message shown is the first rejection's; empty entries are skipped.
   function commit(entries: string[]) {
     let next = value;
     let error: string | null = null;
+    const rejected: string[] = [];
+    const reject = (tag: string, reason: string) => {
+      rejected.push(tag);
+      error ??= reason;
+    };
     for (const raw of entries) {
       const tag = raw.trim();
       if (!tag) continue;
       if (maxItems !== undefined && next.length >= maxItems) {
-        error = maxReachedLabel;
-        break;
+        reject(tag, maxReachedLabel);
+        continue;
       }
       if (!allowDuplicates && next.includes(tag)) {
-        error = duplicateLabel;
+        reject(tag, duplicateLabel);
         continue;
       }
       const invalid = validate?.(tag) ?? null;
       if (invalid) {
-        error = invalid;
+        reject(tag, invalid);
         continue;
       }
       next = [...next, tag];
     }
     if (next !== value) onValueChange(next);
     setMessage(error);
-    return error === null;
+    return rejected;
   }
 
   function addText() {
-    if (commit([text])) setText("");
+    setText(commit([text]).join(", "));
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -97,7 +102,7 @@ export function TagInput({
     const [first = "", ...rest] = event.clipboardData
       .getData("text")
       .split(/[,\r\n]/);
-    if (commit([text + first, ...rest])) setText("");
+    setText(commit([text + first, ...rest]).join(", "));
   }
 
   function removeTag(index: number) {
@@ -110,7 +115,8 @@ export function TagInput({
     <div className={cn("flex flex-col gap-1", className)}>
       <div
         className={cn(
-          "border-input dark:bg-input/30 flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border bg-transparent px-2 py-1",
+          "border-input dark:bg-input/30 focus-within:border-ring focus-within:ring-ring/50 flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border bg-transparent px-2 py-1 focus-within:ring-[3px]",
+          message && "border-destructive",
           disabled && "cursor-not-allowed opacity-50",
           classNames?.container
         )}
@@ -127,9 +133,9 @@ export function TagInput({
               aria-label={removeLabel(tag)}
               disabled={disabled}
               onClick={() => removeTag(index)}
-              className="hover:text-destructive inline-flex disabled:pointer-events-none"
+              className="hover:text-destructive focus-visible:ring-ring/50 inline-flex rounded-full focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none"
             >
-              <X />
+              <X className="size-3" aria-hidden />
             </button>
           </Badge>
         ))}

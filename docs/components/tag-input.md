@@ -48,7 +48,7 @@ Enter or `,` adds the trimmed text, blur adds pending text, pasting splits on co
 | `className` | `string` | none | Outer wrapper. |
 | `classNames` | `{ container?, chip?, input? }` | none | Slot overrides. |
 
-A rejected entry stays in the input and its message shows under it with `role="alert"` until the text changes.
+After a paste, the consumed text is cleared; any rejected pieces are put back into the input joined by ", " and the first rejection's message is shown. A rejected typed entry stays in the input and its message shows under it with `role="alert"` until the text changes.
 
 ## Common mistakes
 

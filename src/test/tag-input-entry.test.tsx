@@ -104,6 +104,24 @@ describe("TagInput", () => {
     expect(onValueChange).toHaveBeenCalledWith(["b"]);
   });
 
+  it("on a partial paste adds the valid pieces and returns rejected ones to the input", async () => {
+    const { onValueChange, input } = setup({ value: ["a"] });
+    await userEvent.type(input, "ab");
+    await userEvent.paste("c,a,d");
+    expect(onValueChange).toHaveBeenCalledWith(["a", "abc", "d"]);
+    expect(screen.getByRole("alert")).toHaveTextContent("Already added");
+    expect(input).toHaveValue("a");
+  });
+
+  it("returns pieces over maxItems to the input", async () => {
+    const { onValueChange, input } = setup({ maxItems: 2 });
+    await userEvent.click(input);
+    await userEvent.paste("a,b,c,d");
+    expect(onValueChange).toHaveBeenCalledWith(["a", "b"]);
+    expect(screen.getByRole("alert")).toHaveTextContent("Maximum reached");
+    expect(input).toHaveValue("c, d");
+  });
+
   it("ignores Enter during IME composition", () => {
     const { onValueChange, input } = setup();
     fireEvent.change(input, { target: { value: "か" } });
