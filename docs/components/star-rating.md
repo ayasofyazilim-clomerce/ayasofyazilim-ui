@@ -27,7 +27,7 @@ const [rating, setRating] = useState(0);
 | `onValueChange` | none | Presence switches to input mode; called with an integer `1..max` |
 | `size` | `"md"` | `"sm"`, `"md"` or `"lg"` |
 | `disabled` | `false` | Blocks input (input mode) |
-| `labels` | `{ rating: (v, m) => \`${v} of ${m}\`, star: (n, m) => \`${n} of ${m}\` }` | `rating` is the `aria-label` of the image / group; `star` names each radio |
+| `labels` | `rating` and `star` both default to "v of m" (value of max) | `rating` is the `aria-label` of the image / group; `star` names each radio |
 | `className` | none | Extra classes on the root |
 
 Input mode follows the radio-group pattern: one tab stop (the checked star, or the first), Arrow keys / Home / End move and select, hover previews without calling `onValueChange`. Stars are amber when filled and muted when empty.
