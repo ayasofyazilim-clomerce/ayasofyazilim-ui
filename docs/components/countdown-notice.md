@@ -38,7 +38,9 @@ import { CountdownNotice } from "@repo/ayasofyazilim-ui/custom/countdown-notice"
 
 Timing: it ticks once a second and recomputes the remaining time from `Date.now()` each tick, so a throttled background tab catches up on the next tick. The value never goes below zero, and the interval is cleared at zero and on unmount.
 
-Accessibility: the ticking text is not a live region (the default `role="alert"` is removed so screen readers are not interrupted every second). The elapsed message is a `role="status"` region, so it is announced once.
+Accessibility: the ticking text is not a live region (the default `role="alert"` is removed so screen readers are not interrupted every second). The elapsed message is rendered inside a `role="status"` region. A status region that is inserted already filled is often not announced, so do not rely on it alone to tell the user time is up.
+
+Server rendering: the server render and the first client render output only the title and an empty description slot, with no elapsed message or Retry button, so hydration always matches. The live remaining time (or the elapsed state) appears right after mount.
 
 ## Common mistakes
 

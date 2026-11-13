@@ -39,6 +39,8 @@ export function formatCountdown(totalSeconds: number): string {
   return `${minutes}:${ss}`;
 }
 
+const subscribe = () => () => {};
+
 function secondsUntil(untilMs: number): number {
   if (!Number.isFinite(untilMs)) return 0;
   return Math.max(0, Math.ceil((untilMs - Date.now()) / 1000));
@@ -55,6 +57,13 @@ export function CountdownNotice({
   variant = "warning",
   className,
 }: CountdownNoticeProps) {
+  // False on the server and during hydration, true once mounted, so no
+  // time-dependent markup is rendered before the clock can be trusted.
+  const mounted = React.useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
   const untilMs = typeof until === "number" ? until : until.getTime();
   const [totalSeconds, setTotalSeconds] = React.useState(() =>
     secondsUntil(untilMs),
@@ -87,23 +96,23 @@ export function CountdownNotice({
     };
   }, [untilMs]);
 
-  const isElapsed = totalSeconds === 0;
+  const isElapsed = mounted && totalSeconds === 0;
 
   return (
     // The ticking text must not be announced every second, so drop the default role="alert".
     <Alert role={undefined} variant={variant} className={cn(className)}>
       {title ? <AlertTitle>{title}</AlertTitle> : null}
       <AlertDescription>
-        {isElapsed ? (
-          <div role="status">{elapsed}</div>
-        ) : (
-          <span suppressHydrationWarning>
-            {description({
+        {mounted ? (
+          isElapsed ? (
+            <div role="status">{elapsed}</div>
+          ) : (
+            description({
               totalSeconds,
               formatted: formatCountdown(totalSeconds),
-            })}
-          </span>
-        )}
+            })
+          )
+        ) : null}
         {isElapsed && onRetry ? (
           <Button
             type="button"

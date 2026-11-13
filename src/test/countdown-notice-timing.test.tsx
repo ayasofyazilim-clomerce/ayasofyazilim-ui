@@ -1,5 +1,7 @@
 import * as React from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { CountdownNotice, formatCountdown } from "../custom/countdown-notice";
 
 const NOW = new Date("2026-01-01T00:00:00Z").getTime();
@@ -211,5 +213,52 @@ describe("CountdownNotice onElapsed once per target", () => {
     advance(2000);
     expect(onElapsed).toHaveBeenCalledTimes(2);
     expect(jest.getTimerCount()).toBe(0);
+  });
+});
+
+describe("CountdownNotice server render", () => {
+  const description = ({ formatted }: { formatted: string }) => (
+    <span>left {formatted}</span>
+  );
+
+  it.each([
+    ["a second boundary", 1500],
+    ["the elapsed boundary", 120_000],
+  ])("hydrates without a mismatch after the clock crosses %s", (_name, jump) => {
+    const element = (
+      <CountdownNotice
+        until={NOW + 90_000}
+        title="Wait"
+        description={description}
+        elapsed="Done"
+        onRetry={() => {}}
+      />
+    );
+    const html = renderToString(element);
+    expect(html).toContain("Wait");
+    expect(html).not.toContain("left ");
+    expect(html).not.toContain("Retry");
+
+    jest.setSystemTime(NOW + jump);
+    const host = document.createElement("div");
+    host.innerHTML = html;
+    document.body.appendChild(host);
+    const errors = jest.spyOn(console, "error").mockImplementation(() => {});
+    let root!: ReturnType<typeof hydrateRoot>;
+    act(() => {
+      root = hydrateRoot(host, element);
+    });
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
+
+    // The live value appears only after mount.
+    if (jump < 90_000) {
+      expect(host.textContent).toContain("left 1:29");
+    } else {
+      expect(host.textContent).toContain("Done");
+      expect(host.textContent).toContain("Retry");
+    }
+    act(() => root.unmount());
+    host.remove();
   });
 });
