@@ -1,3 +1,4 @@
+import * as React from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { CountdownNotice, formatCountdown } from "../custom/countdown-notice";
 
@@ -165,6 +166,50 @@ describe("CountdownNotice timing", () => {
     );
     expect(jest.getTimerCount()).toBe(1);
     unmount();
+    expect(jest.getTimerCount()).toBe(0);
+  });
+});
+
+describe("CountdownNotice onElapsed once per target", () => {
+  const description = ({ formatted }: { formatted: string }) => (
+    <span>{formatted}</span>
+  );
+
+  it("fires once under StrictMode for a past until", () => {
+    const onElapsed = jest.fn();
+    render(
+      <React.StrictMode>
+        <CountdownNotice
+          until={NOW - 5000}
+          description={description}
+          onElapsed={onElapsed}
+        />
+      </React.StrictMode>,
+    );
+    advance(3000);
+    expect(onElapsed).toHaveBeenCalledTimes(1);
+  });
+
+  it("fires again when until changes to a new target that then elapses", () => {
+    const onElapsed = jest.fn();
+    const { rerender } = render(
+      <CountdownNotice
+        until={NOW - 1}
+        description={description}
+        onElapsed={onElapsed}
+      />,
+    );
+    expect(onElapsed).toHaveBeenCalledTimes(1);
+    rerender(
+      <CountdownNotice
+        until={NOW + 2000}
+        description={description}
+        onElapsed={onElapsed}
+      />,
+    );
+    expect(onElapsed).toHaveBeenCalledTimes(1);
+    advance(2000);
+    expect(onElapsed).toHaveBeenCalledTimes(2);
     expect(jest.getTimerCount()).toBe(0);
   });
 });

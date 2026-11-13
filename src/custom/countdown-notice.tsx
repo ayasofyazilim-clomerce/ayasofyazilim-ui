@@ -59,14 +59,13 @@ export function CountdownNotice({
   const [totalSeconds, setTotalSeconds] = React.useState(() =>
     secondsUntil(untilMs),
   );
-  const firedRef = React.useRef(false);
+  const firedForRef = React.useRef<number | null>(null);
   const onElapsedRef = React.useRef(onElapsed);
   React.useEffect(() => {
     onElapsedRef.current = onElapsed;
   });
 
   React.useEffect(() => {
-    firedRef.current = false;
     let id: ReturnType<typeof setInterval> | undefined;
     const tick = () => {
       const next = secondsUntil(untilMs);
@@ -74,14 +73,15 @@ export function CountdownNotice({
       if (next === 0) {
         if (id !== undefined) clearInterval(id);
         id = undefined;
-        if (!firedRef.current) {
-          firedRef.current = true;
+        if (firedForRef.current !== untilMs) {
+          firedForRef.current = untilMs;
           onElapsedRef.current?.();
         }
       }
     };
     tick();
-    if (!firedRef.current) id = setInterval(tick, 1000);
+    if (id === undefined && firedForRef.current !== untilMs)
+      id = setInterval(tick, 1000);
     return () => {
       if (id !== undefined) clearInterval(id);
     };
