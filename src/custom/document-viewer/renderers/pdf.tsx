@@ -1,18 +1,18 @@
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { useState } from "react";
 import { DocRendererProps } from "react-doc-viewer";
-import { Document, Page, pdfjs, Thumbnail } from "react-pdf";
+import { Document, Page, Thumbnail } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { Controllers } from "../controllers";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+import { applyPdfWorkerSrc, usePdfWorkerSrc } from "../pdf-worker";
 
 type CustomDocRendererProps = {} & DocRendererProps;
 
 const CustomPDFRenderer = (props: CustomDocRendererProps) => {
   const { mainState } = props;
   const { currentDocument } = mainState;
+  const pdfWorkerSrc = usePdfWorkerSrc();
   const [zoom, setZoom] = useState(1);
   const [showThumbnail, setShowThumbnail] = useState(false);
   const [pageCount, setPageCount] = useState(0);
@@ -20,6 +20,7 @@ const CustomPDFRenderer = (props: CustomDocRendererProps) => {
   const [searchValue, setSearchValue] = useState<string>();
 
   if (!currentDocument) return null;
+  applyPdfWorkerSrc(pdfWorkerSrc);
   return (
     <Document
       className={cn("p-4 w-full flex")}
