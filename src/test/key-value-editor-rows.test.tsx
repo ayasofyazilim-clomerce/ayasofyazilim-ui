@@ -195,4 +195,21 @@ describe("KeyValueEditor", () => {
     expect(container.querySelectorAll("input.k-x")).toHaveLength(2);
     expect(container.querySelectorAll("input.v-x")).toHaveLength(2);
   });
+
+  it("createKeyValueRow keeps defaults when init passes explicit undefined", () => {
+    const row = createKeyValueRow({ key: undefined, value: undefined });
+    expect(row.key).toBe("");
+    expect(row.value).toBe("");
+  });
+
+  it("an explicit undefined label keeps its English default", () => {
+    render(
+      <KeyValueEditor
+        value={[createKeyValueRow()]}
+        onValueChange={() => {}}
+        labels={{ add: undefined }}
+      />
+    );
+    expect(screen.getByRole("button", { name: "Add" })).toBeInTheDocument();
+  });
 });

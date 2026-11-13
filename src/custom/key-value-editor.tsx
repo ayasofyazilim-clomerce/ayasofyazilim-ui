@@ -56,7 +56,12 @@ function newId() {
 export function createKeyValueRow(
   init: Partial<Omit<KeyValueRow, "id">> = {}
 ): KeyValueRow {
-  return { key: "", value: "", ...init, id: newId() };
+  return {
+    ...init,
+    key: init.key ?? "",
+    value: init.value ?? "",
+    id: newId(),
+  };
 }
 
 export function KeyValueEditor({
@@ -69,7 +74,14 @@ export function KeyValueEditor({
   className,
   classNames,
 }: KeyValueEditorProps) {
-  const text = { ...DEFAULT_LABELS, ...labels };
+  const text = {
+    key: labels?.key ?? DEFAULT_LABELS.key,
+    value: labels?.value ?? DEFAULT_LABELS.value,
+    secret: labels?.secret ?? DEFAULT_LABELS.secret,
+    add: labels?.add ?? DEFAULT_LABELS.add,
+    remove: labels?.remove ?? DEFAULT_LABELS.remove,
+    duplicateKey: labels?.duplicateKey ?? DEFAULT_LABELS.duplicateKey,
+  };
   const baseId = useId();
 
   const counts = new Map<string, number>();
