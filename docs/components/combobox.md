@@ -29,7 +29,7 @@ type Model = { id: string; name: string };
 | Prop | Default | Purpose |
 | --- | --- | --- |
 | `freeText.toItem` | required when `freeText` is set | Builds the item passed to `onValueChange` when the typed text is chosen. It receives the trimmed text |
-| `freeText.label` | `(text) => \`Use "${text}"\`` | Text of the extra option |
+| `freeText.label` | a function of the typed text; default: Use "text" | Text of the extra option |
 
 The extra option is the last entry of the list. It appears only when the trimmed search text is non-empty and equals no item's `selectLabel` (compared case-insensitively) or `selectIdentifier` (compared exactly). Choosing it calls `onValueChange(freeText.toItem(trimmedText))` and closes the list. When `freeText` is set and the current `value` is not in `list`, the trigger shows that value's own `selectLabel`; without `freeText` it shows the empty text as before.
 

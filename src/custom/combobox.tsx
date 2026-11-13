@@ -220,7 +220,7 @@ export function Combobox<T>(props: ComboboxProps<T>) {
     (list?.find(
       (x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier]
     )?.[props.selectLabel] as string) ||
-    (props.freeText && currentValue
+    (props.freeText && currentValue?.[props.selectLabel] != null
       ? String(currentValue[props.selectLabel])
       : undefined) ||
     emptyValue ||
@@ -374,7 +374,7 @@ function List<T>({
     freeTextValue !== "" &&
     !list?.some(
       (item) =>
-        String(item[selectLabel]).toLocaleLowerCase() ===
+        String(item[selectLabel] ?? "").toLocaleLowerCase() ===
           freeTextValue.toLocaleLowerCase() ||
         String(item[selectIdentifier]) === freeTextValue
     );
@@ -400,8 +400,8 @@ function List<T>({
         data-testid={id ? `${id}_search` : undefined}
         placeholder={searchPlaceholder || "Search..."}
         className="h-9"
-        value={search}
-        onValueChange={setSearch}
+        value={freeText ? search : undefined}
+        onValueChange={freeText ? setSearch : undefined}
       />
       <CommandList className="w-full min-w-full max-w-full">
         <CommandEmpty>{searchResultLabel || "0 search result."}</CommandEmpty>
