@@ -28,6 +28,8 @@ import {
 | `DialogContent` | `closeLabel` | `"Close"` | sr-only text of the close button |
 | `SheetContent` | `closeLabel` | `"Close"` | sr-only text of the close button |
 | `SidebarTrigger` | `label` | `"Toggle Sidebar"` | sr-only text |
+| `SidebarRail` | `label` | `"Toggle Sidebar"` | aria-label and title |
+| `CommandDialog` | `closeLabel` | `"Close"` | close button sr-only text |
 | `Sidebar` (mobile sheet) | `mobileTitle` | `"Sidebar"` | sr-only sheet title |
 | `Sidebar` (mobile sheet) | `mobileDescription` | `"Displays the mobile sidebar."` | sr-only sheet description |
 | `PaginationPrevious` | `label` | `"Previous"` | visible text |
