@@ -57,6 +57,15 @@ export type ComboboxLinkOptions<T> = {
   condition?: (item: T) => boolean;
 };
 
+export type ComboboxFreeTextOptions<T> = {
+  /** Builds the item that is selected when the typed text is chosen. */
+  toItem: (text: string) => T;
+  /** Label of the extra option. Defaults to `Use "text"`. */
+  label?: (text: string) => string;
+};
+
+const FREE_TEXT_ITEM_VALUE = "__combobox-free-text__";
+
 export type ComboboxProps<T> = {
   id?: string;
   disabled?: boolean;
@@ -95,6 +104,11 @@ export type ComboboxProps<T> = {
   link?: Partial<Record<keyof T, ComboboxLinkOptions<T>>>;
   /** Replaces the default label/badge/link content of each item. */
   customItemRenderer?: (item: T) => React.ReactNode;
+  /**
+   * Lets the user pick the text they typed when it matches no item. The list
+   * then ends with one extra option; choosing it selects `toItem(text)`.
+   */
+  freeText?: ComboboxFreeTextOptions<T>;
 };
 
 function ComboboxLinks<T>({
@@ -348,11 +362,24 @@ function List<T>({
     link,
     disabledItems,
     customItemRenderer,
+    freeText,
   } = props;
+  const [search, setSearch] = useState("");
+  const freeTextValue = search.trim();
+  const showFreeText =
+    !!freeText &&
+    freeTextValue !== "" &&
+    !list?.some(
+      (item) =>
+        String(item[selectLabel]).toLocaleLowerCase() ===
+          freeTextValue.toLocaleLowerCase() ||
+        String(item[selectIdentifier]) === freeTextValue
+    );
 
   return (
     <Command
       filter={(value, search) => {
+        if (value === FREE_TEXT_ITEM_VALUE) return 1;
         const filterResult = list?.find(
           (i) =>
             (i[selectIdentifier] as string)?.toLocaleLowerCase() ===
@@ -370,10 +397,12 @@ function List<T>({
         data-testid={id ? `${id}_search` : undefined}
         placeholder={searchPlaceholder || "Search..."}
         className="h-9"
+        value={search}
+        onValueChange={setSearch}
       />
       <CommandList className="w-full min-w-full max-w-full">
         <CommandEmpty>{searchResultLabel || "0 search result."}</CommandEmpty>
-        <CommandGroup>
+        <CommandGroup forceMount={showFreeText || undefined}>
           {list?.map((item: T, index) => (
             <CommandItem
               data-testid={id ? `${id}_${index}` : undefined}
@@ -424,6 +453,21 @@ function List<T>({
               )}
             </CommandItem>
           ))}
+          {showFreeText && freeText && (
+            <CommandItem
+              data-testid={id ? `${id}_free-text` : undefined}
+              forceMount
+              onSelect={() => {
+                handleValueChange(freeText.toItem(freeTextValue));
+                setOpen(false);
+              }}
+              value={FREE_TEXT_ITEM_VALUE}
+            >
+              {freeText.label
+                ? freeText.label(freeTextValue)
+                : `Use "${freeTextValue}"`}
+            </CommandItem>
+          )}
         </CommandGroup>
       </CommandList>
     </Command>
