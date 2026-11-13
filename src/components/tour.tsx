@@ -59,9 +59,11 @@ interface Tour {
 function TourProvider({
   tours,
   children,
+  closeLabel = "Close",
 }: {
   tours: Tour[];
   children: React.ReactNode;
+  closeLabel?: string;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [activeTourId, setActiveTourId] = React.useState<string | null>(null);
@@ -123,6 +125,7 @@ function TourProvider({
           onNext={next}
           onPrevious={previous}
           onClose={close}
+          closeLabel={closeLabel}
         />
       )}
     </TourContext.Provider>
@@ -136,6 +139,7 @@ function TourOverlay({
   onNext,
   onPrevious,
   onClose,
+  closeLabel,
 }: {
   step: Step;
   currentStepIndex: number;
@@ -143,6 +147,7 @@ function TourOverlay({
   onNext: () => void;
   onPrevious: () => void;
   onClose: () => void;
+  closeLabel: string;
 }) {
   const [targets, setTargets] = React.useState<
     { rect: DOMRect; radius: number }[]
@@ -321,7 +326,12 @@ function TourOverlay({
                   {currentStepIndex + 1}/{totalSteps}
                 </CardDescription>
                 <CardAction>
-                  <Button variant="ghost" size="icon" onClick={onClose}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onClose}
+                    aria-label={closeLabel}
+                  >
                     <XIcon />
                   </Button>
                 </CardAction>
