@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@repo/ayasofyazilim-ui/components/alert-dialog";
 import { buttonVariants } from "@repo/ayasofyazilim-ui/components/button";
-import { cn } from "../lib/utils";
+import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 
 export type ConfirmOptions = {
   title: React.ReactNode;
