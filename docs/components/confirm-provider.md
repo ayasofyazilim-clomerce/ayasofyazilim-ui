@@ -52,6 +52,7 @@ export function App() {
 | ---------- | --------------------------------------- | ---------------------------- | ---------------------------------- |
 | `children` | `ReactNode`                             | required                     |                                    |
 | `labels`   | `{ confirm?: string; cancel?: string }` | `"Confirm"` / `"Cancel"`     | Provider-wide button text.         |
+| `initialFocus` | `"cancel" | "confirm"`             | `"cancel"`                   | Button focused on open. `"confirm"` makes Enter confirm straight away. |
 
 `useConfirm()` returns `(options: ConfirmOptions) => Promise<boolean>`.
 
@@ -65,7 +66,7 @@ export function App() {
 | `cancelLabel`  | `string`                      | provider    | Per-call label wins over provider labels.    |
 | `variant`      | `"default" \| "destructive"`  | `"default"` | `destructive` styles the confirm button.     |
 
-Behaviour: confirm resolves `true`; Cancel and Escape resolve `false`; clicking outside does nothing (the dialog stays open, as with Radix AlertDialog). Focus starts on Cancel. Calling `confirm()` while a dialog is open resolves the open one with `false` and shows the new one. Unmounting the provider while open resolves with `false`.
+Behaviour: confirm resolves `true`; Cancel and Escape resolve `false`; clicking outside does nothing (the dialog stays open, as with Radix AlertDialog). Focus starts on Cancel unless `initialFocus="confirm"`. Calling `confirm()` while a dialog is open resolves the open one with `false` and shows the new one. Unmounting the provider while open resolves with `false`.
 
 ## Common mistakes
 

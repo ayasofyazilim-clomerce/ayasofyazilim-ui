@@ -25,13 +25,20 @@ export type ConfirmOptions = {
 export type ConfirmProviderProps = {
   children: React.ReactNode;
   labels?: { confirm?: string; cancel?: string };
+  /** Which button receives focus when the dialog opens. Default `"cancel"`. */
+  initialFocus?: "cancel" | "confirm";
 };
 
 type ConfirmFn = (options: ConfirmOptions) => Promise<boolean>;
 
 const ConfirmContext = React.createContext<ConfirmFn | null>(null);
 
-export function ConfirmProvider({ children, labels }: ConfirmProviderProps) {
+export function ConfirmProvider({
+  children,
+  labels,
+  initialFocus = "cancel",
+}: ConfirmProviderProps) {
+  const confirmRef = React.useRef<HTMLButtonElement>(null);
   const [options, setOptions] = React.useState<ConfirmOptions | null>(null);
   const [open, setOpen] = React.useState(false);
   const resolverRef = React.useRef<((value: boolean) => void) | null>(null);
@@ -74,7 +81,13 @@ export function ConfirmProvider({ children, labels }: ConfirmProviderProps) {
         }}
       >
         {options && (
-          <AlertDialogContent>
+          <AlertDialogContent
+            onOpenAutoFocus={(event) => {
+              if (initialFocus !== "confirm") return;
+              event.preventDefault();
+              confirmRef.current?.focus();
+            }}
+          >
             <AlertDialogHeader>
               <AlertDialogTitle>{options.title}</AlertDialogTitle>
               {options.description !== undefined && (
@@ -88,6 +101,7 @@ export function ConfirmProvider({ children, labels }: ConfirmProviderProps) {
                 {options.cancelLabel ?? labels?.cancel ?? "Cancel"}
               </AlertDialogCancel>
               <AlertDialogAction
+                ref={confirmRef}
                 className={cn(
                   buttonVariants({ variant: options.variant ?? "default" })
                 )}
