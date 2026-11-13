@@ -64,7 +64,12 @@ export function ThemeToggle({
     () => true,
     () => false,
   );
-  const text = { ...defaultLabels, ...labels };
+  const text = {
+    group: labels?.group ?? defaultLabels.group,
+    system: labels?.system ?? defaultLabels.system,
+    light: labels?.light ?? defaultLabels.light,
+    dark: labels?.dark ?? defaultLabels.dark,
+  };
   const controlled = value !== undefined;
 
   let selected = "";
