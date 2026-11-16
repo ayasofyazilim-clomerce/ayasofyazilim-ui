@@ -7,6 +7,7 @@ import { Button } from "../../../../components/button";
 import { TableBody, TableCell, TableRow } from "../../../../components/table";
 import { cn } from "../../../../lib/utils";
 import { GridRow } from "./grid-row";
+import type { TreeRowsRender } from "../../utils/tree-rows";
 import {
   getPinningCellClassNames,
   getPinningCellStyles,
@@ -34,6 +35,8 @@ interface TableBodyRendererProps<TData> {
     isExpanded: boolean;
     toggle: () => void;
   }) => React.ReactNode;
+  /** Set only when the grid has tree rows (`subRows`). */
+  tree?: TreeRowsRender;
 }
 
 export function TableBodyRenderer<TData>({
@@ -52,6 +55,7 @@ export function TableBodyRenderer<TData>({
   groupRowLookup,
   hideGroupParentRows,
   groupFallbackRenderer,
+  tree,
 }: TableBodyRendererProps<TData>) {
   const groupValueSet = React.useMemo(() => {
     if (!hideGroupParentRows) return null;
@@ -228,6 +232,7 @@ export function TableBodyRenderer<TData>({
                   editingEnabled={editingEnabled}
                   expansionEnabled={expansionEnabled}
                   expansionRenderContent={expansionRenderContent}
+                  tree={tree}
                 />
               )}
             </React.Fragment>

@@ -8,6 +8,8 @@ import {
   getPinningCellClassNames,
   getPinningCellStyles,
 } from "../../utils/pinning-utils";
+import type { TreeRowsRender } from "../../utils/tree-rows";
+import { TreeCell } from "./tree-cell";
 
 export interface GridRowProps<TData> {
   row: Row<TData>;
@@ -19,6 +21,8 @@ export interface GridRowProps<TData> {
   editingEnabled?: boolean;
   expansionEnabled?: boolean;
   expansionRenderContent?: (row: TData) => React.ReactNode;
+  /** Set only when the grid has tree rows (`subRows`). */
+  tree?: TreeRowsRender;
 }
 
 /** A data row plus its expansion row, shared by normal and virtual mode. */
@@ -32,6 +36,7 @@ export function GridRow<TData>({
   editingEnabled,
   expansionEnabled,
   expansionRenderContent,
+  tree,
 }: GridRowProps<TData>) {
   const isVirtual = mode === "virtual";
   return (
@@ -54,10 +59,29 @@ export function GridRow<TData>({
                 })
               : cellClassName;
 
-          const rowId = getRowId
-            ? getRowId(row.original, row.index)
-            : String(row.index);
+          // `row.index` counts within the parent, so a tree row is keyed by
+          // its id, which is unique at every depth.
+          const rowId = tree
+            ? row.id
+            : getRowId
+              ? getRowId(row.original, row.index)
+              : String(row.index);
           const isEditing = editingRows?.[rowId] !== undefined;
+          const treeCell =
+            tree && tree.expanderColumn === cell.column.id ? tree : undefined;
+          const renderContent = () => {
+            const rendered = flexRender(
+              cell.column.columnDef.cell,
+              cell.getContext()
+            );
+            return treeCell ? (
+              <TreeCell row={row} tree={treeCell}>
+                {rendered}
+              </TreeCell>
+            ) : (
+              rendered
+            );
+          };
 
           if (isVirtual) {
             return (
@@ -76,7 +100,7 @@ export function GridRow<TData>({
                     "hover:border-muted-foreground/40"
                 )}
               >
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                {renderContent()}
               </TableCell>
             );
           }
@@ -103,7 +127,10 @@ export function GridRow<TData>({
                 editingEnabled && "border",
                 editingEnabled &&
                   !isEditing &&
-                  "hover:border-muted-foreground/40"
+                  "hover:border-muted-foreground/40",
+                // The has-[button]:px-0 rules above would drop the padding
+                // only on rows with a toggle, shifting them off the spacer rows.
+                treeCell && "px-2!"
               )}
             >
               {isSelectionRow ? (
@@ -111,7 +138,7 @@ export function GridRow<TData>({
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </div>
               ) : (
-                flexRender(cell.column.columnDef.cell, cell.getContext())
+                renderContent()
               )}
             </TableCell>
           );

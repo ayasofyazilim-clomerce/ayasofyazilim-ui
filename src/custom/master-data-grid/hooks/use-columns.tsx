@@ -1,3 +1,4 @@
+"use no memo";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import type { ButtonVariant } from "@repo/ayasofyazilim-ui/components/button";
 import { GenericObjectType } from "@rjsf/utils";
@@ -37,6 +38,7 @@ import {
   generateColumnsFromSchema,
   mergeColumns,
 } from "../utils/column-generator";
+import { activeSubRows } from "../utils/tree-rows";
 
 // Maps a ButtonVariant to the DropdownMenuItem's supported variant + extra className.
 function getDropdownItemProps(variant: ButtonVariant | undefined): {
@@ -256,6 +258,9 @@ export function useColumns<TData>({
 }: UseColumnsProps<TData>): ColumnDef<TData>[] {
   const { localization, cellClassName, dateOptions, customRenderers } = config;
   const errorDisplayMode = config.editing?.errorDisplayMode;
+  // With tree rows, editing is keyed by row id (row.index repeats per parent)
+  // and a row rowSelectable rejects gets no checkbox at all.
+  const treeRows = activeSubRows(config) !== undefined;
   return useMemo<ColumnDef<TData>[]>(() => {
     const editingContext = config.editing?.enabled
       ? {
@@ -264,6 +269,7 @@ export function useColumns<TData>({
           },
           onCellUpdate: updateCellValue,
           getRowId: getRowId || ((row: TData, index: number) => String(index)),
+          ...(treeRows && { treeRows }),
         }
       : undefined;
 
@@ -320,6 +326,7 @@ export function useColumns<TData>({
             return editingRowsRef.current;
           },
           getRowId: editingContext.getRowId,
+          ...(treeRows && { treeRows }),
         }
       : undefined;
 
@@ -383,14 +390,15 @@ export function useColumns<TData>({
             aria-label={t?.["column.selectAll"]}
           />
         ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            disabled={!row.getCanSelect()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label={t?.["column.selectRow"]}
-          />
-        ),
+        cell: ({ row }) =>
+          treeRows && !row.getCanSelect() ? null : (
+            <Checkbox
+              checked={row.getIsSelected()}
+              disabled={!row.getCanSelect()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label={t?.["column.selectRow"]}
+            />
+          ),
         enableSorting: false,
         enableHiding: false,
       });
@@ -569,9 +577,11 @@ export function useColumns<TData>({
         id: "edit-actions",
         header: t?.["column.edit"] || "Edit",
         cell: ({ row }) => {
-          const rowId = getRowId
-            ? getRowId(row.original, row.index)
-            : String(row.index);
+          const rowId = treeRows
+            ? row.id
+            : getRowId
+              ? getRowId(row.original, row.index)
+              : String(row.index);
           const isEditing = !!editingRowsRef.current[rowId];
           const isRowEditable =
             !config.editing?.isRowEditable ||
@@ -678,6 +688,7 @@ export function useColumns<TData>({
     config.columnOrder,
     config.columnVisibility,
     config.schemaColumns,
+    treeRows,
     // Passed to generateColumnsFromSchema by value (not via a ref),
     // so they are captured at build time and must invalidate the columns.
     localization,

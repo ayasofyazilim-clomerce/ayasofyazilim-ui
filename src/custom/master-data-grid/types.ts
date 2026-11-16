@@ -341,7 +341,47 @@ export type ServerFilterConfig =
   | DateServerFilterConfig
   | DateRangeServerFilterConfig;
 
-export interface MasterDataGridConfig<TData = unknown> {
+/**
+ * Opt-in tree rows: a row may carry child rows of the same shape, drawn under
+ * it with a toggle and an indent in one column. Export, the row counts and
+ * filtering stay top-level. See docs/components/master-data-grid.md.
+ */
+export type SubRowsConfig<TData> = {
+  /** A row's children; `undefined` or `[]` for a leaf. */
+  getSubRows: (row: TData) => TData[] | undefined;
+  /** Id of the column that carries the toggle and the indentation. */
+  expanderColumn: string;
+  /** Rows expanded on first render and after Reset: `true` for every row, or
+   *  a record keyed by row id. Default: all collapsed. */
+  defaultExpanded?: boolean | Record<string, boolean>;
+  /** Indentation per depth level, in rem. Default 1.25. */
+  indent?: number;
+  /** Toggle labels. Default "Expand row" / "Collapse row". */
+  labels?: { expand?: string; collapse?: string };
+};
+
+/** A grid without tree rows: today's grid. */
+interface FlatRowsConfig {
+  subRows?: undefined;
+}
+
+/**
+ * A grid with tree rows. Grouping and expansion detail rows draw rows of their
+ * own, so neither combines with `subRows`: the types refuse it, and a config
+ * that slips through warns once in development and renders as if `subRows`
+ * were absent.
+ */
+interface TreeRowsConfig<TData> {
+  subRows: SubRowsConfig<TData>;
+  grouping?: GroupingConfig & { enabled?: false };
+  expansion?: RowExpansionConfig<TData> & { renderContent?: undefined };
+}
+
+export type MasterDataGridConfig<TData = unknown> =
+  MasterDataGridBaseConfig<TData> & (FlatRowsConfig | TreeRowsConfig<TData>);
+
+/** Every MasterDataGridConfig option except the tree-row switch. */
+export interface MasterDataGridBaseConfig<TData = unknown> {
   schema: JSONSchema | GenericObjectType;
   columns?: ColumnConfig<TData>[];
 
