@@ -1,3 +1,4 @@
+import type { Row, RowSelectionState, Table } from "@tanstack/react-table";
 import type { MasterDataGridConfig, SubRowsConfig } from "../types";
 
 export const DEFAULT_TREE_INDENT = 1.25;
@@ -50,6 +51,47 @@ export function treeRowsRender<TData>(
       collapse: subRows.labels?.collapse ?? DEFAULT_TREE_LABELS.collapse,
     },
   };
+}
+
+/**
+ * The rows a tree grid's select-all covers: every selectable row of the current
+ * page, at any depth, expanded or not. One set drives the box's checked and
+ * disabled state and what it toggles.
+ *
+ * TanStack's own page helpers do not fit tree rows: toggleAllPageRowsSelected
+ * walks only the visible rows (and, with enableSubRowSelection off, never
+ * their children), while getIsAllPageRowsSelected reads the pagination
+ * model's flatRows, which repeat expanded rows on a client-paged grid and drop
+ * every child once a filter is active (filtering is top-level). So walk the
+ * page's top-level rows down through their children instead.
+ */
+export function selectablePageTreeRows<TData>(
+  table: Table<TData>
+): Row<TData>[] {
+  const rows: Row<TData>[] = [];
+  const visit = (row: Row<TData>) => {
+    if (row.getCanSelect()) rows.push(row);
+    row.subRows.forEach(visit);
+  };
+  table
+    .getRowModel()
+    .rows.filter((row) => row.depth === 0)
+    .forEach(visit);
+  return rows;
+}
+
+/** `selection` with each of `rows` set (or cleared), every other id kept. */
+export function withRowsSelected<TData>(
+  selection: RowSelectionState,
+  rows: Row<TData>[],
+  selected: boolean
+): RowSelectionState {
+  const next = { ...selection };
+  rows.forEach((row) => {
+    if (selected) next[row.id] = true;
+    else delete next[row.id];
+  });
+  return next;
 }
 
 /** Tree mode's default row id: `0`, `0.1`, `0.1.0`, ... unique at every depth. */

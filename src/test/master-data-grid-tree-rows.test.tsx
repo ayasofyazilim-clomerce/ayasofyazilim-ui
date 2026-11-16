@@ -243,6 +243,93 @@ describe("MasterDataGrid tree rows (subRows)", () => {
     expect(within(rowOf("G010")).queryByRole("checkbox")).toBeNull();
   });
 
+  describe("select-all", () => {
+    const selectAll = (container: HTMLElement) =>
+      within(container.querySelector("thead")!).getByRole("checkbox", {
+        name: "column.selectAll",
+      });
+
+    it("on a collapsed tree selects every row of the page, checks, and clears on the next click", () => {
+      const onSelectionChange = jest.fn();
+      const { container } = renderTree({
+        selection: { enabled: true, onSelectionChange },
+      });
+      expect(rowNames(container)).toEqual(["P0", "P1"]);
+      expect(selectAll(container)).not.toBeDisabled();
+      expect(selectAll(container)).not.toBeChecked();
+
+      fireEvent.click(selectAll(container));
+      expect(onSelectionChange).toHaveBeenLastCalledWith([
+        p0,
+        c00,
+        c01,
+        g010,
+        p1,
+        c10,
+        c11,
+      ]);
+      expect(selectAll(container)).toBeChecked();
+      fireEvent.click(
+        within(rowOf("P0")).getByRole("button", { name: "Expand row" })
+      );
+      expect(within(rowOf("C00")).getByRole("checkbox")).toBeChecked();
+
+      fireEvent.click(selectAll(container));
+      expect(onSelectionChange).toHaveBeenLastCalledWith([]);
+      expect(selectAll(container)).not.toBeChecked();
+      expect(within(rowOf("C00")).getByRole("checkbox")).not.toBeChecked();
+    });
+
+    it("never sets a row rowSelectable rejects", () => {
+      const onSelectionChange = jest.fn();
+      const { container } = renderTree({
+        selection: {
+          enabled: true,
+          onSelectionChange,
+          rowSelectable: (node) => tree.includes(node),
+        },
+      });
+      fireEvent.click(selectAll(container));
+      expect(onSelectionChange).toHaveBeenLastCalledWith([p0, p1]);
+      expect(selectAll(container)).toBeChecked();
+      fireEvent.click(selectAll(container));
+      expect(onSelectionChange).toHaveBeenLastCalledWith([]);
+      expect(selectAll(container)).not.toBeChecked();
+    });
+
+    it("is enabled when the only selectable rows are collapsed children", () => {
+      const onSelectionChange = jest.fn();
+      const { container } = renderTree({
+        selection: {
+          enabled: true,
+          onSelectionChange,
+          rowSelectable: (node) => !tree.includes(node),
+        },
+      });
+      expect(selectAll(container)).not.toBeDisabled();
+      fireEvent.click(selectAll(container));
+      expect(onSelectionChange).toHaveBeenLastCalledWith([
+        c00,
+        c01,
+        g010,
+        c10,
+        c11,
+      ]);
+      expect(selectAll(container)).toBeChecked();
+    });
+
+    it("covers the current page only", () => {
+      const onSelectionChange = jest.fn();
+      const { container } = renderTree({
+        selection: { enabled: true, onSelectionChange },
+        pageSize: 1,
+      });
+      fireEvent.click(selectAll(container));
+      expect(onSelectionChange).toHaveBeenLastCalledWith([p0, c00, c01, g010]);
+      expect(selectAll(container)).toBeChecked();
+    });
+  });
+
   it("sorts siblings within their parent", async () => {
     const user = userEvent.setup();
     const { container } = renderTree({ subRows: expandedSubRows });

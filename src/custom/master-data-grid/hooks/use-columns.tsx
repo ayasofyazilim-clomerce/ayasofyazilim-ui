@@ -38,7 +38,11 @@ import {
   generateColumnsFromSchema,
   mergeColumns,
 } from "../utils/column-generator";
-import { activeSubRows } from "../utils/tree-rows";
+import {
+  activeSubRows,
+  selectablePageTreeRows,
+  withRowsSelected,
+} from "../utils/tree-rows";
 
 // Maps a ButtonVariant to the DropdownMenuItem's supported variant + extra className.
 function getDropdownItemProps(variant: ButtonVariant | undefined): {
@@ -376,20 +380,45 @@ export function useColumns<TData>({
     if (config.selection?.enabled) {
       finalColumns.push({
         id: "select",
-        header: ({ table }) => (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            // Without this the select-all box stays lit while every row
-            // underneath it is unselectable, so pressing it does nothing.
-            disabled={
-              !table.getRowModel().rows.some((row) => row.getCanSelect())
-            }
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
-            aria-label={t?.["column.selectAll"]}
-          />
-        ),
+        header: ({ table }) => {
+          if (treeRows) {
+            // One row set (the page's selectable rows at every depth) drives
+            // checked, disabled and the toggle; see selectablePageTreeRows.
+            const rows = selectablePageTreeRows(table);
+            return (
+              <Checkbox
+                checked={
+                  rows.length > 0 && rows.every((row) => row.getIsSelected())
+                }
+                disabled={rows.length === 0}
+                onCheckedChange={(value) =>
+                  table.setRowSelection((selection) =>
+                    withRowsSelected(
+                      selection,
+                      selectablePageTreeRows(table),
+                      !!value
+                    )
+                  )
+                }
+                aria-label={t?.["column.selectAll"]}
+              />
+            );
+          }
+          return (
+            <Checkbox
+              checked={table.getIsAllPageRowsSelected()}
+              // Without this the select-all box stays lit while every row
+              // underneath it is unselectable, so pressing it does nothing.
+              disabled={
+                !table.getRowModel().rows.some((row) => row.getCanSelect())
+              }
+              onCheckedChange={(value) =>
+                table.toggleAllPageRowsSelected(!!value)
+              }
+              aria-label={t?.["column.selectAll"]}
+            />
+          );
+        },
         cell: ({ row }) =>
           treeRows && !row.getCanSelect() ? null : (
             <Checkbox
