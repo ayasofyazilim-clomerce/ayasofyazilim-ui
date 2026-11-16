@@ -54,6 +54,8 @@ export type AppShellProps = {
   userMenu: React.ReactNode;
   breadcrumbs?: AppShellBreadcrumb[];
   pageTitle?: string;
+  /** Rendered in the header right after the breadcrumb, filling the space before `headerActions`. */
+  headerContent?: React.ReactNode;
   headerActions?: React.ReactNode;
   commands?: AppShellCommand[];
   defaultOpen?: boolean;

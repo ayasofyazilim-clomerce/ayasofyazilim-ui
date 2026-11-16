@@ -301,6 +301,7 @@ export function AppShell({
   userMenu,
   breadcrumbs,
   pageTitle,
+  headerContent,
   headerActions,
   commands,
   defaultOpen,
@@ -391,6 +392,11 @@ export function AppShell({
             <AppShellBreadcrumbs crumbs={breadcrumbs} label={text.breadcrumb} />
           ) : null}
           {pageTitle ? <h1 className="sr-only">{pageTitle}</h1> : null}
+          {headerContent ? (
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              {headerContent}
+            </div>
+          ) : null}
           <div className="ml-auto flex shrink-0 items-center gap-2">
             {headerActions}
             <Button
