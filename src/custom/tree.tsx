@@ -2,8 +2,12 @@
 "use no memo";
 
 import * as React from "react";
-import { ItemInstance } from "@headless-tree/core";
-import { ChevronDownIcon } from "lucide-react";
+import {
+  DragTarget,
+  ItemInstance,
+  isOrderedDragTarget,
+} from "@headless-tree/core";
+import { ChevronDownIcon, GripVerticalIcon } from "lucide-react";
 import { Slot } from "radix-ui";
 export * from "@headless-tree/core";
 export * from "@headless-tree/react";
@@ -66,19 +70,58 @@ interface TreeItemProps<T = any>
   item: ItemInstance<T>;
   indent?: number;
   asChild?: boolean;
+  /**
+   * What a click on the row does.
+   * - `"toggle"` (default): headless-tree's own click, which focuses the row,
+   *   runs `onPrimaryAction` and opens or closes a folder. `item.getProps()`
+   *   wins over the caller's props, as it always has.
+   * - `"focus"`: the click only focuses the row, then the caller's `onClick`
+   *   runs. The caller's props (`aria-selected`, `aria-current`, `data-*`, ...)
+   *   win over `item.getProps()`.
+   */
+  clickBehavior?: "toggle" | "focus";
 }
+
+/**
+ * The row props for `clickBehavior="focus"`: `item.getProps()` with its click
+ * replaced by a plain focus, then the caller's props on top, with the caller's
+ * `onClick` chained after the focus.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function focusOnlyRowProps<T = any>(
+  item: ItemInstance<T>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  itemProps: Record<string, any>,
+  props: React.HTMLAttributes<HTMLButtonElement>
+) {
+  const { onClick: callerOnClick, ...callerProps } = props;
+  return {
+    ...itemProps,
+    ...callerProps,
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+      item.setFocused();
+      item.getTree().updateDomFocus();
+      callerOnClick?.(event);
+    },
+  };
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TreeItem<T = any>({
   item,
   className,
   asChild,
   children,
+  clickBehavior = "toggle",
   ...props
 }: Omit<TreeItemProps<T>, "indent">) {
   const { indent } = useTreeContext<T>();
 
   const itemProps = typeof item.getProps === "function" ? item.getProps() : {};
-  const mergedProps = { ...props, ...itemProps };
+  const mergedProps =
+    clickBehavior === "focus"
+      ? focusOnlyRowProps(item, itemProps, props)
+      : { ...props, ...itemProps };
 
   // Extract style from mergedProps to merge with our custom styles
   const { style: propStyle, ...otherProps } = mergedProps;
@@ -197,4 +240,118 @@ function TreeDragLine({
   );
 }
 
-export { Tree, TreeItem, TreeItemLabel, TreeDragLine };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface TreeDragHandleProps<T = any> {
+  item: ItemInstance<T>;
+  /** Accessible name of the grip, e.g. "Move Invoice number". */
+  label: string;
+  /** Not draggable and no keyboard drag. */
+  disabled?: boolean;
+  className?: string;
+  /** The grip's content; a vertical grip icon by default. */
+  children?: React.ReactNode;
+}
+
+/**
+ * A grip that drags its row. Pair it with `seperateDragHandle: true` on the
+ * tree, so the grip and not the whole row is the drag source. Enter or Space
+ * on the grip starts a keyboard drag of its item (needs
+ * `keyboardDragAndDropFeature`); the tree's own keys then move (Up, Down),
+ * drop (Enter) or cancel (Escape) it.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function TreeDragHandle<T = any>({
+  item,
+  label,
+  disabled = false,
+  className,
+  children,
+}: TreeDragHandleProps<T>) {
+  const handleProps =
+    !disabled && typeof item.getDragHandleProps === "function"
+      ? item.getDragHandleProps()
+      : {};
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (disabled || (event.key !== "Enter" && event.key !== " ")) return;
+    const tree = item.getTree();
+    // While a drag runs, Enter belongs to the tree's own "drop" hotkey.
+    if (tree.getState().dnd) return;
+    event.preventDefault();
+    event.stopPropagation();
+    // The keyboard drag searches for its first target from the focused row.
+    item.setFocused();
+    tree.startKeyboardDrag?.([item]);
+    // No valid target: do not leave a half-started drag behind.
+    if (tree.getState().dnd && !tree.getDragTarget?.()) {
+      tree.stopKeyboardDrag?.();
+    }
+  };
+
+  return (
+    <span
+      data-slot="tree-drag-handle"
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-label={label}
+      aria-disabled={disabled || undefined}
+      data-disabled={disabled || undefined}
+      className={cn(
+        "inline-flex shrink-0 cursor-grab items-center justify-center rounded-sm text-muted-foreground outline-hidden hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:cursor-grabbing data-disabled:cursor-default data-disabled:opacity-50",
+        className
+      )}
+      {...handleProps}
+      onKeyDown={onKeyDown}
+    >
+      {children ?? <GripVerticalIcon aria-hidden="true" className="size-4" />}
+    </span>
+  );
+}
+
+/**
+ * A `canDrop` that keeps a drag inside its own parent: true when every dragged
+ * item's parent is the target's item. That covers both the ordered target
+ * (between two siblings) and the unordered `{ item: parent }` target that
+ * headless-tree tests as "can become a sibling", which must be accepted or no
+ * sibling position is ever offered.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function canDropWithinParent<T = any>(
+  items: ItemInstance<T>[],
+  target: DragTarget<T>
+): boolean {
+  if (items.length === 0) return false;
+  const parentId = target.item.getId();
+  return items.every((item) => item.getParent()?.getId() === parentId);
+}
+
+/**
+ * For an `onDrop`: the parent id and the insertion index (already adjusted for
+ * the moved items) of a reorder among siblings, or null for an unordered
+ * target (a drop onto a row) or a target under another parent.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function reorderTargetWithinParent<T = any>(
+  items: ItemInstance<T>[],
+  target: DragTarget<T>
+): { parentId: string; insertionIndex: number } | null {
+  if (!isOrderedDragTarget(target) || !("insertionIndex" in target)) {
+    return null;
+  }
+  if (!canDropWithinParent(items, target)) return null;
+  return {
+    parentId: target.item.getId(),
+    insertionIndex: target.insertionIndex,
+  };
+}
+
+export {
+  Tree,
+  TreeItem,
+  TreeItemLabel,
+  TreeDragLine,
+  TreeDragHandle,
+  canDropWithinParent,
+  reorderTargetWithinParent,
+};
+export type { TreeItemProps, TreeDragHandleProps };
