@@ -7,6 +7,7 @@ import { PdfWorkerSrcProvider } from "./pdf-worker";
 import CustomPDFRenderer from "./renderers/pdf";
 
 export * from "react-doc-viewer";
+export { DocxRenderer } from "./renderers/docx";
 export {
   applyPdfWorkerSrc,
   DEFAULT_PDF_WORKER_SRC,

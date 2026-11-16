@@ -37,6 +37,18 @@ Also exported from the same path:
 - `applyPdfWorkerSrc(src?)`: sets `pdfjs.GlobalWorkerOptions.workerSrc` to `src ?? DEFAULT_PDF_WORKER_SRC` and returns the value it set.
 - `PdfWorkerSrcProvider` / `usePdfWorkerSrc()`: the context `DocumentViewer` uses to hand `pdfWorkerSrc` to the PDF renderer. Use the provider directly if you render the PDF renderer yourself.
 
+## Word documents (opt-in)
+
+The built-in Office renderer sends the document URL to a third-party service. To preview `.docx` locally instead, opt in to `DocxRenderer`, which renders in the browser with `docx-preview` (see `docx-preview.md`):
+
+```tsx
+import DocumentViewer, { DocxRenderer } from "@repo/ayasofyazilim-ui/custom/document-viewer";
+
+<DocumentViewer document={{ uri: url, fileType: "docx" }} renderers={[DocxRenderer]} />;
+```
+
+It is never part of the default renderer list, so a consumer that does not pass it sees no change.
+
 ## Serving the worker yourself (strict CSP)
 
 By default the worker is loaded from the jsDelivr CDN. A consumer with a strict Content-Security-Policy (no third-party `script-src` / `worker-src`) serves the worker file itself and passes its URL as `pdfWorkerSrc`:
