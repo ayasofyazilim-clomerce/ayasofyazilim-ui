@@ -48,11 +48,11 @@ export function App() {
 
 `ConfirmProvider`
 
-| Prop       | Type                                    | Default                      | Notes                              |
-| ---------- | --------------------------------------- | ---------------------------- | ---------------------------------- |
-| `children` | `ReactNode`                             | required                     |                                    |
-| `labels`   | `{ confirm?: string; cancel?: string }` | `"Confirm"` / `"Cancel"`     | Provider-wide button text.         |
-| `initialFocus` | `"cancel" | "confirm"`             | `"cancel"`                   | Button focused on open. `"confirm"` makes Enter confirm straight away. |
+| Prop           | Type                                    | Default                  | Notes                                                                  |
+| -------------- | --------------------------------------- | ------------------------ | ---------------------------------------------------------------------- |
+| `children`     | `ReactNode`                             | required                 |                                                                        |
+| `labels`       | `{ confirm?: string; cancel?: string }` | `"Confirm"` / `"Cancel"` | Provider-wide button text.                                             |
+| `initialFocus` | `"cancel" \| "confirm"`                 | `"cancel"`               | Button focused on open. `"confirm"` makes Enter confirm straight away. |
 
 `useConfirm()` returns `(options: ConfirmOptions) => Promise<boolean>`.
 
