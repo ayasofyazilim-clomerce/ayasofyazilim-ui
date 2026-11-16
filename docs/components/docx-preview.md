@@ -30,6 +30,10 @@ export function WordPreview({ file }: { file: File }) {
 | `onError`   | `(error: unknown) => void`             | none      | Called when the file cannot be rendered (corrupt, or not a `.docx`).                    |
 | `className` | `string`                               | none      | Merged onto the scrolling container.                                                    |
 
+## Layout
+
+The component sets the docx wrapper to hug the page's natural width (no CSS needed from the consumer) and renders into a hidden, attached staging node so tab stops and page breaks are measured correctly.
+
 ## Status
 
 The component moves through `loading`, `ready` or `error` (exposed as `data-status` on the container). A render that finishes after `file` changed is discarded, so only the newest file's output is shown.

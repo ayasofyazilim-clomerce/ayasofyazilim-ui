@@ -44,7 +44,7 @@ export function DocxPreview({
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading"
+    "loading",
   );
   const text = { ...DEFAULT_LABELS, ...labels };
 
@@ -62,6 +62,12 @@ export function DocxPreview({
     const refit = () => {
       const wrap = body.querySelector<HTMLElement>(".docx-wrapper");
       if (!wrap) return;
+      // Make the wrapper hug the page's natural width (docx-preview's default is a
+      // centred, full-width flex column), so offsetWidth is the page, not the panel.
+      wrap.style.width = "max-content";
+      wrap.style.padding = "0";
+      wrap.style.background = "transparent";
+      wrap.style.alignItems = "flex-start";
       wrap.style.transform = "none";
       body.style.width = "";
       body.style.height = "";
@@ -76,8 +82,12 @@ export function DocxPreview({
       body.style.height = `${naturalH * scale}px`;
     };
 
-    // Render into a detached node so a stale render can never touch the visible body.
+    // Render into an attached but hidden staging node (docx-preview measures layout for tab
+    // stops and page breaks, which a detached node cannot do). A stale render only ever
+    // touches its own staging node, never the visible body.
     const target = document.createElement("div");
+    target.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;top:0;left:0;width:${stage.clientWidth}px`;
+    stage.appendChild(target);
     (async () => {
       try {
         const { renderAsync } = await import("docx-preview");
@@ -91,6 +101,7 @@ export function DocxPreview({
         });
         if (!isCurrent()) return;
         body.replaceChildren(...Array.from(target.childNodes));
+        target.remove();
         refit();
         setStatus("ready");
       } catch (error) {
@@ -108,6 +119,7 @@ export function DocxPreview({
     return () => {
       generation.current += 1;
       observer?.disconnect();
+      target.remove();
       body.replaceChildren();
     };
   }, [file, fit]);
@@ -115,7 +127,7 @@ export function DocxPreview({
   return (
     <div
       ref={stageRef}
-      className={cn("w-full overflow-auto p-3", className)}
+      className={cn("relative w-full overflow-auto p-3", className)}
       data-status={status}
     >
       {status !== "ready" && (

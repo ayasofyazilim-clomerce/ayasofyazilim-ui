@@ -104,7 +104,7 @@ describe("DocxPreview", () => {
     const onError = jest.fn();
     render(<DocxPreview file={bytes(1)} onError={onError} />);
     expect(
-      await screen.findByText("This document could not be previewed.")
+      await screen.findByText("This document could not be previewed."),
     ).toBeTruthy();
     expect(onError).toHaveBeenCalledWith(boom);
   });
@@ -137,6 +137,76 @@ describe("DocxPreview", () => {
   });
 });
 
+describe("DocxPreview fit", () => {
+  const restore: Array<() => void> = [];
+  function stub(
+    prop: "offsetWidth" | "offsetHeight" | "clientWidth",
+    fn: (el: HTMLElement) => number,
+  ) {
+    const orig =
+      Object.getOwnPropertyDescriptor(HTMLElement.prototype, prop) ??
+      Object.getOwnPropertyDescriptor(Element.prototype, prop);
+    Object.defineProperty(HTMLElement.prototype, prop, {
+      configurable: true,
+      get(this: HTMLElement) {
+        return fn(this);
+      },
+    });
+    restore.push(() => {
+      if (orig) Object.defineProperty(HTMLElement.prototype, prop, orig);
+      else
+        delete (HTMLElement.prototype as unknown as Record<string, unknown>)[
+          prop
+        ];
+    });
+  }
+  afterEach(() => restore.splice(0).forEach((r) => r()));
+
+  it("scales the page-width wrapper to the container and renders in an attached node", async () => {
+    let attachedDuringRender = false;
+    mockRenderAsync.mockImplementation(async (_b, container: HTMLElement) => {
+      attachedDuringRender = container.isConnected;
+      const wrap = document.createElement("div");
+      wrap.className = "docx-wrapper";
+      container.appendChild(wrap);
+    });
+    stub("offsetWidth", (el) =>
+      el.classList.contains("docx-wrapper") ? 1000 : 0,
+    );
+    stub("offsetHeight", (el) =>
+      el.classList.contains("docx-wrapper") ? 1400 : 0,
+    );
+    stub("clientWidth", () => 524);
+    const { container } = render(<DocxPreview file={bytes(1)} />);
+    await waitFor(() =>
+      expect(container.querySelector("[data-status=ready]")).not.toBeNull(),
+    );
+    expect(attachedDuringRender).toBe(true);
+    const wrap = container.querySelector<HTMLElement>(".docx-wrapper")!;
+    expect(wrap.style.transform).toBe("scale(0.5)");
+    expect(wrap.style.width).toBe("max-content");
+    expect(wrap.parentElement?.style.width).toBe("500px");
+    expect(wrap.parentElement?.style.height).toBe("700px");
+  });
+
+  it("does not scale with fit=none", async () => {
+    mockRenderAsync.mockImplementation(async (_b, c: HTMLElement) => {
+      const wrap = document.createElement("div");
+      wrap.className = "docx-wrapper";
+      c.appendChild(wrap);
+    });
+    stub("offsetWidth", () => 1000);
+    stub("clientWidth", () => 524);
+    const { container } = render(<DocxPreview file={bytes(1)} fit="none" />);
+    await waitFor(() =>
+      expect(container.querySelector("[data-status=ready]")).not.toBeNull(),
+    );
+    expect(
+      container.querySelector<HTMLElement>(".docx-wrapper")!.style.transform,
+    ).toBe("none");
+  });
+});
+
 describe("DocxRenderer", () => {
   it("is weight 1 for docx files", () => {
     expect(DocxRenderer.weight).toBe(1);
@@ -154,7 +224,7 @@ describe("DocxRenderer", () => {
       <DocumentViewer
         document={{ uri: "x.docx", fileType: "docx" }}
         renderers={[DocxRenderer]}
-      />
+      />,
     );
     expect(mockPluginRenderers[1]).toContain(DocxRenderer);
   });
