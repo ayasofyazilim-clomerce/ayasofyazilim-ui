@@ -20,6 +20,8 @@ export type ConfirmOptions = {
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: "default" | "destructive";
+  /** Overrides `ConfirmProviderProps.initialFocus` for this one call. */
+  initialFocus?: "cancel" | "confirm";
 };
 
 export type ConfirmProviderProps = {
@@ -83,7 +85,7 @@ export function ConfirmProvider({
         {options && (
           <AlertDialogContent
             onOpenAutoFocus={(event) => {
-              if (initialFocus !== "confirm") return;
+              if ((options.initialFocus ?? initialFocus) !== "confirm") return;
               event.preventDefault();
               confirmRef.current?.focus();
             }}
