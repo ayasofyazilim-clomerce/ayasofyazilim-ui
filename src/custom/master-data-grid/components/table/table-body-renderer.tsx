@@ -7,6 +7,7 @@ import { Button } from "../../../../components/button";
 import { TableBody, TableCell, TableRow } from "../../../../components/table";
 import { cn } from "../../../../lib/utils";
 import { GridRow } from "./grid-row";
+import type { RowEventsConfig } from "../../types";
 import type { TreeRowsRender } from "../../utils/tree-rows";
 import {
   getPinningCellClassNames,
@@ -37,6 +38,8 @@ interface TableBodyRendererProps<TData> {
   }) => React.ReactNode;
   /** Set only when the grid has tree rows (`subRows`). */
   tree?: TreeRowsRender;
+  /** Set only when the grid has row callbacks (`rowEvents`). */
+  rowEvents?: RowEventsConfig<TData>;
 }
 
 export function TableBodyRenderer<TData>({
@@ -56,6 +59,7 @@ export function TableBodyRenderer<TData>({
   hideGroupParentRows,
   groupFallbackRenderer,
   tree,
+  rowEvents,
 }: TableBodyRendererProps<TData>) {
   const groupValueSet = React.useMemo(() => {
     if (!hideGroupParentRows) return null;
@@ -233,6 +237,7 @@ export function TableBodyRenderer<TData>({
                   expansionEnabled={expansionEnabled}
                   expansionRenderContent={expansionRenderContent}
                   tree={tree}
+                  rowEvents={rowEvents}
                 />
               )}
             </React.Fragment>

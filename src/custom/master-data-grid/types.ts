@@ -360,6 +360,21 @@ export type SubRowsConfig<TData> = {
   labels?: { expand?: string; collapse?: string };
 };
 
+/**
+ * Opt-in row callbacks. Handlers attach to a row only when given, so a grid
+ * without `rowEvents` renders exactly as before.
+ */
+export type RowEventsConfig<TData> = {
+  /** Pointer enters a row: the row; pointer leaves it: `null`. */
+  onRowHover?: (row: TData | null) => void;
+  /**
+   * A click on a row. Not fired when the click starts inside `a`, `button`,
+   * `input`, `select`, `textarea`, `label`, `[role=checkbox]`,
+   * `[role=menuitem]` or `[data-row-click-ignore]`.
+   */
+  onRowClick?: (row: TData) => void;
+};
+
 /** A grid without tree rows: today's grid. */
 interface FlatRowsConfig {
   subRows?: undefined;
@@ -382,6 +397,8 @@ export type MasterDataGridConfig<TData = unknown> =
 
 /** Every MasterDataGridConfig option except the tree-row switch. */
 export interface MasterDataGridBaseConfig<TData = unknown> {
+  /** Opt-in row hover and click callbacks. */
+  rowEvents?: RowEventsConfig<TData>;
   schema: JSONSchema | GenericObjectType;
   columns?: ColumnConfig<TData>[];
 

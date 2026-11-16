@@ -11,6 +11,7 @@ export type {
   MasterDataGridProps,
   MasterDataGridConfig,
   SubRowsConfig,
+  RowEventsConfig,
   JSONSchema,
   JSONSchemaProperty,
   ColumnConfig,

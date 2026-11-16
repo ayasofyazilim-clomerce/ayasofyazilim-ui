@@ -1,4 +1,5 @@
 "use no memo";
+import type { RowEventsConfig } from "../../types";
 import type { Row } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
 import React from "react";
@@ -23,6 +24,38 @@ export interface GridRowProps<TData> {
   expansionRenderContent?: (row: TData) => React.ReactNode;
   /** Set only when the grid has tree rows (`subRows`). */
   tree?: TreeRowsRender;
+  /** Set only when the grid has row callbacks (`rowEvents`). */
+  rowEvents?: RowEventsConfig<TData>;
+}
+
+/** A click that starts inside one of these belongs to that control. */
+const ROW_CLICK_IGNORE =
+  "a, button, input, select, textarea, label, [role=checkbox], [role=menuitem], [data-row-click-ignore]";
+
+/** Handlers for a row, or none at all when no callback is given. */
+function rowEventProps<TData>(
+  original: TData,
+  rowEvents: RowEventsConfig<TData> | undefined
+): React.HTMLAttributes<HTMLTableRowElement> {
+  const props: React.HTMLAttributes<HTMLTableRowElement> = {};
+  const { onRowHover, onRowClick } = rowEvents ?? {};
+  if (onRowHover) {
+    props.onMouseEnter = () => onRowHover(original);
+    props.onMouseLeave = () => onRowHover(null);
+  }
+  if (onRowClick) {
+    props.onClick = (event) => {
+      const rowEl = event.currentTarget;
+      const target = event.target;
+      // React bubbles portalled content (menus, dialogs) through the row;
+      // those nodes are not inside it.
+      if (!(target instanceof Element) || !rowEl.contains(target)) return;
+      const hit = target.closest(ROW_CLICK_IGNORE);
+      if (hit && rowEl.contains(hit)) return;
+      onRowClick(original);
+    };
+  }
+  return props;
 }
 
 /** A data row plus its expansion row, shared by normal and virtual mode. */
@@ -37,12 +70,14 @@ export function GridRow<TData>({
   expansionEnabled,
   expansionRenderContent,
   tree,
+  rowEvents,
 }: GridRowProps<TData>) {
   const isVirtual = mode === "virtual";
   return (
     <>
       <TableRow
         data-state={row.getIsSelected() && "selected"}
+        {...rowEventProps(row.original, rowEvents)}
         className={cn(
           typeof rowClassName === "function"
             ? rowClassName(row.original)

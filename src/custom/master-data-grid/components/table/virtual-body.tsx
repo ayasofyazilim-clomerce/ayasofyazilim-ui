@@ -4,6 +4,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import React, { useRef } from "react";
 import { TableBody } from "../../../../components/table";
 import { GridRow } from "./grid-row";
+import type { RowEventsConfig } from "../../types";
 import type { TreeRowsRender } from "../../utils/tree-rows";
 
 interface VirtualBodyProps<TData> {
@@ -19,6 +20,8 @@ interface VirtualBodyProps<TData> {
   expansionRenderContent?: (row: TData) => React.ReactNode;
   /** Set only when the grid has tree rows (`subRows`). */
   tree?: TreeRowsRender;
+  /** Set only when the grid has row callbacks (`rowEvents`). */
+  rowEvents?: RowEventsConfig<TData>;
 }
 
 export function VirtualBody<TData>({
@@ -33,6 +36,7 @@ export function VirtualBody<TData>({
   expansionEnabled,
   expansionRenderContent,
   tree,
+  rowEvents,
 }: VirtualBodyProps<TData>) {
   const tableContainerRef = useRef<HTMLTableSectionElement>(null);
 
@@ -81,6 +85,7 @@ export function VirtualBody<TData>({
             expansionEnabled={expansionEnabled}
             expansionRenderContent={expansionRenderContent}
             tree={tree}
+            rowEvents={rowEvents}
           />
         );
       })}

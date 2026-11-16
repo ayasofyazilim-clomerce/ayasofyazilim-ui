@@ -160,6 +160,30 @@ How tree rows behave:
 - **Editing.** `editing.onRowSave` gets the edited row at any depth. `onDataChange` rewrites top-level rows only, because the grid cannot write into your `children`. Save a child's edits through `onRowSave`.
 - **Not with grouping or expansion detail rows.** `grouping.enabled` and `expansion.renderContent` both draw rows of their own and share one expanded state, so neither combines with `subRows`. The types refuse both combinations. A config that gets past the types logs one warning in development and renders as if `subRows` were absent.
 
+## Row events (`rowEvents`)
+
+Opt-in callbacks that report the row under the pointer. The handlers attach to a row only when you pass them, in normal and virtual mode, so a grid without `rowEvents` renders the same markup as before.
+
+```tsx
+<MasterDataGrid
+  data={rows}
+  config={{
+    schema,
+    rowEvents: {
+      onRowHover: (row) => setHovered(row), // row, or null when the pointer leaves
+      onRowClick: (row) => setSelected(row),
+    },
+  }}
+/>
+```
+
+| Option | Purpose |
+| --- | --- |
+| `onRowHover(row)` | Called with the row on mouse enter and with `null` on mouse leave. |
+| `onRowClick(row)` | Called when a row is clicked. |
+
+`onRowClick` is not called when the click starts inside `a`, `button`, `input`, `select`, `textarea`, `label`, `[role=checkbox]`, `[role=menuitem]` or `[data-row-click-ignore]`. Put `data-row-click-ignore` on any custom control that should keep its click to itself. With tree rows (`subRows`), a child row reports the child.
+
 ## Common mistakes
 
 - No `getRowId` when rows need stable identity (selection, expansion, editing across pages). Index-based ids shift when data changes.

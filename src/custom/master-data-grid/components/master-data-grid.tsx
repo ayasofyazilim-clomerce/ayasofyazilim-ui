@@ -615,6 +615,7 @@ function MasterDataGridView<TData = Record<string, unknown>>({
                   configWithDefaults.expansion?.renderContent
                 }
                 tree={tree}
+                rowEvents={configWithDefaults.rowEvents}
               />
               <GridFooter table={table} />
             </Table>
@@ -654,6 +655,7 @@ function MasterDataGridView<TData = Record<string, unknown>>({
                   configWithDefaults.grouping?.hideGroupParentRows
                 }
                 tree={tree}
+                rowEvents={configWithDefaults.rowEvents}
               />
               <GridFooter table={table} />
             </Table>
