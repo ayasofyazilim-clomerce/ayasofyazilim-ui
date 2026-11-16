@@ -212,14 +212,17 @@ function AppShellCommandMenu({
   groups,
   commands,
   labels,
+  onNavigate,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   groups: AppShellNavGroup[];
   commands: readonly AppShellCommand[];
   labels: Required<AppShellLabels>;
+  onNavigate?: (href: string) => void;
 }) {
-  const navigate = useAppShellNavigate();
+  const push = useAppShellNavigate();
+  const navigate = onNavigate ?? push;
   const commandGroups = React.useMemo(
     () => groupCommands(commands),
     [commands]
@@ -303,6 +306,7 @@ export function AppShell({
   defaultOpen,
   onOpenChange,
   isActive,
+  onNavigate,
   labels,
   className,
   classNames,
@@ -414,6 +418,7 @@ export function AppShell({
         groups={groups}
         commands={commands ?? NO_COMMANDS}
         labels={text}
+        onNavigate={onNavigate}
       />
     </SidebarProvider>
   );

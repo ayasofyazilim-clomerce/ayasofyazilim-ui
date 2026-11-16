@@ -110,6 +110,7 @@ export function Frame({
 | `defaultOpen`   | `boolean`                                     | `true`            | The sidebar's state on the first render, server included.                                                                                                                        |
 | `onOpenChange`  | `(open: boolean) => void`                     | none              | Called after each sidebar change, and also when the mobile sheet opens or closes (with the unchanged value). The library has already written the cookie.                         |
 | `isActive`      | `(href: string, pathname: string) => boolean` | `matchActiveHref` | Decides the highlighted item. Without it, the item whose `href` is the longest whole-segment prefix of the path is highlighted.                                                  |
+| `onNavigate`    | `(href: string) => void`                      | `router.push`     | Called with the `href` of a nav item chosen in ⌘K, in place of `router.push(href)`. Use it to ask before leaving a page with unsaved work. Commands and links do not call it.    |
 | `labels`        | `AppShellLabels`                              | English           | See below. Each key falls back to its own default.                                                                                                                               |
 | `className`     | `string`                                      | none              | Merged onto the outer wrapper.                                                                                                                                                   |
 | `classNames`    | `{ sidebar?, header?, main? }`                | none              | Merged onto the sidebar container, the `<header>` and the `<main>`.                                                                                                              |
@@ -136,13 +137,14 @@ Keyboard: ⌘K and Ctrl+K open the menu from anywhere, text fields included; the
 Also exported from the same path:
 
 - `matchActiveHref(hrefs, pathname)`: the default active-item rule. It returns the `href` (exactly as given) that is the longest whole-segment prefix of `pathname`, or `null`. `/playground` matches `/playground/x` but not `/playground-x`; query strings, hashes and trailing slashes are ignored; `/` matches only `/`.
-- `useAppShellNavigate()`: `(href) => router.push(href)`, the navigation the ⌘K menu uses.
+- `useAppShellNavigate()`: `(href) => router.push(href)`, the navigation the ⌘K menu uses when no `onNavigate` is given. An `onNavigate` that decides to go ahead calls it (or its own `router.push`).
 - The types `AppShellProps`, `AppShellNavGroup`, `AppShellNavItem`, `AppShellCommand`, `AppShellBreadcrumb` and `AppShellLabels`.
 
 ## Common mistakes
 
 - **Reading the wrong cookie.** The sidebar is named `app-shell`, so its state is in `sidebar_state_app-shell` (`"true"` or `"false"`). A missing cookie means open. Not passing it as `defaultOpen` makes a collapsed sidebar flash open on every load.
 - **Calling `matchActiveHref` from a Server Component through `@repo/ayasofyazilim-ui/custom/app-shell`.** That entry is a client module, so its non-component exports are client references on the server. Import it from `@repo/ayasofyazilim-ui/custom/app-shell/match-active-href` instead.
+- **Guarding only links against unsaved work.** The sidebar and breadcrumb are `<Link>`s, but a nav item chosen in ⌘K navigates with `router.push`, so no link is clicked. Pass `onNavigate` and ask there too, then navigate only when the user agrees.
 - **Expecting aliases to highlight on their own.** A route that should highlight another item (`/runs` for a Traces item) needs `isActive`.
 - **Binding ⌘K or Ctrl+K in a page.** The shell claims it on `document` and prevents the default, so a page's own binding fights it. Give the page another key.
 - **Passing the icon component instead of an element.** `icon={<PlayIcon />}`, not `icon={PlayIcon}`.

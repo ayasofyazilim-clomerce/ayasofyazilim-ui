@@ -59,6 +59,12 @@ export type AppShellProps = {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   isActive?: (href: string, pathname: string) => boolean;
+  /**
+   * Called with the `href` of a nav item chosen in the ⌘K menu, instead of
+   * `router.push(href)`. Lets the app ask before leaving (an unsaved draft).
+   * Sidebar and breadcrumb links are plain links and do not call it.
+   */
+  onNavigate?: (href: string) => void;
   labels?: AppShellLabels;
   className?: string;
   classNames?: { sidebar?: string; header?: string; main?: string };
