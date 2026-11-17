@@ -97,6 +97,7 @@ function focusOnlyRowProps<T = any>(
   const { onClick: callerOnClick, ...callerProps } = props;
   return {
     ...itemProps,
+    // Caller props win over getProps(), even an explicit undefined, role, tabIndex or ref.
     ...callerProps,
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
       item.setFocused();

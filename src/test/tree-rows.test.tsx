@@ -170,6 +170,34 @@ describe('TreeItem clickBehavior="focus"', () => {
     expect(screen.queryByRole("treeitem", { name: "Beta one" })).toBeNull();
     await waitFor(() => expect(row("Beta")).toHaveFocus());
   });
+
+  it("keeps the arrow keys: Right opens a focused folder, Left closes it", async () => {
+    const user = userEvent.setup();
+    let tree: TreeInstance<Node> | undefined;
+    render(
+      <Harness
+        mode="focus"
+        onTree={(t) => {
+          tree = t;
+        }}
+      />
+    );
+
+    await user.click(row("Alpha"));
+    await waitFor(() => expect(row("Alpha")).toHaveFocus());
+    expect(row("Alpha")).toHaveAttribute("aria-expanded", "false");
+
+    await user.keyboard("{ArrowRight}");
+
+    expect(row("Alpha")).toHaveAttribute("aria-expanded", "true");
+    expect(row("Alpha one")).toBeInTheDocument();
+    expect(tree?.getState().focusedItem).toBe("a");
+
+    await user.keyboard("{ArrowLeft}");
+
+    expect(row("Alpha")).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("treeitem", { name: "Alpha one" })).toBeNull();
+  });
 });
 
 describe("TreeDragHandle", () => {
