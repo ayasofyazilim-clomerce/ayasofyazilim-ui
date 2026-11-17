@@ -86,7 +86,7 @@ describe.each([
       rowEvents: { onRowClick },
     });
     await user.click(
-      document.querySelector<HTMLElement>("tbody tr td:last-child button")!,
+      document.querySelector<HTMLElement>("tbody tr td:last-child button")!
     );
     expect(onClick).toHaveBeenCalled();
     expect(onRowClick).not.toHaveBeenCalled();
@@ -163,7 +163,7 @@ describe.each([
   it("attaches nothing without rowEvents", () => {
     render({ ...extra });
     expect(cellOf("Alpha").closest("tr")!.className).not.toMatch(
-      /cursor-pointer/,
+      /cursor-pointer/
     );
   });
 });
