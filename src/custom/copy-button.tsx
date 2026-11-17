@@ -8,7 +8,10 @@ import React from "react";
 
 export type CopyLabels = { copy?: string; copied?: string };
 
-export type CopyButtonProps = Omit<ButtonProps, "onClick" | "onCopy" | "children"> & {
+export type CopyButtonProps = Omit<
+  ButtonProps,
+  "onClick" | "onCopy" | "children"
+> & {
   value: string;
   labels?: CopyLabels;
   onCopy?: (ok: boolean) => void;
@@ -27,6 +30,12 @@ export function CopyButton({
   const label = copied
     ? (labels?.copied ?? "Copied")
     : (labels?.copy ?? "Copy");
+  // `onClick` is not part of the props type, but a Radix `asChild` parent
+  // (TooltipTrigger, Popover trigger, ...) clones this element with one. Run
+  // it first so the parent's handler is not dropped by ours.
+  const { onClick: parentOnClick } = props as {
+    onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  };
   return (
     <Button
       type="button"
@@ -36,7 +45,8 @@ export function CopyButton({
       {...props}
       aria-label={label}
       title={label}
-      onClick={async () => {
+      onClick={async (event) => {
+        parentOnClick?.(event);
         const ok = await copy(value);
         onCopy?.(ok);
       }}
@@ -57,6 +67,21 @@ export type CopyableTextProps = {
   onCopy?: (ok: boolean) => void;
   className?: string;
   classNames?: { container?: string; text?: string; button?: string };
+  /**
+   * Replaces the copy button with whatever this returns. It receives the
+   * library's own `CopyButton`, already built with the value, labels,
+   * `onCopy` and `classNames.button`.
+   *
+   * - Wrap it to add behaviour while keeping the button, for example a
+   *   tooltip (the button forwards `ref` and the props a Radix `asChild`
+   *   trigger merges in):
+   *   `renderButton={(button) => <Tooltip><TooltipTrigger asChild>{button}</TooltipTrigger><TooltipContent>Click to copy</TooltipContent></Tooltip>}`
+   * - Ignore the argument and return your own element to use a different
+   *   button; the default one is then not rendered.
+   *
+   * When omitted, the default button is rendered unchanged.
+   */
+  renderButton?: (button: React.ReactElement) => React.ReactNode;
 };
 
 export function CopyableText({
@@ -66,25 +91,29 @@ export function CopyableText({
   onCopy,
   className,
   classNames,
+  renderButton,
 }: CopyableTextProps) {
+  const button = (
+    <CopyButton
+      value={value}
+      labels={labels}
+      onCopy={onCopy}
+      size="icon"
+      className={cn("size-6 shrink-0", classNames?.button)}
+    />
+  );
   return (
     <span
       className={cn(
         "bg-muted inline-flex max-w-full items-center gap-1 rounded-md border py-0.5 pl-2 pr-0.5",
         className,
-        classNames?.container
+        classNames?.container,
       )}
     >
       <code className={cn("truncate font-mono text-xs", classNames?.text)}>
         {children ?? value}
       </code>
-      <CopyButton
-        value={value}
-        labels={labels}
-        onCopy={onCopy}
-        size="icon"
-        className={cn("size-6 shrink-0", classNames?.button)}
-      />
+      {renderButton ? renderButton(button) : button}
     </span>
   );
 }

@@ -1,6 +1,8 @@
+import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CopyButton, CopyableText } from "../custom/copy-button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../components/tooltip";
 
 const original = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
@@ -29,7 +31,7 @@ describe("CopyButton clipboard behaviour", () => {
 
     expect(writeText).toHaveBeenCalledWith("abc-123");
     expect(screen.getByRole("button").getAttribute("aria-label")).toBe(
-      "Copied"
+      "Copied",
     );
     expect(onCopy).toHaveBeenCalledWith(true);
   });
@@ -45,7 +47,7 @@ describe("CopyButton clipboard behaviour", () => {
       await jest.advanceTimersByTimeAsync(0);
     });
     expect(screen.getByRole("button").getAttribute("aria-label")).toBe(
-      "Copied"
+      "Copied",
     );
 
     act(() => {
@@ -81,7 +83,9 @@ describe("CopyButton clipboard behaviour", () => {
   it("labels override", async () => {
     const user = userEvent.setup();
     setClipboard({ writeText: jest.fn().mockResolvedValue(undefined) });
-    render(<CopyButton value="x" labels={{ copy: "Kopyala", copied: "Tamam" }} />);
+    render(
+      <CopyButton value="x" labels={{ copy: "Kopyala", copied: "Tamam" }} />,
+    );
 
     const button = screen.getByRole("button", { name: "Kopyala" });
     await user.click(button);
@@ -105,5 +109,71 @@ describe("CopyableText", () => {
   it("shows value when no children", () => {
     render(<CopyableText value="only-value" />);
     expect(screen.getByText("only-value")).toBeTruthy();
+  });
+});
+
+describe("CopyableText renderButton", () => {
+  it("renders the default button when renderButton is absent", () => {
+    const { container } = render(<CopyableText value="id-1" />);
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveAttribute("aria-label", "Copy");
+    expect(buttons[0]).toHaveAttribute("title", "Copy");
+    expect(container.querySelector("span")!.lastElementChild).toBe(buttons[0]);
+  });
+
+  it("keeps one copy button, still copies, and shows the tooltip on focus", async () => {
+    const user = userEvent.setup();
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    setClipboard({ writeText });
+    render(
+      <CopyableText
+        value="id-1"
+        renderButton={(button) => (
+          <Tooltip>
+            <TooltipTrigger asChild>{button}</TooltipTrigger>
+            <TooltipContent>id-1 - Click to copy</TooltipContent>
+          </Tooltip>
+        )}
+      />,
+    );
+
+    const button = screen.getByRole("button", { name: "Copy" });
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+    // The Radix trigger merged its props into the library button.
+    expect(button).toHaveAttribute("data-slot", "tooltip-trigger");
+    expect(button).toHaveAttribute("data-state");
+
+    expect(screen.queryByText("id-1 - Click to copy")).toBeNull();
+    act(() => button.focus());
+    expect(
+      (await screen.findAllByText("id-1 - Click to copy")).length,
+    ).toBeGreaterThan(0);
+
+    await user.click(button);
+    expect(writeText).toHaveBeenCalledWith("id-1");
+    expect(screen.getByRole("button")).toBe(button);
+  });
+
+  it("hands the button its ref", () => {
+    const ref = jest.fn();
+    render(
+      <CopyableText
+        value="id-1"
+        renderButton={(button) => React.cloneElement(button, { ref } as never)}
+      />,
+    );
+    expect(ref).toHaveBeenCalledWith(screen.getByRole("button"));
+  });
+
+  it("renders a different element instead of the default button", () => {
+    render(
+      <CopyableText
+        value="id-1"
+        renderButton={() => <a href="#x">custom</a>}
+      />,
+    );
+    expect(screen.getByText("custom")).toBeTruthy();
+    expect(screen.queryByRole("button")).toBeNull();
   });
 });
