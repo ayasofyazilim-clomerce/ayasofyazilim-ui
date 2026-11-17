@@ -122,6 +122,11 @@ export function GridRow<TData>({
             return (
               <TableCell
                 key={cell.id}
+                data-row-click-ignore={
+                  cell.column.id === "select" || cell.column.id === "actions"
+                    ? true
+                    : undefined
+                }
                 style={getPinningCellStyles(cell)}
                 className={cn(
                   cellClass,
@@ -148,10 +153,15 @@ export function GridRow<TData>({
               return pv != null && pv !== "null" && pv !== "";
             })();
 
-          const isSelectionRow = cell.getContext().cell.column.id === "select";
+          const columnId = cell.getContext().cell.column.id;
+          const isSelectionRow = columnId === "select";
+          // The padding around a control belongs to it, not to the row.
+          const ignoresRowClick =
+            isSelectionRow || columnId === "actions" ? true : undefined;
           return (
             <TableCell
               key={cell.id}
+              data-row-click-ignore={ignoresRowClick}
               style={getPinningCellStyles(cell)}
               className={cn(
                 cellClass,

@@ -385,10 +385,17 @@ export function useColumns<TData>({
             // One row set (the page's selectable rows at every depth) drives
             // checked, disabled and the toggle; see selectablePageTreeRows.
             const rows = selectablePageTreeRows(table);
+            const selectedCount = rows.filter((row) =>
+              row.getIsSelected()
+            ).length;
             return (
               <Checkbox
                 checked={
-                  rows.length > 0 && rows.every((row) => row.getIsSelected())
+                  rows.length > 0 && selectedCount === rows.length
+                    ? true
+                    : selectedCount > 0
+                      ? "indeterminate"
+                      : false
                 }
                 disabled={rows.length === 0}
                 onCheckedChange={(value) =>
@@ -406,7 +413,13 @@ export function useColumns<TData>({
           }
           return (
             <Checkbox
-              checked={table.getIsAllPageRowsSelected()}
+              checked={
+                table.getIsAllPageRowsSelected()
+                  ? true
+                  : table.getIsSomePageRowsSelected()
+                    ? "indeterminate"
+                    : false
+              }
               // Without this the select-all box stays lit while every row
               // underneath it is unselectable, so pressing it does nothing.
               disabled={

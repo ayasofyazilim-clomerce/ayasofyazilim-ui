@@ -86,7 +86,7 @@ describe.each([
       rowEvents: { onRowClick },
     });
     await user.click(
-      document.querySelector<HTMLElement>("tbody tr td:last-child button")!
+      document.querySelector<HTMLElement>("tbody tr td:last-child button")!,
     );
     expect(onClick).toHaveBeenCalled();
     expect(onRowClick).not.toHaveBeenCalled();
@@ -114,6 +114,33 @@ describe.each([
     expect(onRowClick).not.toHaveBeenCalled();
   });
 
+  it("ignores a click on the select cell and the actions cell, but not a data cell", async () => {
+    const user = userEvent.setup();
+    const onRowClick = jest.fn();
+    render({
+      ...extra,
+      selection: { enabled: true },
+      rowActions: [
+        { id: "edit", label: "Edit", icon: Pencil, onClick: jest.fn() },
+      ],
+      rowActionsDisplay: "inline",
+      rowEvents: { onRowClick },
+    });
+    const row = cellOf("Beta").closest("tr")!;
+    const selectCell = row.querySelector("td:first-child")!;
+    const actionsCell = row.querySelector("td:last-child")!;
+    expect(selectCell).toHaveAttribute("data-row-click-ignore");
+    expect(actionsCell).toHaveAttribute("data-row-click-ignore");
+
+    await user.click(selectCell);
+    await user.click(actionsCell);
+    expect(onRowClick).not.toHaveBeenCalled();
+
+    await user.click(cellOf("Beta"));
+    expect(onRowClick).toHaveBeenCalledTimes(1);
+    expect(onRowClick).toHaveBeenCalledWith(b);
+  });
+
   it("reports a child row when tree rows are on", async () => {
     const user = userEvent.setup();
     const onRowHover = jest.fn();
@@ -136,7 +163,7 @@ describe.each([
   it("attaches nothing without rowEvents", () => {
     render({ ...extra });
     expect(cellOf("Alpha").closest("tr")!.className).not.toMatch(
-      /cursor-pointer/
+      /cursor-pointer/,
     );
   });
 });
