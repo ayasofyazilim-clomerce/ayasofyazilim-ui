@@ -41,6 +41,15 @@ const tree = useTree<Node>({
 
 ## Props
 
+### `Tree`
+
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `tree` | `TreeInstance<T>` | none | The instance from `useTree`. Its container props (`role="tree"`, the keyboard and drop handlers, `position: relative`) are merged onto the element. |
+| `indent` | `number` | `20` | Pixels per level, published as `--tree-indent`. |
+| `aria-label` | `string` | none | The tree's accessible name. It is handed to `tree.getContainerProps()`, which would otherwise set an empty one over it. |
+| other HTML attributes | | | Passed to the element. The container props win, except `className`, which is merged. |
+
 ### `TreeItem`
 
 | Prop | Type | Default | Notes |
@@ -63,6 +72,8 @@ A `<span role="button">` grip that drags its row.
 | `label` | `string` | required | Accessible name, e.g. `t("Move {0}", name)`. There is no English default: pass a translated string. |
 | `disabled` | `boolean` | `false` | No `draggable`, no keyboard drag, `aria-disabled="true"`, out of the tab order. |
 | `className` | `string` | none | Merged onto the grip. |
+| `title` | `string` | none | A tooltip, e.g. the same translated text as `label`. |
+| `aria-describedby` | `string` | none | The id of an element that explains the keyboard move (Enter, the arrow keys, Escape). |
 | `children` | `ReactNode` | a vertical grip icon | The grip's content. |
 
 - It spreads `item.getDragHandleProps()` (`draggable`, `onDragStart`, `onDragEnd`), so it is a drag source only when the tree has `seperateDragHandle: true` (otherwise the whole row is one as well).

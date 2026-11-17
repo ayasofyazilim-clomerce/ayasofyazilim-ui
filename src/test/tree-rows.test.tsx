@@ -42,6 +42,8 @@ function Harness({
   expanded = [],
   onRowClick,
   handleDisabled = false,
+  gripTitle,
+  gripDescribedBy,
   onDrop,
   onTree,
 }: {
@@ -49,6 +51,8 @@ function Harness({
   expanded?: string[];
   onRowClick?: (id: string) => void;
   handleDisabled?: boolean;
+  gripTitle?: string;
+  gripDescribedBy?: string;
   onDrop?: (items: ItemInstance<Node>[], target: DragTarget<Node>) => void;
   onTree?: (tree: TreeInstance<Node>) => void;
 }) {
@@ -103,6 +107,8 @@ function Harness({
                 item={item}
                 label={`Move ${item.getItemName()}`}
                 disabled={handleDisabled}
+                title={gripTitle}
+                aria-describedby={gripDescribedBy}
               />
               <span>{item.getItemName()}</span>
             </div>
@@ -116,6 +122,14 @@ function Harness({
 function row(name: string) {
   return screen.getByRole("treeitem", { name });
 }
+
+describe("Tree", () => {
+  it("names the tree with the aria-label it is given", () => {
+    render(<Harness />);
+
+    expect(screen.getByRole("tree", { name: "Fields" })).toBeInTheDocument();
+  });
+});
 
 describe("TreeItem without clickBehavior (unchanged)", () => {
   it("toggles a folder on click and keeps getProps() winning over the caller", async () => {
@@ -253,6 +267,23 @@ describe("TreeDragHandle", () => {
     expect(tree?.getState().dnd?.draggedItems?.map((i) => i.getId())).toEqual([
       "a2",
     ]);
+  });
+
+  it("passes a title and a description to the grip", () => {
+    render(
+      <>
+        <span id="grip-help">Press Enter to move</span>
+        <Harness
+          mode="focus"
+          gripDescribedBy="grip-help"
+          gripTitle="Drag to reorder"
+        />
+      </>
+    );
+
+    const grip = screen.getByRole("button", { name: "Move Alpha" });
+    expect(grip).toHaveAttribute("title", "Drag to reorder");
+    expect(grip).toHaveAccessibleDescription("Press Enter to move");
   });
 
   it("is neither draggable nor keyboard-startable when disabled", async () => {

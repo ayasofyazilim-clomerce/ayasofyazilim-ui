@@ -37,9 +37,11 @@ interface TreeProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 function Tree({ indent = 20, tree, className, ...props }: TreeProps) {
+  // headless-tree sets the container's aria-label from its argument ("" without one), which would
+  // otherwise replace the caller's aria-label.
   const containerProps =
     tree && typeof tree.getContainerProps === "function"
-      ? tree.getContainerProps()
+      ? tree.getContainerProps(props["aria-label"])
       : {};
   const mergedProps = { ...props, ...containerProps };
 
@@ -249,6 +251,10 @@ interface TreeDragHandleProps<T = any> {
   /** Not draggable and no keyboard drag. */
   disabled?: boolean;
   className?: string;
+  /** A tooltip for the grip, e.g. the same text as `label`. */
+  title?: string;
+  /** The id of an element that describes how to move a row with the keyboard. */
+  "aria-describedby"?: string;
   /** The grip's content; a vertical grip icon by default. */
   children?: React.ReactNode;
 }
@@ -266,6 +272,8 @@ function TreeDragHandle<T = any>({
   label,
   disabled = false,
   className,
+  title,
+  "aria-describedby": describedBy,
   children,
 }: TreeDragHandleProps<T>) {
   const handleProps =
@@ -295,6 +303,8 @@ function TreeDragHandle<T = any>({
       role="button"
       tabIndex={disabled ? -1 : 0}
       aria-label={label}
+      aria-describedby={describedBy}
+      title={title}
       aria-disabled={disabled || undefined}
       data-disabled={disabled || undefined}
       className={cn(
