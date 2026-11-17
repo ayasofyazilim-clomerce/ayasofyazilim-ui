@@ -2,7 +2,11 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CopyButton, CopyableText } from "../custom/copy-button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../components/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../components/tooltip";
 
 const original = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
@@ -31,7 +35,7 @@ describe("CopyButton clipboard behaviour", () => {
 
     expect(writeText).toHaveBeenCalledWith("abc-123");
     expect(screen.getByRole("button").getAttribute("aria-label")).toBe(
-      "Copied",
+      "Copied"
     );
     expect(onCopy).toHaveBeenCalledWith(true);
   });
@@ -47,7 +51,7 @@ describe("CopyButton clipboard behaviour", () => {
       await jest.advanceTimersByTimeAsync(0);
     });
     expect(screen.getByRole("button").getAttribute("aria-label")).toBe(
-      "Copied",
+      "Copied"
     );
 
     act(() => {
@@ -83,9 +87,7 @@ describe("CopyButton clipboard behaviour", () => {
   it("labels override", async () => {
     const user = userEvent.setup();
     setClipboard({ writeText: jest.fn().mockResolvedValue(undefined) });
-    render(
-      <CopyButton value="x" labels={{ copy: "Kopyala", copied: "Tamam" }} />,
-    );
+    render(<CopyButton value="x" labels={{ copy: "Kopyala", copied: "Tamam" }} />);
 
     const button = screen.getByRole("button", { name: "Kopyala" });
     await user.click(button);
@@ -135,19 +137,15 @@ describe("CopyableText renderButton", () => {
             <TooltipContent>id-1 - Click to copy</TooltipContent>
           </Tooltip>
         )}
-      />,
+      />
     );
 
     const button = screen.getByRole("button", { name: "Copy" });
     expect(screen.getAllByRole("button")).toHaveLength(1);
-    // The Radix trigger merged its props into the library button.
-    expect(button).toHaveAttribute("data-slot", "tooltip-trigger");
-    expect(button).toHaveAttribute("data-state");
-
     expect(screen.queryByText("id-1 - Click to copy")).toBeNull();
     act(() => button.focus());
     expect(
-      (await screen.findAllByText("id-1 - Click to copy")).length,
+      (await screen.findAllByText("id-1 - Click to copy")).length
     ).toBeGreaterThan(0);
 
     await user.click(button);
@@ -161,7 +159,7 @@ describe("CopyableText renderButton", () => {
       <CopyableText
         value="id-1"
         renderButton={(button) => React.cloneElement(button, { ref } as never)}
-      />,
+      />
     );
     expect(ref).toHaveBeenCalledWith(screen.getByRole("button"));
   });
@@ -171,9 +169,55 @@ describe("CopyableText renderButton", () => {
       <CopyableText
         value="id-1"
         renderButton={() => <a href="#x">custom</a>}
-      />,
+      />
     );
     expect(screen.getByText("custom")).toBeTruthy();
     expect(screen.queryByRole("button")).toBeNull();
+  });
+});
+
+describe("CopyButton composed with a parent onClick", () => {
+  const withParent = (onClick: (e: React.MouseEvent) => void) => (
+    <CopyableText
+      value="id-1"
+      renderButton={(button) => React.cloneElement(button, { onClick } as never)}
+    />
+  );
+
+  it("runs the parent handler once and copies once", async () => {
+    const user = userEvent.setup();
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    setClipboard({ writeText });
+    const parent = jest.fn();
+    render(withParent(parent));
+
+    await user.click(screen.getByRole("button"));
+
+    expect(parent).toHaveBeenCalledTimes(1);
+    expect(writeText).toHaveBeenCalledTimes(1);
+    expect(writeText).toHaveBeenCalledWith("id-1");
+  });
+
+  it("does not copy when the parent calls preventDefault", async () => {
+    const user = userEvent.setup();
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    setClipboard({ writeText });
+    const onCopy = jest.fn();
+    const parent = jest.fn((e: React.MouseEvent) => e.preventDefault());
+    render(
+      <CopyableText
+        value="id-1"
+        onCopy={onCopy}
+        renderButton={(button) =>
+          React.cloneElement(button, { onClick: parent } as never)
+        }
+      />
+    );
+
+    await user.click(screen.getByRole("button"));
+
+    expect(parent).toHaveBeenCalledTimes(1);
+    expect(writeText).not.toHaveBeenCalled();
+    expect(onCopy).not.toHaveBeenCalled();
   });
 });

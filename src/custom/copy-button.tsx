@@ -8,10 +8,7 @@ import React from "react";
 
 export type CopyLabels = { copy?: string; copied?: string };
 
-export type CopyButtonProps = Omit<
-  ButtonProps,
-  "onClick" | "onCopy" | "children"
-> & {
+export type CopyButtonProps = Omit<ButtonProps, "onClick" | "onCopy" | "children"> & {
   value: string;
   labels?: CopyLabels;
   onCopy?: (ok: boolean) => void;
@@ -32,7 +29,8 @@ export function CopyButton({
     : (labels?.copy ?? "Copy");
   // `onClick` is not part of the props type, but a Radix `asChild` parent
   // (TooltipTrigger, Popover trigger, ...) clones this element with one. Run
-  // it first so the parent's handler is not dropped by ours.
+  // it first so the parent's handler is not dropped by ours, and honour its
+  // preventDefault (Radix's composeEventHandlers convention) by not copying.
   const { onClick: parentOnClick } = props as {
     onClick?: React.MouseEventHandler<HTMLButtonElement>;
   };
@@ -47,6 +45,7 @@ export function CopyButton({
       title={label}
       onClick={async (event) => {
         parentOnClick?.(event);
+        if (event.defaultPrevented) return;
         const ok = await copy(value);
         onCopy?.(ok);
       }}
@@ -107,7 +106,7 @@ export function CopyableText({
       className={cn(
         "bg-muted inline-flex max-w-full items-center gap-1 rounded-md border py-0.5 pl-2 pr-0.5",
         className,
-        classNames?.container,
+        classNames?.container
       )}
     >
       <code className={cn("truncate font-mono text-xs", classNames?.text)}>
