@@ -361,8 +361,10 @@ export type SubRowsConfig<TData> = {
 };
 
 /**
- * Opt-in row callbacks. Handlers attach to a row only when given, so a grid
- * without `rowEvents` renders exactly as before.
+ * Opt-in row callbacks. Handlers, and the `data-row-click-ignore` mark on the
+ * select and actions cells, attach only when given, so a grid without
+ * `rowEvents` adds no handlers or attributes. (The tri-state select-all
+ * checkbox is a separate, default change.)
  */
 export type RowEventsConfig<TData> = {
   /** Pointer enters a row: the row; pointer leaves it: `null`. */

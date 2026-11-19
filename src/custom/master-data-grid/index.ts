@@ -10,6 +10,7 @@ export type { GridUrlParams } from "./utils/grid-url-params";
 export type {
   MasterDataGridProps,
   MasterDataGridConfig,
+  MasterDataGridBaseConfig,
   SubRowsConfig,
   RowEventsConfig,
   JSONSchema,

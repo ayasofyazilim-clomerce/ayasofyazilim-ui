@@ -129,7 +129,8 @@ export function GridRow<TData>({
               <TableCell
                 key={cell.id}
                 data-row-click-ignore={
-                  cell.column.id === "select" || cell.column.id === "actions"
+                  rowEvents?.onRowClick &&
+                  (cell.column.id === "select" || cell.column.id === "actions")
                     ? true
                     : undefined
                 }
@@ -157,7 +158,9 @@ export function GridRow<TData>({
           const isSelectionRow = columnId === "select";
           // The padding around a control belongs to it, not to the row.
           const ignoresRowClick =
-            isSelectionRow || columnId === "actions" ? true : undefined;
+            rowEvents?.onRowClick && (isSelectionRow || columnId === "actions")
+              ? true
+              : undefined;
           return (
             <TableCell
               key={cell.id}

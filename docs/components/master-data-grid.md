@@ -106,6 +106,15 @@ Prefix every grid on a shared page: `urlState: { prefix: "a" }`, `{ prefix: "b" 
 - Prefix mode starts on, and follows, the URL's page, including Back and Forward.
 - A filter change returns that grid to page 1.
 
+## Changed defaults
+
+Two default changes apply to every grid, with or without the new options:
+
+- **Tri-state select-all.** The header checkbox shows an indeterminate state (a dash) when some, but not all, selectable rows on the page are selected.
+- **Checkbox styling.** `Checkbox` gains a `group` class and `data-[state=indeterminate]` styles to draw that state. The checked look is unchanged.
+
+`src/test/master-data-grid-unchanged-markup.test.tsx` pins the resulting markup.
+
 ## Default mode is unchanged
 
 Default mode (no `urlState`) is kept exactly as before, including two known behaviours:
@@ -121,7 +130,7 @@ In every mode, after a filter that returns zero rows, `emptyComponent` replaces 
 
 ## Tree rows (`subRows`)
 
-With `subRows`, a row may carry child rows of the same shape. They are drawn under it, indented, with a toggle in one column. A grid without `subRows` is unchanged: `src/test/master-data-grid-unchanged-markup.test.tsx` pins its markup.
+With `subRows`, a row may carry child rows of the same shape. They are drawn under it, indented, with a toggle in one column. A grid without `subRows` renders the same rows as before (apart from the checkbox change listed under "Changed defaults"): `src/test/master-data-grid-unchanged-markup.test.tsx` pins its markup.
 
 ```tsx
 <MasterDataGrid
@@ -163,7 +172,7 @@ How tree rows behave:
 
 ## Row events (`rowEvents`)
 
-Opt-in callbacks that report the row under the pointer. The handlers attach to a row only when you pass them, in normal and virtual mode, so a grid without `rowEvents` renders the same markup as before.
+Opt-in callbacks that report the row under the pointer. The handlers attach to a row only when you pass them, in normal and virtual mode, so a grid without `rowEvents` gets no handlers and no `data-row-click-ignore` attributes. The select and actions cells carry `data-row-click-ignore` only when `onRowClick` is given.
 
 ```tsx
 <MasterDataGrid
