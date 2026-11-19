@@ -215,7 +215,7 @@ A TanStack row object is reused while its selection or expansion changes inside 
 
 **What is not tracked:** anything a cell reads through `getContext().table` (another column's state, other rows, the global filter, `table.getState()`), column facets (`getFacetedUniqueValues` and the like), refs and module variables. A cell that renders from any of these is not re-rendered when it changes: do not use `memoizeRows` with such cells. React state or context a cell subscribes to is fine: a context change re-renders its readers whatever the memo says.
 
-**Callbacks a skipped row does not call again.** These run while a row draws, so for a row the memo skips they are not called at all. Each must return the same thing for the same row, or change identity (which rebuilds the columns and re-renders every row) when what it returns changes:
+**Callbacks a skipped row does not call again.** These run while a row draws, so for a row the memo skips they are not called at all. Each must return the same thing for the same row, or its containing object must be a new one when what it returns changes: a new `rowActions` array, `editing` object, `expansion` object or `customRenderers` object rebuilds the columns and re-renders every row, whereas a new function inside an unchanged object does not, and the memoized rows keep what they drew:
 
 - `rowActions[].hidden`, `rowActions[].disabled`, `rowActions[].label` and `rowActions[].render`;
 - `editing.isRowEditable`;
