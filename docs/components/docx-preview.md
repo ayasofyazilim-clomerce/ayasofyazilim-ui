@@ -32,7 +32,7 @@ export function WordPreview({ file }: { file: File }) {
 
 ## Layout
 
-The component sets the docx wrapper to hug the page's natural width (no CSS needed from the consumer) and renders into a hidden, attached staging node so tab stops and page breaks are measured correctly.
+The component sets the docx wrapper to hug the page's natural width (no CSS needed from the consumer) and renders into a hidden, attached staging node so the page's natural size and its page breaks are measured correctly. Word tab stops are not laid out: `docx-preview`'s `experimental` option is off, so each tab renders as a fixed-width space and tab-aligned text (columns of figures, leader dots) can sit differently from Word.
 
 ## Status
 
