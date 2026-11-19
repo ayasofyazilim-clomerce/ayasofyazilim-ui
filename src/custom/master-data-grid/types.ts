@@ -399,6 +399,17 @@ export type MasterDataGridConfig<TData = unknown> =
 export interface MasterDataGridBaseConfig<TData = unknown> {
   /** Opt-in row hover and click callbacks. */
   rowEvents?: RowEventsConfig<TData>;
+  /**
+   * Opt-in: a body row re-renders only when something it draws changes (its
+   * row object, its selection and expansion state, its depth, its resolved
+   * `rowClassName` and `cellClassName`, the column set, order, visibility,
+   * pinning and sizes, its editing state, the `rowEvents` handlers and the
+   * `subRows` options). Default false: every row re-renders with the grid, as
+   * before. Cells must render from their row and column and from React state
+   * or context; see "Memoized rows" in docs/components/master-data-grid.md
+   * for the inputs to keep stable.
+   */
+  memoizeRows?: boolean;
   schema: JSONSchema | GenericObjectType;
   columns?: ColumnConfig<TData>[];
 

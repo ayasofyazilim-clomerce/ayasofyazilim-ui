@@ -9,6 +9,15 @@ import {
   getPinningCellClassNames,
   getPinningCellStyles,
 } from "../../utils/pinning-utils";
+import {
+  editingRowId,
+  isGroupedChild as isGroupedChildRow,
+  resolveCellClass,
+  resolveRowClass,
+  sameRenderState,
+  sameTree,
+  type RowRenderState,
+} from "../../utils/row-memo";
 import type { TreeRowsRender } from "../../utils/tree-rows";
 import { TreeCell } from "./tree-cell";
 
@@ -26,6 +35,12 @@ export interface GridRowProps<TData> {
   tree?: TreeRowsRender;
   /** Set only when the grid has row callbacks (`rowEvents`). */
   rowEvents?: RowEventsConfig<TData>;
+  /**
+   * Set only with `memoizeRows`: what the body resolved for this render (see
+   * rowRenderState). The row and cell classes are drawn from it, so what the
+   * memo compared is what is drawn.
+   */
+  renderState?: RowRenderState;
 }
 
 /** A click that starts inside one of these belongs to that control. */
@@ -71,6 +86,7 @@ export function GridRow<TData>({
   expansionRenderContent,
   tree,
   rowEvents,
+  renderState,
 }: GridRowProps<TData>) {
   const isVirtual = mode === "virtual";
   return (
@@ -79,28 +95,18 @@ export function GridRow<TData>({
         data-state={row.getIsSelected() && "selected"}
         {...rowEventProps(row.original, rowEvents)}
         className={cn(
-          typeof rowClassName === "function"
-            ? rowClassName(row.original)
-            : rowClassName,
+          renderState
+            ? renderState.rowClass
+            : resolveRowClass(rowClassName, row.original),
           "group"
         )}
       >
         {row.getVisibleCells().map((cell, index) => {
-          const cellClass =
-            typeof cellClassName === "function"
-              ? cellClassName({
-                  row: row.original,
-                  columnId: cell.column.id,
-                })
-              : cellClassName;
+          const cellClass = renderState
+            ? renderState.cellClasses[index]
+            : resolveCellClass(cellClassName, row.original, cell.column.id);
 
-          // `row.index` counts within the parent, so a tree row is keyed by
-          // its id, which is unique at every depth.
-          const rowId = tree
-            ? row.id
-            : getRowId
-              ? getRowId(row.original, row.index)
-              : String(row.index);
+          const rowId = editingRowId(row, tree, getRowId);
           const isEditing = editingRows?.[rowId] !== undefined;
           const treeCell =
             tree && tree.expanderColumn === cell.column.id ? tree : undefined;
@@ -145,13 +151,7 @@ export function GridRow<TData>({
             );
           }
 
-          const isGroupedChild =
-            index === 0 &&
-            row.depth > 0 &&
-            (() => {
-              const pv = row.getParentRow()?.groupingValue;
-              return pv != null && pv !== "null" && pv !== "";
-            })();
+          const isGroupedChild = index === 0 && isGroupedChildRow(row);
 
           const columnId = cell.getContext().cell.column.id;
           const isSelectionRow = columnId === "select";
@@ -202,3 +202,37 @@ export function GridRow<TData>({
     </>
   );
 }
+
+/**
+ * Whether a memoized row would draw the same thing again. The raw class
+ * props, `editingRows` and `getRowId` are not compared: what they resolve to
+ * for this row is in `renderState`. `rowEvents` is compared by its two
+ * handlers, the only parts of it a row reads.
+ */
+function sameRowRender<TData>(
+  prev: GridRowProps<TData>,
+  next: GridRowProps<TData>
+): boolean {
+  return (
+    prev.renderState !== undefined &&
+    next.renderState !== undefined &&
+    prev.mode === next.mode &&
+    prev.editingEnabled === next.editingEnabled &&
+    prev.expansionEnabled === next.expansionEnabled &&
+    prev.expansionRenderContent === next.expansionRenderContent &&
+    prev.rowEvents?.onRowHover === next.rowEvents?.onRowHover &&
+    prev.rowEvents?.onRowClick === next.rowEvents?.onRowClick &&
+    sameTree(prev.tree, next.tree) &&
+    sameRenderState(prev.renderState, next.renderState)
+  );
+}
+
+/**
+ * GridRow behind a memo, for `memoizeRows`: it re-renders only when its
+ * `renderState` (built by the body with rowRenderState) or one of the props
+ * compared in sameRowRender changes. Without a `renderState` it always
+ * re-renders.
+ */
+export const MemoGridRow = React.memo(GridRow, sameRowRender) as <TData>(
+  props: GridRowProps<TData>
+) => React.ReactElement;

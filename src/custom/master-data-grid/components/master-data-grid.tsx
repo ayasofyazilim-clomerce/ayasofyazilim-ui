@@ -616,6 +616,7 @@ function MasterDataGridView<TData = Record<string, unknown>>({
                 }
                 tree={tree}
                 rowEvents={configWithDefaults.rowEvents}
+                memoizeRows={configWithDefaults.memoizeRows}
               />
               <GridFooter table={table} />
             </Table>
@@ -656,6 +657,7 @@ function MasterDataGridView<TData = Record<string, unknown>>({
                 }
                 tree={tree}
                 rowEvents={configWithDefaults.rowEvents}
+                memoizeRows={configWithDefaults.memoizeRows}
               />
               <GridFooter table={table} />
             </Table>

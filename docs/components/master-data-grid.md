@@ -86,6 +86,7 @@ New:
 | `export.formats` | `Array<"csv" \| "excel" \| "json">`. Unset: the toolbar shows today's single Export button, which exports CSV. Set: the Export button opens a menu of those formats. Excel loads `write-excel-file` lazily. `customExport` still wins when set. |
 | column `footer` | `ColumnConfig.footer: ({ column }) => ReactNode`, rendered in a table footer row. |
 | `subRows` | Opt-in tree rows: child rows drawn under their parent, indented, with a toggle. See "Tree rows (`subRows`)" below. |
+| `memoizeRows` | Opt-in: a body row re-renders only when something it draws changes. See "Memoized rows (`memoizeRows`)" below. |
 
 Export headers: Excel and JSON use the `column.<id>` resource, else a string `header`, else the schema property's `title`, else the column id, so a schema column's header matches the screen. CSV keeps its legacy headers (a string `header`, else the column id).
 
@@ -183,6 +184,41 @@ Opt-in callbacks that report the row under the pointer. The handlers attach to a
 | `onRowClick(row)` | Called when a row is clicked. |
 
 `onRowClick` is not called when the click starts inside `a`, `button`, `input`, `select`, `textarea`, `label`, `[role=checkbox]`, `[role=menuitem]` or `[data-row-click-ignore]`. Put `data-row-click-ignore` on any custom control that should keep its click to itself. With tree rows (`subRows`), a child row reports the child.
+
+## Memoized rows (`memoizeRows`)
+
+By default every body row, and every cell in it, re-renders whenever the grid does: one ticked checkbox re-renders the whole table. With `memoizeRows: true` a row re-renders only when something it draws changes. Off (the default), the grid renders exactly as before; on, the markup is the same (`src/test/master-data-grid-memoize-rows.test.tsx` checks both).
+
+```tsx
+<MasterDataGrid data={rows} config={{ ...config, memoizeRows: true }} />
+```
+
+A TanStack row object is reused while its selection or expansion changes inside the table, so a row is not compared by its object alone. On every render the body resolves, per row, what the row draws from and compares that:
+
+| Input | Why |
+| --- | --- |
+| The row object and its `original` | A data change makes new row objects. |
+| Its id, index, depth and parent id, and whether it is a grouped child | Grouping rewrites depth and parent on the same row object; a grouped child's first cell is indented. |
+| Selected, some sub-rows selected, all sub-rows selected, can select | The checkbox, `data-state="selected"`, and any cell that shows them. `rowSelectable` is called again every render, so it may read outside state. |
+| Expanded, can expand | The tree toggle and the expansion detail row. |
+| The resolved `rowClassName` and each cell's resolved `cellClassName` | Called again every render, so they may read outside state; the row re-renders only when a resolved string changes. |
+| Per visible cell: its column, pinned side, sticky offset and size | The column set, order, visibility, pinning and sizes. A column object is new whenever the column definitions are rebuilt. |
+| Its entry in the editing rows | Starting, changing or ending an edit to that row. |
+| `rowEvents.onRowHover` and `onRowClick`, by identity | The row's handlers. |
+| `subRows`' expander column, indent and labels, by value | The tree cell. |
+| `expansion.renderContent`, `editing.enabled`, `expansion.enabled` | The detail row and the cell borders. |
+
+What a cell renders must come from its row and its column, or from React state or context it subscribes to (a context change re-renders its readers whatever the memo says). A cell that reads anything else, such as `table.getState()`, another row, a ref or a module variable, is not re-rendered when that changes: do not use `memoizeRows` with such cells.
+
+For the memo to help, keep these stable across the renders where they do not change, or every row re-renders (correct, but no faster):
+
+- `columns`, `schema`, `t`, `localization`, `dateOptions`, `customRenderers`, `cellClassName`, `getRowId`, `rowActions`, `rowActionsDisplay`, `editing`, `expansion`, `columnOrder`, `columnVisibility`, `schemaColumns`, `grouping.groupBy`, and with `editing` the `onDataChange` prop: the grid rebuilds its column definitions when any of them changes identity, and every column object with them.
+- `rowEvents.onRowHover` and `rowEvents.onRowClick`: memoize the handlers (`useCallback`, or a `useMemo` for the whole `rowEvents` object) outside anything that changes with the selection. A `rowEvents` object rebuilt with the rest of the config on every tick re-renders every row.
+- `expansion.renderContent`.
+
+`selection.rowSelectable`, `selection.selectedIds`, `rowClassName` (as a function), `subRows` and the `config` object itself may be new every render: the row compares what they resolve to.
+
+A new `data` array re-renders every row, even when one row changed: TanStack builds new row objects for it.
 
 ## Common mistakes
 
