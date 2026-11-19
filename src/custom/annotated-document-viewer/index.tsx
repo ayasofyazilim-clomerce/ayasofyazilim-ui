@@ -15,6 +15,7 @@ import { Button } from "@repo/ayasofyazilim-ui/components/button";
 import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
 import { DocumentPager } from "./document-pager";
 import { markStrokeWidth, toPageFraction } from "./geometry";
+import { ThumbnailStrip } from "./thumbnail-strip";
 import {
   DEFAULT_ANNOTATED_DOCUMENT_VIEWER_LABELS,
   type AnnotatedDocumentViewerLabels,
@@ -24,6 +25,7 @@ import {
 } from "./types";
 
 export { DocumentPager } from "./document-pager";
+export { ThumbnailStrip } from "./thumbnail-strip";
 export { markStrokeWidth, rotateRect, toPageFraction } from "./geometry";
 export * from "./types";
 
@@ -117,6 +119,8 @@ function resolveLabels(
     zoomOut: labels?.zoomOut ?? d.zoomOut,
     resetZoom: labels?.resetZoom ?? d.resetZoom,
     loading: labels?.loading ?? d.loading,
+    thumbnails: labels?.thumbnails ?? d.thumbnails,
+    pageN: labels?.pageN ?? d.pageN,
   };
 }
 
@@ -146,6 +150,8 @@ export function AnnotatedDocumentViewer({
   minZoom = 1,
   maxZoom = 8,
   pager = true,
+  thumbnails = false,
+  onPageNeeded,
   labels,
   className,
   classNames,
@@ -252,7 +258,13 @@ export function AnnotatedDocumentViewer({
   return (
     <div
       data-slot="annotated-document-viewer"
-      className={cn("flex w-full min-w-0", classNames?.root, className)}
+      className={cn(
+        "flex w-full min-w-0",
+        // The strip is the second child: below the page, and to its left from `md`.
+        thumbnails && "flex-col gap-2 md:flex-row-reverse",
+        classNames?.root,
+        className
+      )}
     >
       <div
         ref={stageRef}
@@ -435,6 +447,17 @@ export function AnnotatedDocumentViewer({
           </>
         )}
       </div>
+      {thumbnails && (
+        <ThumbnailStrip
+          pages={pages}
+          pageIndex={pageIndex}
+          onPageChange={onPageChange}
+          onPageNeeded={onPageNeeded}
+          label={text.thumbnails}
+          pageN={text.pageN}
+          className={classNames?.thumbnails}
+        />
+      )}
     </div>
   );
 }

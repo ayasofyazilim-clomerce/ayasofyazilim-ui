@@ -55,6 +55,10 @@ export type AnnotatedDocumentViewerLabels = {
   zoomOut?: string;
   resetZoom?: string;
   loading?: string;
+  /** The thumbnail strip's `aria-label`. */
+  thumbnails?: string;
+  /** Each thumbnail button's name; `page` is 1-based. */
+  pageN?: (page: number) => string;
 };
 
 export type AnnotatedDocumentViewerProps = {
@@ -78,6 +82,18 @@ export type AnnotatedDocumentViewerProps = {
   maxZoom?: number;
   /** Overlay a pager on the page. Default true; pass false when you place a `DocumentPager` yourself. */
   pager?: boolean;
+  /**
+   * Show a strip of page thumbnails: vertical beside the page from the `md` breakpoint, horizontal
+   * below it under that. Default false (no strip node renders). A thumbnail reuses its page's `src`.
+   */
+  thumbnails?: boolean;
+  /**
+   * Called once for a page whose `src` is null when its thumbnail scrolls into view, so a consumer
+   * that renders pages on demand can render it. A page that has loaded is never asked for. The
+   * request is remembered while the viewer stays mounted: remount it (change its `key`) for a new
+   * document.
+   */
+  onPageNeeded?: (index: number) => void;
   labels?: AnnotatedDocumentViewerLabels;
   className?: string;
   classNames?: {
@@ -87,6 +103,7 @@ export type AnnotatedDocumentViewerProps = {
     box?: string;
     pager?: string;
     zoom?: string;
+    thumbnails?: string;
   };
 };
 
@@ -109,4 +126,6 @@ export const DEFAULT_ANNOTATED_DOCUMENT_VIEWER_LABELS: Required<AnnotatedDocumen
     zoomOut: "Zoom out",
     resetZoom: "Reset zoom",
     loading: "Loading…",
+    thumbnails: "Page thumbnails",
+    pageN: (page) => `Page ${page}`,
   };

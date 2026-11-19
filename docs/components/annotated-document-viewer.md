@@ -60,9 +60,11 @@ export function Evidence({ pageUrls }: { pageUrls: (string | null)[] }) {
 | `onBoxClick` | `(box) => void` | none | A click on a box. A click that ends a drag-pan (pointer moved 4 px or more since `pointerdown`) is ignored. |
 | `minZoom` / `maxZoom` | `number` | `1` / `8` | Multiples of the fitted page. The viewer starts and resets at 1 clamped into this range. |
 | `pager` | `boolean` | `true` | An overlaid pager at the top of the stage (hidden for one page). `false` when you render `DocumentPager` yourself. |
+| `thumbnails` | `boolean` | `false` | A strip of page thumbnails (see "Thumbnails"). When false no strip node renders and the markup is unchanged. |
+| `onPageNeeded` | `(index) => void` | none | Called once for a page whose `src` is `null` when its thumbnail scrolls into view. Never called for a loaded page. |
 | `labels` | `AnnotatedDocumentViewerLabels` | English | See below. |
 | `className` | `string` | none | Merged onto the root. |
-| `classNames` | `{ root, stage, page, box, pager, zoom }` | none | Slot overrides: the root, the bordered stage, the page `<img>`, every box `<rect>`, the overlaid pager, the zoom pill. |
+| `classNames` | `{ root, stage, page, box, pager, zoom, thumbnails }` | none | Slot overrides: the root, the bordered stage, the page `<img>`, every box `<rect>`, the overlaid pager, the zoom pill, the thumbnail strip. |
 
 `AnnotationBox`:
 
@@ -92,7 +94,19 @@ Every visible or announced string comes from `labels`; anything left out (or pas
 | `zoomIn` / `zoomOut` / `resetZoom` | `"Zoom in"` / `"Zoom out"` / `"Reset zoom"` | zoom button `aria-label`s |
 | `loading` | `"Loading…"` | text of a page whose `src` is `null` |
 
+| `thumbnails` | `"Page thumbnails"` | the thumbnail strip's `aria-label` (`role="group"`) |
+| `pageN(page)` | `"Page {page}"` | each thumbnail button's name (`page` is 1-based) |
+
 The zoom readout (`140%`) is a number, not a label.
+
+## Thumbnails
+
+`thumbnails` adds a strip with one button per page: vertical and 72 px wide beside the page from the `md` breakpoint, horizontal below the page under it. The current page's button has `aria-current="page"`; a click calls `onPageChange(index)`.
+
+- A loaded page's thumbnail is its own `src` scaled by CSS, so nothing is rendered or fetched twice. A page whose `src` is `null` shows its number.
+- For pages you render on demand (a PDF rasterized in the browser, say), pass `onPageNeeded`: it fires once per such page when its thumbnail scrolls into view (an `IntersectionObserver` on the strip, with a small margin), so a long document renders only the pages the reader gets near. The request is remembered while the viewer stays mounted; give the viewer a new `key` when the document changes.
+- The strip is memoized: it re-renders only when `pages`, `pageIndex`, `onPageChange`, `onPageNeeded` or the labels change, not for zoom or box emphasis. Keep those references stable.
+- There are no box marks on thumbnails.
 
 ## Geometry helpers
 
@@ -119,7 +133,7 @@ Example: a box measured in a scan's ORIGINAL frame, shown on an upright raster t
 
 ## Styling
 
-Each element carries a `data-slot` (`annotated-document-viewer`, `annotated-document-stage`, `document-pager`, `annotated-document-zoom`), and each box `data-box-id` and `data-state="active" | "related"` (absent at rest). The page image is capped at `max-h-[80vh]`; pass a different cap through `classNames.page` (for example `max-h-[var(--doc-preview-max-h)]`).
+Each element carries a `data-slot` (`annotated-document-viewer`, `annotated-document-stage`, `document-pager`, `annotated-document-zoom`, `annotated-document-thumbnails`), and each box `data-box-id` and `data-state="active" | "related"` (absent at rest). The page image is capped at `max-h-[80vh]`; pass a different cap through `classNames.page` (for example `max-h-[var(--doc-preview-max-h)]`).
 
 ## Common mistakes
 
