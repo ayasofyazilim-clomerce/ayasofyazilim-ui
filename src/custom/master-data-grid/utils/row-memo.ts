@@ -92,8 +92,17 @@ export interface RowRenderState {
  * - its entry in the editing rows (a new object on every edit to that row);
  * - per visible cell, in drawing order: the column object (a new one whenever
  *   the column definitions change, with their cell renderers and sizes), its
- *   pinned side, its sticky offset, and its size. Together these cover the
- *   column set, order, visibility, pinning and sizing.
+ *   pinned side, its sticky offset, its size, and the column's own table
+ *   state a cell may show: its filter value, its sort direction and whether
+ *   it is grouped. These are not implied by the row: a row that still passes
+ *   a filter keeps its row object, and so does every row under a manual
+ *   (server) sort or grouping state with no grouped row model. Together these
+ *   cover the column set, order, visibility, pinning, sizing, filter, sort
+ *   and grouping.
+ *
+ * Not covered: anything a cell reads through `getContext().table` (another
+ * column's state, other rows, the global filter), column facets, refs and
+ * module variables.
  */
 export function rowRenderState<TData>(
   row: Row<TData>,
@@ -133,7 +142,10 @@ export function rowRenderState<TData>(
       pinned,
       pinned === "left" ? column.getStart("left") : undefined,
       pinned === "right" ? column.getAfter("right") : undefined,
-      column.getSize()
+      column.getSize(),
+      column.getFilterValue(),
+      column.getIsSorted(),
+      column.getIsGrouped()
     );
   }
   return {

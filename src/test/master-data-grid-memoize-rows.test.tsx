@@ -2,10 +2,12 @@
 import { setupGridMocks, testResources } from "./helpers/grid-test-setup";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { CellContext, Table } from "@tanstack/react-table";
 import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -697,6 +699,278 @@ describe.each([
     });
   }
 );
+
+describe("memoizeRows: a cell that shows its own column's table state", () => {
+  // The cell replaces the schema's `name` cell (the first column) and shows
+  // that column's filter value, sort direction and grouped state. Each change
+  // below leaves every row object as it was, so only the column state tells
+  // the row to re-render.
+  let table: Table<Item> | undefined;
+  const stateColumn: ColumnConfig<Item> = {
+    id: "name",
+    header: "name",
+    cell: (info) => {
+      const context = info as unknown as CellContext<Item, unknown>;
+      const { row, column } = context;
+      table = context.table;
+      const filter = column.getFilterValue() as { value?: string } | undefined;
+      const sorted = column.getIsSorted() || "-";
+      const grouped = column.getIsGrouped() ? "grouped" : "-";
+      return (
+        <span data-state-of={row.original.name}>
+          {`${row.original.name}|${filter?.value ?? "-"}|${sorted}|${grouped}`}
+        </span>
+      );
+    },
+  };
+  const stateColumns = [stateColumn, probe];
+  const words: Item[] = ["Alpha", "Alto", "Beta"].map((name, i) => ({
+    id: name,
+    name,
+    score: i,
+  }));
+  const stateOf = (name: string) =>
+    document.querySelector(`[data-state-of="${name}"]`)?.textContent;
+  const nameColumn = () => table!.getColumn("name")!;
+
+  beforeEach(() => {
+    table = undefined;
+  });
+
+  it("its filter value, while the rows still pass the filter", async () => {
+    mount(words, memo({ columns: stateColumns }));
+    // A filter change resets the page in a microtask: let it land in act.
+    const filterBy = (value: string) =>
+      act(async () =>
+        nameColumn().setFilterValue({ operator: "contains", value })
+      );
+
+    await filterBy("a");
+
+    expect(stateOf("Alpha")).toBe("Alpha|a|-|-");
+    expect(stateOf("Beta")).toBe("Beta|a|-|-");
+
+    await filterBy("al");
+
+    expect(stateOf("Beta")).toBeUndefined();
+    expect(stateOf("Alpha")).toBe("Alpha|al|-|-");
+    expect(stateOf("Alto")).toBe("Alto|al|-|-");
+  });
+
+  it("its sort direction, under a manual (server) sort", () => {
+    mount(words, memo({ columns: stateColumns, manualSorting: true }));
+
+    act(() => nameColumn().toggleSorting(true));
+
+    expect(stateOf("Alpha")).toBe("Alpha|-|desc|-");
+    // A manual sort leaves the order to the server.
+    expect(shownNames()).toEqual(["Alpha", "Alto", "Beta"]);
+  });
+
+  it("its grouped state, with no grouped row model", () => {
+    mount(words, memo({ columns: stateColumns }));
+
+    act(() => table!.setGrouping(["name"]));
+    expect(stateOf("Alto")).toBe("Alto|-|-|grouped");
+
+    act(() => table!.setGrouping([]));
+    expect(stateOf("Alto")).toBe("Alto|-|-|-");
+  });
+});
+
+describe("memoizeRows: more row state", () => {
+  it("can-expand changing", () => {
+    const canExpandColumn: ColumnConfig<Item> = {
+      id: "can",
+      header: "can",
+      cell: ({ row }) => (
+        <span data-can={row.original.name}>
+          {row.getCanExpand() ? "can" : "cannot"}
+        </span>
+      ),
+    };
+    const columnsWithCan = [probe, canExpandColumn];
+    const { rerender } = mount(flat, memo({ columns: columnsWithCan }));
+    const canOf = (name: string) =>
+      document.querySelector(`[data-can="${name}"]`)?.textContent;
+    expect(canOf("B")).toBe("cannot");
+
+    rerender(
+      <MasterDataGrid<Item>
+        data={flat}
+        config={memo({
+          columns: columnsWithCan,
+          expansion: { enabled: true },
+        })}
+      />
+    );
+
+    expect(canOf("B")).toBe("can");
+  });
+
+  it("all sub-rows selected, on a parent whose one child is ticked", () => {
+    // One child: ticking it takes the parent from none to all, while
+    // "some sub-rows selected" stays false.
+    const family: Item[] = [
+      {
+        id: "Q0",
+        name: "Q0",
+        score: 0,
+        children: [{ id: "Q00", name: "Q00", score: 1 }],
+      },
+      { id: "Q1", name: "Q1", score: 2 },
+    ];
+    const allColumn: ColumnConfig<Item> = {
+      id: "all",
+      header: "all",
+      cell: ({ row }) => {
+        const some = row.getIsSomeSelected() ? "some" : "-";
+        const all = row.getIsAllSubRowsSelected() ? "all" : "-";
+        return <span data-all={row.original.name}>{`${some}|${all}`}</span>;
+      },
+    };
+    mount(
+      family,
+      memo({
+        columns: [probe, allColumn],
+        selection: { enabled: true },
+        subRows: {
+          getSubRows: (item) => item.children,
+          expanderColumn: "name",
+          defaultExpanded: true,
+        },
+      })
+    );
+    const allOf = (name: string) =>
+      document.querySelector(`[data-all="${name}"]`)?.textContent;
+    expect(allOf("Q0")).toBe("-|-");
+
+    tick("Q00");
+
+    expect(allOf("Q0")).toBe("-|all");
+  });
+
+  it("the grouped-child flag, as grouping comes and goes", async () => {
+    interface Party extends Item {
+      kind: string;
+    }
+    const parties: Party[] = [
+      { id: "p1", name: "One", score: 1, kind: "x" },
+      { id: "p2", name: "Two", score: 2, kind: "x" },
+      { id: "p3", name: "Three", score: 3, kind: "y" },
+    ];
+    let table: Table<Party> | undefined;
+    const grabTable: ColumnConfig<Party> = {
+      id: "grab",
+      header: "grab",
+      cell: (info) => {
+        table = (info as unknown as CellContext<Party, unknown>).table;
+        return null;
+      },
+    };
+    render(
+      <MasterDataGrid<Party>
+        data={parties}
+        config={
+          {
+            schema: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                kind: { type: "string" },
+              },
+            },
+            columns: [grabTable],
+            localization,
+            t: testResources,
+            getRowId,
+            memoizeRows: true,
+            enablePagination: false,
+            grouping: { enabled: true, expanded: true },
+          } as MasterDataGridConfig<Party>
+        }
+      />
+    );
+    const firstCell = (name: string) =>
+      screen.getByText(name).closest("tr")!.querySelector("td")!;
+    expect(firstCell("Two")).not.toHaveClass("pl-9");
+
+    // A grouping change resets the page in a microtask: let it land in act.
+    await act(async () => table!.setGrouping(["kind"]));
+    expect(firstCell("Two")).toHaveClass("pl-9");
+    expect(firstCell("Three")).toHaveClass("pl-9");
+
+    await act(async () => table!.setGrouping([]));
+    expect(firstCell("Two")).not.toHaveClass("pl-9");
+  });
+
+  it("a sort order change reorders the rows", async () => {
+    const user = userEvent.setup();
+    const { container } = mount(flat, memo());
+    expect(shownNames()).toEqual(["A", "B", "C", "D"]);
+    const sortBy = async (label: string) => {
+      await user.click(
+        within(container.querySelector("thead")!).getByRole("button", {
+          name: /score/i,
+        })
+      );
+      await user.click(await screen.findByText(label));
+    };
+
+    await sortBy("column.sortDesc");
+    expect(shownNames()).toEqual(["D", "C", "B", "A"]);
+    expect(probeOf("D")).toHaveTextContent("D:3");
+
+    await sortBy("column.sortAsc");
+    expect(shownNames()).toEqual(["A", "B", "C", "D"]);
+  });
+
+  it("single-select mode: a tick clears the previous row", () => {
+    const onSelectionChange = jest.fn();
+    mount(
+      flat,
+      memo({
+        selection: { enabled: true, mode: "single", onSelectionChange },
+      })
+    );
+    tick("A");
+    renders.clear();
+
+    tick("C");
+
+    expect(rendered()).toEqual({ A: 1, C: 1 });
+    expect(rowBox("A")).toHaveAttribute("aria-checked", "false");
+    expect(rowBox("C")).toHaveAttribute("aria-checked", "true");
+    expect(onSelectionChange).toHaveBeenCalledTimes(2);
+    expect(onSelectionChange).toHaveBeenLastCalledWith([flat[2]]);
+  });
+
+  it("toggling memoizeRows at runtime remounts every row (set it once)", () => {
+    let mounts = 0;
+    const mountColumn: ColumnConfig<Item> = {
+      id: "mounts",
+      header: "mounts",
+      cell: function MountCounter() {
+        useEffect(() => {
+          mounts += 1;
+        }, []);
+        return null;
+      },
+    };
+    const withMounts = [probe, mountColumn];
+    const { rerender } = mount(flat, baseConfig({ columns: withMounts }));
+    expect(mounts).toBe(4);
+
+    rerender(
+      <MasterDataGrid<Item>
+        data={flat}
+        config={memo({ columns: withMounts })}
+      />
+    );
+
+    expect(mounts).toBe(8);
+  });
+});
 
 describe("memoizeRows: virtual mode", () => {
   const virtual = (extra: Partial<MasterDataGridConfig<Item>> = {}) =>

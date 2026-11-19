@@ -40,6 +40,15 @@ const items: Item[] = [
     children: [{ id: "b1", name: "B1", kind: "y" }],
   },
   { id: "c", name: "C", kind: "y" },
+  {
+    id: "d",
+    name: "D",
+    kind: "y",
+    children: [
+      { id: "d1", name: "D1", kind: "x" },
+      { id: "d2", name: "D2", kind: "x" },
+    ],
+  },
 ];
 
 const columns: ColumnDef<Item>[] = [
@@ -116,11 +125,23 @@ describe("rowRenderState: each input alone invalidates the memo", () => {
     expect(sameRenderState(before, rowRenderState(row, normal))).toBe(false);
   });
 
-  it("some sub-rows selected, on the parent", () => {
+  it("all sub-rows selected, on a parent with one child", () => {
     const table = makeTable();
     const before = snap(table, "b");
     rowById(table, "b1").toggleSelected(true);
+    // None to all: "some" stays false, so only "all" changes.
+    expect(rowById(table, "b").getIsSomeSelected()).toBe(false);
+    expect(rowById(table, "b").getIsAllSubRowsSelected()).toBe(true);
     expect(sameRenderState(before, snap(table, "b"))).toBe(false);
+  });
+
+  it("some sub-rows selected, on a parent with two children", () => {
+    const table = makeTable();
+    const before = snap(table, "d");
+    rowById(table, "d1").toggleSelected(true);
+    expect(rowById(table, "d").getIsSomeSelected()).toBe(true);
+    expect(rowById(table, "d").getIsAllSubRowsSelected()).toBe(false);
+    expect(sameRenderState(before, snap(table, "d"))).toBe(false);
   });
 
   it("can select (enableRowSelection reading outside state)", () => {
@@ -128,6 +149,14 @@ describe("rowRenderState: each input alone invalidates the memo", () => {
     const table = makeTable({ enableRowSelection: () => allowed });
     const before = snap(table, "a");
     allowed = true;
+    expect(sameRenderState(before, snap(table, "a"))).toBe(false);
+  });
+
+  it("can expand (getRowCanExpand reading outside state)", () => {
+    let expandable = false;
+    const table = makeTable({ getRowCanExpand: () => expandable });
+    const before = snap(table, "a");
+    expandable = true;
     expect(sameRenderState(before, snap(table, "a"))).toBe(false);
   });
 
@@ -208,6 +237,35 @@ describe("rowRenderState: each input alone invalidates the memo", () => {
     expect(
       rowById(table, "a").getVisibleCells()[1]!.column.getStart("left")
     ).toBe(300);
+  });
+
+  // No filtered, sorted or grouped row model here, as under a manual
+  // (server) filter, sort or grouping: the rows are untouched, so only the
+  // column's own state can tell a cell that shows it to re-render.
+  it("its column's filter value", () => {
+    const table = makeTable();
+    const before = snap(table, "a");
+    table.setColumnFilters([{ id: "name", value: "A" }]);
+    expect(
+      rowById(table, "a").getVisibleCells()[0]!.column.getFilterValue()
+    ).toBe("A");
+    expect(sameRenderState(before, snap(table, "a"))).toBe(false);
+  });
+
+  it("its column's sort direction", () => {
+    const table = makeTable();
+    const before = snap(table, "a");
+    table.setSorting([{ id: "name", desc: true }]);
+    expect(sameRenderState(before, snap(table, "a"))).toBe(false);
+  });
+
+  it("its column's grouped state (the first column, so the order stays)", () => {
+    const table = makeTable();
+    const before = snap(table, "a");
+    table.setGrouping(["name"]);
+    const cells = rowById(table, "a").getVisibleCells();
+    expect(cells.map((cell) => cell.column.id)).toEqual(["name", "kind"]);
+    expect(sameRenderState(before, snap(table, "a"))).toBe(false);
   });
 
   it("a column size", () => {

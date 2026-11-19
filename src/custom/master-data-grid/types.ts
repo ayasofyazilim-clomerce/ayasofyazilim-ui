@@ -400,14 +400,26 @@ export interface MasterDataGridBaseConfig<TData = unknown> {
   /** Opt-in row hover and click callbacks. */
   rowEvents?: RowEventsConfig<TData>;
   /**
-   * Opt-in: a body row re-renders only when something it draws changes (its
-   * row object, its selection and expansion state, its depth, its resolved
-   * `rowClassName` and `cellClassName`, the column set, order, visibility,
-   * pinning and sizes, its editing state, the `rowEvents` handlers and the
-   * `subRows` options). Default false: every row re-renders with the grid, as
-   * before. Cells must render from their row and column and from React state
-   * or context; see "Memoized rows" in docs/components/master-data-grid.md
-   * for the inputs to keep stable.
+   * Opt-in: a body row re-renders only when something it tracks changes.
+   * Default false: every row re-renders with the grid, as before.
+   *
+   * Tracked: the row's data (its row object and `original`), selection,
+   * expansion and depth; its resolved `rowClassName` and `cellClassName`; its
+   * editing state; per cell, the column's definition, visibility, pinning,
+   * size, filter value, sort and grouping; the `rowEvents` handlers; and the
+   * `subRows` options. React state or context a cell subscribes to re-renders
+   * that cell on its own.
+   *
+   * NOT tracked, so a cell must not render from it: anything read through
+   * `getContext().table` (other columns' state, other rows, the global
+   * filter), column facets, refs and module variables. Callbacks called while
+   * a row draws (`rowActions[].hidden/disabled/label/render`,
+   * `editing.isRowEditable`, `expansion.renderContent`, `customRenderers`)
+   * are not called again for a row that is skipped.
+   *
+   * Set it once: toggling it at runtime remounts every row, losing cell state
+   * such as edit values and open menus. See "Memoized rows" in
+   * docs/components/master-data-grid.md for the inputs to keep stable.
    */
   memoizeRows?: boolean;
   schema: JSONSchema | GenericObjectType;

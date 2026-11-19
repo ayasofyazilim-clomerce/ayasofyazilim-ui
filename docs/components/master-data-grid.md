@@ -187,11 +187,15 @@ Opt-in callbacks that report the row under the pointer. The handlers attach to a
 
 ## Memoized rows (`memoizeRows`)
 
-By default every body row, and every cell in it, re-renders whenever the grid does: one ticked checkbox re-renders the whole table. With `memoizeRows: true` a row re-renders only when something it draws changes. Off (the default), the grid renders exactly as before; on, the markup is the same (`src/test/master-data-grid-memoize-rows.test.tsx` checks both).
+By default every body row, and every cell in it, re-renders whenever the grid does: one ticked checkbox re-renders the whole table. With `memoizeRows: true` a row re-renders only when something it tracks changes. Off (the default), the grid renders exactly as before; on, the markup is the same (`src/test/master-data-grid-memoize-rows.test.tsx` checks both).
 
 ```tsx
 <MasterDataGrid data={rows} config={{ ...config, memoizeRows: true }} />
 ```
+
+Set it once, when the grid is written. Turning it on or off at runtime swaps every row for a different component, so every row remounts and its cells lose their local state, such as an edit in progress or an open menu.
+
+**What is tracked:** the row's data, selection, expansion and depth, and, per cell, the column's definition, visibility, pinning, size, filter value, sort and grouping. In full:
 
 A TanStack row object is reused while its selection or expansion changes inside the table, so a row is not compared by its object alone. On every render the body resolves, per row, what the row draws from and compares that:
 
@@ -203,12 +207,22 @@ A TanStack row object is reused while its selection or expansion changes inside 
 | Expanded, can expand | The tree toggle and the expansion detail row. |
 | The resolved `rowClassName` and each cell's resolved `cellClassName` | Called again every render, so they may read outside state; the row re-renders only when a resolved string changes. |
 | Per visible cell: its column, pinned side, sticky offset and size | The column set, order, visibility, pinning and sizes. A column object is new whenever the column definitions are rebuilt. |
+| Per visible cell: its column's filter value, sort direction and grouped state | For a cell that shows them. A row that still passes a filter keeps its row object, and so does every row under a manual sort or a grouping state with no grouped row model. |
 | Its entry in the editing rows | Starting, changing or ending an edit to that row. |
 | `rowEvents.onRowHover` and `onRowClick`, by identity | The row's handlers. |
 | `subRows`' expander column, indent and labels, by value | The tree cell. |
 | `expansion.renderContent`, `editing.enabled`, `expansion.enabled` | The detail row and the cell borders. |
 
-What a cell renders must come from its row and its column, or from React state or context it subscribes to (a context change re-renders its readers whatever the memo says). A cell that reads anything else, such as `table.getState()`, another row, a ref or a module variable, is not re-rendered when that changes: do not use `memoizeRows` with such cells.
+**What is not tracked:** anything a cell reads through `getContext().table` (another column's state, other rows, the global filter, `table.getState()`), column facets (`getFacetedUniqueValues` and the like), refs and module variables. A cell that renders from any of these is not re-rendered when it changes: do not use `memoizeRows` with such cells. React state or context a cell subscribes to is fine: a context change re-renders its readers whatever the memo says.
+
+**Callbacks a skipped row does not call again.** These run while a row draws, so for a row the memo skips they are not called at all. Each must return the same thing for the same row, or change identity (which rebuilds the columns and re-renders every row) when what it returns changes:
+
+- `rowActions[].hidden`, `rowActions[].disabled`, `rowActions[].label` and `rowActions[].render`;
+- `editing.isRowEditable`;
+- `expansion.renderContent`;
+- `customRenderers`.
+
+`rowClassName`, `cellClassName` and `selection.rowSelectable` are the exception: they are called for every row on every render, so they may read outside state.
 
 For the memo to help, keep these stable across the renders where they do not change, or every row re-renders (correct, but no faster):
 
