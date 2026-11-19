@@ -16,7 +16,7 @@ class FakeObserver {
   }
   observe = (el: Element) => void this.observed.add(el);
   unobserve = (el: Element) => void this.observed.delete(el);
-  disconnect = () => this.observed.clear();
+  disconnect = jest.fn(() => this.observed.clear());
   takeRecords = () => [];
   show(el: Element) {
     this.callback(
@@ -167,8 +167,89 @@ describe("AnnotatedDocumentViewer: thumbnails", () => {
 
   it("applies the thumbnails class slot", () => {
     renderViewer({ classNames: { thumbnails: "strip-slot" } });
-    expect(
-      screen.getByRole("group", { name: "Page thumbnails" })
-    ).toHaveClass("strip-slot");
+    expect(screen.getByRole("group", { name: "Page thumbnails" })).toHaveClass(
+      "strip-slot"
+    );
+  });
+
+  it("does not re-render the strip when only strip-unrelated props change", () => {
+    const pageN = jest.fn((n: number) => `Page ${n}`);
+    const labels = { pageN };
+    const props = {
+      pages: PAGES,
+      pageIndex: 0,
+      onPageChange: jest.fn(),
+      onPageNeeded: jest.fn(),
+      thumbnails: true,
+      labels,
+    };
+    const { rerender } = render(<AnnotatedDocumentViewer {...props} />);
+    const calls = pageN.mock.calls.length;
+    expect(calls).toBeGreaterThan(0);
+    rerender(<AnnotatedDocumentViewer {...props} activeIds={["a"]} />);
+    rerender(
+      <AnnotatedDocumentViewer
+        {...props}
+        activeIds={["b"]}
+        relatedIds={["a"]}
+      />
+    );
+    expect(pageN.mock.calls.length).toBe(calls);
+    rerender(<AnnotatedDocumentViewer {...props} pageIndex={1} />);
+    expect(pageN.mock.calls.length).toBeGreaterThan(calls);
+  });
+
+  it("requests only the thumbnail that came into view", () => {
+    const { onPageNeeded } = renderViewer();
+    const observer = FakeObserver.instances[0]!;
+    const page2 = [...observer.observed].find(
+      (el) => (el as HTMLElement).dataset.pageIndex === "2"
+    )!;
+    expect(page2).toBeDefined();
+    act(() => observer.show(page2));
+    expect(onPageNeeded).toHaveBeenCalledTimes(1);
+    expect(onPageNeeded).toHaveBeenCalledWith(2);
+  });
+
+  it("disconnects the observer on unmount", () => {
+    const { unmount } = renderViewer();
+    const observer = FakeObserver.instances[0]!;
+    expect(observer.disconnect).not.toHaveBeenCalled();
+    unmount();
+    expect(observer.disconnect).toHaveBeenCalled();
+  });
+
+  it("asks again for a still-missing page after documentKey changes, not after a plain re-render", () => {
+    const { onPageNeeded, rerender, onPageChange } = renderViewer({
+      documentKey: "a",
+    });
+    showAll();
+    expect(onPageNeeded).toHaveBeenCalledTimes(2);
+    const again = (documentKey: string, pages = PAGES.map((p) => ({ ...p }))) =>
+      rerender(
+        <AnnotatedDocumentViewer
+          pages={pages}
+          pageIndex={0}
+          onPageChange={onPageChange}
+          onPageNeeded={onPageNeeded}
+          thumbnails
+          documentKey={documentKey}
+        />
+      );
+    // A new array with the same content (a host re-rendering) resets nothing.
+    again("a");
+    showAll();
+    expect(onPageNeeded).toHaveBeenCalledTimes(2);
+    // A new document with the same null indices is requested afresh.
+    again("b");
+    showAll();
+    expect(onPageNeeded).toHaveBeenCalledTimes(4);
+    // So is one whose page count changed.
+    again(
+      "b",
+      [...PAGES, { src: null }].map((p) => ({ ...p }))
+    );
+    showAll();
+    expect(onPageNeeded).toHaveBeenCalledTimes(7);
   });
 });

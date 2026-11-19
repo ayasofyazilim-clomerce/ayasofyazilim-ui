@@ -3,6 +3,7 @@
 import { Loader2, Minus, Plus, Scan } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
+  ReactNode,
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
 } from "react";
@@ -25,7 +26,6 @@ import {
 } from "./types";
 
 export { DocumentPager } from "./document-pager";
-export { ThumbnailStrip } from "./thumbnail-strip";
 export { markStrokeWidth, rotateRect, toPageFraction } from "./geometry";
 export * from "./types";
 
@@ -128,6 +128,21 @@ function matches(ids: ReadonlySet<string>, box: AnnotationBox) {
   return ids.has(box.id) || (box.group !== undefined && ids.has(box.group));
 }
 
+/**
+ * With thumbnails the viewer is a size container (`@container`) and lays page and strip out in an
+ * inner box, since a container query styles only the container's descendants: the strip goes
+ * beside the page once the VIEWER is wide, whatever the viewport is. Without them: no extra node.
+ */
+function Layout({ split, children }: { split: boolean; children: ReactNode }) {
+  return split ? (
+    <div className="flex w-full min-w-0 flex-col gap-2 @lg:flex-row-reverse">
+      {children}
+    </div>
+  ) : (
+    <>{children}</>
+  );
+}
+
 type NaturalSize = { src: string; width: number; height: number };
 
 /**
@@ -152,6 +167,7 @@ export function AnnotatedDocumentViewer({
   pager = true,
   thumbnails = false,
   onPageNeeded,
+  documentKey,
   labels,
   className,
   classNames,
@@ -221,8 +237,11 @@ export function AnnotatedDocumentViewer({
   const naturalSize = natural && natural.src === src ? natural : undefined;
   const active = new Set(activeIds);
   const related = new Set(relatedIds);
-  const drawn: { box: AnnotationBox; rect: AnnotationRect; state?: BoxState }[] =
-    [];
+  const drawn: {
+    box: AnnotationBox;
+    rect: AnnotationRect;
+    state?: BoxState;
+  }[] = [];
   for (const box of boxes ?? []) {
     if (box.page !== pageIndex) continue;
     const rect = toPageFraction(box, naturalSize);
@@ -248,7 +267,8 @@ export function AnnotatedDocumentViewer({
     // The viewport pans on a drag that starts on a box; the click that ends it is not a click.
     if (
       down &&
-      Math.hypot(event.clientX - down.x, event.clientY - down.y) >= CLICK_SLOP_PX
+      Math.hypot(event.clientX - down.x, event.clientY - down.y) >=
+        CLICK_SLOP_PX
     ) {
       return;
     }
@@ -260,204 +280,208 @@ export function AnnotatedDocumentViewer({
       data-slot="annotated-document-viewer"
       className={cn(
         "flex w-full min-w-0",
-        // The strip is the second child: below the page, and to its left from `md`.
-        thumbnails && "flex-col gap-2 md:flex-row-reverse",
+        thumbnails && "@container",
         classNames?.root,
         className
       )}
     >
-      <div
-        ref={stageRef}
-        data-slot="annotated-document-stage"
-        data-magnified={flags.magnified}
-        className={cn(
-          "bg-muted relative min-w-0 flex-1 overflow-hidden rounded-md border [--annotation-stroke:2px] [--annotation-zoom:1]",
-          classNames?.stage
-        )}
-      >
-        {pager && (
-          <DocumentPager
-            pageIndex={pageIndex}
-            pageCount={pageCount}
-            onPageChange={onPageChange}
-            labels={text}
-            className={cn(
-              "absolute top-2 left-1/2 z-10 -translate-x-1/2",
-              classNames?.pager
-            )}
-          />
-        )}
-        {src === null ? (
-          <div
-            role="status"
-            className="text-muted-foreground flex aspect-[3/4] max-h-[80vh] w-full items-center justify-center gap-2 text-sm"
-          >
-            <Loader2 aria-hidden="true" className="size-4 animate-spin" />
-            {text.loading}
-          </div>
-        ) : (
-          <>
-            <TransformWrapper
-              ref={zoomRef}
-              minScale={minZoom}
-              maxScale={maxZoom}
-              initialScale={restScale}
-              // The library owns the slack around a page smaller than the stage: `centerOnInit`
-              // centres it at mount and `centerZoomedOut` keeps it centred while it still fits.
-              // Centring in CSS would fight the transform, whose origin is the frame's top-left.
-              centerOnInit
-              centerZoomedOut
-              wheel={WHEEL}
-              doubleClick={DOUBLE_CLICK}
-              panning={flags.magnified ? PANNING_ON : PANNING_OFF}
-              onTransform={(_ref, state) => applyScale(state.scale)}
-              // A remounted viewport (after a loading page) starts fitted; sync the flags to it.
-              onInit={(ref) => applyScale(ref.state.scale)}
+      <Layout split={thumbnails}>
+        <div
+          ref={stageRef}
+          data-slot="annotated-document-stage"
+          data-magnified={flags.magnified}
+          className={cn(
+            "bg-muted relative min-w-0 flex-1 overflow-hidden rounded-md border [--annotation-stroke:2px] [--annotation-zoom:1]",
+            classNames?.stage
+          )}
+        >
+          {pager && (
+            <DocumentPager
+              pageIndex={pageIndex}
+              pageCount={pageCount}
+              onPageChange={onPageChange}
+              labels={text}
+              className={cn(
+                "absolute top-2 left-1/2 z-10 -translate-x-1/2",
+                classNames?.pager
+              )}
+            />
+          )}
+          {src === null ? (
+            <div
+              role="status"
+              className="text-muted-foreground flex aspect-[3/4] max-h-[80vh] w-full items-center justify-center gap-2 text-sm"
             >
-              {/* The wrapper fills the stage (the library defaults it to the page's width, which
+              <Loader2 aria-hidden="true" className="size-4 animate-spin" />
+              {text.loading}
+            </div>
+          ) : (
+            <>
+              <TransformWrapper
+                ref={zoomRef}
+                minScale={minZoom}
+                maxScale={maxZoom}
+                initialScale={restScale}
+                // The library owns the slack around a page smaller than the stage: `centerOnInit`
+                // centres it at mount and `centerZoomedOut` keeps it centred while it still fits.
+                // Centring in CSS would fight the transform, whose origin is the frame's top-left.
+                centerOnInit
+                centerZoomedOut
+                wheel={WHEEL}
+                doubleClick={DOUBLE_CLICK}
+                panning={flags.magnified ? PANNING_ON : PANNING_OFF}
+                onTransform={(_ref, state) => applyScale(state.scale)}
+                // A remounted viewport (after a loading page) starts fitted; sync the flags to it.
+                onInit={(ref) => applyScale(ref.state.scale)}
+              >
+                {/* The wrapper fills the stage (the library defaults it to the page's width, which
                   would leave a slit for a narrow page) and clips; the content element is what
                   the viewport transforms, and it shrink-wraps the image so the overlay tracks it. */}
-              <TransformComponent
-                wrapperClass={cn(
-                  "w-full!",
-                  flags.magnified
-                    ? "cursor-grab touch-none active:cursor-grabbing"
-                    : "touch-pan-y"
-                )}
-                contentClass="relative w-fit max-w-full"
-              >
-                <img
-                  ref={captureCompleteImage}
-                  src={src}
-                  alt={page?.alt ?? text.pageOf(pageIndex + 1, pageCount)}
-                  draggable={false}
-                  className={cn(
-                    "block h-auto max-h-[80vh] w-auto max-w-full select-none",
-                    classNames?.page
+                <TransformComponent
+                  wrapperClass={cn(
+                    "w-full!",
+                    flags.magnified
+                      ? "cursor-grab touch-none active:cursor-grabbing"
+                      : "touch-pan-y"
                   )}
-                  onLoad={(event) => {
-                    const img = event.currentTarget;
-                    setNatural({
-                      src,
-                      width: img.naturalWidth,
-                      height: img.naturalHeight,
-                    });
-                    // Only now does the frame have its real size. `centerOnInit` handles the
-                    // first image only, so re-centre for every later one.
-                    zoomRef.current?.centerView(restScale, 0);
-                  }}
-                />
-                {drawn.length > 0 && (
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 1 1"
-                    preserveAspectRatio="none"
-                    className="text-primary pointer-events-none absolute inset-0 size-full overflow-visible"
-                  >
-                    {drawn.map(({ box, rect, state }) => (
-                      <rect
-                        key={box.id}
-                        data-box-id={box.id}
-                        data-state={state}
-                        aria-hidden="true"
-                        className={cn(
-                          BOX_CLASS,
-                          state && BOX_STATE_CLASS[state],
-                          onBoxClick && "cursor-pointer",
-                          classNames?.box
-                        )}
-                        style={{
-                          color: box.color,
-                          pointerEvents: interactive ? "auto" : "none",
-                        }}
-                        x={rect[0]}
-                        y={rect[1]}
-                        width={rect[2] - rect[0]}
-                        height={rect[3] - rect[1]}
-                        onPointerEnter={
-                          onBoxHover ? () => onBoxHover(box) : undefined
-                        }
-                        onPointerLeave={
-                          onBoxHover ? () => onBoxHover(null) : undefined
-                        }
-                        onPointerDown={onBoxClick ? handlePointerDown : undefined}
-                        onClick={
-                          onBoxClick
-                            ? (event) => handleClick(box, event)
-                            : undefined
-                        }
-                      >
-                        {box.label ? <title>{box.label}</title> : null}
-                      </rect>
-                    ))}
-                  </svg>
+                  contentClass="relative w-fit max-w-full"
+                >
+                  <img
+                    ref={captureCompleteImage}
+                    src={src}
+                    alt={page?.alt ?? text.pageOf(pageIndex + 1, pageCount)}
+                    draggable={false}
+                    className={cn(
+                      "block h-auto max-h-[80vh] w-auto max-w-full select-none",
+                      classNames?.page
+                    )}
+                    onLoad={(event) => {
+                      const img = event.currentTarget;
+                      setNatural({
+                        src,
+                        width: img.naturalWidth,
+                        height: img.naturalHeight,
+                      });
+                      // Only now does the frame have its real size. `centerOnInit` handles the
+                      // first image only, so re-centre for every later one.
+                      zoomRef.current?.centerView(restScale, 0);
+                    }}
+                  />
+                  {drawn.length > 0 && (
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 1 1"
+                      preserveAspectRatio="none"
+                      className="text-primary pointer-events-none absolute inset-0 size-full overflow-visible"
+                    >
+                      {drawn.map(({ box, rect, state }) => (
+                        <rect
+                          key={box.id}
+                          data-box-id={box.id}
+                          data-state={state}
+                          aria-hidden="true"
+                          className={cn(
+                            BOX_CLASS,
+                            state && BOX_STATE_CLASS[state],
+                            onBoxClick && "cursor-pointer",
+                            classNames?.box
+                          )}
+                          style={{
+                            color: box.color,
+                            pointerEvents: interactive ? "auto" : "none",
+                          }}
+                          x={rect[0]}
+                          y={rect[1]}
+                          width={rect[2] - rect[0]}
+                          height={rect[3] - rect[1]}
+                          onPointerEnter={
+                            onBoxHover ? () => onBoxHover(box) : undefined
+                          }
+                          onPointerLeave={
+                            onBoxHover ? () => onBoxHover(null) : undefined
+                          }
+                          onPointerDown={
+                            onBoxClick ? handlePointerDown : undefined
+                          }
+                          onClick={
+                            onBoxClick
+                              ? (event) => handleClick(box, event)
+                              : undefined
+                          }
+                        >
+                          {box.label ? <title>{box.label}</title> : null}
+                        </rect>
+                      ))}
+                    </svg>
+                  )}
+                </TransformComponent>
+              </TransformWrapper>
+              {/* Outside the viewport, so pressing a button is never read as the start of a pan. */}
+              <div
+                role="group"
+                aria-label={text.zoom}
+                data-slot="annotated-document-zoom"
+                className={cn(
+                  "bg-popover text-popover-foreground absolute right-2 bottom-2 z-10 flex items-center gap-0.5 rounded-full border p-0.5 shadow-md",
+                  classNames?.zoom
                 )}
-              </TransformComponent>
-            </TransformWrapper>
-            {/* Outside the viewport, so pressing a button is never read as the start of a pan. */}
-            <div
-              role="group"
-              aria-label={text.zoom}
-              data-slot="annotated-document-zoom"
-              className={cn(
-                "bg-popover text-popover-foreground absolute right-2 bottom-2 z-10 flex items-center gap-0.5 rounded-full border p-0.5 shadow-md",
-                classNames?.zoom
-              )}
-            >
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="rounded-full"
-                aria-label={text.zoomOut}
-                disabled={flags.atMin}
-                onClick={() => zoomRef.current?.zoomOut(ZOOM_STEP)}
               >
-                <Minus aria-hidden="true" />
-              </Button>
-              <span
-                ref={levelRef}
-                className="text-muted-foreground min-w-11 text-center font-mono text-xs tabular-nums select-none"
-              >
-                {formatZoom(restScale)}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="rounded-full"
-                aria-label={text.zoomIn}
-                disabled={flags.atMax}
-                onClick={() => zoomRef.current?.zoomIn(ZOOM_STEP)}
-              >
-                <Plus aria-hidden="true" />
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                className="rounded-full"
-                aria-label={text.resetZoom}
-                disabled={flags.atRest}
-                onClick={() => zoomRef.current?.centerView(restScale)}
-              >
-                <Scan aria-hidden="true" />
-              </Button>
-            </div>
-          </>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  className="rounded-full"
+                  aria-label={text.zoomOut}
+                  disabled={flags.atMin}
+                  onClick={() => zoomRef.current?.zoomOut(ZOOM_STEP)}
+                >
+                  <Minus aria-hidden="true" />
+                </Button>
+                <span
+                  ref={levelRef}
+                  className="text-muted-foreground min-w-11 text-center font-mono text-xs tabular-nums select-none"
+                >
+                  {formatZoom(restScale)}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  className="rounded-full"
+                  aria-label={text.zoomIn}
+                  disabled={flags.atMax}
+                  onClick={() => zoomRef.current?.zoomIn(ZOOM_STEP)}
+                >
+                  <Plus aria-hidden="true" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  className="rounded-full"
+                  aria-label={text.resetZoom}
+                  disabled={flags.atRest}
+                  onClick={() => zoomRef.current?.centerView(restScale)}
+                >
+                  <Scan aria-hidden="true" />
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+        {thumbnails && (
+          <ThumbnailStrip
+            pages={pages}
+            pageIndex={pageIndex}
+            onPageChange={onPageChange}
+            onPageNeeded={onPageNeeded}
+            label={text.thumbnails}
+            pageN={text.pageN}
+            documentKey={documentKey}
+            className={classNames?.thumbnails}
+          />
         )}
-      </div>
-      {thumbnails && (
-        <ThumbnailStrip
-          pages={pages}
-          pageIndex={pageIndex}
-          onPageChange={onPageChange}
-          onPageNeeded={onPageNeeded}
-          label={text.thumbnails}
-          pageN={text.pageN}
-          className={classNames?.thumbnails}
-        />
-      )}
+      </Layout>
     </div>
   );
 }

@@ -13,6 +13,8 @@ type ThumbnailStripProps = {
   label: string;
   /** Each button's name. */
   pageN: (page: number) => string;
+  /** Identifies the document: when it changes, every page may be requested again. */
+  documentKey?: string | number;
   className?: string;
 };
 
@@ -20,7 +22,7 @@ type ThumbnailStripProps = {
 const NEAR_PX = 96;
 
 /**
- * The page thumbnails: a button per page, vertical from `md` and horizontal below it. A loaded page
+ * The page thumbnails: a button per page, vertical from the container's `@lg` width and horizontal below it. A loaded page
  * shows its own image (the full-page image, scaled by CSS: nothing is rendered twice); a page that
  * is not loaded yet shows its number, and asks `onPageNeeded` once when it scrolls into view.
  *
@@ -34,6 +36,7 @@ export const ThumbnailStrip = memo(function ThumbnailStrip({
   onPageNeeded,
   label,
   pageN,
+  documentKey,
   className,
 }: ThumbnailStripProps) {
   const stripRef = useRef<HTMLDivElement>(null);
@@ -45,10 +48,25 @@ export const ThumbnailStrip = memo(function ThumbnailStrip({
   });
 
   // Which pages have no image yet, as a stable key: the observer is rebuilt only when it changes.
-  const unloaded = pages.flatMap((page, index) => (page.src === null ? [index] : []));
+  const unloaded = pages.flatMap((page, index) =>
+    page.src === null ? [index] : []
+  );
   const unloadedKey = unloaded.join(",");
 
+  const pageCount = pages.length;
+  const seen = useRef({ documentKey, pageCount });
+
   useEffect(() => {
+    // A new document (its key, or its page count, changed) starts with nothing requested. The
+    // `pages` identity is deliberately not a trigger: hosts build a new array whenever a page
+    // loads, and resetting on that would ask again for pages still being rendered.
+    if (
+      seen.current.documentKey !== documentKey ||
+      seen.current.pageCount !== pageCount
+    ) {
+      seen.current = { documentKey, pageCount };
+      requested.current.clear();
+    }
     const loaded = new Set(unloaded);
     // A page that arrived is forgotten, so it is asked for again if it ever goes back to not loaded.
     for (const index of [...requested.current]) {
@@ -60,7 +78,8 @@ export const ThumbnailStrip = memo(function ThumbnailStrip({
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           const index = Number((entry.target as HTMLElement).dataset.pageIndex);
-          if (!Number.isInteger(index) || requested.current.has(index)) continue;
+          if (!Number.isInteger(index) || requested.current.has(index))
+            continue;
           requested.current.add(index);
           observer.unobserve(entry.target);
           needed.current?.(index);
@@ -75,7 +94,7 @@ export const ThumbnailStrip = memo(function ThumbnailStrip({
     return () => observer.disconnect();
     // `unloaded` is derived from `unloadedKey`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unloadedKey, onPageNeeded === undefined]);
+  }, [unloadedKey, documentKey, pageCount, onPageNeeded === undefined]);
 
   // Keep the current page's thumbnail in view, scrolling only the strip (never the page around it).
   useEffect(() => {
@@ -97,7 +116,7 @@ export const ThumbnailStrip = memo(function ThumbnailStrip({
       aria-label={label}
       data-slot="annotated-document-thumbnails"
       className={cn(
-        "flex gap-2 overflow-auto p-1 md:max-h-[80vh] md:w-[72px] md:shrink-0 md:flex-col",
+        "flex gap-2 overflow-auto p-1 @lg:max-h-[80vh] @lg:w-[72px] @lg:shrink-0 @lg:flex-col",
         className
       )}
     >
@@ -112,7 +131,7 @@ export const ThumbnailStrip = memo(function ThumbnailStrip({
           aria-label={pageN(index + 1)}
           aria-current={index === pageIndex ? "page" : undefined}
           onClick={() => onPageChange(index)}
-          className="bg-background text-muted-foreground focus-visible:ring-ring/50 aria-[current=page]:ring-primary relative block aspect-[3/4] w-14 shrink-0 overflow-hidden rounded-sm border outline-none focus-visible:ring-[3px] aria-[current=page]:ring-2 md:w-full"
+          className="bg-background text-muted-foreground focus-visible:ring-ring/50 aria-[current=page]:ring-primary relative block aspect-[3/4] w-14 shrink-0 overflow-hidden rounded-sm border outline-none focus-visible:ring-[3px] aria-[current=page]:ring-2 @lg:w-full"
         >
           {page.src ? (
             <img

@@ -93,7 +93,6 @@ Every visible or announced string comes from `labels`; anything left out (or pas
 | `zoom` | `"Zoom"` | zoom pill `aria-label` (`role="group"`) |
 | `zoomIn` / `zoomOut` / `resetZoom` | `"Zoom in"` / `"Zoom out"` / `"Reset zoom"` | zoom button `aria-label`s |
 | `loading` | `"Loading…"` | text of a page whose `src` is `null` |
-
 | `thumbnails` | `"Page thumbnails"` | the thumbnail strip's `aria-label` (`role="group"`) |
 | `pageN(page)` | `"Page {page}"` | each thumbnail button's name (`page` is 1-based) |
 
@@ -101,10 +100,10 @@ The zoom readout (`140%`) is a number, not a label.
 
 ## Thumbnails
 
-`thumbnails` adds a strip with one button per page: vertical and 72 px wide beside the page from the `md` breakpoint, horizontal below the page under it. The current page's button has `aria-current="page"`; a click calls `onPageChange(index)`.
+`thumbnails` adds a strip with one button per page: vertical and 72 px wide beside the page once the viewer itself is at least 32 rem wide (a container query, so a narrow pane on a wide screen gets the horizontal strip), horizontal below the page under that. The current page's button has `aria-current="page"`; a click calls `onPageChange(index)`.
 
 - A loaded page's thumbnail is its own `src` scaled by CSS, so nothing is rendered or fetched twice. A page whose `src` is `null` shows its number.
-- For pages you render on demand (a PDF rasterized in the browser, say), pass `onPageNeeded`: it fires once per such page when its thumbnail scrolls into view (an `IntersectionObserver` on the strip, with a small margin), so a long document renders only the pages the reader gets near. The request is remembered while the viewer stays mounted; give the viewer a new `key` when the document changes.
+- For pages you render on demand (a PDF rasterized in the browser, say), pass `onPageNeeded`: it fires once per such page when its thumbnail scrolls into view (an `IntersectionObserver` on the strip, with a small margin), so a long document renders only the pages the reader gets near. The request is remembered while the document stays the same. Pass `documentKey` (any string or number identifying the document); when it or the page count changes, still-missing pages are requested again. A new `pages` array alone never resets it, since hosts build one on every page load. Giving the viewer a new `key` also works.
 - The strip is memoized: it re-renders only when `pages`, `pageIndex`, `onPageChange`, `onPageNeeded` or the labels change, not for zoom or box emphasis. Keep those references stable.
 - There are no box marks on thumbnails.
 

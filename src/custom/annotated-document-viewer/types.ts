@@ -94,6 +94,12 @@ export type AnnotatedDocumentViewerProps = {
    * document.
    */
   onPageNeeded?: (index: number) => void;
+  /**
+   * Identifies the document. When it (or the page count) changes, `onPageNeeded` may fire again
+   * for pages that are still not loaded; a new `pages` array alone never does. Keying the viewer
+   * works too.
+   */
+  documentKey?: string | number;
   labels?: AnnotatedDocumentViewerLabels;
   className?: string;
   classNames?: {
