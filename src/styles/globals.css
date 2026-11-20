@@ -1,9 +1,20 @@
-@import "tailwindcss";
+/*
+ * Theme for @ayasofyazilim/ui: design tokens, the dark variant, base
+ * overrides and tw-animate-css. It does not import Tailwind; the app does:
+ *
+ *   @import "tailwindcss";
+ *   @import "@ayasofyazilim/ui/globals.css";
+ *
+ * The app keeps its own @source lines for its own folders.
+ */
 @import "./core.css";
-@source "../../../../packages/ui/**/*.{ts,tsx}";
-@source "../**/*.{ts,tsx}";
-
 @import "tw-animate-css";
+
+/*
+ * Scans this package's modules for class names, relative to this file: src
+ * in a workspace, dist when installed from npm.
+ */
+@source "../**/*.{js,ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -24,6 +35,7 @@
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -59,6 +71,7 @@
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);

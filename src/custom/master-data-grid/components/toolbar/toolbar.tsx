@@ -5,8 +5,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@repo/ayasofyazilim-ui/components/dropdown-menu";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/dropdown-menu";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import type {
   ColumnFilter,
   ColumnSort,

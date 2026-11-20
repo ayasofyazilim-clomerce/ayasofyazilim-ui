@@ -1,7 +1,7 @@
 "use client";
 
-import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Skeleton } from "@ayasofyazilim/ui/components/skeleton";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { cva, VariantProps } from "class-variance-authority";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";

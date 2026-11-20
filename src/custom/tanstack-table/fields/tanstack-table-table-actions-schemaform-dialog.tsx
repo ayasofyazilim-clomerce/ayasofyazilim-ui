@@ -5,8 +5,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@repo/ayasofyazilim-ui/components/dialog";
-import { SchemaForm } from "@repo/ayasofyazilim-ui/custom/schema-form";
+} from "@ayasofyazilim/ui/components/dialog";
+import { SchemaForm } from "@ayasofyazilim/ui/custom/schema-form";
 import { TanstackTableActionsSchemaFormDialog } from "../types";
 import { useCallback, useState } from "react";
 

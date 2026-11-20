@@ -1,5 +1,5 @@
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import type { ButtonVariant } from "@repo/ayasofyazilim-ui/components/button";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
+import type { ButtonVariant } from "@ayasofyazilim/ui/components/button";
 import { GenericObjectType } from "@rjsf/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Save, X } from "lucide-react";

@@ -6,8 +6,8 @@ import Link from "next/link";
 import * as React from "react";
 import { createPortal } from "react-dom";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Card,
   CardAction,
@@ -16,12 +16,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ayasofyazilim-ui/components/card";
+} from "@ayasofyazilim/ui/components/card";
 import {
   Popover,
   PopoverAnchor,
   PopoverContent,
-} from "@repo/ayasofyazilim-ui/components/popover";
+} from "@ayasofyazilim/ui/components/popover";
 
 const TourContext = React.createContext<{
   start: (tourId: string) => void;
@@ -59,9 +59,11 @@ interface Tour {
 function TourProvider({
   tours,
   children,
+  closeLabel = "Close",
 }: {
   tours: Tour[];
   children: React.ReactNode;
+  closeLabel?: string;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [activeTourId, setActiveTourId] = React.useState<string | null>(null);
@@ -123,6 +125,7 @@ function TourProvider({
           onNext={next}
           onPrevious={previous}
           onClose={close}
+          closeLabel={closeLabel}
         />
       )}
     </TourContext.Provider>
@@ -136,6 +139,7 @@ function TourOverlay({
   onNext,
   onPrevious,
   onClose,
+  closeLabel,
 }: {
   step: Step;
   currentStepIndex: number;
@@ -143,6 +147,7 @@ function TourOverlay({
   onNext: () => void;
   onPrevious: () => void;
   onClose: () => void;
+  closeLabel: string;
 }) {
   const [targets, setTargets] = React.useState<
     { rect: DOMRect; radius: number }[]
@@ -321,7 +326,12 @@ function TourOverlay({
                   {currentStepIndex + 1}/{totalSteps}
                 </CardDescription>
                 <CardAction>
-                  <Button variant="ghost" size="icon" onClick={onClose}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={onClose}
+                    aria-label={closeLabel}
+                  >
                     <XIcon />
                   </Button>
                 </CardAction>

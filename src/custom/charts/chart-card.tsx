@@ -5,15 +5,15 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@repo/ayasofyazilim-ui/components/card";
+} from "@ayasofyazilim/ui/components/card";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@repo/ayasofyazilim-ui/components/empty";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/empty";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { ReactNode } from "react";
 import { EmptyConfig } from ".";
 

@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@repo/ayasofyazilim-ui/components/card";
+} from "@ayasofyazilim/ui/components/card";
 import { useRef, useState } from "react";
 import {
   DEFAULT_DRAW_PAD_TRANSLATIONS,
@@ -15,7 +15,7 @@ import {
   type DrawPadHandle,
   type DrawPadTranslations,
   type DownloadFormat,
-} from "@repo/ayasofyazilim-ui/custom/draw-pad";
+} from "@ayasofyazilim/ui/custom/draw-pad";
 
 // --- Turkish translations ---
 const TR_TRANSLATIONS: DrawPadTranslations = {

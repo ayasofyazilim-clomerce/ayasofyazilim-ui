@@ -1,0 +1,81 @@
+# Publishes @ayasofyazilim/ui to npm when a tag like `ui-v0.1.0` is pushed.
+# The tag must match the version in package.json. Running the workflow by hand
+# (workflow_dispatch) does every step except the publish, as a dry run.
+#
+# Needs the repository secret NPM_TOKEN: an npm automation (or granular
+# publish) token for the @ayasofyazilim scope.
+#
+# Publishing goes through pnpm on purpose: pnpm applies `publishConfig.exports`
+# (the dist entry points) when it packs; the npm CLI does not.
+name: Publish
+
+on:
+  push:
+    tags:
+      - "ui-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm provenance
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Check the tag matches package.json
+        if: github.event_name == 'push'
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "ui-v${version}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json version ${version} (expected ui-v${version})." >&2
+            exit 1
+          fi
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm type-check
+      - run: pnpm test
+      - run: pnpm build
+
+      - name: Pack
+        run: |
+          pnpm pack --pack-destination "$RUNNER_TEMP/pack"
+          tarball="$(ls "$RUNNER_TEMP"/pack/*.tgz)"
+          echo "TARBALL=${tarball}" >> "$GITHUB_ENV"
+          tar -xOzf "$tarball" package/package.json > "$RUNNER_TEMP/packed-package.json"
+          node -e '
+            const p = require(process.argv[1]);
+            const target = p.exports["./custom/master-data-grid"];
+            if (!target || !String(target.default).startsWith("./dist/")) {
+              console.error("Packed exports do not point at dist:", target);
+              process.exit(1);
+            }
+            if (JSON.stringify(p).includes("workspace:")) {
+              console.error("Packed package.json still has workspace: specs");
+              process.exit(1);
+            }
+          ' "$RUNNER_TEMP/packed-package.json"
+
+      - name: Publish
+        if: github.event_name == 'push'
+        run: pnpm publish "$TARBALL" --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"

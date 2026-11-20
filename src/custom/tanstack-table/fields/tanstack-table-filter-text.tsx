@@ -2,18 +2,18 @@ import { CirclePlusIcon } from "lucide-react";
 import { Column } from "@tanstack/react-table";
 
 import { useEffect, useState } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Command,
   CommandInput,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
-import { useDebounce } from "@repo/ayasofyazilim-ui/hooks/use-debounce";
+} from "@ayasofyazilim/ui/components/popover";
+import { Separator } from "@ayasofyazilim/ui/components/separator";
+import { useDebounce } from "@ayasofyazilim/ui/hooks/use-debounce";
 
 interface TanstackTableTextFilterProps<TData, TValue> {
   accessorKey: string;

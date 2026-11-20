@@ -1,6 +1,6 @@
 import type { Table } from "@tanstack/react-table";
 
-import { useIsMobile } from "@repo/ayasofyazilim-ui/hooks/use-mobile";
+import { useIsMobile } from "@ayasofyazilim/ui/hooks/use-mobile";
 import { useState } from "react";
 import {
   Drawer,

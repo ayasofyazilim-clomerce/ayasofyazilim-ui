@@ -1,12 +1,12 @@
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { ButtonGroup } from "@repo/ayasofyazilim-ui/components/button-group";
+import { Button } from "@ayasofyazilim/ui/components/button";
+import { ButtonGroup } from "@ayasofyazilim/ui/components/button-group";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { TableCell, TableRow } from "@repo/ayasofyazilim-ui/components/table";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/popover";
+import { TableCell, TableRow } from "@ayasofyazilim/ui/components/table";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import {
   ArrayFieldItemTemplateProps,
   FormContextType,

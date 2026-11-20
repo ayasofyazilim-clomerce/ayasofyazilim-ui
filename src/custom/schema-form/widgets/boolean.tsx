@@ -1,7 +1,7 @@
-import { Checkbox } from "@repo/ayasofyazilim-ui/components/checkbox";
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
-import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Checkbox } from "@ayasofyazilim/ui/components/checkbox";
+import { Label } from "@ayasofyazilim/ui/components/label";
+import { Switch } from "@ayasofyazilim/ui/components/switch";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { WidgetProps } from "@rjsf/utils";
 import { ReactNode } from "react";
 

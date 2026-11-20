@@ -4,8 +4,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from "@repo/ayasofyazilim-ui/components/input-group";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/input-group";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { WidgetProps } from "@rjsf/utils";
 
 export const URLInputWidget = (props: WidgetProps) => {

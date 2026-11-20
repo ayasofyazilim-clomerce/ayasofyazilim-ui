@@ -1,20 +1,20 @@
 "use client";
 
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@repo/ayasofyazilim-ui/components/card";
+} from "@ayasofyazilim/ui/components/card";
 import { useState } from "react";
 import {
   CreditCardScanner,
   type CreditCardData,
   type ExternalCardExtractionResult,
   type ExternalExtractionInput,
-} from "@repo/ayasofyazilim-ui/custom/credit-card-scanner";
+} from "@ayasofyazilim/ui/custom/credit-card-scanner";
 import { brandLabel } from "./lib";
 
 // Stand-in for the real backend call a consuming app would make here - e.g. a

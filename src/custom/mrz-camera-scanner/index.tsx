@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button } from "@ayasofyazilim/ui/components/button";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import {
   CameraIcon,
   CheckCircle2Icon,
