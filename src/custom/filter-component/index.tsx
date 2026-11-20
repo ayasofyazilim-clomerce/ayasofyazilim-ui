@@ -9,18 +9,18 @@ import {
   useState,
   useTransition,
 } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Card,
   CardContent,
   CardHeader,
-} from "@repo/ayasofyazilim-ui/components/card";
+} from "@ayasofyazilim/ui/components/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@repo/ayasofyazilim-ui/components/collapsible";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/collapsible";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import AsyncSelectField from "./fields/async-select";
 import DateField from "./fields/date";
 import MultiSelectField from "./fields/multi-select";

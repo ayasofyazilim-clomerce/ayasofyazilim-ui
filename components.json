@@ -11,11 +11,11 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@repo/ayasofyazilim-ui/components",
-    "utils": "@repo/ayasofyazilim-ui/lib/utils",
-    "ui": "@repo/ayasofyazilim-ui/components",
-    "lib": "@repo/ayasofyazilim-ui/lib",
-    "hooks": "@repo/ayasofyazilim-ui/hooks"
+    "components": "@ayasofyazilim/ui/components",
+    "utils": "@ayasofyazilim/ui/lib/utils",
+    "ui": "@ayasofyazilim/ui/components",
+    "lib": "@ayasofyazilim/ui/lib",
+    "hooks": "@ayasofyazilim/ui/hooks"
   },
   "registries": {
     "@shadcn-map": "http://shadcn-map.vercel.app/r/{name}.json",

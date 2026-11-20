@@ -2,8 +2,8 @@ import { CheckIcon, CirclePlusIcon } from "lucide-react";
 import { Column } from "@tanstack/react-table";
 
 import { useEffect, useState } from "react";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Badge } from "@ayasofyazilim/ui/components/badge";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -12,14 +12,14 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim/ui/components/popover";
+import { Separator } from "@ayasofyazilim/ui/components/separator";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { TanstackTableFacetedFilterType } from "../types";
 
 interface DataTableFacetedFilterProps<TData, TValue> {

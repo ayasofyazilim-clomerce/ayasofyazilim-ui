@@ -1,4 +1,4 @@
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { ArrowRight, LucideIcon } from "lucide-react";
 import Link, { LinkProps } from "next/link";
 

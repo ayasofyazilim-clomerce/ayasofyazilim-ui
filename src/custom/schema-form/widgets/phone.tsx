@@ -3,7 +3,7 @@
 import {
   PhoneInput,
   PhoneInputProps,
-} from "@repo/ayasofyazilim-ui/custom/phone-input";
+} from "@ayasofyazilim/ui/custom/phone-input";
 import { WidgetProps } from "@rjsf/utils";
 
 export function CustomPhoneFieldWithParse<T>(

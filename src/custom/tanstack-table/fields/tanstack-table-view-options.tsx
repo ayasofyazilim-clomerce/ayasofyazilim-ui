@@ -4,12 +4,12 @@ import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { Table } from "@tanstack/react-table";
 
 import { ChevronDownIcon } from "lucide-react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@repo/ayasofyazilim-ui/components/dropdown-menu";
+} from "@ayasofyazilim/ui/components/dropdown-menu";
 import {
   TanstackTableSelectedRowActionType,
   TanstackTableTableActionsType,

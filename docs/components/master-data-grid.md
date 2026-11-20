@@ -1,6 +1,6 @@
 # MasterDataGrid
 
-`MasterDataGrid` from `@repo/ayasofyazilim-ui/custom/master-data-grid` is the shared data grid: schema-driven columns, server or client paging, filters, selection, grouping, editing, export.
+`MasterDataGrid` from `@ayasofyazilim/ui/custom/master-data-grid` is the shared data grid: schema-driven columns, server or client paging, filters, selection, grouping, editing, export.
 
 ## When to use
 
@@ -12,7 +12,7 @@
 
 ```tsx
 // page.tsx (server component)
-import { getGridUrlParams } from "@repo/ayasofyazilim-ui/custom/master-data-grid";
+import { getGridUrlParams } from "@ayasofyazilim/ui/custom/master-data-grid";
 
 const serverFilters = [
   { type: "string", key: "filter", label: "Name", placeholder: "Search" },
@@ -37,7 +37,7 @@ export default async function Page({ searchParams }) {
 }
 
 // orders-grid.tsx ("use client")
-import { MasterDataGrid } from "@repo/ayasofyazilim-ui/custom/master-data-grid";
+import { MasterDataGrid } from "@ayasofyazilim/ui/custom/master-data-grid";
 
 export function OrdersGrid({ data, rowCount }) {
   return (

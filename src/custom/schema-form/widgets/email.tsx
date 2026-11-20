@@ -1,5 +1,5 @@
-import { EmailInput } from "@repo/ayasofyazilim-ui/custom/email-input";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { EmailInput } from "@ayasofyazilim/ui/custom/email-input";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 import { WidgetProps } from "@rjsf/utils";
 import { useState } from "react";
 

@@ -5,7 +5,7 @@ import type { Table } from "@tanstack/react-table";
 import { Loader2 } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import type { Localization, MasterDataGridResources } from "../types";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+import { Badge } from "@ayasofyazilim/ui/components/badge";
 
 interface RowCountSummaryProps<TData> {
   table: Table<TData>;

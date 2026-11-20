@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CreditCard } from "lucide-react";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim/ui/lib/utils";
 
 export type CardBrand =
   | "visa"
