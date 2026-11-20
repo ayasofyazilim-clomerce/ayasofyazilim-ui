@@ -26,7 +26,7 @@ First release built from `main`. Version 0.0.11 was built from a separate branch
 - Optional label props on primitives that hardcoded English text (`closeLabel`, `label`, ...), defaulting to the previous English.
 - `--destructive-foreground` theme token.
 - MasterDataGrid: scoped URL state (`urlState: { prefix }` or `"none"`), `getGridUrlParams` for server pages, column footers, Excel and JSON export.
-- Subpaths that 0.0.11 did not export, among them every `custom/*` folder with an index, `custom/barcode-formats` and `hooks/use-scroll`.
+- Subpaths that 0.0.11 did not export: the `custom/*` folders `barcode-camera-scanner`, `barcode-image-decoder`, `camera-stream`, `credit-card-scanner`, `draw-pad`, `icons` and `mrz-camera-scanner`, plus `custom/barcode-formats` and `hooks/use-scroll`.
 
 ### Fixed
 
