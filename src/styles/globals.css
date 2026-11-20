@@ -1,10 +1,20 @@
-@import "tailwindcss";
+/*
+ * Theme for @ayasofyazilim/ui: design tokens, the dark variant, base
+ * overrides and tw-animate-css. It does not import Tailwind; the app does:
+ *
+ *   @import "tailwindcss";
+ *   @import "@ayasofyazilim/ui/globals.css";
+ *
+ * The app keeps its own @source lines for its own folders.
+ */
 @import "./core.css";
-/* Scans Unirefund packages/ui classes; Tailwind ignores this path when it is missing. */
-@source "../../../../packages/ui/**/*.{ts,tsx}";
-@source "../**/*.{ts,tsx}";
-
 @import "tw-animate-css";
+
+/*
+ * Scans this package's modules for class names, relative to this file: src
+ * in a workspace, dist when installed from npm.
+ */
+@source "../**/*.{js,ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
 
