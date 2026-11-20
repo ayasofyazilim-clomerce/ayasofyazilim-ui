@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 
 export interface UseEditingProps<TData> {
   data: TData[];
@@ -35,6 +35,13 @@ export function useEditing<TData>({
 }: UseEditingProps<TData>): UseEditingReturn<TData> {
   const editingRowsRef = useRef<Record<string, Record<string, unknown>>>({});
   editingRowsRef.current = editingRows;
+  // The rows, read when a save runs rather than captured: `saveEditingRow` is a column dependency,
+  // so depending on `data` would rebuild the columns on every data change (a sort, a reload) and
+  // remount the select and action cells under the keyboard's focus.
+  const dataRef = useRef(data);
+  useLayoutEffect(() => {
+    dataRef.current = data;
+  });
 
   const startEditingRow = useCallback(
     (rowId: string, row: TData) => {
@@ -67,6 +74,7 @@ export function useEditing<TData>({
         await editing.onRowSave(row, typedChanges);
       }
       if (onDataChange && Object.keys(changes).length > 0) {
+        const data = dataRef.current;
         const updatedData = data.map((item) => {
           const itemId = getRowId
             ? getRowId(item, data.indexOf(item))
@@ -82,7 +90,7 @@ export function useEditing<TData>({
         return rest;
       });
     },
-    [data, onDataChange, getRowId, editing, setEditingRows]
+    [onDataChange, getRowId, editing, setEditingRows]
   );
 
   const updateCellValue = useCallback(
