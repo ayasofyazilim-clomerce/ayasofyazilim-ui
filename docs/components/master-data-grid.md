@@ -86,6 +86,7 @@ New:
 | `export.formats` | `Array<"csv" \| "excel" \| "json">`. Unset: the toolbar shows today's single Export button, which exports CSV. Set: the Export button opens a menu of those formats. Excel loads `write-excel-file` lazily. `customExport` still wins when set. |
 | column `footer` | `ColumnConfig.footer: ({ column }) => ReactNode`, rendered in a table footer row. |
 | `subRows` | Opt-in tree rows: child rows drawn under their parent, indented, with a toggle. See "Tree rows (`subRows`)" below. |
+| `selection.rowLabel(row)` | Opt-in: each row checkbox's accessible name, such as `` (row) => `Select ${row.name}` ``, so a screen reader can tell the rows apart. Without it, every row's checkbox reads the `column.selectRow` resource. Keep it stable (memoize it on its inputs): like `getRowId`, a new function rebuilds the columns, which remounts every cell and drops keyboard focus. |
 
 Export headers: Excel and JSON use the `column.<id>` resource, else a string `header`, else the schema property's `title`, else the column id, so a schema column's header matches the screen. CSV keeps its legacy headers (a string `header`, else the column id).
 

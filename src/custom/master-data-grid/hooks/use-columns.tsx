@@ -265,6 +265,7 @@ export function useColumns<TData>({
   // With tree rows, editing is keyed by row id (row.index repeats per parent)
   // and a row rowSelectable rejects gets no checkbox at all.
   const treeRows = activeSubRows(config) !== undefined;
+  const rowLabel = config.selection?.rowLabel;
   return useMemo<ColumnDef<TData>[]>(() => {
     const editingContext = config.editing?.enabled
       ? {
@@ -438,7 +439,7 @@ export function useColumns<TData>({
               checked={row.getIsSelected()}
               disabled={!row.getCanSelect()}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
-              aria-label={t?.["column.selectRow"]}
+              aria-label={rowLabel?.(row.original) ?? t?.["column.selectRow"]}
             />
           ),
         enableSorting: false,
@@ -725,6 +726,7 @@ export function useColumns<TData>({
     config.expansion,
     config.grouping?.groupBy,
     config.selection?.enabled,
+    rowLabel,
     config.rowActions,
     config.rowActionsDisplay,
     config.columnOrder,

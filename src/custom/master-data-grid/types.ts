@@ -244,6 +244,13 @@ export interface SelectionConfig<TData = unknown> {
   selectedIds?: string[];
   onSelectionChange?: (selectedRows: TData[]) => void;
   rowSelectable?: (row: TData) => boolean;
+  /**
+   * Opt-in: the accessible name of a row's checkbox, such as "Select Invoice 42", so a screen
+   * reader tells the rows apart. Without it every row's checkbox reads the `column.selectRow`
+   * resource. Keep it stable (memoize it): like `getRowId`, a new function rebuilds the columns,
+   * which remounts every cell.
+   */
+  rowLabel?: (row: TData) => string;
 }
 
 export interface PinningConfig {
