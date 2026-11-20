@@ -20,9 +20,6 @@
     "ui"
   ],
   "type": "module",
-  "sideEffects": [
-    "**/*.css"
-  ],
   "files": [
     "dist",
     "README.md",
