@@ -7,7 +7,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import React, { Dispatch, SetStateAction, useState } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -15,26 +15,26 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim-clomerce/ui/components/command";
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
-} from "@repo/ayasofyazilim-ui/components/drawer";
+} from "@ayasofyazilim-clomerce/ui/components/drawer";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { useMediaQuery } from "@repo/ayasofyazilim-ui/hooks/use-media-query";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
+import { useMediaQuery } from "@ayasofyazilim-clomerce/ui/hooks/use-media-query";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Label } from "@ayasofyazilim-clomerce/ui/components/label";
+import { Badge } from "@ayasofyazilim-clomerce/ui/components/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@repo/ayasofyazilim-ui/components/tooltip";
+} from "@ayasofyazilim-clomerce/ui/components/tooltip";
 
 export type ComboboxBadgeOptions<T> = {
   className?: string;
@@ -56,6 +56,15 @@ export type ComboboxLinkOptions<T> = {
   /** Optional condition to determine if the link should be rendered. */
   condition?: (item: T) => boolean;
 };
+
+export type ComboboxFreeTextOptions<T> = {
+  /** Builds the item that is selected when the typed text is chosen. */
+  toItem: (text: string) => T;
+  /** Label of the extra option. Defaults to `Use "text"`. */
+  label?: (text: string) => string;
+};
+
+const FREE_TEXT_ITEM_VALUE = "__combobox-free-text__";
 
 export type ComboboxProps<T> = {
   id?: string;
@@ -95,6 +104,11 @@ export type ComboboxProps<T> = {
   link?: Partial<Record<keyof T, ComboboxLinkOptions<T>>>;
   /** Replaces the default label/badge/link content of each item. */
   customItemRenderer?: (item: T) => React.ReactNode;
+  /**
+   * Lets the user pick the text they typed when it matches no item. The list
+   * then ends with one extra option; choosing it selects `toItem(text)`.
+   */
+  freeText?: ComboboxFreeTextOptions<T>;
 };
 
 function ComboboxLinks<T>({
@@ -206,6 +220,9 @@ export function Combobox<T>(props: ComboboxProps<T>) {
     (list?.find(
       (x: T) => x[props.selectIdentifier] === currentValue?.[selectIdentifier]
     )?.[props.selectLabel] as string) ||
+    (props.freeText && currentValue?.[props.selectLabel] != null
+      ? String(currentValue[props.selectLabel])
+      : undefined) ||
     emptyValue ||
     (label && `Please select an ${label.toLocaleLowerCase()}`) ||
     "Please select";
@@ -348,11 +365,24 @@ function List<T>({
     link,
     disabledItems,
     customItemRenderer,
+    freeText,
   } = props;
+  const [search, setSearch] = useState("");
+  const freeTextValue = search.trim();
+  const showFreeText =
+    !!freeText &&
+    freeTextValue !== "" &&
+    !list?.some(
+      (item) =>
+        String(item[selectLabel] ?? "").toLocaleLowerCase() ===
+          freeTextValue.toLocaleLowerCase() ||
+        String(item[selectIdentifier]) === freeTextValue
+    );
 
   return (
     <Command
       filter={(value, search) => {
+        if (value === FREE_TEXT_ITEM_VALUE) return 1;
         const filterResult = list?.find(
           (i) =>
             (i[selectIdentifier] as string)?.toLocaleLowerCase() ===
@@ -370,10 +400,12 @@ function List<T>({
         data-testid={id ? `${id}_search` : undefined}
         placeholder={searchPlaceholder || "Search..."}
         className="h-9"
+        value={freeText ? search : undefined}
+        onValueChange={freeText ? setSearch : undefined}
       />
       <CommandList className="w-full min-w-full max-w-full">
         <CommandEmpty>{searchResultLabel || "0 search result."}</CommandEmpty>
-        <CommandGroup>
+        <CommandGroup forceMount={showFreeText || undefined}>
           {list?.map((item: T, index) => (
             <CommandItem
               data-testid={id ? `${id}_${index}` : undefined}
@@ -424,6 +456,21 @@ function List<T>({
               )}
             </CommandItem>
           ))}
+          {showFreeText && freeText && (
+            <CommandItem
+              data-testid={id ? `${id}_free-text` : undefined}
+              forceMount
+              onSelect={() => {
+                handleValueChange(freeText.toItem(freeTextValue));
+                setOpen(false);
+              }}
+              value={FREE_TEXT_ITEM_VALUE}
+            >
+              {freeText.label
+                ? freeText.label(freeTextValue)
+                : `Use "${freeTextValue}"`}
+            </CommandItem>
+          )}
         </CommandGroup>
       </CommandList>
     </Command>

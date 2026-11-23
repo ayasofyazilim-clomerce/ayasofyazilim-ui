@@ -2,23 +2,23 @@
 
 import { CheckIcon, ChevronDown, XCircle, XIcon } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Badge, BadgeVariant } from "@repo/ayasofyazilim-ui/components/badge";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Badge, BadgeVariant } from "@ayasofyazilim-clomerce/ui/components/badge";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Command as Cmd,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim-clomerce/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
-import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
+import { Separator } from "@ayasofyazilim-clomerce/ui/components/separator";
+import { Skeleton } from "@ayasofyazilim-clomerce/ui/components/skeleton";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { useDebounce } from "../hooks/use-debounce";
 
 export type SearchItem = Record<string, unknown>;

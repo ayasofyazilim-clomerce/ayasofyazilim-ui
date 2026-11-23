@@ -1,6 +1,6 @@
 "use client";
 
-import { lodash } from "@repo/ayasofyazilim-ui/lib/utils";
+import { lodash } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { Form } from "@rjsf/shadcn";
 import { customizeValidator } from "@rjsf/validator-ajv8";
 import type { IChangeEvent } from "@rjsf/core";

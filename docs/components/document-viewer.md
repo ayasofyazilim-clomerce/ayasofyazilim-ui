@@ -1,6 +1,6 @@
 # DocumentViewer
 
-`DocumentViewer` from `@repo/ayasofyazilim-ui/custom/document-viewer` renders one document (PDF, image, Office, text) in a bordered viewer, with a custom PDF renderer (zoom, thumbnails, text search).
+`DocumentViewer` from `@ayasofyazilim-clomerce/ui/custom/document-viewer` renders one document (PDF, image, Office, text) in a bordered viewer, with a custom PDF renderer (zoom, thumbnails, text search).
 
 ## When to use
 
@@ -10,7 +10,7 @@
 ## Minimal example
 
 ```tsx
-import DocumentViewer from "@repo/ayasofyazilim-ui/custom/document-viewer";
+import DocumentViewer from "@ayasofyazilim-clomerce/ui/custom/document-viewer";
 
 export function Preview({ url }: { url: string }) {
   return (
