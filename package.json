@@ -1,14 +1,45 @@
 {
-  "name": "@repo/ayasofyazilim-ui",
-  "version": "0.0.0",
+  "name": "@ayasofyazilim-clomerce/ui",
+  "version": "0.2.0",
+  "description": "React 19 + Next.js 16 component library: shadcn/ui primitives, schema-driven forms and a data grid, styled with Tailwind CSS v4.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ayasofyazilim-clomerce/ayasofyazilim-ui.git"
+  },
+  "homepage": "https://github.com/ayasofyazilim-clomerce/ayasofyazilim-ui#readme",
+  "bugs": {
+    "url": "https://github.com/ayasofyazilim-clomerce/ayasofyazilim-ui/issues"
+  },
+  "keywords": [
+    "react",
+    "nextjs",
+    "tailwindcss",
+    "shadcn",
+    "components",
+    "ui"
+  ],
   "type": "module",
-  "private": true,
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "packageManager": "pnpm@10.30.2",
+  "engines": {
+    "node": ">=20.9"
+  },
   "scripts": {
+    "build": "tsup && tsc -p tsconfig.build.json && node scripts/exports.mjs --dist",
+    "exports": "node scripts/exports.mjs",
+    "exports:check": "node scripts/exports.mjs --check",
     "lint": "eslint .",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit && node scripts/exports.mjs --check",
     "test": "jest --no-cache",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "prepack": "node scripts/exports.mjs --dist"
   },
   "dependencies": {
     "@headless-tree/core": "^1.5.1",
@@ -47,6 +78,13 @@
     "@rjsf/validator-ajv8": "6.1.1",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.18",
+    "@types/geojson": "^7946.0.16",
+    "@types/leaflet": "^1.9.21",
+    "@types/leaflet-draw": "^1.0.13",
+    "@types/leaflet.markercluster": "^1.5.6",
+    "@types/lodash": "^4.17.20",
+    "@zxing/browser": "^0.2.0",
+    "@zxing/library": "^0.23.0",
     "ajv": "^8.17.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -81,31 +119,26 @@
     "tesseract.js": "^7.0.0",
     "tw-animate-css": "^1.3.6",
     "vaul": "^1.1.2",
-    "@zxing/browser": "^0.2.0",
-    "@zxing/library": "^0.23.0",
-    "write-excel-file": "^4.1.1",
-    "zod": "4.6.7"
+    "write-excel-file": "^4.1.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.38.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
-    "@turbo/gen": "^2.5.5",
-    "@types/geojson": "^7946.0.16",
     "@types/jest": "^29.5.14",
     "@types/jsdom": "^21.1.7",
-    "@types/leaflet": "^1.9.21",
-    "@types/leaflet-draw": "^1.0.13",
-    "@types/leaflet.markercluster": "^1.5.6",
-    "@types/lodash": "^4.17.20",
     "@types/node": "^20.19.9",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
     "canvas": "3.1.2",
     "eslint": "^9.32.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
@@ -116,17 +149,31 @@
     "react-dom": "^19.1.1",
     "tailwindcss": "^4.1.11",
     "ts-jest": "^29.4.9",
-    "typescript": "6.0.2"
+    "tsup": "^8.5.0",
+    "typescript": "6.0.2",
+    "typescript-eslint": "^8.39.0",
+    "zod": "4.6.7"
   },
   "peerDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "canvas": "^3.1.2",
+    "jsdom": "^26.1.0",
     "next": "^16.2.10",
     "next-themes": "^0.4.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "canvas": "^3.1.2",
-    "jsdom": "^26.1.0"
+    "tailwindcss": "^4.1.11",
+    "zod": "^4.1.13"
   },
   "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    },
+    "@types/react-dom": {
+      "optional": true
+    },
     "canvas": {
       "optional": true
     },
@@ -134,22 +181,1422 @@
       "optional": true
     }
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "exports": {
+      "./package.json": "./package.json",
+      "./globals.css": "./dist/styles/globals.css",
+      "./postcss.config": "./dist/postcss.config.mjs",
+      "./aria": {
+        "types": "./dist/aria/index.d.ts",
+        "default": "./dist/aria/index.js"
+      },
+      "./aria/number-field": {
+        "types": "./dist/aria/number-field.d.ts",
+        "default": "./dist/aria/number-field.js"
+      },
+      "./components/accordion": {
+        "types": "./dist/components/accordion.d.ts",
+        "default": "./dist/components/accordion.js"
+      },
+      "./components/alert": {
+        "types": "./dist/components/alert.d.ts",
+        "default": "./dist/components/alert.js"
+      },
+      "./components/alert-dialog": {
+        "types": "./dist/components/alert-dialog.d.ts",
+        "default": "./dist/components/alert-dialog.js"
+      },
+      "./components/aspect-ratio": {
+        "types": "./dist/components/aspect-ratio.d.ts",
+        "default": "./dist/components/aspect-ratio.js"
+      },
+      "./components/avatar": {
+        "types": "./dist/components/avatar.d.ts",
+        "default": "./dist/components/avatar.js"
+      },
+      "./components/badge": {
+        "types": "./dist/components/badge.d.ts",
+        "default": "./dist/components/badge.js"
+      },
+      "./components/breadcrumb": {
+        "types": "./dist/components/breadcrumb.d.ts",
+        "default": "./dist/components/breadcrumb.js"
+      },
+      "./components/button": {
+        "types": "./dist/components/button.d.ts",
+        "default": "./dist/components/button.js"
+      },
+      "./components/button-group": {
+        "types": "./dist/components/button-group.d.ts",
+        "default": "./dist/components/button-group.js"
+      },
+      "./components/calendar": {
+        "types": "./dist/components/calendar.d.ts",
+        "default": "./dist/components/calendar.js"
+      },
+      "./components/card": {
+        "types": "./dist/components/card.d.ts",
+        "default": "./dist/components/card.js"
+      },
+      "./components/card-brand-icon": {
+        "types": "./dist/components/card-brand-icon.d.ts",
+        "default": "./dist/components/card-brand-icon.js"
+      },
+      "./components/carousel": {
+        "types": "./dist/components/carousel.d.ts",
+        "default": "./dist/components/carousel.js"
+      },
+      "./components/chart": {
+        "types": "./dist/components/chart.d.ts",
+        "default": "./dist/components/chart.js"
+      },
+      "./components/checkbox": {
+        "types": "./dist/components/checkbox.d.ts",
+        "default": "./dist/components/checkbox.js"
+      },
+      "./components/collapsible": {
+        "types": "./dist/components/collapsible.d.ts",
+        "default": "./dist/components/collapsible.js"
+      },
+      "./components/command": {
+        "types": "./dist/components/command.d.ts",
+        "default": "./dist/components/command.js"
+      },
+      "./components/context-menu": {
+        "types": "./dist/components/context-menu.d.ts",
+        "default": "./dist/components/context-menu.js"
+      },
+      "./components/dialog": {
+        "types": "./dist/components/dialog.d.ts",
+        "default": "./dist/components/dialog.js"
+      },
+      "./components/drawer": {
+        "types": "./dist/components/drawer.d.ts",
+        "default": "./dist/components/drawer.js"
+      },
+      "./components/dropdown-menu": {
+        "types": "./dist/components/dropdown-menu.d.ts",
+        "default": "./dist/components/dropdown-menu.js"
+      },
+      "./components/empty": {
+        "types": "./dist/components/empty.d.ts",
+        "default": "./dist/components/empty.js"
+      },
+      "./components/field": {
+        "types": "./dist/components/field.d.ts",
+        "default": "./dist/components/field.js"
+      },
+      "./components/form": {
+        "types": "./dist/components/form.d.ts",
+        "default": "./dist/components/form.js"
+      },
+      "./components/hover-card": {
+        "types": "./dist/components/hover-card.d.ts",
+        "default": "./dist/components/hover-card.js"
+      },
+      "./components/input": {
+        "types": "./dist/components/input.d.ts",
+        "default": "./dist/components/input.js"
+      },
+      "./components/input-group": {
+        "types": "./dist/components/input-group.d.ts",
+        "default": "./dist/components/input-group.js"
+      },
+      "./components/input-otp": {
+        "types": "./dist/components/input-otp.d.ts",
+        "default": "./dist/components/input-otp.js"
+      },
+      "./components/item": {
+        "types": "./dist/components/item.d.ts",
+        "default": "./dist/components/item.js"
+      },
+      "./components/kbd": {
+        "types": "./dist/components/kbd.d.ts",
+        "default": "./dist/components/kbd.js"
+      },
+      "./components/label": {
+        "types": "./dist/components/label.d.ts",
+        "default": "./dist/components/label.js"
+      },
+      "./components/map": {
+        "types": "./dist/components/map.d.ts",
+        "default": "./dist/components/map.js"
+      },
+      "./components/menubar": {
+        "types": "./dist/components/menubar.d.ts",
+        "default": "./dist/components/menubar.js"
+      },
+      "./components/navigation-menu": {
+        "types": "./dist/components/navigation-menu.d.ts",
+        "default": "./dist/components/navigation-menu.js"
+      },
+      "./components/pagination": {
+        "types": "./dist/components/pagination.d.ts",
+        "default": "./dist/components/pagination.js"
+      },
+      "./components/place-autocomplete": {
+        "types": "./dist/components/place-autocomplete.d.ts",
+        "default": "./dist/components/place-autocomplete.js"
+      },
+      "./components/popover": {
+        "types": "./dist/components/popover.d.ts",
+        "default": "./dist/components/popover.js"
+      },
+      "./components/progress": {
+        "types": "./dist/components/progress.d.ts",
+        "default": "./dist/components/progress.js"
+      },
+      "./components/radio-group": {
+        "types": "./dist/components/radio-group.d.ts",
+        "default": "./dist/components/radio-group.js"
+      },
+      "./components/resizable": {
+        "types": "./dist/components/resizable.d.ts",
+        "default": "./dist/components/resizable.js"
+      },
+      "./components/scroll-area": {
+        "types": "./dist/components/scroll-area.d.ts",
+        "default": "./dist/components/scroll-area.js"
+      },
+      "./components/select": {
+        "types": "./dist/components/select.d.ts",
+        "default": "./dist/components/select.js"
+      },
+      "./components/separator": {
+        "types": "./dist/components/separator.d.ts",
+        "default": "./dist/components/separator.js"
+      },
+      "./components/sheet": {
+        "types": "./dist/components/sheet.d.ts",
+        "default": "./dist/components/sheet.js"
+      },
+      "./components/sidebar": {
+        "types": "./dist/components/sidebar.d.ts",
+        "default": "./dist/components/sidebar.js"
+      },
+      "./components/skeleton": {
+        "types": "./dist/components/skeleton.d.ts",
+        "default": "./dist/components/skeleton.js"
+      },
+      "./components/slider": {
+        "types": "./dist/components/slider.d.ts",
+        "default": "./dist/components/slider.js"
+      },
+      "./components/sonner": {
+        "types": "./dist/components/sonner.d.ts",
+        "default": "./dist/components/sonner.js"
+      },
+      "./components/spinner": {
+        "types": "./dist/components/spinner.d.ts",
+        "default": "./dist/components/spinner.js"
+      },
+      "./components/stepper": {
+        "types": "./dist/components/stepper.d.ts",
+        "default": "./dist/components/stepper.js"
+      },
+      "./components/switch": {
+        "types": "./dist/components/switch.d.ts",
+        "default": "./dist/components/switch.js"
+      },
+      "./components/table": {
+        "types": "./dist/components/table.d.ts",
+        "default": "./dist/components/table.js"
+      },
+      "./components/tabs": {
+        "types": "./dist/components/tabs.d.ts",
+        "default": "./dist/components/tabs.js"
+      },
+      "./components/textarea": {
+        "types": "./dist/components/textarea.d.ts",
+        "default": "./dist/components/textarea.js"
+      },
+      "./components/toggle": {
+        "types": "./dist/components/toggle.d.ts",
+        "default": "./dist/components/toggle.js"
+      },
+      "./components/toggle-group": {
+        "types": "./dist/components/toggle-group.d.ts",
+        "default": "./dist/components/toggle-group.js"
+      },
+      "./components/tooltip": {
+        "types": "./dist/components/tooltip.d.ts",
+        "default": "./dist/components/tooltip.js"
+      },
+      "./components/tour": {
+        "types": "./dist/components/tour.d.ts",
+        "default": "./dist/components/tour.js"
+      },
+      "./custom/action-button": {
+        "types": "./dist/custom/action-button.d.ts",
+        "default": "./dist/custom/action-button.js"
+      },
+      "./custom/animated-counter": {
+        "types": "./dist/custom/animated-counter.d.ts",
+        "default": "./dist/custom/animated-counter.js"
+      },
+      "./custom/async-select": {
+        "types": "./dist/custom/async-select.d.ts",
+        "default": "./dist/custom/async-select.js"
+      },
+      "./custom/awesome-not-found": {
+        "types": "./dist/custom/awesome-not-found.d.ts",
+        "default": "./dist/custom/awesome-not-found.js"
+      },
+      "./custom/barcode-camera-scanner": {
+        "types": "./dist/custom/barcode-camera-scanner/index.d.ts",
+        "default": "./dist/custom/barcode-camera-scanner/index.js"
+      },
+      "./custom/barcode-formats": {
+        "types": "./dist/custom/barcode-formats.d.ts",
+        "default": "./dist/custom/barcode-formats.js"
+      },
+      "./custom/barcode-image-decoder": {
+        "types": "./dist/custom/barcode-image-decoder/index.d.ts",
+        "default": "./dist/custom/barcode-image-decoder/index.js"
+      },
+      "./custom/barcode-image-decoder/lib": {
+        "types": "./dist/custom/barcode-image-decoder/lib.d.ts",
+        "default": "./dist/custom/barcode-image-decoder/lib.js"
+      },
+      "./custom/camera-stream": {
+        "types": "./dist/custom/camera-stream/index.d.ts",
+        "default": "./dist/custom/camera-stream/index.js"
+      },
+      "./custom/camera-stream/camera-surface": {
+        "types": "./dist/custom/camera-stream/camera-surface.d.ts",
+        "default": "./dist/custom/camera-stream/camera-surface.js"
+      },
+      "./custom/card-brand-icon": {
+        "types": "./dist/custom/card-brand-icon.d.ts",
+        "default": "./dist/custom/card-brand-icon.js"
+      },
+      "./custom/charts": {
+        "types": "./dist/custom/charts/index.d.ts",
+        "default": "./dist/custom/charts/index.js"
+      },
+      "./custom/charts/area-chart": {
+        "types": "./dist/custom/charts/area-chart.d.ts",
+        "default": "./dist/custom/charts/area-chart.js"
+      },
+      "./custom/charts/bar-chart": {
+        "types": "./dist/custom/charts/bar-chart.d.ts",
+        "default": "./dist/custom/charts/bar-chart.js"
+      },
+      "./custom/charts/chart-card": {
+        "types": "./dist/custom/charts/chart-card.d.ts",
+        "default": "./dist/custom/charts/chart-card.js"
+      },
+      "./custom/charts/pie-chart": {
+        "types": "./dist/custom/charts/pie-chart.d.ts",
+        "default": "./dist/custom/charts/pie-chart.js"
+      },
+      "./custom/charts/radar-chart": {
+        "types": "./dist/custom/charts/radar-chart.d.ts",
+        "default": "./dist/custom/charts/radar-chart.js"
+      },
+      "./custom/charts/table-chart": {
+        "types": "./dist/custom/charts/table-chart.d.ts",
+        "default": "./dist/custom/charts/table-chart.js"
+      },
+      "./custom/checkbox-tree": {
+        "types": "./dist/custom/checkbox-tree.d.ts",
+        "default": "./dist/custom/checkbox-tree.js"
+      },
+      "./custom/code-block": {
+        "types": "./dist/custom/code-block.d.ts",
+        "default": "./dist/custom/code-block.js"
+      },
+      "./custom/combobox": {
+        "types": "./dist/custom/combobox.d.ts",
+        "default": "./dist/custom/combobox.js"
+      },
+      "./custom/confirm-dialog": {
+        "types": "./dist/custom/confirm-dialog.d.ts",
+        "default": "./dist/custom/confirm-dialog.js"
+      },
+      "./custom/confirm-provider": {
+        "types": "./dist/custom/confirm-provider.d.ts",
+        "default": "./dist/custom/confirm-provider.js"
+      },
+      "./custom/copy-button": {
+        "types": "./dist/custom/copy-button.d.ts",
+        "default": "./dist/custom/copy-button.js"
+      },
+      "./custom/countdown-notice": {
+        "types": "./dist/custom/countdown-notice.d.ts",
+        "default": "./dist/custom/countdown-notice.js"
+      },
+      "./custom/country-selector": {
+        "types": "./dist/custom/country-selector.d.ts",
+        "default": "./dist/custom/country-selector.js"
+      },
+      "./custom/credit-card-input": {
+        "types": "./dist/custom/credit-card-input.d.ts",
+        "default": "./dist/custom/credit-card-input.js"
+      },
+      "./custom/credit-card-preview": {
+        "types": "./dist/custom/credit-card-preview.d.ts",
+        "default": "./dist/custom/credit-card-preview.js"
+      },
+      "./custom/credit-card-scanner": {
+        "types": "./dist/custom/credit-card-scanner/index.d.ts",
+        "default": "./dist/custom/credit-card-scanner/index.js"
+      },
+      "./custom/credit-card-scanner/lib": {
+        "types": "./dist/custom/credit-card-scanner/lib.d.ts",
+        "default": "./dist/custom/credit-card-scanner/lib.js"
+      },
+      "./custom/credit-card-scanner/ocr": {
+        "types": "./dist/custom/credit-card-scanner/ocr.d.ts",
+        "default": "./dist/custom/credit-card-scanner/ocr.js"
+      },
+      "./custom/date-picker": {
+        "types": "./dist/custom/date-picker/index.d.ts",
+        "default": "./dist/custom/date-picker/index.js"
+      },
+      "./custom/date-picker-old": {
+        "types": "./dist/custom/date-picker-old.d.ts",
+        "default": "./dist/custom/date-picker-old.js"
+      },
+      "./custom/date-picker/calendar-rac": {
+        "types": "./dist/custom/date-picker/calendar-rac.d.ts",
+        "default": "./dist/custom/date-picker/calendar-rac.js"
+      },
+      "./custom/date-picker/datefield-rac": {
+        "types": "./dist/custom/date-picker/datefield-rac.d.ts",
+        "default": "./dist/custom/date-picker/datefield-rac.js"
+      },
+      "./custom/date-picker/lazy": {
+        "types": "./dist/custom/date-picker/lazy.d.ts",
+        "default": "./dist/custom/date-picker/lazy.js"
+      },
+      "./custom/date-picker/types": {
+        "types": "./dist/custom/date-picker/types/index.d.ts",
+        "default": "./dist/custom/date-picker/types/index.js"
+      },
+      "./custom/date-picker/utils": {
+        "types": "./dist/custom/date-picker/utils/index.d.ts",
+        "default": "./dist/custom/date-picker/utils/index.js"
+      },
+      "./custom/date-tooltip": {
+        "types": "./dist/custom/date-tooltip.d.ts",
+        "default": "./dist/custom/date-tooltip.js"
+      },
+      "./custom/document-scanner": {
+        "types": "./dist/custom/document-scanner/index.d.ts",
+        "default": "./dist/custom/document-scanner/index.js"
+      },
+      "./custom/document-scanner/consts": {
+        "types": "./dist/custom/document-scanner/consts.d.ts",
+        "default": "./dist/custom/document-scanner/consts.js"
+      },
+      "./custom/document-scanner/corner-adjustment": {
+        "types": "./dist/custom/document-scanner/corner-adjustment/index.d.ts",
+        "default": "./dist/custom/document-scanner/corner-adjustment/index.js"
+      },
+      "./custom/document-scanner/corner-adjustment/action-buttons": {
+        "types": "./dist/custom/document-scanner/corner-adjustment/action-buttons.d.ts",
+        "default": "./dist/custom/document-scanner/corner-adjustment/action-buttons.js"
+      },
+      "./custom/document-scanner/corner-adjustment/corner-handle": {
+        "types": "./dist/custom/document-scanner/corner-adjustment/corner-handle.d.ts",
+        "default": "./dist/custom/document-scanner/corner-adjustment/corner-handle.js"
+      },
+      "./custom/document-scanner/corner-adjustment/hooks/use-corner-drag": {
+        "types": "./dist/custom/document-scanner/corner-adjustment/hooks/use-corner-drag.d.ts",
+        "default": "./dist/custom/document-scanner/corner-adjustment/hooks/use-corner-drag.js"
+      },
+      "./custom/document-scanner/corner-adjustment/types": {
+        "types": "./dist/custom/document-scanner/corner-adjustment/types.d.ts",
+        "default": "./dist/custom/document-scanner/corner-adjustment/types.js"
+      },
+      "./custom/document-scanner/corner-adjustment/utils/clip-path": {
+        "types": "./dist/custom/document-scanner/corner-adjustment/utils/clip-path.d.ts",
+        "default": "./dist/custom/document-scanner/corner-adjustment/utils/clip-path.js"
+      },
+      "./custom/document-scanner/corner-adjustment/zoom-magnifier": {
+        "types": "./dist/custom/document-scanner/corner-adjustment/zoom-magnifier.d.ts",
+        "default": "./dist/custom/document-scanner/corner-adjustment/zoom-magnifier.js"
+      },
+      "./custom/document-scanner/hooks/use-document-capture": {
+        "types": "./dist/custom/document-scanner/hooks/use-document-capture.d.ts",
+        "default": "./dist/custom/document-scanner/hooks/use-document-capture.js"
+      },
+      "./custom/document-scanner/hooks/use-document-scanner": {
+        "types": "./dist/custom/document-scanner/hooks/use-document-scanner.d.ts",
+        "default": "./dist/custom/document-scanner/hooks/use-document-scanner.js"
+      },
+      "./custom/document-scanner/hooks/use-perspective-crop": {
+        "types": "./dist/custom/document-scanner/hooks/use-perspective-crop.d.ts",
+        "default": "./dist/custom/document-scanner/hooks/use-perspective-crop.js"
+      },
+      "./custom/document-scanner/lib": {
+        "types": "./dist/custom/document-scanner/lib.d.ts",
+        "default": "./dist/custom/document-scanner/lib.js"
+      },
+      "./custom/document-scanner/types": {
+        "types": "./dist/custom/document-scanner/types.d.ts",
+        "default": "./dist/custom/document-scanner/types.js"
+      },
+      "./custom/document-scanner/utils/perspective-correction": {
+        "types": "./dist/custom/document-scanner/utils/perspective-correction.d.ts",
+        "default": "./dist/custom/document-scanner/utils/perspective-correction.js"
+      },
+      "./custom/document-viewer": {
+        "types": "./dist/custom/document-viewer/index.d.ts",
+        "default": "./dist/custom/document-viewer/index.js"
+      },
+      "./custom/document-viewer/controllers": {
+        "types": "./dist/custom/document-viewer/controllers.d.ts",
+        "default": "./dist/custom/document-viewer/controllers.js"
+      },
+      "./custom/document-viewer/pdf-worker": {
+        "types": "./dist/custom/document-viewer/pdf-worker.d.ts",
+        "default": "./dist/custom/document-viewer/pdf-worker.js"
+      },
+      "./custom/document-viewer/renderers": {
+        "types": "./dist/custom/document-viewer/renderers/index.d.ts",
+        "default": "./dist/custom/document-viewer/renderers/index.js"
+      },
+      "./custom/document-viewer/renderers/image": {
+        "types": "./dist/custom/document-viewer/renderers/image.d.ts",
+        "default": "./dist/custom/document-viewer/renderers/image.js"
+      },
+      "./custom/document-viewer/renderers/pdf": {
+        "types": "./dist/custom/document-viewer/renderers/pdf.d.ts",
+        "default": "./dist/custom/document-viewer/renderers/pdf.js"
+      },
+      "./custom/draw-pad": {
+        "types": "./dist/custom/draw-pad/index.d.ts",
+        "default": "./dist/custom/draw-pad/index.js"
+      },
+      "./custom/email-input": {
+        "types": "./dist/custom/email-input/index.d.ts",
+        "default": "./dist/custom/email-input/index.js"
+      },
+      "./custom/email-input/email": {
+        "types": "./dist/custom/email-input/email.d.ts",
+        "default": "./dist/custom/email-input/email.js"
+      },
+      "./custom/email-input/types": {
+        "types": "./dist/custom/email-input/types.d.ts",
+        "default": "./dist/custom/email-input/types.js"
+      },
+      "./custom/file-uploader": {
+        "types": "./dist/custom/file-uploader.d.ts",
+        "default": "./dist/custom/file-uploader.js"
+      },
+      "./custom/filter-component": {
+        "types": "./dist/custom/filter-component/index.d.ts",
+        "default": "./dist/custom/filter-component/index.js"
+      },
+      "./custom/filter-component/fields/async-select": {
+        "types": "./dist/custom/filter-component/fields/async-select.d.ts",
+        "default": "./dist/custom/filter-component/fields/async-select.js"
+      },
+      "./custom/filter-component/fields/date": {
+        "types": "./dist/custom/filter-component/fields/date.d.ts",
+        "default": "./dist/custom/filter-component/fields/date.js"
+      },
+      "./custom/filter-component/fields/multi-select": {
+        "types": "./dist/custom/filter-component/fields/multi-select.d.ts",
+        "default": "./dist/custom/filter-component/fields/multi-select.js"
+      },
+      "./custom/icons": {
+        "types": "./dist/custom/icons/index.d.ts",
+        "default": "./dist/custom/icons/index.js"
+      },
+      "./custom/icons/ai-providers": {
+        "types": "./dist/custom/icons/ai-providers.d.ts",
+        "default": "./dist/custom/icons/ai-providers.js"
+      },
+      "./custom/icons/android": {
+        "types": "./dist/custom/icons/android.d.ts",
+        "default": "./dist/custom/icons/android.js"
+      },
+      "./custom/icons/app-store": {
+        "types": "./dist/custom/icons/app-store.d.ts",
+        "default": "./dist/custom/icons/app-store.js"
+      },
+      "./custom/icons/apple": {
+        "types": "./dist/custom/icons/apple.d.ts",
+        "default": "./dist/custom/icons/apple.js"
+      },
+      "./custom/icons/browser": {
+        "types": "./dist/custom/icons/browser.d.ts",
+        "default": "./dist/custom/icons/browser.js"
+      },
+      "./custom/icons/docker": {
+        "types": "./dist/custom/icons/docker.d.ts",
+        "default": "./dist/custom/icons/docker.js"
+      },
+      "./custom/icons/json": {
+        "types": "./dist/custom/icons/json.d.ts",
+        "default": "./dist/custom/icons/json.js"
+      },
+      "./custom/icons/linux": {
+        "types": "./dist/custom/icons/linux.d.ts",
+        "default": "./dist/custom/icons/linux.js"
+      },
+      "./custom/icons/play-store": {
+        "types": "./dist/custom/icons/play-store.d.ts",
+        "default": "./dist/custom/icons/play-store.js"
+      },
+      "./custom/icons/power-shell": {
+        "types": "./dist/custom/icons/power-shell.d.ts",
+        "default": "./dist/custom/icons/power-shell.js"
+      },
+      "./custom/icons/swagger": {
+        "types": "./dist/custom/icons/swagger.d.ts",
+        "default": "./dist/custom/icons/swagger.js"
+      },
+      "./custom/icons/ubuntu": {
+        "types": "./dist/custom/icons/ubuntu.d.ts",
+        "default": "./dist/custom/icons/ubuntu.js"
+      },
+      "./custom/icons/windows": {
+        "types": "./dist/custom/icons/windows.d.ts",
+        "default": "./dist/custom/icons/windows.js"
+      },
+      "./custom/image-canvas": {
+        "types": "./dist/custom/image-canvas.d.ts",
+        "default": "./dist/custom/image-canvas.js"
+      },
+      "./custom/json-editor": {
+        "types": "./dist/custom/json-editor.d.ts",
+        "default": "./dist/custom/json-editor.js"
+      },
+      "./custom/key-value-editor": {
+        "types": "./dist/custom/key-value-editor.d.ts",
+        "default": "./dist/custom/key-value-editor.js"
+      },
+      "./custom/language-switcher": {
+        "types": "./dist/custom/language-switcher.d.ts",
+        "default": "./dist/custom/language-switcher.js"
+      },
+      "./custom/master-data-grid": {
+        "types": "./dist/custom/master-data-grid/index.d.ts",
+        "default": "./dist/custom/master-data-grid/index.js"
+      },
+      "./custom/master-data-grid/components/filters": {
+        "types": "./dist/custom/master-data-grid/components/filters/index.d.ts",
+        "default": "./dist/custom/master-data-grid/components/filters/index.js"
+      },
+      "./custom/master-data-grid/components/filters/client-filter": {
+        "types": "./dist/custom/master-data-grid/components/filters/client-filter.d.ts",
+        "default": "./dist/custom/master-data-grid/components/filters/client-filter.js"
+      },
+      "./custom/master-data-grid/components/filters/filter-input": {
+        "types": "./dist/custom/master-data-grid/components/filters/filter-input.d.ts",
+        "default": "./dist/custom/master-data-grid/components/filters/filter-input.js"
+      },
+      "./custom/master-data-grid/components/filters/filter-value-editor": {
+        "types": "./dist/custom/master-data-grid/components/filters/filter-value-editor.d.ts",
+        "default": "./dist/custom/master-data-grid/components/filters/filter-value-editor.js"
+      },
+      "./custom/master-data-grid/components/filters/inline-column-filter": {
+        "types": "./dist/custom/master-data-grid/components/filters/inline-column-filter.d.ts",
+        "default": "./dist/custom/master-data-grid/components/filters/inline-column-filter.js"
+      },
+      "./custom/master-data-grid/components/filters/multi-filter-dialog": {
+        "types": "./dist/custom/master-data-grid/components/filters/multi-filter-dialog.d.ts",
+        "default": "./dist/custom/master-data-grid/components/filters/multi-filter-dialog.js"
+      },
+      "./custom/master-data-grid/components/filters/server-filter": {
+        "types": "./dist/custom/master-data-grid/components/filters/server-filter.d.ts",
+        "default": "./dist/custom/master-data-grid/components/filters/server-filter.js"
+      },
+      "./custom/master-data-grid/components/filters/server-filter-bar": {
+        "types": "./dist/custom/master-data-grid/components/filters/server-filter-bar.d.ts",
+        "default": "./dist/custom/master-data-grid/components/filters/server-filter-bar.js"
+      },
+      "./custom/master-data-grid/components/helpers/empty-cell": {
+        "types": "./dist/custom/master-data-grid/components/helpers/empty-cell.d.ts",
+        "default": "./dist/custom/master-data-grid/components/helpers/empty-cell.js"
+      },
+      "./custom/master-data-grid/components/helpers/row-link": {
+        "types": "./dist/custom/master-data-grid/components/helpers/row-link.d.ts",
+        "default": "./dist/custom/master-data-grid/components/helpers/row-link.js"
+      },
+      "./custom/master-data-grid/components/master-data-grid": {
+        "types": "./dist/custom/master-data-grid/components/master-data-grid.d.ts",
+        "default": "./dist/custom/master-data-grid/components/master-data-grid.js"
+      },
+      "./custom/master-data-grid/components/pagination": {
+        "types": "./dist/custom/master-data-grid/components/pagination/index.d.ts",
+        "default": "./dist/custom/master-data-grid/components/pagination/index.js"
+      },
+      "./custom/master-data-grid/components/pagination/pagination": {
+        "types": "./dist/custom/master-data-grid/components/pagination/pagination.d.ts",
+        "default": "./dist/custom/master-data-grid/components/pagination/pagination.js"
+      },
+      "./custom/master-data-grid/components/row-count-summary": {
+        "types": "./dist/custom/master-data-grid/components/row-count-summary.d.ts",
+        "default": "./dist/custom/master-data-grid/components/row-count-summary.js"
+      },
+      "./custom/master-data-grid/components/table": {
+        "types": "./dist/custom/master-data-grid/components/table/index.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/index.js"
+      },
+      "./custom/master-data-grid/components/table/cell-renderer": {
+        "types": "./dist/custom/master-data-grid/components/table/cell-renderer.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/cell-renderer.js"
+      },
+      "./custom/master-data-grid/components/table/grid-footer": {
+        "types": "./dist/custom/master-data-grid/components/table/grid-footer.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/grid-footer.js"
+      },
+      "./custom/master-data-grid/components/table/grid-header": {
+        "types": "./dist/custom/master-data-grid/components/table/grid-header.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/grid-header.js"
+      },
+      "./custom/master-data-grid/components/table/grid-row": {
+        "types": "./dist/custom/master-data-grid/components/table/grid-row.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/grid-row.js"
+      },
+      "./custom/master-data-grid/components/table/header-cell": {
+        "types": "./dist/custom/master-data-grid/components/table/header-cell.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/header-cell.js"
+      },
+      "./custom/master-data-grid/components/table/table-body-renderer": {
+        "types": "./dist/custom/master-data-grid/components/table/table-body-renderer.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/table-body-renderer.js"
+      },
+      "./custom/master-data-grid/components/table/virtual-body": {
+        "types": "./dist/custom/master-data-grid/components/table/virtual-body.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/virtual-body.js"
+      },
+      "./custom/master-data-grid/components/toolbar": {
+        "types": "./dist/custom/master-data-grid/components/toolbar/index.d.ts",
+        "default": "./dist/custom/master-data-grid/components/toolbar/index.js"
+      },
+      "./custom/master-data-grid/components/toolbar/toolbar": {
+        "types": "./dist/custom/master-data-grid/components/toolbar/toolbar.d.ts",
+        "default": "./dist/custom/master-data-grid/components/toolbar/toolbar.js"
+      },
+      "./custom/master-data-grid/context/local-server-filters": {
+        "types": "./dist/custom/master-data-grid/context/local-server-filters.d.ts",
+        "default": "./dist/custom/master-data-grid/context/local-server-filters.js"
+      },
+      "./custom/master-data-grid/context/resources": {
+        "types": "./dist/custom/master-data-grid/context/resources.d.ts",
+        "default": "./dist/custom/master-data-grid/context/resources.js"
+      },
+      "./custom/master-data-grid/hooks": {
+        "types": "./dist/custom/master-data-grid/hooks/index.d.ts",
+        "default": "./dist/custom/master-data-grid/hooks/index.js"
+      },
+      "./custom/master-data-grid/hooks/use-columns": {
+        "types": "./dist/custom/master-data-grid/hooks/use-columns.d.ts",
+        "default": "./dist/custom/master-data-grid/hooks/use-columns.js"
+      },
+      "./custom/master-data-grid/hooks/use-delayed-flag": {
+        "types": "./dist/custom/master-data-grid/hooks/use-delayed-flag.d.ts",
+        "default": "./dist/custom/master-data-grid/hooks/use-delayed-flag.js"
+      },
+      "./custom/master-data-grid/hooks/use-editing": {
+        "types": "./dist/custom/master-data-grid/hooks/use-editing.d.ts",
+        "default": "./dist/custom/master-data-grid/hooks/use-editing.js"
+      },
+      "./custom/master-data-grid/hooks/use-grid-navigation": {
+        "types": "./dist/custom/master-data-grid/hooks/use-grid-navigation.d.ts",
+        "default": "./dist/custom/master-data-grid/hooks/use-grid-navigation.js"
+      },
+      "./custom/master-data-grid/hooks/use-table-state": {
+        "types": "./dist/custom/master-data-grid/hooks/use-table-state.d.ts",
+        "default": "./dist/custom/master-data-grid/hooks/use-table-state.js"
+      },
+      "./custom/master-data-grid/hooks/use-table-state-reducer": {
+        "types": "./dist/custom/master-data-grid/hooks/use-table-state-reducer.d.ts",
+        "default": "./dist/custom/master-data-grid/hooks/use-table-state-reducer.js"
+      },
+      "./custom/master-data-grid/types": {
+        "types": "./dist/custom/master-data-grid/types.d.ts",
+        "default": "./dist/custom/master-data-grid/types.js"
+      },
+      "./custom/master-data-grid/utils": {
+        "types": "./dist/custom/master-data-grid/utils/index.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/index.js"
+      },
+      "./custom/master-data-grid/utils/cell-validation": {
+        "types": "./dist/custom/master-data-grid/utils/cell-validation.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/cell-validation.js"
+      },
+      "./custom/master-data-grid/utils/column-generator": {
+        "types": "./dist/custom/master-data-grid/utils/column-generator.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/column-generator.js"
+      },
+      "./custom/master-data-grid/utils/export-utils": {
+        "types": "./dist/custom/master-data-grid/utils/export-utils.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/export-utils.js"
+      },
+      "./custom/master-data-grid/utils/filter-fns": {
+        "types": "./dist/custom/master-data-grid/utils/filter-fns.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/filter-fns.js"
+      },
+      "./custom/master-data-grid/utils/grid-url-params": {
+        "types": "./dist/custom/master-data-grid/utils/grid-url-params.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/grid-url-params.js"
+      },
+      "./custom/master-data-grid/utils/pinning-utils": {
+        "types": "./dist/custom/master-data-grid/utils/pinning-utils.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/pinning-utils.js"
+      },
+      "./custom/master-data-grid/utils/server-filter-url": {
+        "types": "./dist/custom/master-data-grid/utils/server-filter-url.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/server-filter-url.js"
+      },
+      "./custom/master-data-grid/utils/server-filter-utils": {
+        "types": "./dist/custom/master-data-grid/utils/server-filter-utils.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/server-filter-utils.js"
+      },
+      "./custom/master-data-grid/utils/translation-utils": {
+        "types": "./dist/custom/master-data-grid/utils/translation-utils.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/translation-utils.js"
+      },
+      "./custom/master-data-grid/utils/url-scope": {
+        "types": "./dist/custom/master-data-grid/utils/url-scope.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/url-scope.js"
+      },
+      "./custom/mrz-camera-scanner": {
+        "types": "./dist/custom/mrz-camera-scanner/index.d.ts",
+        "default": "./dist/custom/mrz-camera-scanner/index.js"
+      },
+      "./custom/mrz-camera-scanner/lib": {
+        "types": "./dist/custom/mrz-camera-scanner/lib.d.ts",
+        "default": "./dist/custom/mrz-camera-scanner/lib.js"
+      },
+      "./custom/mrz-camera-scanner/ocr": {
+        "types": "./dist/custom/mrz-camera-scanner/ocr.d.ts",
+        "default": "./dist/custom/mrz-camera-scanner/ocr.js"
+      },
+      "./custom/multi-select": {
+        "types": "./dist/custom/multi-select.d.ts",
+        "default": "./dist/custom/multi-select.js"
+      },
+      "./custom/password-input": {
+        "types": "./dist/custom/password-input.d.ts",
+        "default": "./dist/custom/password-input.js"
+      },
+      "./custom/phone-input": {
+        "types": "./dist/custom/phone-input.d.ts",
+        "default": "./dist/custom/phone-input.js"
+      },
+      "./custom/schema-form": {
+        "types": "./dist/custom/schema-form/index.d.ts",
+        "default": "./dist/custom/schema-form/index.js"
+      },
+      "./custom/schema-form/custom": {
+        "types": "./dist/custom/schema-form/custom/index.d.ts",
+        "default": "./dist/custom/schema-form/custom/index.js"
+      },
+      "./custom/schema-form/custom/label": {
+        "types": "./dist/custom/schema-form/custom/label.d.ts",
+        "default": "./dist/custom/schema-form/custom/label.js"
+      },
+      "./custom/schema-form/fields": {
+        "types": "./dist/custom/schema-form/fields/index.d.ts",
+        "default": "./dist/custom/schema-form/fields/index.js"
+      },
+      "./custom/schema-form/fields/base-input-field": {
+        "types": "./dist/custom/schema-form/fields/base-input-field.d.ts",
+        "default": "./dist/custom/schema-form/fields/base-input-field.js"
+      },
+      "./custom/schema-form/fields/field": {
+        "types": "./dist/custom/schema-form/fields/field.d.ts",
+        "default": "./dist/custom/schema-form/fields/field.js"
+      },
+      "./custom/schema-form/fields/object": {
+        "types": "./dist/custom/schema-form/fields/object.d.ts",
+        "default": "./dist/custom/schema-form/fields/object.js"
+      },
+      "./custom/schema-form/fields/table-array/array-field-item": {
+        "types": "./dist/custom/schema-form/fields/table-array/array-field-item.d.ts",
+        "default": "./dist/custom/schema-form/fields/table-array/array-field-item.js"
+      },
+      "./custom/schema-form/fields/table-array/array-field-template": {
+        "types": "./dist/custom/schema-form/fields/table-array/array-field-template.d.ts",
+        "default": "./dist/custom/schema-form/fields/table-array/array-field-template.js"
+      },
+      "./custom/schema-form/fields/table-array/row-class-name": {
+        "types": "./dist/custom/schema-form/fields/table-array/row-class-name.d.ts",
+        "default": "./dist/custom/schema-form/fields/table-array/row-class-name.js"
+      },
+      "./custom/schema-form/templates": {
+        "types": "./dist/custom/schema-form/templates/index.d.ts",
+        "default": "./dist/custom/schema-form/templates/index.js"
+      },
+      "./custom/schema-form/templates/description": {
+        "types": "./dist/custom/schema-form/templates/description.d.ts",
+        "default": "./dist/custom/schema-form/templates/description.js"
+      },
+      "./custom/schema-form/templates/submit": {
+        "types": "./dist/custom/schema-form/templates/submit.d.ts",
+        "default": "./dist/custom/schema-form/templates/submit.js"
+      },
+      "./custom/schema-form/types": {
+        "types": "./dist/custom/schema-form/types.d.ts",
+        "default": "./dist/custom/schema-form/types.js"
+      },
+      "./custom/schema-form/utils": {
+        "types": "./dist/custom/schema-form/utils/index.d.ts",
+        "default": "./dist/custom/schema-form/utils/index.js"
+      },
+      "./custom/schema-form/utils/schema-dependency": {
+        "types": "./dist/custom/schema-form/utils/schema-dependency.d.ts",
+        "default": "./dist/custom/schema-form/utils/schema-dependency.js"
+      },
+      "./custom/schema-form/utils/schemas": {
+        "types": "./dist/custom/schema-form/utils/schemas.d.ts",
+        "default": "./dist/custom/schema-form/utils/schemas.js"
+      },
+      "./custom/schema-form/utils/validation": {
+        "types": "./dist/custom/schema-form/utils/validation.d.ts",
+        "default": "./dist/custom/schema-form/utils/validation.js"
+      },
+      "./custom/schema-form/widgets": {
+        "types": "./dist/custom/schema-form/widgets/index.d.ts",
+        "default": "./dist/custom/schema-form/widgets/index.js"
+      },
+      "./custom/schema-form/widgets/boolean": {
+        "types": "./dist/custom/schema-form/widgets/boolean.d.ts",
+        "default": "./dist/custom/schema-form/widgets/boolean.js"
+      },
+      "./custom/schema-form/widgets/combobox": {
+        "types": "./dist/custom/schema-form/widgets/combobox.d.ts",
+        "default": "./dist/custom/schema-form/widgets/combobox.js"
+      },
+      "./custom/schema-form/widgets/date": {
+        "types": "./dist/custom/schema-form/widgets/date.d.ts",
+        "default": "./dist/custom/schema-form/widgets/date.js"
+      },
+      "./custom/schema-form/widgets/email": {
+        "types": "./dist/custom/schema-form/widgets/email.d.ts",
+        "default": "./dist/custom/schema-form/widgets/email.js"
+      },
+      "./custom/schema-form/widgets/password": {
+        "types": "./dist/custom/schema-form/widgets/password.d.ts",
+        "default": "./dist/custom/schema-form/widgets/password.js"
+      },
+      "./custom/schema-form/widgets/phone": {
+        "types": "./dist/custom/schema-form/widgets/phone.d.ts",
+        "default": "./dist/custom/schema-form/widgets/phone.js"
+      },
+      "./custom/schema-form/widgets/select": {
+        "types": "./dist/custom/schema-form/widgets/select.d.ts",
+        "default": "./dist/custom/schema-form/widgets/select.js"
+      },
+      "./custom/schema-form/widgets/selectable": {
+        "types": "./dist/custom/schema-form/widgets/selectable.d.ts",
+        "default": "./dist/custom/schema-form/widgets/selectable.js"
+      },
+      "./custom/schema-form/widgets/string-array": {
+        "types": "./dist/custom/schema-form/widgets/string-array.d.ts",
+        "default": "./dist/custom/schema-form/widgets/string-array.js"
+      },
+      "./custom/schema-form/widgets/url": {
+        "types": "./dist/custom/schema-form/widgets/url.d.ts",
+        "default": "./dist/custom/schema-form/widgets/url.js"
+      },
+      "./custom/section-layout-v2": {
+        "types": "./dist/custom/section-layout-v2.d.ts",
+        "default": "./dist/custom/section-layout-v2.js"
+      },
+      "./custom/select-tabs": {
+        "types": "./dist/custom/select-tabs.d.ts",
+        "default": "./dist/custom/select-tabs.js"
+      },
+      "./custom/selectable": {
+        "types": "./dist/custom/selectable.d.ts",
+        "default": "./dist/custom/selectable.js"
+      },
+      "./custom/star-rating": {
+        "types": "./dist/custom/star-rating.d.ts",
+        "default": "./dist/custom/star-rating.js"
+      },
+      "./custom/stepper": {
+        "types": "./dist/custom/stepper.d.ts",
+        "default": "./dist/custom/stepper.js"
+      },
+      "./custom/tab-layout": {
+        "types": "./dist/custom/tab-layout.d.ts",
+        "default": "./dist/custom/tab-layout.js"
+      },
+      "./custom/tag-input": {
+        "types": "./dist/custom/tag-input.d.ts",
+        "default": "./dist/custom/tag-input.js"
+      },
+      "./custom/tanstack-table": {
+        "types": "./dist/custom/tanstack-table/index.d.ts",
+        "default": "./dist/custom/tanstack-table/index.js"
+      },
+      "./custom/tanstack-table/fields": {
+        "types": "./dist/custom/tanstack-table/fields/index.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/index.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-action-dialogs": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-action-dialogs.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-action-dialogs.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-column-header": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-column-header.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-column-header.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-filter-date": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-filter-date.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-filter-date.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-filter-faceted": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-filter-faceted.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-filter-faceted.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-filter-text": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-filter-text.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-filter-text.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-pagination": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-pagination.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-pagination.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-plain-table": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-plain-table.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-plain-table.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-row-actions": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-row-actions.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-row-actions.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-row-actions-confirmation": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-row-actions-confirmation.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-row-actions-confirmation.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-row-actions-custom-dialog": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-row-actions-custom-dialog.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-row-actions-custom-dialog.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-table-actions-custom-dialog": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-table-actions-custom-dialog.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-table-actions-custom-dialog.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-table-actions-schemaform-dialog": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-table-actions-schemaform-dialog.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-table-actions-schemaform-dialog.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-toolbar": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-toolbar.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-toolbar.js"
+      },
+      "./custom/tanstack-table/fields/tanstack-table-view-options": {
+        "types": "./dist/custom/tanstack-table/fields/tanstack-table-view-options.d.ts",
+        "default": "./dist/custom/tanstack-table/fields/tanstack-table-view-options.js"
+      },
+      "./custom/tanstack-table/types": {
+        "types": "./dist/custom/tanstack-table/types/index.d.ts",
+        "default": "./dist/custom/tanstack-table/types/index.js"
+      },
+      "./custom/tanstack-table/utils": {
+        "types": "./dist/custom/tanstack-table/utils/index.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/index.js"
+      },
+      "./custom/tanstack-table/utils/cell-with-actions": {
+        "types": "./dist/custom/tanstack-table/utils/cell-with-actions.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/cell-with-actions.js"
+      },
+      "./custom/tanstack-table/utils/column-names": {
+        "types": "./dist/custom/tanstack-table/utils/column-names.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/column-names.js"
+      },
+      "./custom/tanstack-table/utils/columns-by-row-data": {
+        "types": "./dist/custom/tanstack-table/utils/columns-by-row-data.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/columns-by-row-data.js"
+      },
+      "./custom/tanstack-table/utils/editable-columns-by-row-data": {
+        "types": "./dist/custom/tanstack-table/utils/editable-columns-by-row-data.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/editable-columns-by-row-data.js"
+      },
+      "./custom/tanstack-table/utils/faceted-boolean-options": {
+        "types": "./dist/custom/tanstack-table/utils/faceted-boolean-options.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/faceted-boolean-options.js"
+      },
+      "./custom/tanstack-table/utils/pinning-styles": {
+        "types": "./dist/custom/tanstack-table/utils/pinning-styles.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/pinning-styles.js"
+      },
+      "./custom/tanstack-table/utils/table": {
+        "types": "./dist/custom/tanstack-table/utils/table.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/table.js"
+      },
+      "./custom/tanstack-table/utils/test-conditions": {
+        "types": "./dist/custom/tanstack-table/utils/test-conditions.d.ts",
+        "default": "./dist/custom/tanstack-table/utils/test-conditions.js"
+      },
+      "./custom/theme-toggle": {
+        "types": "./dist/custom/theme-toggle.d.ts",
+        "default": "./dist/custom/theme-toggle.js"
+      },
+      "./custom/timeline": {
+        "types": "./dist/custom/timeline.d.ts",
+        "default": "./dist/custom/timeline.js"
+      },
+      "./custom/tree": {
+        "types": "./dist/custom/tree.d.ts",
+        "default": "./dist/custom/tree.js"
+      },
+      "./custom/tscanify": {
+        "types": "./dist/custom/tscanify/index.d.ts",
+        "default": "./dist/custom/tscanify/index.js"
+      },
+      "./custom/tscanify/browser": {
+        "types": "./dist/custom/tscanify/browser.d.ts",
+        "default": "./dist/custom/tscanify/browser.js"
+      },
+      "./custom/tscanify/tscanify": {
+        "types": "./dist/custom/tscanify/tscanify.d.ts",
+        "default": "./dist/custom/tscanify/tscanify.js"
+      },
+      "./custom/tscanify/tscanify-browser": {
+        "types": "./dist/custom/tscanify/tscanify-browser.d.ts",
+        "default": "./dist/custom/tscanify/tscanify-browser.js"
+      },
+      "./custom/tscanify/types": {
+        "types": "./dist/custom/tscanify/types.d.ts",
+        "default": "./dist/custom/tscanify/types.js"
+      },
+      "./custom/webcam": {
+        "types": "./dist/custom/webcam.d.ts",
+        "default": "./dist/custom/webcam.js"
+      },
+      "./hooks/use-callback-ref": {
+        "types": "./dist/hooks/use-callback-ref.d.ts",
+        "default": "./dist/hooks/use-callback-ref.js"
+      },
+      "./hooks/use-controllable-state": {
+        "types": "./dist/hooks/use-controllable-state.d.ts",
+        "default": "./dist/hooks/use-controllable-state.js"
+      },
+      "./hooks/use-copy-to-clipboard": {
+        "types": "./dist/hooks/use-copy-to-clipboard.d.ts",
+        "default": "./dist/hooks/use-copy-to-clipboard.js"
+      },
+      "./hooks/use-debounce": {
+        "types": "./dist/hooks/use-debounce.d.ts",
+        "default": "./dist/hooks/use-debounce.js"
+      },
+      "./hooks/use-is-visible": {
+        "types": "./dist/hooks/use-is-visible.d.ts",
+        "default": "./dist/hooks/use-is-visible.js"
+      },
+      "./hooks/use-media-query": {
+        "types": "./dist/hooks/use-media-query.d.ts",
+        "default": "./dist/hooks/use-media-query.js"
+      },
+      "./hooks/use-mobile": {
+        "types": "./dist/hooks/use-mobile.d.ts",
+        "default": "./dist/hooks/use-mobile.js"
+      },
+      "./hooks/use-on-window-resize": {
+        "types": "./dist/hooks/use-on-window-resize.d.ts",
+        "default": "./dist/hooks/use-on-window-resize.js"
+      },
+      "./hooks/use-scroll": {
+        "types": "./dist/hooks/use-scroll.d.ts",
+        "default": "./dist/hooks/use-scroll.js"
+      },
+      "./lib/utils": {
+        "types": "./dist/lib/utils.d.ts",
+        "default": "./dist/lib/utils.js"
+      },
+      "./lib/zod": {
+        "types": "./dist/lib/zod.d.ts",
+        "default": "./dist/lib/zod.js"
+      }
+    }
+  },
   "exports": {
+    "./package.json": "./package.json",
     "./globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
-    "./lib/*": "./src/lib/*.ts",
-    "./components/*": "./src/components/*.tsx",
-    "./aria/*": "./src/aria/*.tsx",
-    "./custom/*": [
-      "./src/custom/*.tsx",
-      "./src/custom/*/index.tsx",
-      "./src/custom/*.ts",
-      "./src/custom/*/index.ts"
-    ],
-    "./hooks/*": "./src/hooks/*.ts"
-  },
-  "overrides": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "./aria": "./src/aria/index.tsx",
+    "./aria/number-field": "./src/aria/number-field.tsx",
+    "./components/accordion": "./src/components/accordion.tsx",
+    "./components/alert": "./src/components/alert.tsx",
+    "./components/alert-dialog": "./src/components/alert-dialog.tsx",
+    "./components/aspect-ratio": "./src/components/aspect-ratio.tsx",
+    "./components/avatar": "./src/components/avatar.tsx",
+    "./components/badge": "./src/components/badge.tsx",
+    "./components/breadcrumb": "./src/components/breadcrumb.tsx",
+    "./components/button": "./src/components/button.tsx",
+    "./components/button-group": "./src/components/button-group.tsx",
+    "./components/calendar": "./src/components/calendar.tsx",
+    "./components/card": "./src/components/card.tsx",
+    "./components/card-brand-icon": "./src/components/card-brand-icon.tsx",
+    "./components/carousel": "./src/components/carousel.tsx",
+    "./components/chart": "./src/components/chart.tsx",
+    "./components/checkbox": "./src/components/checkbox.tsx",
+    "./components/collapsible": "./src/components/collapsible.tsx",
+    "./components/command": "./src/components/command.tsx",
+    "./components/context-menu": "./src/components/context-menu.tsx",
+    "./components/dialog": "./src/components/dialog.tsx",
+    "./components/drawer": "./src/components/drawer.tsx",
+    "./components/dropdown-menu": "./src/components/dropdown-menu.tsx",
+    "./components/empty": "./src/components/empty.tsx",
+    "./components/field": "./src/components/field.tsx",
+    "./components/form": "./src/components/form.tsx",
+    "./components/hover-card": "./src/components/hover-card.tsx",
+    "./components/input": "./src/components/input.tsx",
+    "./components/input-group": "./src/components/input-group.tsx",
+    "./components/input-otp": "./src/components/input-otp.tsx",
+    "./components/item": "./src/components/item.tsx",
+    "./components/kbd": "./src/components/kbd.tsx",
+    "./components/label": "./src/components/label.tsx",
+    "./components/map": "./src/components/map.tsx",
+    "./components/menubar": "./src/components/menubar.tsx",
+    "./components/navigation-menu": "./src/components/navigation-menu.tsx",
+    "./components/pagination": "./src/components/pagination.tsx",
+    "./components/place-autocomplete": "./src/components/place-autocomplete.tsx",
+    "./components/popover": "./src/components/popover.tsx",
+    "./components/progress": "./src/components/progress.tsx",
+    "./components/radio-group": "./src/components/radio-group.tsx",
+    "./components/resizable": "./src/components/resizable.tsx",
+    "./components/scroll-area": "./src/components/scroll-area.tsx",
+    "./components/select": "./src/components/select.tsx",
+    "./components/separator": "./src/components/separator.tsx",
+    "./components/sheet": "./src/components/sheet.tsx",
+    "./components/sidebar": "./src/components/sidebar.tsx",
+    "./components/skeleton": "./src/components/skeleton.tsx",
+    "./components/slider": "./src/components/slider.tsx",
+    "./components/sonner": "./src/components/sonner.tsx",
+    "./components/spinner": "./src/components/spinner.tsx",
+    "./components/stepper": "./src/components/stepper.tsx",
+    "./components/switch": "./src/components/switch.tsx",
+    "./components/table": "./src/components/table.tsx",
+    "./components/tabs": "./src/components/tabs.tsx",
+    "./components/textarea": "./src/components/textarea.tsx",
+    "./components/toggle": "./src/components/toggle.tsx",
+    "./components/toggle-group": "./src/components/toggle-group.tsx",
+    "./components/tooltip": "./src/components/tooltip.tsx",
+    "./components/tour": "./src/components/tour.tsx",
+    "./custom/action-button": "./src/custom/action-button.tsx",
+    "./custom/animated-counter": "./src/custom/animated-counter.tsx",
+    "./custom/async-select": "./src/custom/async-select.tsx",
+    "./custom/awesome-not-found": "./src/custom/awesome-not-found.tsx",
+    "./custom/barcode-camera-scanner": "./src/custom/barcode-camera-scanner/index.tsx",
+    "./custom/barcode-formats": "./src/custom/barcode-formats.ts",
+    "./custom/barcode-image-decoder": "./src/custom/barcode-image-decoder/index.ts",
+    "./custom/barcode-image-decoder/lib": "./src/custom/barcode-image-decoder/lib.ts",
+    "./custom/camera-stream": "./src/custom/camera-stream/index.ts",
+    "./custom/camera-stream/camera-surface": "./src/custom/camera-stream/camera-surface.tsx",
+    "./custom/card-brand-icon": "./src/custom/card-brand-icon.tsx",
+    "./custom/charts": "./src/custom/charts/index.tsx",
+    "./custom/charts/area-chart": "./src/custom/charts/area-chart.tsx",
+    "./custom/charts/bar-chart": "./src/custom/charts/bar-chart.tsx",
+    "./custom/charts/chart-card": "./src/custom/charts/chart-card.tsx",
+    "./custom/charts/pie-chart": "./src/custom/charts/pie-chart.tsx",
+    "./custom/charts/radar-chart": "./src/custom/charts/radar-chart.tsx",
+    "./custom/charts/table-chart": "./src/custom/charts/table-chart.tsx",
+    "./custom/checkbox-tree": "./src/custom/checkbox-tree.tsx",
+    "./custom/code-block": "./src/custom/code-block.tsx",
+    "./custom/combobox": "./src/custom/combobox.tsx",
+    "./custom/confirm-dialog": "./src/custom/confirm-dialog.tsx",
+    "./custom/confirm-provider": "./src/custom/confirm-provider.tsx",
+    "./custom/copy-button": "./src/custom/copy-button.tsx",
+    "./custom/countdown-notice": "./src/custom/countdown-notice.tsx",
+    "./custom/country-selector": "./src/custom/country-selector.tsx",
+    "./custom/credit-card-input": "./src/custom/credit-card-input.tsx",
+    "./custom/credit-card-preview": "./src/custom/credit-card-preview.tsx",
+    "./custom/credit-card-scanner": "./src/custom/credit-card-scanner/index.tsx",
+    "./custom/credit-card-scanner/lib": "./src/custom/credit-card-scanner/lib.ts",
+    "./custom/credit-card-scanner/ocr": "./src/custom/credit-card-scanner/ocr.ts",
+    "./custom/date-picker": "./src/custom/date-picker/index.tsx",
+    "./custom/date-picker-old": "./src/custom/date-picker-old.tsx",
+    "./custom/date-picker/calendar-rac": "./src/custom/date-picker/calendar-rac.tsx",
+    "./custom/date-picker/datefield-rac": "./src/custom/date-picker/datefield-rac.tsx",
+    "./custom/date-picker/lazy": "./src/custom/date-picker/lazy.tsx",
+    "./custom/date-picker/types": "./src/custom/date-picker/types/index.ts",
+    "./custom/date-picker/utils": "./src/custom/date-picker/utils/index.ts",
+    "./custom/date-tooltip": "./src/custom/date-tooltip.tsx",
+    "./custom/document-scanner": "./src/custom/document-scanner/index.tsx",
+    "./custom/document-scanner/consts": "./src/custom/document-scanner/consts.ts",
+    "./custom/document-scanner/corner-adjustment": "./src/custom/document-scanner/corner-adjustment/index.tsx",
+    "./custom/document-scanner/corner-adjustment/action-buttons": "./src/custom/document-scanner/corner-adjustment/action-buttons.tsx",
+    "./custom/document-scanner/corner-adjustment/corner-handle": "./src/custom/document-scanner/corner-adjustment/corner-handle.tsx",
+    "./custom/document-scanner/corner-adjustment/hooks/use-corner-drag": "./src/custom/document-scanner/corner-adjustment/hooks/use-corner-drag.ts",
+    "./custom/document-scanner/corner-adjustment/types": "./src/custom/document-scanner/corner-adjustment/types.ts",
+    "./custom/document-scanner/corner-adjustment/utils/clip-path": "./src/custom/document-scanner/corner-adjustment/utils/clip-path.ts",
+    "./custom/document-scanner/corner-adjustment/zoom-magnifier": "./src/custom/document-scanner/corner-adjustment/zoom-magnifier.tsx",
+    "./custom/document-scanner/hooks/use-document-capture": "./src/custom/document-scanner/hooks/use-document-capture.ts",
+    "./custom/document-scanner/hooks/use-document-scanner": "./src/custom/document-scanner/hooks/use-document-scanner.ts",
+    "./custom/document-scanner/hooks/use-perspective-crop": "./src/custom/document-scanner/hooks/use-perspective-crop.ts",
+    "./custom/document-scanner/lib": "./src/custom/document-scanner/lib.ts",
+    "./custom/document-scanner/types": "./src/custom/document-scanner/types.ts",
+    "./custom/document-scanner/utils/perspective-correction": "./src/custom/document-scanner/utils/perspective-correction.ts",
+    "./custom/document-viewer": "./src/custom/document-viewer/index.tsx",
+    "./custom/document-viewer/controllers": "./src/custom/document-viewer/controllers.tsx",
+    "./custom/document-viewer/pdf-worker": "./src/custom/document-viewer/pdf-worker.tsx",
+    "./custom/document-viewer/renderers": "./src/custom/document-viewer/renderers/index.tsx",
+    "./custom/document-viewer/renderers/image": "./src/custom/document-viewer/renderers/image.tsx",
+    "./custom/document-viewer/renderers/pdf": "./src/custom/document-viewer/renderers/pdf.tsx",
+    "./custom/draw-pad": "./src/custom/draw-pad/index.tsx",
+    "./custom/email-input": "./src/custom/email-input/index.tsx",
+    "./custom/email-input/email": "./src/custom/email-input/email.tsx",
+    "./custom/email-input/types": "./src/custom/email-input/types.ts",
+    "./custom/file-uploader": "./src/custom/file-uploader.tsx",
+    "./custom/filter-component": "./src/custom/filter-component/index.tsx",
+    "./custom/filter-component/fields/async-select": "./src/custom/filter-component/fields/async-select.tsx",
+    "./custom/filter-component/fields/date": "./src/custom/filter-component/fields/date.tsx",
+    "./custom/filter-component/fields/multi-select": "./src/custom/filter-component/fields/multi-select.tsx",
+    "./custom/icons": "./src/custom/icons/index.tsx",
+    "./custom/icons/ai-providers": "./src/custom/icons/ai-providers.tsx",
+    "./custom/icons/android": "./src/custom/icons/android.tsx",
+    "./custom/icons/app-store": "./src/custom/icons/app-store.tsx",
+    "./custom/icons/apple": "./src/custom/icons/apple.tsx",
+    "./custom/icons/browser": "./src/custom/icons/browser.tsx",
+    "./custom/icons/docker": "./src/custom/icons/docker.tsx",
+    "./custom/icons/json": "./src/custom/icons/json.tsx",
+    "./custom/icons/linux": "./src/custom/icons/linux.tsx",
+    "./custom/icons/play-store": "./src/custom/icons/play-store.tsx",
+    "./custom/icons/power-shell": "./src/custom/icons/power-shell.tsx",
+    "./custom/icons/swagger": "./src/custom/icons/swagger.tsx",
+    "./custom/icons/ubuntu": "./src/custom/icons/ubuntu.tsx",
+    "./custom/icons/windows": "./src/custom/icons/windows.tsx",
+    "./custom/image-canvas": "./src/custom/image-canvas.tsx",
+    "./custom/json-editor": "./src/custom/json-editor.tsx",
+    "./custom/key-value-editor": "./src/custom/key-value-editor.tsx",
+    "./custom/language-switcher": "./src/custom/language-switcher.tsx",
+    "./custom/master-data-grid": "./src/custom/master-data-grid/index.ts",
+    "./custom/master-data-grid/components/filters": "./src/custom/master-data-grid/components/filters/index.ts",
+    "./custom/master-data-grid/components/filters/client-filter": "./src/custom/master-data-grid/components/filters/client-filter.tsx",
+    "./custom/master-data-grid/components/filters/filter-input": "./src/custom/master-data-grid/components/filters/filter-input.tsx",
+    "./custom/master-data-grid/components/filters/filter-value-editor": "./src/custom/master-data-grid/components/filters/filter-value-editor.tsx",
+    "./custom/master-data-grid/components/filters/inline-column-filter": "./src/custom/master-data-grid/components/filters/inline-column-filter.tsx",
+    "./custom/master-data-grid/components/filters/multi-filter-dialog": "./src/custom/master-data-grid/components/filters/multi-filter-dialog.tsx",
+    "./custom/master-data-grid/components/filters/server-filter": "./src/custom/master-data-grid/components/filters/server-filter.tsx",
+    "./custom/master-data-grid/components/filters/server-filter-bar": "./src/custom/master-data-grid/components/filters/server-filter-bar.tsx",
+    "./custom/master-data-grid/components/helpers/empty-cell": "./src/custom/master-data-grid/components/helpers/empty-cell.tsx",
+    "./custom/master-data-grid/components/helpers/row-link": "./src/custom/master-data-grid/components/helpers/row-link.tsx",
+    "./custom/master-data-grid/components/master-data-grid": "./src/custom/master-data-grid/components/master-data-grid.tsx",
+    "./custom/master-data-grid/components/pagination": "./src/custom/master-data-grid/components/pagination/index.ts",
+    "./custom/master-data-grid/components/pagination/pagination": "./src/custom/master-data-grid/components/pagination/pagination.tsx",
+    "./custom/master-data-grid/components/row-count-summary": "./src/custom/master-data-grid/components/row-count-summary.tsx",
+    "./custom/master-data-grid/components/table": "./src/custom/master-data-grid/components/table/index.ts",
+    "./custom/master-data-grid/components/table/cell-renderer": "./src/custom/master-data-grid/components/table/cell-renderer.tsx",
+    "./custom/master-data-grid/components/table/grid-footer": "./src/custom/master-data-grid/components/table/grid-footer.tsx",
+    "./custom/master-data-grid/components/table/grid-header": "./src/custom/master-data-grid/components/table/grid-header.tsx",
+    "./custom/master-data-grid/components/table/grid-row": "./src/custom/master-data-grid/components/table/grid-row.tsx",
+    "./custom/master-data-grid/components/table/header-cell": "./src/custom/master-data-grid/components/table/header-cell.tsx",
+    "./custom/master-data-grid/components/table/table-body-renderer": "./src/custom/master-data-grid/components/table/table-body-renderer.tsx",
+    "./custom/master-data-grid/components/table/virtual-body": "./src/custom/master-data-grid/components/table/virtual-body.tsx",
+    "./custom/master-data-grid/components/toolbar": "./src/custom/master-data-grid/components/toolbar/index.ts",
+    "./custom/master-data-grid/components/toolbar/toolbar": "./src/custom/master-data-grid/components/toolbar/toolbar.tsx",
+    "./custom/master-data-grid/context/local-server-filters": "./src/custom/master-data-grid/context/local-server-filters.tsx",
+    "./custom/master-data-grid/context/resources": "./src/custom/master-data-grid/context/resources.tsx",
+    "./custom/master-data-grid/hooks": "./src/custom/master-data-grid/hooks/index.ts",
+    "./custom/master-data-grid/hooks/use-columns": "./src/custom/master-data-grid/hooks/use-columns.tsx",
+    "./custom/master-data-grid/hooks/use-delayed-flag": "./src/custom/master-data-grid/hooks/use-delayed-flag.ts",
+    "./custom/master-data-grid/hooks/use-editing": "./src/custom/master-data-grid/hooks/use-editing.ts",
+    "./custom/master-data-grid/hooks/use-grid-navigation": "./src/custom/master-data-grid/hooks/use-grid-navigation.ts",
+    "./custom/master-data-grid/hooks/use-table-state": "./src/custom/master-data-grid/hooks/use-table-state.ts",
+    "./custom/master-data-grid/hooks/use-table-state-reducer": "./src/custom/master-data-grid/hooks/use-table-state-reducer.ts",
+    "./custom/master-data-grid/types": "./src/custom/master-data-grid/types.ts",
+    "./custom/master-data-grid/utils": "./src/custom/master-data-grid/utils/index.ts",
+    "./custom/master-data-grid/utils/cell-validation": "./src/custom/master-data-grid/utils/cell-validation.ts",
+    "./custom/master-data-grid/utils/column-generator": "./src/custom/master-data-grid/utils/column-generator.tsx",
+    "./custom/master-data-grid/utils/export-utils": "./src/custom/master-data-grid/utils/export-utils.ts",
+    "./custom/master-data-grid/utils/filter-fns": "./src/custom/master-data-grid/utils/filter-fns.ts",
+    "./custom/master-data-grid/utils/grid-url-params": "./src/custom/master-data-grid/utils/grid-url-params.ts",
+    "./custom/master-data-grid/utils/pinning-utils": "./src/custom/master-data-grid/utils/pinning-utils.ts",
+    "./custom/master-data-grid/utils/server-filter-url": "./src/custom/master-data-grid/utils/server-filter-url.ts",
+    "./custom/master-data-grid/utils/server-filter-utils": "./src/custom/master-data-grid/utils/server-filter-utils.ts",
+    "./custom/master-data-grid/utils/translation-utils": "./src/custom/master-data-grid/utils/translation-utils.ts",
+    "./custom/master-data-grid/utils/url-scope": "./src/custom/master-data-grid/utils/url-scope.ts",
+    "./custom/mrz-camera-scanner": "./src/custom/mrz-camera-scanner/index.tsx",
+    "./custom/mrz-camera-scanner/lib": "./src/custom/mrz-camera-scanner/lib.ts",
+    "./custom/mrz-camera-scanner/ocr": "./src/custom/mrz-camera-scanner/ocr.ts",
+    "./custom/multi-select": "./src/custom/multi-select.tsx",
+    "./custom/password-input": "./src/custom/password-input.tsx",
+    "./custom/phone-input": "./src/custom/phone-input.tsx",
+    "./custom/schema-form": "./src/custom/schema-form/index.tsx",
+    "./custom/schema-form/custom": "./src/custom/schema-form/custom/index.tsx",
+    "./custom/schema-form/custom/label": "./src/custom/schema-form/custom/label.tsx",
+    "./custom/schema-form/fields": "./src/custom/schema-form/fields/index.tsx",
+    "./custom/schema-form/fields/base-input-field": "./src/custom/schema-form/fields/base-input-field.tsx",
+    "./custom/schema-form/fields/field": "./src/custom/schema-form/fields/field.tsx",
+    "./custom/schema-form/fields/object": "./src/custom/schema-form/fields/object.tsx",
+    "./custom/schema-form/fields/table-array/array-field-item": "./src/custom/schema-form/fields/table-array/array-field-item.tsx",
+    "./custom/schema-form/fields/table-array/array-field-template": "./src/custom/schema-form/fields/table-array/array-field-template.tsx",
+    "./custom/schema-form/fields/table-array/row-class-name": "./src/custom/schema-form/fields/table-array/row-class-name.ts",
+    "./custom/schema-form/templates": "./src/custom/schema-form/templates/index.tsx",
+    "./custom/schema-form/templates/description": "./src/custom/schema-form/templates/description.tsx",
+    "./custom/schema-form/templates/submit": "./src/custom/schema-form/templates/submit.tsx",
+    "./custom/schema-form/types": "./src/custom/schema-form/types.ts",
+    "./custom/schema-form/utils": "./src/custom/schema-form/utils/index.ts",
+    "./custom/schema-form/utils/schema-dependency": "./src/custom/schema-form/utils/schema-dependency.ts",
+    "./custom/schema-form/utils/schemas": "./src/custom/schema-form/utils/schemas.ts",
+    "./custom/schema-form/utils/validation": "./src/custom/schema-form/utils/validation.ts",
+    "./custom/schema-form/widgets": "./src/custom/schema-form/widgets/index.tsx",
+    "./custom/schema-form/widgets/boolean": "./src/custom/schema-form/widgets/boolean.tsx",
+    "./custom/schema-form/widgets/combobox": "./src/custom/schema-form/widgets/combobox.tsx",
+    "./custom/schema-form/widgets/date": "./src/custom/schema-form/widgets/date.tsx",
+    "./custom/schema-form/widgets/email": "./src/custom/schema-form/widgets/email.tsx",
+    "./custom/schema-form/widgets/password": "./src/custom/schema-form/widgets/password.tsx",
+    "./custom/schema-form/widgets/phone": "./src/custom/schema-form/widgets/phone.tsx",
+    "./custom/schema-form/widgets/select": "./src/custom/schema-form/widgets/select.tsx",
+    "./custom/schema-form/widgets/selectable": "./src/custom/schema-form/widgets/selectable.tsx",
+    "./custom/schema-form/widgets/string-array": "./src/custom/schema-form/widgets/string-array.tsx",
+    "./custom/schema-form/widgets/url": "./src/custom/schema-form/widgets/url.tsx",
+    "./custom/section-layout-v2": "./src/custom/section-layout-v2.tsx",
+    "./custom/select-tabs": "./src/custom/select-tabs.tsx",
+    "./custom/selectable": "./src/custom/selectable.tsx",
+    "./custom/star-rating": "./src/custom/star-rating.tsx",
+    "./custom/stepper": "./src/custom/stepper.tsx",
+    "./custom/tab-layout": "./src/custom/tab-layout.tsx",
+    "./custom/tag-input": "./src/custom/tag-input.tsx",
+    "./custom/tanstack-table": "./src/custom/tanstack-table/index.tsx",
+    "./custom/tanstack-table/fields": "./src/custom/tanstack-table/fields/index.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-action-dialogs": "./src/custom/tanstack-table/fields/tanstack-table-action-dialogs.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-column-header": "./src/custom/tanstack-table/fields/tanstack-table-column-header.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-filter-date": "./src/custom/tanstack-table/fields/tanstack-table-filter-date.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-filter-faceted": "./src/custom/tanstack-table/fields/tanstack-table-filter-faceted.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-filter-text": "./src/custom/tanstack-table/fields/tanstack-table-filter-text.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-pagination": "./src/custom/tanstack-table/fields/tanstack-table-pagination.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-plain-table": "./src/custom/tanstack-table/fields/tanstack-table-plain-table.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-row-actions": "./src/custom/tanstack-table/fields/tanstack-table-row-actions.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-row-actions-confirmation": "./src/custom/tanstack-table/fields/tanstack-table-row-actions-confirmation.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-row-actions-custom-dialog": "./src/custom/tanstack-table/fields/tanstack-table-row-actions-custom-dialog.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-table-actions-custom-dialog": "./src/custom/tanstack-table/fields/tanstack-table-table-actions-custom-dialog.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-table-actions-schemaform-dialog": "./src/custom/tanstack-table/fields/tanstack-table-table-actions-schemaform-dialog.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-toolbar": "./src/custom/tanstack-table/fields/tanstack-table-toolbar.tsx",
+    "./custom/tanstack-table/fields/tanstack-table-view-options": "./src/custom/tanstack-table/fields/tanstack-table-view-options.tsx",
+    "./custom/tanstack-table/types": "./src/custom/tanstack-table/types/index.ts",
+    "./custom/tanstack-table/utils": "./src/custom/tanstack-table/utils/index.tsx",
+    "./custom/tanstack-table/utils/cell-with-actions": "./src/custom/tanstack-table/utils/cell-with-actions.tsx",
+    "./custom/tanstack-table/utils/column-names": "./src/custom/tanstack-table/utils/column-names.ts",
+    "./custom/tanstack-table/utils/columns-by-row-data": "./src/custom/tanstack-table/utils/columns-by-row-data.tsx",
+    "./custom/tanstack-table/utils/editable-columns-by-row-data": "./src/custom/tanstack-table/utils/editable-columns-by-row-data.tsx",
+    "./custom/tanstack-table/utils/faceted-boolean-options": "./src/custom/tanstack-table/utils/faceted-boolean-options.tsx",
+    "./custom/tanstack-table/utils/pinning-styles": "./src/custom/tanstack-table/utils/pinning-styles.ts",
+    "./custom/tanstack-table/utils/table": "./src/custom/tanstack-table/utils/table.tsx",
+    "./custom/tanstack-table/utils/test-conditions": "./src/custom/tanstack-table/utils/test-conditions.ts",
+    "./custom/theme-toggle": "./src/custom/theme-toggle.tsx",
+    "./custom/timeline": "./src/custom/timeline.tsx",
+    "./custom/tree": "./src/custom/tree.tsx",
+    "./custom/tscanify": "./src/custom/tscanify/index.ts",
+    "./custom/tscanify/browser": "./src/custom/tscanify/browser.ts",
+    "./custom/tscanify/tscanify": "./src/custom/tscanify/tscanify.ts",
+    "./custom/tscanify/tscanify-browser": "./src/custom/tscanify/tscanify-browser.ts",
+    "./custom/tscanify/types": "./src/custom/tscanify/types.ts",
+    "./custom/webcam": "./src/custom/webcam.tsx",
+    "./hooks/use-callback-ref": "./src/hooks/use-callback-ref.ts",
+    "./hooks/use-controllable-state": "./src/hooks/use-controllable-state.ts",
+    "./hooks/use-copy-to-clipboard": "./src/hooks/use-copy-to-clipboard.ts",
+    "./hooks/use-debounce": "./src/hooks/use-debounce.ts",
+    "./hooks/use-is-visible": "./src/hooks/use-is-visible.ts",
+    "./hooks/use-media-query": "./src/hooks/use-media-query.ts",
+    "./hooks/use-mobile": "./src/hooks/use-mobile.ts",
+    "./hooks/use-on-window-resize": "./src/hooks/use-on-window-resize.ts",
+    "./hooks/use-scroll": "./src/hooks/use-scroll.tsx",
+    "./lib/utils": "./src/lib/utils.ts",
+    "./lib/zod": "./src/lib/zod.ts"
   }
 }

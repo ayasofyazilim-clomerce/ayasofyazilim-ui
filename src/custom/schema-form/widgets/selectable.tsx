@@ -1,7 +1,7 @@
 import {
   Selectable,
   SelectableProps,
-} from "@repo/ayasofyazilim-ui/custom/selectable";
+} from "@ayasofyazilim-clomerce/ui/custom/selectable";
 import { WidgetProps } from "@rjsf/utils";
 
 export function CustomSelectableWidget<T>(

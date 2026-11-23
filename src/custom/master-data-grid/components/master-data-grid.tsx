@@ -82,8 +82,7 @@ export function MasterDataGrid<TData = Record<string, unknown>>(
   // runs as a default grid (see isPrefixUrlState); say so while developing.
   const blankPrefix = isBlankPrefixUrlState(urlState);
   useEffect(() => {
-    // NODE_ENV is inlined by the app's bundler, not read from turbo's env.
-    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    // NODE_ENV is inlined by the app's bundler.
     if (blankPrefix && process.env.NODE_ENV !== "production") {
       logWarning(
         "urlState.prefix is empty, so this grid runs in default mode (un-prefixed URL keys). Pass a non-empty prefix, or leave urlState out."

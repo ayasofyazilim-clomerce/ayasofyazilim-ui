@@ -9,14 +9,14 @@ import { Table } from "@tanstack/react-table";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ayasofyazilim-ui/components/select";
+} from "@ayasofyazilim-clomerce/ui/components/select";
 
 interface TanstackTablePaginationProps<TData> {
   pagination: {
