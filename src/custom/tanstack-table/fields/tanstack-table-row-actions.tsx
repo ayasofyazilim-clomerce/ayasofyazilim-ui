@@ -2,14 +2,14 @@
 
 import { ArrowDown, ArrowUp, Copy, Trash2 } from "lucide-react";
 import { Row, Table } from "@tanstack/react-table";
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@ayasofyazilim/ui/components/dropdown-menu";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/dropdown-menu";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { TanstackTableRowActionsType } from "../types";
 
 interface TanstackTableRowActionsProps<TData> {

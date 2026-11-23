@@ -14,8 +14,8 @@ import {
 } from "react-hook-form";
 export * from "react-hook-form";
 
-import { cn } from "@ayasofyazilim/ui/lib/utils";
-import { Label } from "@ayasofyazilim/ui/components/label";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Label } from "@ayasofyazilim-clomerce/ui/components/label";
 
 const Form = FormProvider;
 

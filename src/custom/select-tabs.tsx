@@ -9,8 +9,8 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Button } from "@ayasofyazilim/ui/components/button";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 const variants = {
   default:

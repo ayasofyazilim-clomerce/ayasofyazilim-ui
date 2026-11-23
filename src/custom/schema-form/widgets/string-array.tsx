@@ -1,17 +1,17 @@
-import { ButtonProps } from "@ayasofyazilim/ui/components/button";
+import { ButtonProps } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
   InputGroupText,
-} from "@ayasofyazilim/ui/components/input-group";
+} from "@ayasofyazilim-clomerce/ui/components/input-group";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@ayasofyazilim/ui/components/tooltip";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/tooltip";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { WidgetProps } from "@rjsf/utils";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";

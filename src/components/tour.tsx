@@ -6,8 +6,8 @@ import Link from "next/link";
 import * as React from "react";
 import { createPortal } from "react-dom";
 
-import { cn } from "@ayasofyazilim/ui/lib/utils";
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Card,
   CardAction,
@@ -16,12 +16,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@ayasofyazilim/ui/components/card";
+} from "@ayasofyazilim-clomerce/ui/components/card";
 import {
   Popover,
   PopoverAnchor,
   PopoverContent,
-} from "@ayasofyazilim/ui/components/popover";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
 
 const TourContext = React.createContext<{
   start: (tourId: string) => void;

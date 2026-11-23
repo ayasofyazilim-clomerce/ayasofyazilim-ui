@@ -1,4 +1,4 @@
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { Minus } from "lucide-react";
 
 export function EmptyCell({ className }: { className?: string }) {

@@ -10,8 +10,8 @@ import PhoneInputWithCountrySelect, {
 } from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
 
-import { Input } from "@ayasofyazilim/ui/components/input";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Input } from "@ayasofyazilim-clomerce/ui/components/input";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   Select,
   SelectContent,

@@ -1,5 +1,5 @@
-import { TableCell } from "@ayasofyazilim/ui/components/table";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { TableCell } from "@ayasofyazilim-clomerce/ui/components/table";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { FieldTemplateProps } from "@rjsf/utils";
 import { FieldLabel } from "../custom";
 

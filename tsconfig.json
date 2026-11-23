@@ -17,7 +17,7 @@
     "strict": true,
     "target": "ES2022",
     "paths": {
-      "@ayasofyazilim/ui/*": ["./src/*"]
+      "@ayasofyazilim-clomerce/ui/*": ["./src/*"]
     }
   },
   "include": ["."],

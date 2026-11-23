@@ -1,7 +1,7 @@
 "use client";
 
-import { InputProps } from "@ayasofyazilim/ui/components/input";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { InputProps } from "@ayasofyazilim-clomerce/ui/components/input";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { EyeIcon, EyeOffIcon, RotateCcwKey } from "lucide-react";
 import {
   forwardRef,

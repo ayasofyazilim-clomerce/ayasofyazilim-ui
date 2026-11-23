@@ -5,11 +5,11 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react";
 
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   Button,
   buttonVariants,
-} from "@ayasofyazilim/ui/components/button";
+} from "@ayasofyazilim-clomerce/ui/components/button";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (

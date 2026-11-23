@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
-import { Badge } from "@ayasofyazilim/ui/components/badge";
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { Badge } from "@ayasofyazilim-clomerce/ui/components/badge";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -11,14 +11,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@ayasofyazilim/ui/components/command";
+} from "@ayasofyazilim-clomerce/ui/components/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@ayasofyazilim/ui/components/popover";
-import { ScrollArea } from "@ayasofyazilim/ui/components/scroll-area";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
+import { ScrollArea } from "@ayasofyazilim-clomerce/ui/components/scroll-area";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { Globe } from "lucide-react";
 
 export const lang = {

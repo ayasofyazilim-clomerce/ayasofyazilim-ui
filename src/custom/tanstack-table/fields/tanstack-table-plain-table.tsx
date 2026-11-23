@@ -5,7 +5,7 @@ import {
   Table as TableType,
 } from "@tanstack/react-table";
 import { Fragment, JSX } from "react";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@ayasofyazilim/ui/components/table";
+} from "@ayasofyazilim-clomerce/ui/components/table";
 import { getCommonPinningStyles } from "../utils";
 
 export function TanstackTablePlainTable<TData, TValue>({

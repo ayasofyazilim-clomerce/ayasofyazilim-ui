@@ -1,4 +1,4 @@
-import { Switch } from "@ayasofyazilim/ui/components/switch";
+import { Switch } from "@ayasofyazilim-clomerce/ui/components/switch";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "../../../../components/badge";
 import { Input } from "../../../../components/input";

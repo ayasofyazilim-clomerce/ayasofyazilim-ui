@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { CornerHandleProps } from "./types";
 
 export const CornerHandle = memo<CornerHandleProps>(

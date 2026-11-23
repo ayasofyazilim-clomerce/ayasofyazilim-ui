@@ -2,15 +2,15 @@
 import {
   ButtonProps,
   buttonVariants,
-} from "@ayasofyazilim/ui/components/button";
+} from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Empty,
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
-} from "@ayasofyazilim/ui/components/empty";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/empty";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { motion } from "motion/react";
 import Link from "next/link";
 

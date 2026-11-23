@@ -1,4 +1,4 @@
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Table,
   TableBody,
@@ -6,8 +6,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@ayasofyazilim/ui/components/table";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/table";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   ArrayFieldTemplateProps,
   buttonId,

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Loader } from "lucide-react";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { Webcam } from "../webcam";
 import {
   DEFAULT_CAPTURE_INTERVAL,
@@ -13,7 +13,7 @@ import { useDocumentCapture } from "./hooks/use-document-capture";
 import { useDocumentScanner } from "./hooks/use-document-scanner";
 import { usePerspectiveCrop } from "./hooks/use-perspective-crop";
 import { DocumentScannerProps, ScannerStatus } from "./types";
-import { Skeleton } from "@ayasofyazilim/ui/components/skeleton";
+import { Skeleton } from "@ayasofyazilim-clomerce/ui/components/skeleton";
 
 export function DocumentScanner({
   // Core callbacks

@@ -12,10 +12,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@ayasofyazilim/ui/components/select";
-import { Selectable } from "@ayasofyazilim/ui/custom/selectable";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
-import { Input } from "@ayasofyazilim/ui/components/input";
+} from "@ayasofyazilim-clomerce/ui/components/select";
+import { Selectable } from "@ayasofyazilim-clomerce/ui/custom/selectable";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Input } from "@ayasofyazilim-clomerce/ui/components/input";
 
 /** The `SelectWidget` is a widget for rendering dropdowns.
  *  It is typically used with string properties constrained with enum options.
