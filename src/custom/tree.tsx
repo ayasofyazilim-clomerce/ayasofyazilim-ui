@@ -7,7 +7,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { Slot } from "radix-ui";
 export * from "@headless-tree/core";
 export * from "@headless-tree/react";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface TreeContextValue<T = any> {
   indent: number;

@@ -33,3 +33,6 @@ yarn-error.log*
 
 storybook-static
 .turbo/turbo-build.log
+
+# packed tarballs
+*.tgz

@@ -1,6 +1,6 @@
 "use client";
 
-import { Input } from "@repo/ayasofyazilim-ui/components/input";
+import { Input } from "@ayasofyazilim-clomerce/ui/components/input";
 import {
   Select,
   SelectContent,
@@ -8,10 +8,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ayasofyazilim-ui/components/select";
-import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
-import { DatePicker } from "@repo/ayasofyazilim-ui/custom/date-picker";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/select";
+import { Switch } from "@ayasofyazilim-clomerce/ui/components/switch";
+import { DatePicker } from "@ayasofyazilim-clomerce/ui/custom/date-picker";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { ColumnDef, Row, Table } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { createCell, tanstackTableCreateTitleWithLanguageData } from ".";

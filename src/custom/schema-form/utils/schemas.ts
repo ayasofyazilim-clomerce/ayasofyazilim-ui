@@ -5,7 +5,7 @@ import {
   FilterType,
   UiSchema,
 } from "../types";
-import { lodash } from "@repo/ayasofyazilim-ui/lib/utils";
+import { lodash } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 /**
  *

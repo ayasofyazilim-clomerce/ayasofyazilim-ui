@@ -1,4 +1,4 @@
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { useState } from "react";
 import { DocRendererProps } from "react-doc-viewer";
 import { Document, Page, Thumbnail } from "react-pdf";
