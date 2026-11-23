@@ -1,6 +1,6 @@
 # Tree
 
-`@repo/ayasofyazilim-ui/custom/tree` styles a [headless-tree](https://headless-tree.lukasbach.com) tree. It re-exports everything from `@headless-tree/core` and `@headless-tree/react` (`useTree`, the features, `isOrderedDragTarget`, the types) and adds `Tree`, `TreeItem`, `TreeItemLabel`, `TreeDragLine`, `TreeDragHandle` and two drop helpers, `canDropWithinParent` and `reorderTargetWithinParent`.
+`@ayasofyazilim-clomerce/ui/custom/tree` styles a [headless-tree](https://headless-tree.lukasbach.com) tree. It re-exports everything from `@headless-tree/core` and `@headless-tree/react` (`useTree`, the features, `isOrderedDragTarget`, the types) and adds `Tree`, `TreeItem`, `TreeItemLabel`, `TreeDragLine`, `TreeDragHandle` and two drop helpers, `canDropWithinParent` and `reorderTargetWithinParent`.
 
 The file is `"use no memo"`: the headless-tree instance is a mutable object passed as a prop, which the React Compiler must not memoize.
 
@@ -19,7 +19,7 @@ import {
   hotkeysCoreFeature,
   syncDataLoaderFeature,
   useTree,
-} from "@repo/ayasofyazilim-ui/custom/tree";
+} from "@ayasofyazilim-clomerce/ui/custom/tree";
 
 const tree = useTree<Node>({
   rootItemId: "root",
@@ -103,7 +103,7 @@ import {
   reorderTargetWithinParent,
   syncDataLoaderFeature,
   useTree,
-} from "@repo/ayasofyazilim-ui/custom/tree";
+} from "@ayasofyazilim-clomerce/ui/custom/tree";
 
 const tree = useTree<Field>({
   rootItemId: ROOT,
