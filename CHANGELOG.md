@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.2.0 (unreleased)
+## 0.2.0 (2026-11-23)
+
+The first published version of `@ayasofyazilim-clomerce/ui`. It also ships everything listed under 0.1.0 below, including the breaking changes since `@ayasofyazilim/ui` 0.0.11.
 
 ### Added
 
@@ -20,7 +22,9 @@ Each new component takes optional label props whose defaults are English, like t
 
 ## 0.1.0
 
-First release built from `main`, and the first under the name `@ayasofyazilim-clomerce/ui` on GitHub Packages. Version 0.0.11 was published to npmjs.com as `@ayasofyazilim/ui` from a separate branch; this release replaces it, so the changes below are measured against 0.0.11.
+Never published: 0.1.0 was prepared but not released, and its contents first ship in 0.2.0.
+
+The first version built from `main`, and the first under the name `@ayasofyazilim-clomerce/ui` on GitHub Packages. Version 0.0.11 was published to npmjs.com as `@ayasofyazilim/ui` from a separate branch; this release replaces it, so the changes below are measured against 0.0.11.
 
 ### Breaking changes
 
