@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { Label } from "@ayasofyazilim-clomerce/ui/components/label";
 import {
   Select,
   SelectContent,
@@ -10,7 +10,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@repo/ayasofyazilim-ui/components/select";
+} from "@ayasofyazilim-clomerce/ui/components/select";
 import type { DateSelectType } from "..";
 
 function DateField({

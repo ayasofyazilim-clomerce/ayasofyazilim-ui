@@ -25,7 +25,15 @@ describe("globals.css tokens", () => {
     );
   });
 
-  it("keeps the tailwind import as the first line", () => {
-    expect(css.split(/\r?\n/)[0]).toBe('@import "tailwindcss";');
+  it("leaves the tailwind import to the consuming app", () => {
+    expect(css).not.toMatch(/^@import\s+["']tailwindcss["']/m);
+  });
+
+  it("scans its own modules relative to the stylesheet, in src and dist", () => {
+    expect(css).toMatch(/^@source "\.\.\/\*\*\/\*\.\{js,ts,tsx\}";$/m);
+  });
+
+  it("has no monorepo-specific @source path", () => {
+    expect(css).not.toMatch(/@source\s+["'](\.\.\/){2,}/);
   });
 });

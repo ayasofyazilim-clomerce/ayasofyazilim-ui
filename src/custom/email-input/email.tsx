@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Input } from "@repo/ayasofyazilim-ui/components/input";
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Input } from "@ayasofyazilim-clomerce/ui/components/input";
+import { Label } from "@ayasofyazilim-clomerce/ui/components/label";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import domains from "./domains.json";
 
 interface EmailInputProps

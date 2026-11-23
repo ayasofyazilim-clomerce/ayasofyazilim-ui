@@ -14,7 +14,7 @@ import {
   TimeValue as TimeValueRac,
   composeRenderProps,
 } from "react-aria-components";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 const DateField = <T extends DateValueRac>({
   className,

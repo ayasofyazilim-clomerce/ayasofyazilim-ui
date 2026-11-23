@@ -11,15 +11,15 @@ import {
   WandSparkles,
 } from "lucide-react";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Separator } from "@ayasofyazilim-clomerce/ui/components/separator";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { Badge } from "@ayasofyazilim-clomerce/ui/components/badge";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
 import {
   Command,
   CommandEmpty,
@@ -28,7 +28,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim-clomerce/ui/components/command";
 
 /**
  * Variants for the multi-select component to handle different styles.
