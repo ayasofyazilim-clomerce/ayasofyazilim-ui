@@ -3,7 +3,7 @@
 import { Loader } from "lucide-react";
 import * as React from "react";
 
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Dialog,
   DialogClose,
@@ -11,9 +11,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@ayasofyazilim/ui/components/dialog";
+} from "@ayasofyazilim-clomerce/ui/components/dialog";
 import { TanstackTableActionsCustomDialog } from "../types";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 type TanstackTableCustomDialogProps = {
   setDialogOpen: () => void;

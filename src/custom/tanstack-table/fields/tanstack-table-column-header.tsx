@@ -2,14 +2,14 @@ import { ArrowDownIcon, ArrowUpIcon, ChevronsUpDownIcon } from "lucide-react";
 import { Column } from "@tanstack/react-table";
 
 import { HTMLAttributes } from "react";
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@ayasofyazilim/ui/components/dropdown-menu";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/dropdown-menu";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 interface TanstackTableColumnHeaderProps<TData, TValue>
   extends HTMLAttributes<HTMLDivElement> {

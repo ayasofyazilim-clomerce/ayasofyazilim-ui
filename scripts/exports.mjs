@@ -5,7 +5,7 @@
  *   node scripts/exports.mjs          write `exports` (source) and
  *                                     `publishConfig.exports` (dist)
  *   node scripts/exports.mjs --check  fail if package.json is out of date, or
- *                                     if any `@ayasofyazilim/ui/...` import in
+ *                                     if any `@ayasofyazilim-clomerce/ui/...` import in
  *                                     src or docs has no export entry
  *   node scripts/exports.mjs --dist   fail if a dist export target is missing,
  *                                     or if dist imports a package that is not
@@ -13,7 +13,7 @@
  *
  * Top-level `exports` point at `src` so a workspace consumer can use the
  * package without a build. pnpm swaps in `publishConfig.exports` when it packs
- * or publishes, so the npm tarball points at the built `dist`.
+ * or publishes, so the packed tarball points at the built `dist`.
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { builtinModules } from "node:module";
@@ -22,7 +22,7 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const pkgPath = join(root, "package.json");
-const NAME = "@ayasofyazilim/ui";
+const NAME = "@ayasofyazilim-clomerce/ui";
 const MODULE_DIRS = ["aria", "components", "custom", "hooks", "lib"];
 const SKIP_FILE = /(\.d\.ts|\.(test|spec)\.tsx?|^demo\.tsx)$/;
 
@@ -94,7 +94,7 @@ function write() {
   console.log(`exports: wrote ${Object.keys(source).length} entries`);
 }
 
-/** `@ayasofyazilim/ui/...` specifiers used in src and docs. */
+/** `@ayasofyazilim-clomerce/ui/...` specifiers used in src and docs. */
 function selfSpecifiers() {
   const files = [
     ...walk(join(root, "src")).filter((f) => /\.tsx?$/.test(f)),

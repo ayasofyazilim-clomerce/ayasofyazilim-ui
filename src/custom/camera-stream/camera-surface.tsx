@@ -14,14 +14,14 @@
 // loop can read frames directly; CameraSurface is purely presentational.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { buttonVariants } from "@ayasofyazilim/ui/components/button";
+import { buttonVariants } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-} from "@ayasofyazilim/ui/components/select";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/select";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   FlashlightIcon,
   FlashlightOffIcon,

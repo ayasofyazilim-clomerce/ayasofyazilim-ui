@@ -11,7 +11,7 @@ import { TanstackTableDateFilter } from "./tanstack-table-filter-date";
 import { TanstackTableFacetedFilter } from "./tanstack-table-filter-faceted";
 import { TanstackTableTextFilter } from "./tanstack-table-filter-text";
 import { TanstackTableViewOptions } from "./tanstack-table-view-options";
-import { Label } from "@ayasofyazilim/ui/components/label";
+import { Label } from "@ayasofyazilim-clomerce/ui/components/label";
 
 interface TanstackTableToolbarProps<TData> {
   title?: string;

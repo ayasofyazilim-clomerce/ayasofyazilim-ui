@@ -2,14 +2,14 @@
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
-import { cn } from "@ayasofyazilim/ui/lib/utils";
-import { Button } from "@ayasofyazilim/ui/components/button";
-import { Calendar } from "@ayasofyazilim/ui/components/calendar";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { Calendar } from "@ayasofyazilim-clomerce/ui/components/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@ayasofyazilim/ui/components/popover";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
 import { forwardRef } from "react";
 
 export const DatePicker = forwardRef<

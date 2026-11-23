@@ -2,12 +2,13 @@
 
 ## 0.1.0
 
-First release built from `main`. Version 0.0.11 was built from a separate branch; this release replaces it, so the changes below are measured against 0.0.11.
+First release built from `main`, and the first under the name `@ayasofyazilim-clomerce/ui` on GitHub Packages. Version 0.0.11 was published to npmjs.com as `@ayasofyazilim/ui` from a separate branch; this release replaces it, so the changes below are measured against 0.0.11.
 
 ### Breaking changes
 
+- **Name and registry.** The package is now `@ayasofyazilim-clomerce/ui`, published to GitHub Packages (`https://npm.pkg.github.com`). Replace `@ayasofyazilim/ui` with `@ayasofyazilim-clomerce/ui` in `package.json`, imports, CSS and PostCSS config. Installing needs the scope line `@ayasofyazilim-clomerce:registry=https://npm.pkg.github.com` in the app's `.npmrc` and a GitHub token with `read:packages` (see the README). `@ayasofyazilim/ui` on npmjs.com stays at 0.0.x.
 - **Peer dependencies.** `next` (`^16.2.10`), `react` and `react-dom` (`^19.1.1`), `next-themes` (`^0.4.6`), `zod` (`^4.1.13`), `tailwindcss` and `@tailwindcss/postcss` (`^4.1.11`) are peers instead of bundled dependencies. Install them in the app. `canvas` and `jsdom` are optional peers.
-- **CSS.** `@ayasofyazilim/ui/globals.css` no longer imports Tailwind. The app's stylesheet starts with `@import "tailwindcss";` and then imports `@ayasofyazilim/ui/globals.css`. The library scans its own files, so remove any `@source "../node_modules/@ayasofyazilim/ui/..."` line.
+- **CSS.** `@ayasofyazilim-clomerce/ui/globals.css` does not import Tailwind (0.0.11's stylesheet did). The app's stylesheet starts with `@import "tailwindcss";` and then imports `@ayasofyazilim-clomerce/ui/globals.css`. The library scans its own files, so remove any `@source "../node_modules/@ayasofyazilim/ui/..."` line.
 - **Entry points.** Exports point at compiled `dist` JavaScript with `.d.ts` declarations (0.0.11 pointed types at `src`). Every module is an explicit subpath; paths that are not modules (for example `src/...` file paths) no longer resolve.
 - **MasterDataGrid**
   - `MasterDataGridConfig.schema` is required.

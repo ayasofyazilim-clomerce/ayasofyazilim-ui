@@ -1,4 +1,4 @@
-import { LazyDatePicker as DatePicker } from "@ayasofyazilim/ui/custom/date-picker/lazy";
+import { LazyDatePicker as DatePicker } from "@ayasofyazilim-clomerce/ui/custom/date-picker/lazy";
 import { WidgetProps } from "@rjsf/utils";
 
 export const DateWidget = (props: WidgetProps) => {

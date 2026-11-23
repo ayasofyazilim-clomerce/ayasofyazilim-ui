@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 type Props = {
   imageUrl: string;

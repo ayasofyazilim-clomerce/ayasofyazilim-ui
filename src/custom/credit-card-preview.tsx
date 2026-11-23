@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   CardBrandIcon,
   getCardBrand,

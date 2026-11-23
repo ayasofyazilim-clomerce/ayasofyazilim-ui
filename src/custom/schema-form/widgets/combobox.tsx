@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import AsyncSelect, {
   BadgeConfig,
   SearchItem,
-} from "@ayasofyazilim/ui/custom/async-select";
+} from "@ayasofyazilim-clomerce/ui/custom/async-select";
 import {
   Combobox,
   ComboboxProps,
-} from "@ayasofyazilim/ui/custom/combobox";
+} from "@ayasofyazilim-clomerce/ui/custom/combobox";
 
 export function CustomComboboxWidget<T>({
   languageData,

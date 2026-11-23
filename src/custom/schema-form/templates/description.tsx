@@ -2,7 +2,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@ayasofyazilim/ui/components/tooltip";
+} from "@ayasofyazilim-clomerce/ui/components/tooltip";
 import { DescriptionFieldProps } from "@rjsf/utils";
 import { InfoIcon } from "lucide-react";
 

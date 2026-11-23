@@ -4,8 +4,8 @@ import {
   SubmitButtonProps,
   UISchemaSubmitButtonOptions,
 } from "@rjsf/utils";
-import { Button } from "@ayasofyazilim/ui/components/button";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 export function SubmitButton(props: SubmitButtonProps) {
   const { uiSchema } = props;

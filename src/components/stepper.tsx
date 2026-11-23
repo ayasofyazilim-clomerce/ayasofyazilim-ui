@@ -4,7 +4,7 @@ import * as React from "react";
 import { createContext, useContext } from "react";
 import { CheckIcon, LoaderCircleIcon } from "lucide-react";
 import { Slot } from "radix-ui";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 // Types
 type StepperContextValue = {

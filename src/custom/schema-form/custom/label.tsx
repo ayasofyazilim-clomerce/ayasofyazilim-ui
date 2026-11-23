@@ -1,11 +1,11 @@
-import { Label } from "@ayasofyazilim/ui/components/label";
+import { Label } from "@ayasofyazilim-clomerce/ui/components/label";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@ayasofyazilim/ui/components/tooltip";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/tooltip";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { InfoIcon } from "lucide-react";
 import { JSXElementConstructor, ReactElement } from "react";
 

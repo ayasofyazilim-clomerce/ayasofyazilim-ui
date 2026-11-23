@@ -7,7 +7,7 @@ const config: Config = {
   testMatch: ["**/__tests__/**/*.{ts,tsx}", "**/*.{spec,test}.{ts,tsx}"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
-    "^@ayasofyazilim/ui/(.*)$": "<rootDir>/src/$1",
+    "^@ayasofyazilim-clomerce/ui/(.*)$": "<rootDir>/src/$1",
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],

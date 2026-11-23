@@ -17,9 +17,9 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@ayasofyazilim/ui/components/tooltip";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
-import { Separator } from "@ayasofyazilim/ui/components/separator";
+} from "@ayasofyazilim-clomerce/ui/components/tooltip";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Separator } from "@ayasofyazilim-clomerce/ui/components/separator";
 import { Calendar, RangeCalendar } from "./calendar-rac";
 import { DateInput, TimeField } from "./datefield-rac";
 import { DateRange } from "./types";
@@ -28,7 +28,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@ayasofyazilim/ui/components/popover";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
 
 // const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone; DO NOT DELETE
 const offset = new Date().getTimezoneOffset() * 60 * 1000;

@@ -1,9 +1,11 @@
-# Publishes @ayasofyazilim/ui to npm when a tag like `ui-v0.1.0` is pushed.
+# Publishes @ayasofyazilim-clomerce/ui to GitHub Packages (npm.pkg.github.com)
+# when a tag like `ui-v0.1.0` is pushed.
 # The tag must match the version in package.json. Running the workflow by hand
 # (workflow_dispatch) does every step except the publish, as a dry run.
 #
-# Needs the repository secret NPM_TOKEN: an npm automation (or granular
-# publish) token for the @ayasofyazilim scope.
+# Authenticates with the workflow's GITHUB_TOKEN (packages: write); no secret
+# to set. No npm provenance: GitHub documents `--provenance` only for the
+# public npm registry, not for GitHub Packages.
 #
 # Publishing goes through pnpm on purpose: pnpm applies `publishConfig.exports`
 # (the dist entry points) when it packs; the npm CLI does not.
@@ -27,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # npm provenance
+      packages: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -37,7 +39,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          registry-url: https://npm.pkg.github.com
+          scope: "@ayasofyazilim-clomerce"
 
       - name: Check the tag matches package.json
         if: github.event_name == 'push'
@@ -62,6 +65,14 @@ jobs:
           tar -xOzf "$tarball" package/package.json > "$RUNNER_TEMP/packed-package.json"
           node -e '
             const p = require(process.argv[1]);
+            if (p.name !== "@ayasofyazilim-clomerce/ui") {
+              console.error("Packed name is", p.name);
+              process.exit(1);
+            }
+            if (p.publishConfig?.registry !== "https://npm.pkg.github.com") {
+              console.error("Packed publishConfig.registry is", p.publishConfig?.registry);
+              process.exit(1);
+            }
             const target = p.exports["./custom/master-data-grid"];
             if (!target || !String(target.default).startsWith("./dist/")) {
               console.error("Packed exports do not point at dist:", target);
@@ -75,7 +86,6 @@ jobs:
 
       - name: Publish
         if: github.event_name == 'push'
-        run: pnpm publish "$TARBALL" --access public --no-git-checks
+        run: pnpm publish "$TARBALL" --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

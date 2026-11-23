@@ -23,8 +23,8 @@
 import { Camera, Pause, Play, RefreshCw, Square, Video } from "lucide-react";
 import * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import { useCameraStream } from "./camera-stream";
 
 // Types

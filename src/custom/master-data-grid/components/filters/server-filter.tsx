@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Field,
   FieldGroup,
   FieldSet,
-} from "@ayasofyazilim/ui/components/field";
+} from "@ayasofyazilim-clomerce/ui/components/field";
 import { Loader2, RotateCcw, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
@@ -26,7 +26,7 @@ import { FilterValueEditor } from "./filter-value-editor";
 import {
   ScrollArea,
   ScrollBar,
-} from "@ayasofyazilim/ui/components/scroll-area";
+} from "@ayasofyazilim-clomerce/ui/components/scroll-area";
 import { getTranslations } from "../../utils";
 
 type DateRangeValue = { from: string | undefined; to: string | undefined };

@@ -8,13 +8,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@ayasofyazilim/ui/components/popover";
-import { Input } from "@ayasofyazilim/ui/components/input";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
+import { Input } from "@ayasofyazilim-clomerce/ui/components/input";
 
 export function Controllers({
   documentUri,

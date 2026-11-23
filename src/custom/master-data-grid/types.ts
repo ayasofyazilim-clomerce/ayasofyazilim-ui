@@ -1,5 +1,5 @@
 import type React from "react";
-import type { z } from "@ayasofyazilim/ui/lib/zod";
+import type { z } from "@ayasofyazilim-clomerce/ui/lib/zod";
 import { GenericObjectType } from "@rjsf/utils";
 import type {
   CellContext,
@@ -14,7 +14,7 @@ import type {
 } from "@tanstack/react-table";
 import type { LucideIcon } from "lucide-react";
 import type { Localization } from "../date-tooltip";
-import { ButtonVariant } from "@ayasofyazilim/ui/components/button";
+import { ButtonVariant } from "@ayasofyazilim-clomerce/ui/components/button";
 
 export type { Localization };
 

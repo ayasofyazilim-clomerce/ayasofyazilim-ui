@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@ayasofyazilim/ui/components/table";
-import { cn } from "@ayasofyazilim/ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/table";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import * as React from "react";
 import { ChartData, EmptyConfig } from ".";
 import { CardClassNames, ChartCard } from "./chart-card";

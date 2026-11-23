@@ -1,6 +1,6 @@
 # Primitive labels
 
-The primitives in `@ayasofyazilim/ui/components/*` accept optional props for the English text they used to hardcode. Every default is today's exact English, so a consumer that passes none of them gets the same DOM.
+The primitives in `@ayasofyazilim-clomerce/ui/components/*` accept optional props for the English text they used to hardcode. Every default is today's exact English, so a consumer that passes none of them gets the same DOM.
 
 ## When to use
 
@@ -10,11 +10,11 @@ The primitives in `@ayasofyazilim/ui/components/*` accept optional props for the
 ## Minimal example
 
 ```tsx
-import { DialogContent } from "@ayasofyazilim/ui/components/dialog";
+import { DialogContent } from "@ayasofyazilim-clomerce/ui/components/dialog";
 import {
   PaginationNext,
   PaginationPrevious,
-} from "@ayasofyazilim/ui/components/pagination";
+} from "@ayasofyazilim-clomerce/ui/components/pagination";
 
 <DialogContent closeLabel={t("Close")}>...</DialogContent>;
 <PaginationPrevious href="?page=1" label={t("Previous")} />;

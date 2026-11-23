@@ -2,19 +2,19 @@ import { CirclePlusIcon } from "lucide-react";
 import { Column } from "@tanstack/react-table";
 
 import { useEffect, useState } from "react";
-import { Button } from "@ayasofyazilim/ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@ayasofyazilim/ui/components/popover";
-import { Separator } from "@ayasofyazilim/ui/components/separator";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
+import { Separator } from "@ayasofyazilim-clomerce/ui/components/separator";
 import { TanstackTableDateFilterType } from "../types";
 import {
   DatePicker,
   DateRangePicker,
-} from "@ayasofyazilim/ui/custom/date-picker";
-import { DateRange } from "@ayasofyazilim/ui/custom/date-picker/types";
+} from "@ayasofyazilim-clomerce/ui/custom/date-picker";
+import { DateRange } from "@ayasofyazilim-clomerce/ui/custom/date-picker/types";
 
 interface TanstackTableDateFilterProps<TData, TValue> {
   accessorKey: string;
