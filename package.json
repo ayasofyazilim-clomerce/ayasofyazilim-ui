@@ -863,6 +863,10 @@
         "types": "./dist/custom/master-data-grid/components/table/table-body-renderer.d.ts",
         "default": "./dist/custom/master-data-grid/components/table/table-body-renderer.js"
       },
+      "./custom/master-data-grid/components/table/tree-cell": {
+        "types": "./dist/custom/master-data-grid/components/table/tree-cell.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/tree-cell.js"
+      },
       "./custom/master-data-grid/components/table/virtual-body": {
         "types": "./dist/custom/master-data-grid/components/table/virtual-body.d.ts",
         "default": "./dist/custom/master-data-grid/components/table/virtual-body.js"
@@ -954,6 +958,10 @@
       "./custom/master-data-grid/utils/translation-utils": {
         "types": "./dist/custom/master-data-grid/utils/translation-utils.d.ts",
         "default": "./dist/custom/master-data-grid/utils/translation-utils.js"
+      },
+      "./custom/master-data-grid/utils/tree-rows": {
+        "types": "./dist/custom/master-data-grid/utils/tree-rows.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/tree-rows.js"
       },
       "./custom/master-data-grid/utils/url-scope": {
         "types": "./dist/custom/master-data-grid/utils/url-scope.d.ts",
@@ -1486,6 +1494,7 @@
     "./custom/master-data-grid/components/table/grid-row": "./src/custom/master-data-grid/components/table/grid-row.tsx",
     "./custom/master-data-grid/components/table/header-cell": "./src/custom/master-data-grid/components/table/header-cell.tsx",
     "./custom/master-data-grid/components/table/table-body-renderer": "./src/custom/master-data-grid/components/table/table-body-renderer.tsx",
+    "./custom/master-data-grid/components/table/tree-cell": "./src/custom/master-data-grid/components/table/tree-cell.tsx",
     "./custom/master-data-grid/components/table/virtual-body": "./src/custom/master-data-grid/components/table/virtual-body.tsx",
     "./custom/master-data-grid/components/toolbar": "./src/custom/master-data-grid/components/toolbar/index.ts",
     "./custom/master-data-grid/components/toolbar/toolbar": "./src/custom/master-data-grid/components/toolbar/toolbar.tsx",
@@ -1509,6 +1518,7 @@
     "./custom/master-data-grid/utils/server-filter-url": "./src/custom/master-data-grid/utils/server-filter-url.ts",
     "./custom/master-data-grid/utils/server-filter-utils": "./src/custom/master-data-grid/utils/server-filter-utils.ts",
     "./custom/master-data-grid/utils/translation-utils": "./src/custom/master-data-grid/utils/translation-utils.ts",
+    "./custom/master-data-grid/utils/tree-rows": "./src/custom/master-data-grid/utils/tree-rows.ts",
     "./custom/master-data-grid/utils/url-scope": "./src/custom/master-data-grid/utils/url-scope.ts",
     "./custom/mrz-camera-scanner": "./src/custom/mrz-camera-scanner/index.tsx",
     "./custom/mrz-camera-scanner/lib": "./src/custom/mrz-camera-scanner/lib.ts",
