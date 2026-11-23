@@ -1,6 +1,6 @@
 # AppShell
 
-`AppShell` from `@repo/ayasofyazilim-ui/custom/app-shell` is the frame around an app's signed-in pages: a sidebar of grouped links that collapses to an icon rail (an off-canvas sheet on mobile), a header with a breadcrumb and a search button, a ⌘K / Ctrl+K command menu over the same links plus extra commands, and a slot for the user menu. It is a client component built on `components/sidebar`, `components/breadcrumb` and `components/command`. Every text arrives through props; the library translates nothing.
+`AppShell` from `@ayasofyazilim-clomerce/ui/custom/app-shell` is the frame around an app's signed-in pages: a sidebar of grouped links that collapses to an icon rail (an off-canvas sheet on mobile), a header with a breadcrumb and a search button, a ⌘K / Ctrl+K command menu over the same links plus extra commands, and a slot for the user menu. It is a client component built on `components/sidebar`, `components/breadcrumb` and `components/command`. Every text arrives through props; the library translates nothing.
 
 ## When to use
 
@@ -33,8 +33,8 @@ export default async function Layout({
 import {
   AppShell,
   type AppShellNavGroup,
-} from "@repo/ayasofyazilim-ui/custom/app-shell";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+} from "@ayasofyazilim-clomerce/ui/custom/app-shell";
+import { Badge } from "@ayasofyazilim-clomerce/ui/components/badge";
 import { FileTextIcon, PlayIcon } from "lucide-react";
 
 export function Frame({
@@ -144,7 +144,7 @@ Also exported from the same path:
 ## Common mistakes
 
 - **Reading the wrong cookie.** The sidebar is named `app-shell`, so its state is in `sidebar_state_app-shell` (`"true"` or `"false"`). A missing cookie means open. Not passing it as `defaultOpen` makes a collapsed sidebar flash open on every load.
-- **Calling `matchActiveHref` from a Server Component through `@repo/ayasofyazilim-ui/custom/app-shell`.** That entry is a client module, so its non-component exports are client references on the server. Import it from `@repo/ayasofyazilim-ui/custom/app-shell/match-active-href` instead.
+- **Calling `matchActiveHref` from a Server Component through `@ayasofyazilim-clomerce/ui/custom/app-shell`.** That entry is a client module, so its non-component exports are client references on the server. Import it from `@ayasofyazilim-clomerce/ui/custom/app-shell/match-active-href` instead.
 - **Guarding only links against unsaved work.** The sidebar and breadcrumb are `<Link>`s, but a nav item chosen in ⌘K navigates with `router.push`, so no link is clicked. Pass `onNavigate` and ask there too, then navigate only when the user agrees.
 - **Expecting aliases to highlight on their own.** A route that should highlight another item (`/runs` for a Traces item) needs `isActive`.
 - **Binding ⌘K or Ctrl+K in a page.** The shell claims it on `document` and prevents the default, so a page's own binding fights it. Give the page another key.

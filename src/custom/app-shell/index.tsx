@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SearchIcon } from "lucide-react";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,8 +12,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@repo/ayasofyazilim-ui/components/breadcrumb";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+} from "@ayasofyazilim-clomerce/ui/components/breadcrumb";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   CommandDialog,
   CommandEmpty,
@@ -21,9 +21,9 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@repo/ayasofyazilim-ui/components/command";
-import { Kbd } from "@repo/ayasofyazilim-ui/components/kbd";
-import { Separator } from "@repo/ayasofyazilim-ui/components/separator";
+} from "@ayasofyazilim-clomerce/ui/components/command";
+import { Kbd } from "@ayasofyazilim-clomerce/ui/components/kbd";
+import { Separator } from "@ayasofyazilim-clomerce/ui/components/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -40,7 +40,7 @@ import {
   SidebarRail,
   SidebarTrigger,
   useSidebar,
-} from "@repo/ayasofyazilim-ui/components/sidebar";
+} from "@ayasofyazilim-clomerce/ui/components/sidebar";
 import { matchActiveHref } from "./match-active-href";
 import type {
   AppShellBreadcrumb,
