@@ -1,19 +1,19 @@
 "use client";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandItem,
   CommandList,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim-clomerce/ui/components/command";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@repo/ayasofyazilim-ui/components/input-group";
-import { Spinner } from "@repo/ayasofyazilim-ui/components/spinner";
+} from "@ayasofyazilim-clomerce/ui/components/input-group";
+import { Spinner } from "@ayasofyazilim-clomerce/ui/components/spinner";
 import type { BBox, Feature, FeatureCollection, Point } from "geojson";
 import { MapPinIcon, SearchIcon } from "lucide-react";
 import * as React from "react";

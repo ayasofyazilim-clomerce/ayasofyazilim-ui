@@ -1,6 +1,6 @@
 # CountdownNotice
 
-`CountdownNotice` from `@repo/ayasofyazilim-ui/custom/countdown-notice` is an `Alert` with a live countdown to a moment in time, an optional message once time is up, and an optional Retry button. `formatCountdown` from the same path formats seconds as `m:ss` (or `h:mm:ss` from one hour up).
+`CountdownNotice` from `@ayasofyazilim-clomerce/ui/custom/countdown-notice` is an `Alert` with a live countdown to a moment in time, an optional message once time is up, and an optional Retry button. `formatCountdown` from the same path formats seconds as `m:ss` (or `h:mm:ss` from one hour up).
 
 ## When to use
 
@@ -11,7 +11,7 @@
 ## Minimal example
 
 ```tsx
-import { CountdownNotice } from "@repo/ayasofyazilim-ui/custom/countdown-notice";
+import { CountdownNotice } from "@ayasofyazilim-clomerce/ui/custom/countdown-notice";
 
 <CountdownNotice
   until={retryAt}

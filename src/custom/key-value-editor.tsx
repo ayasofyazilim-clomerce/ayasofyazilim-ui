@@ -2,10 +2,10 @@
 
 import { useId } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { Input } from "@repo/ayasofyazilim-ui/components/input";
-import { Switch } from "@repo/ayasofyazilim-ui/components/switch";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { Input } from "@ayasofyazilim-clomerce/ui/components/input";
+import { Switch } from "@ayasofyazilim-clomerce/ui/components/switch";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 export type KeyValueRow = {
   id: string;

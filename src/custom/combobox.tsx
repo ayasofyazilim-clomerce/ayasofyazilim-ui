@@ -7,7 +7,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import React, { Dispatch, SetStateAction, useState } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Command,
   CommandEmpty,
@@ -15,26 +15,26 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@repo/ayasofyazilim-ui/components/command";
+} from "@ayasofyazilim-clomerce/ui/components/command";
 import {
   Drawer,
   DrawerContent,
   DrawerTrigger,
-} from "@repo/ayasofyazilim-ui/components/drawer";
+} from "@ayasofyazilim-clomerce/ui/components/drawer";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ayasofyazilim-ui/components/popover";
-import { useMediaQuery } from "@repo/ayasofyazilim-ui/hooks/use-media-query";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { Label } from "@repo/ayasofyazilim-ui/components/label";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
+} from "@ayasofyazilim-clomerce/ui/components/popover";
+import { useMediaQuery } from "@ayasofyazilim-clomerce/ui/hooks/use-media-query";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { Label } from "@ayasofyazilim-clomerce/ui/components/label";
+import { Badge } from "@ayasofyazilim-clomerce/ui/components/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@repo/ayasofyazilim-ui/components/tooltip";
+} from "@ayasofyazilim-clomerce/ui/components/tooltip";
 
 export type ComboboxBadgeOptions<T> = {
   className?: string;

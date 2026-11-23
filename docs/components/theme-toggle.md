@@ -1,6 +1,6 @@
 # ThemeToggle
 
-`ThemeToggle` and `ThemeValue` from `@repo/ayasofyazilim-ui/custom/theme-toggle` are a segmented System / Light / Dark control built on `components/toggle-group`, either controlled by the app or wired to next-themes.
+`ThemeToggle` and `ThemeValue` from `@ayasofyazilim-clomerce/ui/custom/theme-toggle` are a segmented System / Light / Dark control built on `components/toggle-group`, either controlled by the app or wired to next-themes.
 
 ## When to use
 
@@ -11,7 +11,7 @@
 ## Minimal example
 
 ```tsx
-import { ThemeToggle, type ThemeValue } from "@repo/ayasofyazilim-ui/custom/theme-toggle";
+import { ThemeToggle, type ThemeValue } from "@ayasofyazilim-clomerce/ui/custom/theme-toggle";
 
 // Controlled
 const [theme, setTheme] = useState<ThemeValue>("system");

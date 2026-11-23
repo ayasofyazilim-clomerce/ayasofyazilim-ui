@@ -3,8 +3,8 @@
 import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
-import { buttonVariants } from "@repo/ayasofyazilim-ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
+import { buttonVariants } from "@ayasofyazilim-clomerce/ui/components/button";
 
 function AlertDialog({
   ...props

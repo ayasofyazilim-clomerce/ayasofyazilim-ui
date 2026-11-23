@@ -1,6 +1,6 @@
 # TagInput
 
-`TagInput` from `@repo/ayasofyazilim-ui/custom/tag-input` is a controlled free-text input that turns each entry into a removable chip.
+`TagInput` from `@ayasofyazilim-clomerce/ui/custom/tag-input` is a controlled free-text input that turns each entry into a removable chip.
 
 ## When to use
 
@@ -12,7 +12,7 @@
 ```tsx
 "use client";
 
-import { TagInput } from "@repo/ayasofyazilim-ui/custom/tag-input";
+import { TagInput } from "@ayasofyazilim-clomerce/ui/custom/tag-input";
 import { useState } from "react";
 
 export function Keywords() {

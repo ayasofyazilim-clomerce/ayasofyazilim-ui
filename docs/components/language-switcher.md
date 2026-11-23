@@ -1,6 +1,6 @@
 # LanguageSwitcher
 
-`LanguageSwitcher` from `@repo/ayasofyazilim-ui/custom/language-switcher` is a select that shows a flag and label for each language and reports the chosen code.
+`LanguageSwitcher` from `@ayasofyazilim-clomerce/ui/custom/language-switcher` is a select that shows a flag and label for each language and reports the chosen code.
 
 ## When to use
 
@@ -11,7 +11,7 @@
 ## Minimal example
 
 ```tsx
-import { LanguageSwitcher } from "@repo/ayasofyazilim-ui/custom/language-switcher";
+import { LanguageSwitcher } from "@ayasofyazilim-clomerce/ui/custom/language-switcher";
 
 <LanguageSwitcher
   languages={[

@@ -4,9 +4,9 @@ import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from "@repo/ayasofyazilim-ui/components/alert";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/alert";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import * as React from "react";
 
 export type CountdownRemaining = {

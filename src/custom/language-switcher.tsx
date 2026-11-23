@@ -7,8 +7,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ayasofyazilim-ui/components/select";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/select";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 export type LanguageOption = {
   code: string;

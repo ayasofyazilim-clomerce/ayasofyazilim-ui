@@ -12,17 +12,17 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@repo/ayasofyazilim-ui/components/avatar";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
+} from "@ayasofyazilim-clomerce/ui/components/avatar";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@repo/ayasofyazilim-ui/components/collapsible";
-import { Progress } from "@repo/ayasofyazilim-ui/components/progress";
-import { ScrollArea } from "@repo/ayasofyazilim-ui/components/scroll-area";
-import { toast } from "@repo/ayasofyazilim-ui/components/sonner";
-import { cn, formatBytes } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/collapsible";
+import { Progress } from "@ayasofyazilim-clomerce/ui/components/progress";
+import { ScrollArea } from "@ayasofyazilim-clomerce/ui/components/scroll-area";
+import { toast } from "@ayasofyazilim-clomerce/ui/components/sonner";
+import { cn, formatBytes } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { useControllableState } from "../hooks/use-controllable-state";
 import { useMemo } from "react";
 

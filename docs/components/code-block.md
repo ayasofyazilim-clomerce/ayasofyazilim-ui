@@ -1,6 +1,6 @@
 # CodeBlock
 
-`CodeBlock` from `@repo/ayasofyazilim-ui/custom/code-block` shows read-only code or a secret in a `<pre><code>`, with a copy button and an optional mask. No syntax highlighting.
+`CodeBlock` from `@ayasofyazilim-clomerce/ui/custom/code-block` shows read-only code or a secret in a `<pre><code>`, with a copy button and an optional mask. No syntax highlighting.
 
 ## When to use
 
@@ -10,7 +10,7 @@
 ## Minimal example
 
 ```tsx
-import { CodeBlock } from "@repo/ayasofyazilim-ui/custom/code-block";
+import { CodeBlock } from "@ayasofyazilim-clomerce/ui/custom/code-block";
 
 <CodeBlock code={curlCommand} language="bash" maxHeight={240} />
 

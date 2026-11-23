@@ -121,7 +121,7 @@ const values: unknown[] = [
   ".lead@example.com",
   "two..dots@example.com",
   "no-at-sign",
-  "https://unirefund.com/x?y=1",
+  "https://shop.example.com/x?y=1",
   "  https://padded.example  ",
   "not a url",
   "mailto:someone@example.com",

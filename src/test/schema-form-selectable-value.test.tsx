@@ -20,17 +20,17 @@ const scopes: Scope[] = [
   { name: "IdentityService" },
 ];
 
+const scopesProperty: RJSFSchema = {
+  uniqueItems: true,
+  type: "array",
+  title: "Scopes",
+  items: { type: "string" },
+  nullable: true,
+};
+
 const schema: RJSFSchema = {
   type: "object",
-  properties: {
-    scopes: {
-      uniqueItems: true,
-      type: "array",
-      title: "Scopes",
-      items: { type: "string" },
-      nullable: true,
-    },
-  },
+  properties: { scopes: scopesProperty },
 };
 
 function Harness({

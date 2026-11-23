@@ -1,6 +1,6 @@
 # KeyValueEditor
 
-`KeyValueEditor` from `@repo/ayasofyazilim-ui/custom/key-value-editor` edits a list of key/value rows (headers, environment variables, settings), with optional secret values.
+`KeyValueEditor` from `@ayasofyazilim-clomerce/ui/custom/key-value-editor` edits a list of key/value rows (headers, environment variables, settings), with optional secret values.
 
 ## When to use
 
@@ -17,7 +17,7 @@ import {
   KeyValueEditor,
   createKeyValueRow,
   type KeyValueRow,
-} from "@repo/ayasofyazilim-ui/custom/key-value-editor";
+} from "@ayasofyazilim-clomerce/ui/custom/key-value-editor";
 
 export function Headers() {
   const [rows, setRows] = useState<KeyValueRow[]>([
