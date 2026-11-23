@@ -435,6 +435,22 @@
         "types": "./dist/custom/animated-counter.d.ts",
         "default": "./dist/custom/animated-counter.js"
       },
+      "./custom/app-shell": {
+        "types": "./dist/custom/app-shell/index.d.ts",
+        "default": "./dist/custom/app-shell/index.js"
+      },
+      "./custom/app-shell/match-active-href": {
+        "types": "./dist/custom/app-shell/match-active-href.d.ts",
+        "default": "./dist/custom/app-shell/match-active-href.js"
+      },
+      "./custom/app-shell/types": {
+        "types": "./dist/custom/app-shell/types.d.ts",
+        "default": "./dist/custom/app-shell/types.js"
+      },
+      "./custom/app-shell/use-app-shell-navigate": {
+        "types": "./dist/custom/app-shell/use-app-shell-navigate.d.ts",
+        "default": "./dist/custom/app-shell/use-app-shell-navigate.js"
+      },
       "./custom/async-select": {
         "types": "./dist/custom/async-select.d.ts",
         "default": "./dist/custom/async-select.js"
@@ -1379,6 +1395,10 @@
     "./components/tour": "./src/components/tour.tsx",
     "./custom/action-button": "./src/custom/action-button.tsx",
     "./custom/animated-counter": "./src/custom/animated-counter.tsx",
+    "./custom/app-shell": "./src/custom/app-shell/index.tsx",
+    "./custom/app-shell/match-active-href": "./src/custom/app-shell/match-active-href.ts",
+    "./custom/app-shell/types": "./src/custom/app-shell/types.ts",
+    "./custom/app-shell/use-app-shell-navigate": "./src/custom/app-shell/use-app-shell-navigate.ts",
     "./custom/async-select": "./src/custom/async-select.tsx",
     "./custom/awesome-not-found": "./src/custom/awesome-not-found.tsx",
     "./custom/barcode-camera-scanner": "./src/custom/barcode-camera-scanner/index.tsx",
