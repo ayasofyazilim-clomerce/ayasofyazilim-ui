@@ -1,3 +1,4 @@
+"use no memo";
 import type { Column, ColumnDef, Row, Header } from "@tanstack/react-table";
 import { HeaderCell, CellRenderer } from "../components/table";
 import type {
@@ -22,6 +23,8 @@ export function generateColumnsFromSchema<TData = unknown>(
     editingRows: Record<string, Record<string, unknown>>;
     onCellUpdate: (rowId: string, columnId: string, value: unknown) => void;
     getRowId: (row: TData, index: number) => string;
+    /** Set with tree rows: editing is keyed by row id, not row.index. */
+    treeRows?: boolean;
   },
   cellClassName?: string | ((cell: { row: TData; columnId: string }) => string),
   dateOptions?: Intl.DateTimeFormatOptions,
@@ -91,6 +94,8 @@ function createColumnFromProperty<TData = unknown>(
     editingRows: Record<string, Record<string, unknown>>;
     onCellUpdate: (rowId: string, columnId: string, value: unknown) => void;
     getRowId: (row: TData, index: number) => string;
+    /** Set with tree rows: editing is keyed by row id, not row.index. */
+    treeRows?: boolean;
   },
   cellClassName?: string | ((cell: { row: TData; columnId: string }) => string),
   dateOptions?: Intl.DateTimeFormatOptions,
@@ -131,8 +136,10 @@ function createColumnFromProperty<TData = unknown>(
       row: Row<TData>;
       column: Column<TData>;
     }) => {
-      const rowId =
-        editingContext?.getRowId(row.original, row.index) || String(row.index);
+      const rowId = editingContext?.treeRows
+        ? row.id
+        : editingContext?.getRowId(row.original, row.index) ||
+          String(row.index);
       const isEditing = editingContext?.editingRows[rowId] !== undefined;
       const editedValue = editingContext?.editingRows[rowId]?.[key];
       const displayValue =
@@ -187,6 +194,8 @@ export function mergeColumns<TData = unknown>(
   editingContext?: {
     readonly editingRows: Record<string, Record<string, unknown>>;
     getRowId: (row: TData, index: number) => string;
+    /** Set with tree rows: editing is keyed by row id, not row.index. */
+    treeRows?: boolean;
   },
   enableColumnVisibility?: boolean,
   t?: MasterDataGridResources
@@ -216,9 +225,10 @@ export function mergeColumns<TData = unknown>(
         editingContext
       ) {
         finalCell = (props) => {
-          const rowId =
-            editingContext.getRowId(props.row.original, props.row.index) ||
-            String(props.row.index);
+          const rowId = editingContext.treeRows
+            ? props.row.id
+            : editingContext.getRowId(props.row.original, props.row.index) ||
+              String(props.row.index);
           const isEditing = editingContext.editingRows[rowId] !== undefined;
 
           if (isEditing) {

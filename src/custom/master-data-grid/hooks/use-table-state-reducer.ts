@@ -7,6 +7,7 @@ import type {
 } from "@tanstack/react-table";
 import { useCallback, useReducer } from "react";
 import type { MasterDataGridConfig, TableState } from "../types";
+import { activeSubRows } from "../utils/tree-rows";
 
 type TableStateAction =
   | { type: "SET_SORTING"; payload: SortingState }
@@ -105,6 +106,15 @@ function createInitialState<TData>(
   const groupByVisibility = Object.fromEntries(
     groupByColumns.map((col) => [col, false])
   );
+  // Tree rows own the expanded state; without them it starts as it always has.
+  const subRows = activeSubRows(config);
+  const expanded: TableState["expanded"] = subRows
+    ? subRows.defaultExpanded === true
+      ? true
+      : subRows.defaultExpanded || {}
+    : config.expansion?.defaultExpanded === true
+      ? true
+      : config.grouping?.expanded || {};
   return {
     sorting: [],
     columnFilters: [],
@@ -114,10 +124,7 @@ function createInitialState<TData>(
     ),
     columnPinning: config.pinning || {},
     grouping: config.grouping?.groupBy || [],
-    expanded:
-      config.expansion?.defaultExpanded === true
-        ? true
-        : config.grouping?.expanded || {},
+    expanded,
     pagination: {
       pageIndex: 0,
       pageSize,
