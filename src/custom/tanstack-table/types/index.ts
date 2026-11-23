@@ -1,4 +1,4 @@
-import { SchemaFormProps } from "@repo/ayasofyazilim-ui/custom/schema-form";
+import { SchemaFormProps } from "@ayasofyazilim-clomerce/ui/custom/schema-form";
 import {
   ColumnDef,
   ColumnFiltersState,

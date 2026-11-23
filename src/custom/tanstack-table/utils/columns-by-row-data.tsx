@@ -2,9 +2,9 @@
 
 import { ColumnDef, Row } from "@tanstack/react-table";
 import Link from "next/link";
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
-import { Checkbox } from "@repo/ayasofyazilim-ui/components/checkbox";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Badge } from "@ayasofyazilim-clomerce/ui/components/badge";
+import { Checkbox } from "@ayasofyazilim-clomerce/ui/components/checkbox";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { tanstackTableCreateTitleWithLanguageData, testConditions } from ".";
 import DateTooltip, { Localization } from "../../date-tooltip";
 import { TanstackTableColumnHeader } from "../fields";

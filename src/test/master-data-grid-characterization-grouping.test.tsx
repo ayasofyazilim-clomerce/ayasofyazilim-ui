@@ -19,7 +19,7 @@ const schema = {
   },
 };
 
-// unirefund's parties screen grouping config, verbatim.
+// A real-world parent/child grouping config, verbatim.
 const grouping = {
   enabled: true,
   groupBy: ["parentId"],

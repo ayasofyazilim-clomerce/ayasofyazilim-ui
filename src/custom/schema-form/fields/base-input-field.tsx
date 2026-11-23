@@ -1,5 +1,5 @@
-import { Input } from "@repo/ayasofyazilim-ui/components/input";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Input } from "@ayasofyazilim-clomerce/ui/components/input";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   ariaDescribedByIds,
   BaseInputTemplateProps,
