@@ -3,8 +3,9 @@ import type { Row } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import React, { useRef } from "react";
 import { TableBody } from "../../../../components/table";
-import { GridRow } from "./grid-row";
+import { GridRow, MemoGridRow, type GridRowProps } from "./grid-row";
 import type { RowEventsConfig } from "../../types";
+import { rowRenderState } from "../../utils/row-memo";
 import type { TreeRowsRender } from "../../utils/tree-rows";
 
 interface VirtualBodyProps<TData> {
@@ -22,6 +23,8 @@ interface VirtualBodyProps<TData> {
   tree?: TreeRowsRender;
   /** Set only when the grid has row callbacks (`rowEvents`). */
   rowEvents?: RowEventsConfig<TData>;
+  /** `memoizeRows`: each data row re-renders only when what it draws changes. */
+  memoizeRows?: boolean;
 }
 
 export function VirtualBody<TData>({
@@ -37,6 +40,7 @@ export function VirtualBody<TData>({
   expansionRenderContent,
   tree,
   rowEvents,
+  memoizeRows,
 }: VirtualBodyProps<TData>) {
   const tableContainerRef = useRef<HTMLTableSectionElement>(null);
 
@@ -72,21 +76,27 @@ export function VirtualBody<TData>({
         const row = rows[virtualRow.index];
         if (!row) return null;
 
-        return (
-          <GridRow
+        const rowProps: GridRowProps<TData> = {
+          row,
+          mode: "virtual",
+          rowClassName,
+          cellClassName,
+          editingRows,
+          getRowId,
+          editingEnabled,
+          expansionEnabled,
+          expansionRenderContent,
+          tree,
+          rowEvents,
+        };
+        return memoizeRows ? (
+          <MemoGridRow
             key={row.id}
-            row={row}
-            mode="virtual"
-            rowClassName={rowClassName}
-            cellClassName={cellClassName}
-            editingRows={editingRows}
-            getRowId={getRowId}
-            editingEnabled={editingEnabled}
-            expansionEnabled={expansionEnabled}
-            expansionRenderContent={expansionRenderContent}
-            tree={tree}
-            rowEvents={rowEvents}
+            {...rowProps}
+            renderState={rowRenderState(row, rowProps)}
           />
+        ) : (
+          <GridRow key={row.id} {...rowProps} />
         );
       })}
 

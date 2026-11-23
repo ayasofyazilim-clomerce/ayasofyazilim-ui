@@ -947,6 +947,10 @@
         "types": "./dist/custom/master-data-grid/utils/pinning-utils.d.ts",
         "default": "./dist/custom/master-data-grid/utils/pinning-utils.js"
       },
+      "./custom/master-data-grid/utils/row-memo": {
+        "types": "./dist/custom/master-data-grid/utils/row-memo.d.ts",
+        "default": "./dist/custom/master-data-grid/utils/row-memo.js"
+      },
       "./custom/master-data-grid/utils/server-filter-url": {
         "types": "./dist/custom/master-data-grid/utils/server-filter-url.d.ts",
         "default": "./dist/custom/master-data-grid/utils/server-filter-url.js"
@@ -1515,6 +1519,7 @@
     "./custom/master-data-grid/utils/filter-fns": "./src/custom/master-data-grid/utils/filter-fns.ts",
     "./custom/master-data-grid/utils/grid-url-params": "./src/custom/master-data-grid/utils/grid-url-params.ts",
     "./custom/master-data-grid/utils/pinning-utils": "./src/custom/master-data-grid/utils/pinning-utils.ts",
+    "./custom/master-data-grid/utils/row-memo": "./src/custom/master-data-grid/utils/row-memo.ts",
     "./custom/master-data-grid/utils/server-filter-url": "./src/custom/master-data-grid/utils/server-filter-url.ts",
     "./custom/master-data-grid/utils/server-filter-utils": "./src/custom/master-data-grid/utils/server-filter-utils.ts",
     "./custom/master-data-grid/utils/translation-utils": "./src/custom/master-data-grid/utils/translation-utils.ts",

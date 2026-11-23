@@ -6,8 +6,9 @@ import React from "react";
 import { Button } from "../../../../components/button";
 import { TableBody, TableCell, TableRow } from "../../../../components/table";
 import { cn } from "../../../../lib/utils";
-import { GridRow } from "./grid-row";
+import { GridRow, MemoGridRow, type GridRowProps } from "./grid-row";
 import type { RowEventsConfig } from "../../types";
+import { rowRenderState } from "../../utils/row-memo";
 import type { TreeRowsRender } from "../../utils/tree-rows";
 import {
   getPinningCellClassNames,
@@ -40,6 +41,8 @@ interface TableBodyRendererProps<TData> {
   tree?: TreeRowsRender;
   /** Set only when the grid has row callbacks (`rowEvents`). */
   rowEvents?: RowEventsConfig<TData>;
+  /** `memoizeRows`: each data row re-renders only when what it draws changes. */
+  memoizeRows?: boolean;
 }
 
 export function TableBodyRenderer<TData>({
@@ -60,6 +63,7 @@ export function TableBodyRenderer<TData>({
   groupFallbackRenderer,
   tree,
   rowEvents,
+  memoizeRows,
 }: TableBodyRendererProps<TData>) {
   const groupValueSet = React.useMemo(() => {
     if (!hideGroupParentRows) return null;
@@ -95,6 +99,19 @@ export function TableBodyRenderer<TData>({
             const rowId = (row.original as Record<string, unknown>)["id"];
             if (rowId != null && groupValueSet.has(String(rowId))) return null;
           }
+          const rowProps: GridRowProps<TData> = {
+            row,
+            mode: "normal",
+            rowClassName,
+            cellClassName,
+            editingRows,
+            getRowId,
+            editingEnabled,
+            expansionEnabled,
+            expansionRenderContent,
+            tree,
+            rowEvents,
+          };
           return (
             <React.Fragment key={row.id}>
               {row.getIsGrouped() ? (
@@ -225,20 +242,13 @@ export function TableBodyRenderer<TData>({
                     );
                   })()
                 )
-              ) : (
-                <GridRow
-                  row={row}
-                  mode="normal"
-                  rowClassName={rowClassName}
-                  cellClassName={cellClassName}
-                  editingRows={editingRows}
-                  getRowId={getRowId}
-                  editingEnabled={editingEnabled}
-                  expansionEnabled={expansionEnabled}
-                  expansionRenderContent={expansionRenderContent}
-                  tree={tree}
-                  rowEvents={rowEvents}
+              ) : memoizeRows ? (
+                <MemoGridRow
+                  {...rowProps}
+                  renderState={rowRenderState(row, rowProps)}
                 />
+              ) : (
+                <GridRow {...rowProps} />
               )}
             </React.Fragment>
           );

@@ -30,17 +30,36 @@ const b: Node = { name: "Beta" };
 const data: Node[] = [a, b];
 const schema = { type: "object", properties: { name: { type: "string" } } };
 
-const render = (config: Partial<MasterDataGridConfig<Node>>) =>
-  renderGrid<Node>(data, { schema, ...config } as Partial<
+/**
+ * Mounts the grid and checks which body it drew: the virtual body's table is
+ * `border-separate`, the normal one's is not. Without this a mode that falls
+ * back to the normal body would pass the virtual cases unnoticed.
+ */
+const render = (config: Partial<MasterDataGridConfig<Node>>) => {
+  const result = renderGrid<Node>(data, { schema, ...config } as Partial<
     MasterDataGridConfig<Node>
   >);
+  expect(
+    result.container
+      .querySelector("table")!
+      .classList.contains("border-separate")
+  ).toBe(Boolean(config.enableVirtualization));
+  return result;
+};
 
 const cellOf = (text: string) => screen.getByText(text).closest("td")!;
 
 describe.each([
   ["normal", {}],
-  ["virtual", { virtualization: { enabled: true } }],
-] as const)("row events (%s mode)", (_mode, extra) => {
+  ["virtual", { enableVirtualization: true }],
+] as const)("row events (%s mode)", (mode, extra) => {
+  it(`draws the ${mode} body`, () => {
+    const { container } = render({ ...extra });
+    expect(
+      container.querySelector("table")!.classList.contains("border-separate")
+    ).toBe(mode === "virtual");
+  });
+
   it("reports the hovered row, then null on leave", async () => {
     const user = userEvent.setup();
     const onRowHover = jest.fn();
