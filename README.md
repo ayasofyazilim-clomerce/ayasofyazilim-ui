@@ -172,7 +172,7 @@ pnpm build        # tsup (JS) + tsc (declarations) + a check of dist
 ### Releasing
 
 1. Bump `version` in `package.json` and add a `CHANGELOG.md` entry.
-2. Push a tag `ui-v<version>` (for example `ui-v0.1.0`).
+2. Push a tag `ui-v<version>` (for example `ui-v0.2.0`).
 3. The `Publish` workflow installs, lints, type-checks, tests, builds, packs and publishes to GitHub Packages with the workflow's `GITHUB_TOKEN`. No secret is needed. Running the workflow by hand does everything except the publish.
 
 Always publish with pnpm (the workflow does): the npm CLI ignores `publishConfig.exports` and would publish the `src` entry points. `publishConfig.registry` sends the package to GitHub Packages. The package's visibility (private, internal or public) and which repositories may read it are set on the package's settings page on GitHub, not in `package.json`.
