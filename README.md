@@ -166,6 +166,7 @@ pnpm test
 pnpm build        # tsup (JS) + tsc (declarations) + a check of dist
 ```
 
+- The `CI` workflow runs these five steps on every pull request to `main` and on `main` itself: the same checks `Publish` runs before a release.
 - `pnpm exports` regenerates both exports maps from the `src` tree. Run it after adding, moving or removing a module; `pnpm type-check` fails until you do.
 - `scripts/exports.mjs --dist` (run by `build` and `prepack`) checks that every dist entry exists and that the built code imports only dependencies and peer dependencies.
 
