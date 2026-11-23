@@ -48,10 +48,11 @@ export function App() {
 
 `ConfirmProvider`
 
-| Prop       | Type                                    | Default                      | Notes                              |
-| ---------- | --------------------------------------- | ---------------------------- | ---------------------------------- |
-| `children` | `ReactNode`                             | required                     |                                    |
-| `labels`   | `{ confirm?: string; cancel?: string }` | `"Confirm"` / `"Cancel"`     | Provider-wide button text.         |
+| Prop           | Type                                    | Default                  | Notes                                                                  |
+| -------------- | --------------------------------------- | ------------------------ | ---------------------------------------------------------------------- |
+| `children`     | `ReactNode`                             | required                 |                                                                        |
+| `labels`       | `{ confirm?: string; cancel?: string }` | `"Confirm"` / `"Cancel"` | Provider-wide button text.                                             |
+| `initialFocus` | `"cancel" \| "confirm"`                 | `"cancel"`               | Button focused on open. `"confirm"` makes Enter confirm straight away. |
 
 `useConfirm()` returns `(options: ConfirmOptions) => Promise<boolean>`.
 
@@ -64,8 +65,9 @@ export function App() {
 | `confirmLabel` | `string`                      | provider    | Per-call label wins over provider labels.    |
 | `cancelLabel`  | `string`                      | provider    | Per-call label wins over provider labels.    |
 | `variant`      | `"default" \| "destructive"`  | `"default"` | `destructive` styles the confirm button.     |
+| `initialFocus` | `"cancel" \| "confirm"`       | provider    | Per-call focus; overrides the provider prop for this call only. |
 
-Behaviour: confirm resolves `true`; Cancel and Escape resolve `false`; clicking outside does nothing (the dialog stays open, as with Radix AlertDialog). Focus starts on Cancel. Calling `confirm()` while a dialog is open resolves the open one with `false` and shows the new one. Unmounting the provider while open resolves with `false`.
+Behaviour: confirm resolves `true`; Cancel and Escape resolve `false`; clicking outside does nothing (the dialog stays open, as with Radix AlertDialog). Focus starts on Cancel unless `initialFocus="confirm"` (provider prop, or per call via `ConfirmOptions.initialFocus`, which wins). Calling `confirm()` while a dialog is open resolves the open one with `false` and shows the new one. Unmounting the provider while open resolves with `false`.
 
 ## Common mistakes
 
