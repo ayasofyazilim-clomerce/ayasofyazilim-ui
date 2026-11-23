@@ -1,6 +1,6 @@
 # Combobox
 
-`Combobox` from `@repo/ayasofyazilim-ui/custom/combobox` is a searchable single-select over a list of objects. This page covers only the `freeText` prop.
+`Combobox` from `@ayasofyazilim-clomerce/ui/custom/combobox` is a searchable single-select over a list of objects. This page covers only the `freeText` prop.
 
 ## When to use
 
@@ -10,7 +10,7 @@
 ## Minimal example
 
 ```tsx
-import { Combobox } from "@repo/ayasofyazilim-ui/custom/combobox";
+import { Combobox } from "@ayasofyazilim-clomerce/ui/custom/combobox";
 
 type Model = { id: string; name: string };
 

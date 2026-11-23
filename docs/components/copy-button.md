@@ -1,6 +1,6 @@
 # CopyButton
 
-`CopyButton` and `CopyableText` from `@repo/ayasofyazilim-ui/custom/copy-button` copy a string to the clipboard, backed by `useCopyToClipboard` from `@repo/ayasofyazilim-ui/hooks/use-copy-to-clipboard`.
+`CopyButton` and `CopyableText` from `@ayasofyazilim-clomerce/ui/custom/copy-button` copy a string to the clipboard, backed by `useCopyToClipboard` from `@ayasofyazilim-clomerce/ui/hooks/use-copy-to-clipboard`.
 
 ## When to use
 
@@ -14,7 +14,7 @@
 import {
   CopyButton,
   CopyableText,
-} from "@repo/ayasofyazilim-ui/custom/copy-button";
+} from "@ayasofyazilim-clomerce/ui/custom/copy-button";
 
 <CopyButton value={runId} onCopy={(ok) => !ok && toast("Copy failed")} />
 

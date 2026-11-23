@@ -6,8 +6,8 @@ import { useTheme } from "next-themes";
 import {
   ToggleGroup,
   ToggleGroupItem,
-} from "@repo/ayasofyazilim-ui/components/toggle-group";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+} from "@ayasofyazilim-clomerce/ui/components/toggle-group";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 export type ThemeValue = "system" | "light" | "dark";
 

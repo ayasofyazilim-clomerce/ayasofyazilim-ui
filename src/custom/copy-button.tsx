@@ -1,8 +1,8 @@
 "use client";
 
-import { Button, ButtonProps } from "@repo/ayasofyazilim-ui/components/button";
-import { useCopyToClipboard } from "@repo/ayasofyazilim-ui/hooks/use-copy-to-clipboard";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button, ButtonProps } from "@ayasofyazilim-clomerce/ui/components/button";
+import { useCopyToClipboard } from "@ayasofyazilim-clomerce/ui/hooks/use-copy-to-clipboard";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { Check, Copy } from "lucide-react";
 import React from "react";
 

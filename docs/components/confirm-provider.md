@@ -1,6 +1,6 @@
 # ConfirmProvider
 
-`ConfirmProvider` and `useConfirm` from `@repo/ayasofyazilim-ui/custom/confirm-provider` give any client component a promise-based confirmation dialog built on `components/alert-dialog`.
+`ConfirmProvider` and `useConfirm` from `@ayasofyazilim-clomerce/ui/custom/confirm-provider` give any client component a promise-based confirmation dialog built on `components/alert-dialog`.
 
 ## When to use
 
@@ -14,7 +14,7 @@
 import {
   ConfirmProvider,
   useConfirm,
-} from "@repo/ayasofyazilim-ui/custom/confirm-provider";
+} from "@ayasofyazilim-clomerce/ui/custom/confirm-provider";
 
 function DeleteButton({ onDelete }: { onDelete: () => void }) {
   const confirm = useConfirm();

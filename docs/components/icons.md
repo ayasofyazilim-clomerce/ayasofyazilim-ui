@@ -1,6 +1,6 @@
 # Icons
 
-The icon set from `@repo/ayasofyazilim-ui/custom/icons` is one inline-SVG component per brand or platform. This page covers the AI-provider and Docker marks: `IconOpenAI`, `IconAnthropic`, `IconGemini`, `IconVertexAI`, `IconAzure`, `IconBedrock`, `IconCohere`, `IconMistral`, `IconGroq`, `IconDeepSeek`, `IconXAI`, `IconHuggingFace`, `IconNvidia`, `IconOllama`, `IconVllm` and `IconDocker`.
+The icon set from `@ayasofyazilim-clomerce/ui/custom/icons` is one inline-SVG component per brand or platform. This page covers the AI-provider and Docker marks: `IconOpenAI`, `IconAnthropic`, `IconGemini`, `IconVertexAI`, `IconAzure`, `IconBedrock`, `IconCohere`, `IconMistral`, `IconGroq`, `IconDeepSeek`, `IconXAI`, `IconHuggingFace`, `IconNvidia`, `IconOllama`, `IconVllm` and `IconDocker`.
 
 ## When to use
 
@@ -11,7 +11,7 @@ The icon set from `@repo/ayasofyazilim-ui/custom/icons` is one inline-SVG compon
 ## Minimal example
 
 ```tsx
-import { IconAnthropic, IconDocker } from "@repo/ayasofyazilim-ui/custom/icons";
+import { IconAnthropic, IconDocker } from "@ayasofyazilim-clomerce/ui/custom/icons";
 
 <IconAnthropic className="size-5 text-foreground" />
 <IconDocker className="size-5" aria-hidden />

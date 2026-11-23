@@ -4,7 +4,7 @@ import type { IconType } from ".";
 /* ---------------------------------------------------------------- brand marks
    The single-color ("mono") variants from lobe-icons (https://github.com/lobehub/lobe-icons),
    inlined here rather than pulled from a CDN or a favicon service so the app stays
-   self-contained and these private repos carry no remote asset dependency. Each mark is
+   self-contained and the library carries no remote asset dependency. Each mark is
    reproduced unmodified apart from inheriting `currentColor`, and is used only to IDENTIFY
    the vendor whose API a connection routes to. The marks remain the trademarks of their
    respective owners; their presence implies no affiliation or endorsement.

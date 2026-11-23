@@ -1,8 +1,8 @@
 "use client";
 
-import { Badge } from "@repo/ayasofyazilim-ui/components/badge";
-import { Input } from "@repo/ayasofyazilim-ui/components/input";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Badge } from "@ayasofyazilim-clomerce/ui/components/badge";
+import { Input } from "@ayasofyazilim-clomerce/ui/components/input";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { X } from "lucide-react";
 import React from "react";
 

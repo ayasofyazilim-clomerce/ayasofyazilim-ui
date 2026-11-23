@@ -1,6 +1,6 @@
 # StarRating
 
-`StarRating` from `@repo/ayasofyazilim-ui/custom/star-rating` shows a read-only star score (fractions allowed) or, when given `onValueChange`, a 1 to `max` star input.
+`StarRating` from `@ayasofyazilim-clomerce/ui/custom/star-rating` shows a read-only star score (fractions allowed) or, when given `onValueChange`, a 1 to `max` star input.
 
 ## When to use
 
@@ -10,7 +10,7 @@
 ## Minimal example
 
 ```tsx
-import { StarRating } from "@repo/ayasofyazilim-ui/custom/star-rating";
+import { StarRating } from "@ayasofyazilim-clomerce/ui/custom/star-rating";
 
 <StarRating value={3.5} />
 

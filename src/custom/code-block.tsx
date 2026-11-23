@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { CopyButton } from "./copy-button";

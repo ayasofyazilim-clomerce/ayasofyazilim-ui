@@ -503,6 +503,10 @@
         "types": "./dist/custom/checkbox-tree.d.ts",
         "default": "./dist/custom/checkbox-tree.js"
       },
+      "./custom/code-block": {
+        "types": "./dist/custom/code-block.d.ts",
+        "default": "./dist/custom/code-block.js"
+      },
       "./custom/combobox": {
         "types": "./dist/custom/combobox.d.ts",
         "default": "./dist/custom/combobox.js"
@@ -510,6 +514,18 @@
       "./custom/confirm-dialog": {
         "types": "./dist/custom/confirm-dialog.d.ts",
         "default": "./dist/custom/confirm-dialog.js"
+      },
+      "./custom/confirm-provider": {
+        "types": "./dist/custom/confirm-provider.d.ts",
+        "default": "./dist/custom/confirm-provider.js"
+      },
+      "./custom/copy-button": {
+        "types": "./dist/custom/copy-button.d.ts",
+        "default": "./dist/custom/copy-button.js"
+      },
+      "./custom/countdown-notice": {
+        "types": "./dist/custom/countdown-notice.d.ts",
+        "default": "./dist/custom/countdown-notice.js"
       },
       "./custom/country-selector": {
         "types": "./dist/custom/country-selector.d.ts",
@@ -691,6 +707,10 @@
         "types": "./dist/custom/icons/index.d.ts",
         "default": "./dist/custom/icons/index.js"
       },
+      "./custom/icons/ai-providers": {
+        "types": "./dist/custom/icons/ai-providers.d.ts",
+        "default": "./dist/custom/icons/ai-providers.js"
+      },
       "./custom/icons/android": {
         "types": "./dist/custom/icons/android.d.ts",
         "default": "./dist/custom/icons/android.js"
@@ -706,6 +726,10 @@
       "./custom/icons/browser": {
         "types": "./dist/custom/icons/browser.d.ts",
         "default": "./dist/custom/icons/browser.js"
+      },
+      "./custom/icons/docker": {
+        "types": "./dist/custom/icons/docker.d.ts",
+        "default": "./dist/custom/icons/docker.js"
       },
       "./custom/icons/json": {
         "types": "./dist/custom/icons/json.d.ts",
@@ -742,6 +766,14 @@
       "./custom/json-editor": {
         "types": "./dist/custom/json-editor.d.ts",
         "default": "./dist/custom/json-editor.js"
+      },
+      "./custom/key-value-editor": {
+        "types": "./dist/custom/key-value-editor.d.ts",
+        "default": "./dist/custom/key-value-editor.js"
+      },
+      "./custom/language-switcher": {
+        "types": "./dist/custom/language-switcher.d.ts",
+        "default": "./dist/custom/language-switcher.js"
       },
       "./custom/master-data-grid": {
         "types": "./dist/custom/master-data-grid/index.d.ts",
@@ -1079,6 +1111,10 @@
         "types": "./dist/custom/selectable.d.ts",
         "default": "./dist/custom/selectable.js"
       },
+      "./custom/star-rating": {
+        "types": "./dist/custom/star-rating.d.ts",
+        "default": "./dist/custom/star-rating.js"
+      },
       "./custom/stepper": {
         "types": "./dist/custom/stepper.d.ts",
         "default": "./dist/custom/stepper.js"
@@ -1086,6 +1122,10 @@
       "./custom/tab-layout": {
         "types": "./dist/custom/tab-layout.d.ts",
         "default": "./dist/custom/tab-layout.js"
+      },
+      "./custom/tag-input": {
+        "types": "./dist/custom/tag-input.d.ts",
+        "default": "./dist/custom/tag-input.js"
       },
       "./custom/tanstack-table": {
         "types": "./dist/custom/tanstack-table/index.d.ts",
@@ -1191,6 +1231,10 @@
         "types": "./dist/custom/tanstack-table/utils/test-conditions.d.ts",
         "default": "./dist/custom/tanstack-table/utils/test-conditions.js"
       },
+      "./custom/theme-toggle": {
+        "types": "./dist/custom/theme-toggle.d.ts",
+        "default": "./dist/custom/theme-toggle.js"
+      },
       "./custom/timeline": {
         "types": "./dist/custom/timeline.d.ts",
         "default": "./dist/custom/timeline.js"
@@ -1230,6 +1274,10 @@
       "./hooks/use-controllable-state": {
         "types": "./dist/hooks/use-controllable-state.d.ts",
         "default": "./dist/hooks/use-controllable-state.js"
+      },
+      "./hooks/use-copy-to-clipboard": {
+        "types": "./dist/hooks/use-copy-to-clipboard.d.ts",
+        "default": "./dist/hooks/use-copy-to-clipboard.js"
       },
       "./hooks/use-debounce": {
         "types": "./dist/hooks/use-debounce.d.ts",
@@ -1348,8 +1396,12 @@
     "./custom/charts/radar-chart": "./src/custom/charts/radar-chart.tsx",
     "./custom/charts/table-chart": "./src/custom/charts/table-chart.tsx",
     "./custom/checkbox-tree": "./src/custom/checkbox-tree.tsx",
+    "./custom/code-block": "./src/custom/code-block.tsx",
     "./custom/combobox": "./src/custom/combobox.tsx",
     "./custom/confirm-dialog": "./src/custom/confirm-dialog.tsx",
+    "./custom/confirm-provider": "./src/custom/confirm-provider.tsx",
+    "./custom/copy-button": "./src/custom/copy-button.tsx",
+    "./custom/countdown-notice": "./src/custom/countdown-notice.tsx",
     "./custom/country-selector": "./src/custom/country-selector.tsx",
     "./custom/credit-card-input": "./src/custom/credit-card-input.tsx",
     "./custom/credit-card-preview": "./src/custom/credit-card-preview.tsx",
@@ -1395,10 +1447,12 @@
     "./custom/filter-component/fields/date": "./src/custom/filter-component/fields/date.tsx",
     "./custom/filter-component/fields/multi-select": "./src/custom/filter-component/fields/multi-select.tsx",
     "./custom/icons": "./src/custom/icons/index.tsx",
+    "./custom/icons/ai-providers": "./src/custom/icons/ai-providers.tsx",
     "./custom/icons/android": "./src/custom/icons/android.tsx",
     "./custom/icons/app-store": "./src/custom/icons/app-store.tsx",
     "./custom/icons/apple": "./src/custom/icons/apple.tsx",
     "./custom/icons/browser": "./src/custom/icons/browser.tsx",
+    "./custom/icons/docker": "./src/custom/icons/docker.tsx",
     "./custom/icons/json": "./src/custom/icons/json.tsx",
     "./custom/icons/linux": "./src/custom/icons/linux.tsx",
     "./custom/icons/play-store": "./src/custom/icons/play-store.tsx",
@@ -1408,6 +1462,8 @@
     "./custom/icons/windows": "./src/custom/icons/windows.tsx",
     "./custom/image-canvas": "./src/custom/image-canvas.tsx",
     "./custom/json-editor": "./src/custom/json-editor.tsx",
+    "./custom/key-value-editor": "./src/custom/key-value-editor.tsx",
+    "./custom/language-switcher": "./src/custom/language-switcher.tsx",
     "./custom/master-data-grid": "./src/custom/master-data-grid/index.ts",
     "./custom/master-data-grid/components/filters": "./src/custom/master-data-grid/components/filters/index.ts",
     "./custom/master-data-grid/components/filters/client-filter": "./src/custom/master-data-grid/components/filters/client-filter.tsx",
@@ -1492,8 +1548,10 @@
     "./custom/section-layout-v2": "./src/custom/section-layout-v2.tsx",
     "./custom/select-tabs": "./src/custom/select-tabs.tsx",
     "./custom/selectable": "./src/custom/selectable.tsx",
+    "./custom/star-rating": "./src/custom/star-rating.tsx",
     "./custom/stepper": "./src/custom/stepper.tsx",
     "./custom/tab-layout": "./src/custom/tab-layout.tsx",
+    "./custom/tag-input": "./src/custom/tag-input.tsx",
     "./custom/tanstack-table": "./src/custom/tanstack-table/index.tsx",
     "./custom/tanstack-table/fields": "./src/custom/tanstack-table/fields/index.tsx",
     "./custom/tanstack-table/fields/tanstack-table-action-dialogs": "./src/custom/tanstack-table/fields/tanstack-table-action-dialogs.tsx",
@@ -1520,6 +1578,7 @@
     "./custom/tanstack-table/utils/pinning-styles": "./src/custom/tanstack-table/utils/pinning-styles.ts",
     "./custom/tanstack-table/utils/table": "./src/custom/tanstack-table/utils/table.tsx",
     "./custom/tanstack-table/utils/test-conditions": "./src/custom/tanstack-table/utils/test-conditions.ts",
+    "./custom/theme-toggle": "./src/custom/theme-toggle.tsx",
     "./custom/timeline": "./src/custom/timeline.tsx",
     "./custom/tree": "./src/custom/tree.tsx",
     "./custom/tscanify": "./src/custom/tscanify/index.ts",
@@ -1530,6 +1589,7 @@
     "./custom/webcam": "./src/custom/webcam.tsx",
     "./hooks/use-callback-ref": "./src/hooks/use-callback-ref.ts",
     "./hooks/use-controllable-state": "./src/hooks/use-controllable-state.ts",
+    "./hooks/use-copy-to-clipboard": "./src/hooks/use-copy-to-clipboard.ts",
     "./hooks/use-debounce": "./src/hooks/use-debounce.ts",
     "./hooks/use-is-visible": "./src/hooks/use-is-visible.ts",
     "./hooks/use-media-query": "./src/hooks/use-media-query.ts",
