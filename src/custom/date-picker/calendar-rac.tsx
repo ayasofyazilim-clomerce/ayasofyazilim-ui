@@ -15,7 +15,7 @@ import {
   composeRenderProps,
 } from "react-aria-components";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 interface BaseCalendarProps {
   className?: string;

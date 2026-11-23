@@ -3,7 +3,7 @@
 import * as React from "react";
 import { User } from "lucide-react";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   CardBrandIcon,
   getCardBrand,
