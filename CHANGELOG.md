@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.0 (unreleased)
+
+### Added
+
+Each new component takes optional label props whose defaults are English, like the primitives. Docs for each are under `docs/components/`.
+
+- `custom/confirm-provider`: `ConfirmProvider` and `useConfirm()`, a promise-based confirmation dialog on `components/alert-dialog`.
+- `custom/copy-button`: `CopyButton` and `CopyableText`, backed by the new `hooks/use-copy-to-clipboard` (`useCopyToClipboard`).
+- `custom/code-block`: `CodeBlock`, read-only code or a secret with a copy button and an optional mask.
+- `custom/theme-toggle`: `ThemeToggle`, a System / Light / Dark segmented control, controlled or wired to next-themes.
+- `custom/language-switcher`: `LanguageSwitcher`, a select with a flag and label per language. The app passes the flags as React nodes; the library ships no flag images.
+- `custom/countdown-notice`: `CountdownNotice`, an alert with a live countdown and an optional Retry button, plus `formatCountdown`.
+- `custom/tag-input`: `TagInput`, free-text chips with paste splitting, validation and limits.
+- `custom/key-value-editor`: `KeyValueEditor` and `createKeyValueRow`, repeatable key/value rows with optional secret values.
+- `custom/star-rating`: `StarRating`, a read-only score with fractions, or a 1 to `max` input.
+- `custom/combobox`: opt-in `freeText` prop, so a typed value that is not in the list can be selected.
+- `custom/icons`: AI-provider marks (`IconOpenAI`, `IconAnthropic`, `IconGemini` and others) and `IconDocker`, inline SVG with no remote assets. Also importable as `custom/icons/ai-providers` and `custom/icons/docker`.
+
 ## 0.1.0
 
 First release built from `main`, and the first under the name `@ayasofyazilim-clomerce/ui` on GitHub Packages. Version 0.0.11 was published to npmjs.com as `@ayasofyazilim/ui` from a separate branch; this release replaces it, so the changes below are measured against 0.0.11.
