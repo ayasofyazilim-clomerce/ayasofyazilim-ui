@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useRef } from "react";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import type { AnnotatedPage } from "./types";
 
 type ThumbnailStripProps = {

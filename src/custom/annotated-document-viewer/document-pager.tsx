@@ -1,8 +1,8 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
   DEFAULT_ANNOTATED_DOCUMENT_VIEWER_LABELS,
   type DocumentPagerProps,

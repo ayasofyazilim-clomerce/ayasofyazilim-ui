@@ -42,7 +42,7 @@ Also exported from the same path:
 The built-in Office renderer sends the document URL to a third-party service. To preview `.docx` locally instead, opt in to `DocxRenderer`, which renders in the browser with `docx-preview` (see `docx-preview.md`):
 
 ```tsx
-import DocumentViewer, { DocxRenderer } from "@repo/ayasofyazilim-ui/custom/document-viewer";
+import DocumentViewer, { DocxRenderer } from "@ayasofyazilim-clomerce/ui/custom/document-viewer";
 
 <DocumentViewer document={{ uri: url, fileType: "docx" }} renderers={[DocxRenderer]} />;
 ```

@@ -1,6 +1,6 @@
 # DocxPreview
 
-`DocxPreview` from `@repo/ayasofyazilim-ui/custom/docx-preview` renders a Word (`.docx`) file as HTML in the browser, scaled to the container width. Nothing is uploaded: the file is read and rendered client-side with `docx-preview`, which is loaded lazily the first time a preview mounts.
+`DocxPreview` from `@ayasofyazilim-clomerce/ui/custom/docx-preview` renders a Word (`.docx`) file as HTML in the browser, scaled to the container width. Nothing is uploaded: the file is read and rendered client-side with `docx-preview`, which is loaded lazily the first time a preview mounts.
 
 ## When to use
 
@@ -13,7 +13,7 @@
 ```tsx
 "use client";
 
-import { DocxPreview } from "@repo/ayasofyazilim-ui/custom/docx-preview";
+import { DocxPreview } from "@ayasofyazilim-clomerce/ui/custom/docx-preview";
 
 export function WordPreview({ file }: { file: File }) {
   return <DocxPreview file={file} onError={(e) => console.error(e)} />;
@@ -41,7 +41,7 @@ The component moves through `loading`, `ready` or `error` (exposed as `data-stat
 ## Opt-in DocumentViewer renderer
 
 ```tsx
-import DocumentViewer, { DocxRenderer } from "@repo/ayasofyazilim-ui/custom/document-viewer";
+import DocumentViewer, { DocxRenderer } from "@ayasofyazilim-clomerce/ui/custom/document-viewer";
 
 <DocumentViewer document={{ uri: url, fileType: "docx" }} renderers={[DocxRenderer]} />;
 ```

@@ -12,8 +12,8 @@ import {
   TransformWrapper,
   type ReactZoomPanPinchContentRef,
 } from "react-zoom-pan-pinch";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { DocumentPager } from "./document-pager";
 import { markStrokeWidth, toPageFraction } from "./geometry";
 import { ThumbnailStrip } from "./thumbnail-strip";

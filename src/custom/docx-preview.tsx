@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import { useEffect, useRef, useState } from "react";
 
 export type DocxPreviewProps = {

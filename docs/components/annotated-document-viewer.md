@@ -1,6 +1,6 @@
 # AnnotatedDocumentViewer
 
-`AnnotatedDocumentViewer` from `@repo/ayasofyazilim-ui/custom/annotated-document-viewer` shows one page image at a time inside a zoom/pan viewport, with an overlay of boxes (evidence, detections, highlights) drawn on top of the page. `DocumentPager` from the same path is its `‹ Page x of y ›` control, for consumers who place the pager themselves.
+`AnnotatedDocumentViewer` from `@ayasofyazilim-clomerce/ui/custom/annotated-document-viewer` shows one page image at a time inside a zoom/pan viewport, with an overlay of boxes (evidence, detections, highlights) drawn on top of the page. `DocumentPager` from the same path is its `‹ Page x of y ›` control, for consumers who place the pager themselves.
 
 ## When to use
 
@@ -19,7 +19,7 @@ import { useState } from "react";
 import {
   AnnotatedDocumentViewer,
   type AnnotationBox,
-} from "@repo/ayasofyazilim-ui/custom/annotated-document-viewer";
+} from "@ayasofyazilim-clomerce/ui/custom/annotated-document-viewer";
 
 const boxes: AnnotationBox[] = [
   // Page fractions (0–1), origin top-left.
@@ -109,7 +109,7 @@ The zoom readout (`140%`) is a number, not a label.
 
 ## Geometry helpers
 
-Also exported. They are pure (no React) and live in `geometry.ts`, which has no `"use client"`: server code, which must not read plain exports from a client module, can import them from `@repo/ayasofyazilim-ui/custom/annotated-document-viewer/geometry` (resolved through the `./custom/*.ts` export).
+Also exported. They are pure (no React) and live in `geometry.ts`, which has no `"use client"`: server code, which must not read plain exports from a client module, can import them from `@ayasofyazilim-clomerce/ui/custom/annotated-document-viewer/geometry` (resolved through the `./custom/*.ts` export).
 
 - `toPageFraction(box, natural?)`: the box's rect as 0–1 fractions of the image on screen, corners ordered. A `frame` is divided out first, then `rotation` is applied. Returns `null` while a `"natural"` frame's size is unknown (or for a zero-sized frame).
 - `rotateRect(rect, rotation)`: maps a fraction rect onto an image turned `rotation` degrees counter-clockwise. The angle is normalised (−90 is 270, 450 is 90); a non-cardinal angle is the identity.
