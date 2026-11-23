@@ -8,9 +8,9 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Button } from "@repo/ayasofyazilim-ui/components/button";
-import { Skeleton } from "@repo/ayasofyazilim-ui/components/skeleton";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { Button } from "@ayasofyazilim-clomerce/ui/components/button";
+import { Skeleton } from "@ayasofyazilim-clomerce/ui/components/skeleton";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 export interface ISection {
   children?: React.ReactNode;

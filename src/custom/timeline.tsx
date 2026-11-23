@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Slot } from "radix-ui";
-import { cn } from "@repo/ayasofyazilim-ui/lib/utils";
+import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 
 // Types
 type TimelineContextValue = {

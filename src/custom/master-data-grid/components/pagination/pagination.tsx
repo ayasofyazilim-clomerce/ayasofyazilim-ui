@@ -1,6 +1,6 @@
 "use client";
 "use no memo";
-import { ButtonGroup } from "@repo/ayasofyazilim-ui/components/button-group";
+import { ButtonGroup } from "@ayasofyazilim-clomerce/ui/components/button-group";
 import type { Table } from "@tanstack/react-table";
 import {
   ChevronLeftIcon,
