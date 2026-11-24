@@ -1,6 +1,6 @@
 {
   "name": "@ayasofyazilim-clomerce/ui",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "React 19 + Next.js 16 component library: shadcn/ui primitives, schema-driven forms and a data grid, styled with Tailwind CSS v4.",
   "license": "MIT",
   "repository": {

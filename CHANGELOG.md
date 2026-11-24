@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.3.0 (2026-11-24)
+
+### Added
+
+- `custom/app-shell`: `AppShell`, with a sidebar whose open or closed state is rendered on the server and persisted, a breadcrumb header, a Cmd-K command palette (`onNavigate`), a user-menu slot and a `headerContent` slot. New subpaths `custom/app-shell/match-active-href`, `custom/app-shell/types` and `custom/app-shell/use-app-shell-navigate`. (#1104)
+- `custom/annotated-document-viewer`: a zoomable page viewer with an evidence-box overlay, a pager and opt-in page thumbnails, with subpaths `document-pager`, `geometry`, `thumbnail-strip` and `types`. (#1105)
+- `custom/docx-preview` and `custom/document-viewer/renderers/docx`: a client-side Word preview, which `DocumentViewer` can use as an opt-in renderer. (#1105)
+- MasterDataGrid:
+  - opt-in tree rows, where select-all also covers collapsed rows (subpaths `components/table/tree-cell` and `utils/tree-rows`). (#1102)
+  - opt-in row hover and click callbacks. Select-all is tri-state, and the select and action cells ignore row clicks. (#1102)
+  - opt-in `memoizeRows`, so a row re-renders only when something it draws changes (`utils/row-memo`). (#1102)
+  - `selection.rowLabel(row)`, an accessible name for each row's checkbox. (#1103)
+- `Tree`: focus-only rows, an optional `TreeDragHandle` and helpers that limit drops to siblings. (#1106)
+- `CopyableText`: a `renderButton` hook. `useConfirm`: an opt-in `initialFocus` per call. (#1101)
+
+### Changed
+
+- MasterDataGrid: the select column always comes first, and the actions columns last, whatever `columnOrder` or `columnVisibility` says. Before, a `columnOrder` without `"select"` moved the checkboxes to the far right. Listing `select` or `actions` in `columnOrder` still works, but no longer moves them. (#1109, fixes #1090)
+- New dependencies: `docx-preview` 0.4.1 and `react-zoom-pan-pinch` 4.2.0. (#1105)
+- The command dialog is labelled for assistive tech, and `Tree` keeps its own `aria-label` unless the caller passes one. (#1104, #1106)
+
+### Fixed
+
+- MasterDataGrid: `width`, `minWidth` and `maxWidth` on a column that also comes from the schema now set its size. (#1109, fixes #1089)
+- `Stepper`: the active and inactive steps use theme tokens, so they can be read in dark mode. (#1108, fixes #1087)
+- `TabLayout`: on `/a/b`, the `/a/b` tab is active instead of its parent `/a`. (#1108, fixes #1088)
+- `CopyableText` honours a parent's `preventDefault`. (#1101)
+
 ## 0.2.0 (2026-11-23)
 
 The first published version of `@ayasofyazilim-clomerce/ui`. It also ships everything listed under 0.1.0 below, including the breaking changes since `@ayasofyazilim/ui` 0.0.11.
