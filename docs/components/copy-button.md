@@ -38,7 +38,29 @@ const ok = await copy("text"); // never throws
 | `labels` | `{ copy: "Copy", copied: "Copied" }` | The `aria-label` (and tooltip) for the current state |
 | `onCopy` | none | Called with `true` on success, `false` when the copy failed |
 
-`CopyableText`: `value`, `children` (shown instead of `value`), `labels`, `onCopy`, `className`, `classNames: { container, text, button }`.
+`CopyableText`: `value`, `children` (shown instead of `value`), `labels`, `onCopy`, `className`, `classNames: { container, text, button }`, `renderButton`.
+
+### `renderButton` (CopyableText)
+
+`renderButton={(button) => node}` receives the library's own `CopyButton`, already built with the value, labels, `onCopy` and `classNames.button`, and renders what you return in its place. When omitted, the default button renders unchanged.
+
+- **Wrap it** to add behaviour while keeping the button, for example a tooltip:
+
+  ```tsx
+  <CopyableText
+    value={fullId}
+    renderButton={(button) => (
+      <Tooltip>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent>Click to copy</TooltipContent>
+      </Tooltip>
+    )}
+  />
+  ```
+
+- **Replace it** by ignoring the argument and returning your own element; the default button is then not rendered, and you own the copy behaviour (use `useCopyToClipboard`).
+
+When `CopyButton` sits under an `asChild` parent (`TooltipTrigger`, a popover trigger), the parent clones it with its own `onClick`. `CopyButton` runs that handler first and skips the copy if the handler called `event.preventDefault()`, matching Radix's handler composition. A parent that does not call `preventDefault()` does not block the copy.
 
 `useCopyToClipboard(options?)`: `resetAfterMs` defaults to `2000`. Returns `{ copied, copy }`.
 

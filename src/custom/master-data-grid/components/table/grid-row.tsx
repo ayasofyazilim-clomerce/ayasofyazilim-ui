@@ -1,4 +1,5 @@
 "use no memo";
+import type { RowEventsConfig } from "../../types";
 import type { Row } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
 import React from "react";
@@ -8,6 +9,17 @@ import {
   getPinningCellClassNames,
   getPinningCellStyles,
 } from "../../utils/pinning-utils";
+import {
+  editingRowId,
+  isGroupedChild as isGroupedChildRow,
+  resolveCellClass,
+  resolveRowClass,
+  sameRenderState,
+  sameTree,
+  type RowRenderState,
+} from "../../utils/row-memo";
+import type { TreeRowsRender } from "../../utils/tree-rows";
+import { TreeCell } from "./tree-cell";
 
 export interface GridRowProps<TData> {
   row: Row<TData>;
@@ -19,6 +31,46 @@ export interface GridRowProps<TData> {
   editingEnabled?: boolean;
   expansionEnabled?: boolean;
   expansionRenderContent?: (row: TData) => React.ReactNode;
+  /** Set only when the grid has tree rows (`subRows`). */
+  tree?: TreeRowsRender;
+  /** Set only when the grid has row callbacks (`rowEvents`). */
+  rowEvents?: RowEventsConfig<TData>;
+  /**
+   * Set only with `memoizeRows`: what the body resolved for this render (see
+   * rowRenderState). The row and cell classes are drawn from it, so what the
+   * memo compared is what is drawn.
+   */
+  renderState?: RowRenderState;
+}
+
+/** A click that starts inside one of these belongs to that control. */
+const ROW_CLICK_IGNORE =
+  "a, button, input, select, textarea, label, [role=checkbox], [role=menuitem], [data-row-click-ignore]";
+
+/** Handlers for a row, or none at all when no callback is given. */
+function rowEventProps<TData>(
+  original: TData,
+  rowEvents: RowEventsConfig<TData> | undefined
+): React.HTMLAttributes<HTMLTableRowElement> {
+  const props: React.HTMLAttributes<HTMLTableRowElement> = {};
+  const { onRowHover, onRowClick } = rowEvents ?? {};
+  if (onRowHover) {
+    props.onMouseEnter = () => onRowHover(original);
+    props.onMouseLeave = () => onRowHover(null);
+  }
+  if (onRowClick) {
+    props.onClick = (event) => {
+      const rowEl = event.currentTarget;
+      const target = event.target;
+      // React bubbles portalled content (menus, dialogs) through the row;
+      // those nodes are not inside it.
+      if (!(target instanceof Element) || !rowEl.contains(target)) return;
+      const hit = target.closest(ROW_CLICK_IGNORE);
+      if (hit && rowEl.contains(hit)) return;
+      onRowClick(original);
+    };
+  }
+  return props;
 }
 
 /** A data row plus its expansion row, shared by normal and virtual mode. */
@@ -32,37 +84,56 @@ export function GridRow<TData>({
   editingEnabled,
   expansionEnabled,
   expansionRenderContent,
+  tree,
+  rowEvents,
+  renderState,
 }: GridRowProps<TData>) {
   const isVirtual = mode === "virtual";
   return (
     <>
       <TableRow
         data-state={row.getIsSelected() && "selected"}
+        {...rowEventProps(row.original, rowEvents)}
         className={cn(
-          typeof rowClassName === "function"
-            ? rowClassName(row.original)
-            : rowClassName,
+          renderState
+            ? renderState.rowClass
+            : resolveRowClass(rowClassName, row.original),
           "group"
         )}
       >
         {row.getVisibleCells().map((cell, index) => {
-          const cellClass =
-            typeof cellClassName === "function"
-              ? cellClassName({
-                  row: row.original,
-                  columnId: cell.column.id,
-                })
-              : cellClassName;
+          const cellClass = renderState
+            ? renderState.cellClasses[index]
+            : resolveCellClass(cellClassName, row.original, cell.column.id);
 
-          const rowId = getRowId
-            ? getRowId(row.original, row.index)
-            : String(row.index);
+          const rowId = editingRowId(row, tree, getRowId);
           const isEditing = editingRows?.[rowId] !== undefined;
+          const treeCell =
+            tree && tree.expanderColumn === cell.column.id ? tree : undefined;
+          const renderContent = () => {
+            const rendered = flexRender(
+              cell.column.columnDef.cell,
+              cell.getContext()
+            );
+            return treeCell ? (
+              <TreeCell row={row} tree={treeCell}>
+                {rendered}
+              </TreeCell>
+            ) : (
+              rendered
+            );
+          };
 
           if (isVirtual) {
             return (
               <TableCell
                 key={cell.id}
+                data-row-click-ignore={
+                  rowEvents?.onRowClick &&
+                  (cell.column.id === "select" || cell.column.id === "actions")
+                    ? true
+                    : undefined
+                }
                 style={getPinningCellStyles(cell)}
                 className={cn(
                   cellClass,
@@ -76,23 +147,24 @@ export function GridRow<TData>({
                     "hover:border-muted-foreground/40"
                 )}
               >
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                {renderContent()}
               </TableCell>
             );
           }
 
-          const isGroupedChild =
-            index === 0 &&
-            row.depth > 0 &&
-            (() => {
-              const pv = row.getParentRow()?.groupingValue;
-              return pv != null && pv !== "null" && pv !== "";
-            })();
+          const isGroupedChild = index === 0 && isGroupedChildRow(row);
 
-          const isSelectionRow = cell.getContext().cell.column.id === "select";
+          const columnId = cell.getContext().cell.column.id;
+          const isSelectionRow = columnId === "select";
+          // The padding around a control belongs to it, not to the row.
+          const ignoresRowClick =
+            rowEvents?.onRowClick && (isSelectionRow || columnId === "actions")
+              ? true
+              : undefined;
           return (
             <TableCell
               key={cell.id}
+              data-row-click-ignore={ignoresRowClick}
               style={getPinningCellStyles(cell)}
               className={cn(
                 cellClass,
@@ -103,7 +175,10 @@ export function GridRow<TData>({
                 editingEnabled && "border",
                 editingEnabled &&
                   !isEditing &&
-                  "hover:border-muted-foreground/40"
+                  "hover:border-muted-foreground/40",
+                // The has-[button]:px-0 rules above would drop the padding
+                // only on rows with a toggle, shifting them off the spacer rows.
+                treeCell && "px-2!"
               )}
             >
               {isSelectionRow ? (
@@ -111,7 +186,7 @@ export function GridRow<TData>({
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </div>
               ) : (
-                flexRender(cell.column.columnDef.cell, cell.getContext())
+                renderContent()
               )}
             </TableCell>
           );
@@ -130,3 +205,37 @@ export function GridRow<TData>({
     </>
   );
 }
+
+/**
+ * Whether a memoized row would draw the same thing again. The raw class
+ * props, `editingRows` and `getRowId` are not compared: what they resolve to
+ * for this row is in `renderState`. `rowEvents` is compared by its two
+ * handlers, the only parts of it a row reads.
+ */
+function sameRowRender<TData>(
+  prev: GridRowProps<TData>,
+  next: GridRowProps<TData>
+): boolean {
+  return (
+    prev.renderState !== undefined &&
+    next.renderState !== undefined &&
+    prev.mode === next.mode &&
+    prev.editingEnabled === next.editingEnabled &&
+    prev.expansionEnabled === next.expansionEnabled &&
+    prev.expansionRenderContent === next.expansionRenderContent &&
+    prev.rowEvents?.onRowHover === next.rowEvents?.onRowHover &&
+    prev.rowEvents?.onRowClick === next.rowEvents?.onRowClick &&
+    sameTree(prev.tree, next.tree) &&
+    sameRenderState(prev.renderState, next.renderState)
+  );
+}
+
+/**
+ * GridRow behind a memo, for `memoizeRows`: it re-renders only when its
+ * `renderState` (built by the body with rowRenderState) or one of the props
+ * compared in sameRowRender changes. Without a `renderState` it always
+ * re-renders.
+ */
+export const MemoGridRow = React.memo(GridRow, sameRowRender) as <TData>(
+  props: GridRowProps<TData>
+) => React.ReactElement;
