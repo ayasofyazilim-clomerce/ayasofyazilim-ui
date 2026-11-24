@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ChevronRightIcon,
+  EllipsisIcon,
   ListCollapseIcon,
   ListTreeIcon,
+  PlusIcon,
   SearchIcon,
 } from "lucide-react";
 import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
@@ -32,6 +34,13 @@ import {
   CommandItem,
   CommandList,
 } from "@ayasofyazilim-clomerce/ui/components/command";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@ayasofyazilim-clomerce/ui/components/dropdown-menu";
 import { Kbd } from "@ayasofyazilim-clomerce/ui/components/kbd";
 import { Separator } from "@ayasofyazilim-clomerce/ui/components/separator";
 import {
@@ -69,6 +78,7 @@ import type {
   AppShellBreadcrumb,
   AppShellCommand,
   AppShellLabels,
+  AppShellNavAction,
   AppShellNavGroup,
   AppShellNavItem,
   AppShellProps,
@@ -95,6 +105,7 @@ function resolveLabels(
     filterPlaceholder: labels?.filterPlaceholder ?? "Filter menu…",
     expandAll: labels?.expandAll ?? "Expand all",
     collapseAll: labels?.collapseAll ?? "Collapse all",
+    moreActions: labels?.moreActions ?? "More actions",
   };
 }
 
@@ -121,6 +132,7 @@ type NavTreeState = {
   isFolderOpen: (id: string) => boolean;
   onFolderOpenChange: (id: string, open: boolean) => void;
   onLinkClick: () => void;
+  moreActionsLabel: string;
 };
 
 const NavTreeContext = React.createContext<NavTreeState | null>(null);
@@ -153,6 +165,124 @@ function subRowAction(depth: number) {
   return depth > 0 ? { "data-sidebar": "menu-sub-action" } : {};
 }
 
+/** An action's icon: its own, or a plus. */
+function ActionIcon({ action }: { action: AppShellNavAction }) {
+  return (
+    <ItemIcon icon={hasContent(action.icon) ? action.icon : <PlusIcon />} />
+  );
+}
+
+/** An action's label, with its description on a second line. */
+function ActionText({ action }: { action: AppShellNavAction }) {
+  return (
+    <span className="flex min-w-0 flex-col">
+      <span className="truncate">{action.label}</span>
+      {action.description ? (
+        <span className="text-muted-foreground truncate text-xs">
+          {action.description}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
+/**
+ * An item's actions at the right of its row: one action is a button (a link
+ * when it has an `href`), several are a dropdown behind a "more" button. Like
+ * the primitive's row actions they are hidden in the icon rail; ⌘K lists
+ * them there too. `nextToChevron` moves them left of a folder's toggle.
+ */
+function NavItemActions({
+  item,
+  depth,
+  nextToChevron,
+}: {
+  item: AppShellNavItem;
+  depth: number;
+  nextToChevron: boolean;
+}) {
+  const tree = useNavTree();
+  const actions = item.actions ?? [];
+  if (actions.length === 0) return null;
+  const position = cn(depth > 0 && "top-1", nextToChevron && "right-7");
+  const run = (action: AppShellNavAction) => {
+    action.onSelect?.();
+    tree.onLinkClick();
+  };
+
+  if (actions.length === 1) {
+    const action = actions[0] as AppShellNavAction;
+    return (
+      <SidebarMenuAction {...subRowAction(depth)} asChild className={position}>
+        {action.href !== undefined ? (
+          <Link
+            {...action.dataAttributes}
+            href={action.href}
+            aria-label={action.label}
+            title={action.label}
+            onClick={tree.onLinkClick}
+          >
+            <ActionIcon action={action} />
+          </Link>
+        ) : (
+          <button
+            {...action.dataAttributes}
+            type="button"
+            aria-label={action.label}
+            title={action.label}
+            onClick={() => run(action)}
+          >
+            <ActionIcon action={action} />
+          </button>
+        )}
+      </SidebarMenuAction>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuAction
+          {...subRowAction(depth)}
+          aria-label={tree.moreActionsLabel}
+          title={tree.moreActionsLabel}
+          className={cn(position, "data-[state=open]:bg-sidebar-accent")}
+        >
+          <EllipsisIcon aria-hidden="true" />
+        </SidebarMenuAction>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="right" align="start" className="min-w-48">
+        <DropdownMenuLabel className="text-muted-foreground text-xs font-normal">
+          {item.label}
+        </DropdownMenuLabel>
+        {actions.map((action) =>
+          action.href !== undefined ? (
+            <DropdownMenuItem key={action.id} asChild>
+              <Link
+                {...action.dataAttributes}
+                href={action.href}
+                onClick={tree.onLinkClick}
+              >
+                <ActionIcon action={action} />
+                <ActionText action={action} />
+              </Link>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem
+              key={action.id}
+              {...action.dataAttributes}
+              onSelect={() => run(action)}
+            >
+              <ActionIcon action={action} />
+              <ActionText action={action} />
+            </DropdownMenuItem>
+          )
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 /** A link row. At the top level its markup is the one 0.3.0 rendered. */
 function NavLinkRow({
   item,
@@ -165,6 +295,7 @@ function NavLinkRow({
 }) {
   const tree = useNavTree();
   const active = tree.isItemActive(href);
+  const hasActions = (item.actions?.length ?? 0) > 0;
   if (depth === 0) {
     return (
       <SidebarMenuItem>
@@ -185,14 +316,21 @@ function NavLinkRow({
           </Link>
         </SidebarMenuButton>
         {hasContent(item.badge) ? (
-          <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+          <SidebarMenuBadge className={hasActions ? "right-7" : undefined}>
+            {item.badge}
+          </SidebarMenuBadge>
         ) : null}
+        <NavItemActions item={item} depth={0} nextToChevron={false} />
       </SidebarMenuItem>
     );
   }
   return (
     <SidebarMenuSubItem>
-      <SidebarMenuSubButton asChild isActive={active}>
+      <SidebarMenuSubButton
+        asChild
+        isActive={active}
+        className={hasActions ? "pr-7" : undefined}
+      >
         <Link
           {...item.dataAttributes}
           href={href}
@@ -206,6 +344,7 @@ function NavLinkRow({
           ) : null}
         </Link>
       </SidebarMenuSubButton>
+      <NavItemActions item={item} depth={depth} nextToChevron={false} />
     </SidebarMenuSubItem>
   );
 }
@@ -227,6 +366,7 @@ function NavFolderRow({
   const open = tree.isFolderOpen(item.id);
   const active = item.href !== undefined && tree.isItemActive(item.href);
   const badge = hasContent(item.badge) ? item.badge : null;
+  const hasActions = (item.actions?.length ?? 0) > 0;
   const Row = depth === 0 ? SidebarMenuItem : SidebarMenuSubItem;
 
   let head: React.ReactNode;
@@ -261,7 +401,11 @@ function NavFolderRow({
             <button
               {...item.dataAttributes}
               type="button"
-              className={cn("w-full text-left", TURN_CHEVRON)}
+              className={cn(
+                "w-full text-left",
+                hasActions && "pr-7",
+                TURN_CHEVRON
+              )}
             >
               {content}
             </button>
@@ -291,16 +435,27 @@ function NavFolderRow({
             asChild
             isActive={active}
             tooltip={item.label}
+            className={
+              hasActions
+                ? "group-has-data-[sidebar=menu-action]/menu-item:pr-14"
+                : undefined
+            }
           >
             {link}
           </SidebarMenuButton>
         ) : (
-          <SidebarMenuSubButton asChild isActive={active} className="pr-7">
+          <SidebarMenuSubButton
+            asChild
+            isActive={active}
+            className={hasActions ? "pr-13" : "pr-7"}
+          >
             {link}
           </SidebarMenuSubButton>
         )}
         {depth === 0 && badge ? (
-          <SidebarMenuBadge className="right-7">{badge}</SidebarMenuBadge>
+          <SidebarMenuBadge className={hasActions ? "right-13" : "right-7"}>
+            {badge}
+          </SidebarMenuBadge>
         ) : null}
         <CollapsibleTrigger asChild>
           <SidebarMenuAction
@@ -323,6 +478,11 @@ function NavFolderRow({
     >
       <Row>
         {head}
+        <NavItemActions
+          item={item}
+          depth={depth}
+          nextToChevron={item.href !== undefined}
+        />
         <CollapsibleContent>
           <SidebarMenuSub className={depth > 0 ? "mr-0 pr-0" : undefined}>
             {items.map((child) => (
@@ -508,6 +668,7 @@ function AppShellNav({
     onLinkClick: () => {
       if (isMobile) setOpenMobile(false);
     },
+    moreActionsLabel: labels.moreActions,
   };
 
   return (
@@ -606,23 +767,60 @@ function groupCommands(commands: readonly AppShellCommand[]) {
   return Array.from(groups, ([heading, items]) => ({ heading, items }));
 }
 
-/** A link of a nav group as ⌘K lists it, with the folders above it. */
+/**
+ * A link of a nav group, or one of an item's actions, as ⌘K lists it, with
+ * the labels above it.
+ */
 type NavCommandEntry = {
   key: string;
-  item: AppShellNavItem;
-  href: string;
-  /** The labels of the folders above the item, outermost first. */
+  kind: "item" | "action";
+  /** The item's id, or the action's. */
+  id: string;
+  label: string;
+  icon?: React.ReactNode;
+  badge?: React.ReactNode;
+  keywords?: string[];
+  /** The folders above an item, or the folders and the item above an action. */
   path: string[];
+  href?: string;
+  onSelect?: () => void;
 };
 
-/** Every link of the group, folders with an `href` included, in tree order. */
+/**
+ * Every link of the group, folders with an `href` included, each followed by
+ * its actions, in tree order. A folder without an `href` lists only its
+ * actions.
+ */
 function navCommandEntries(group: AppShellNavGroup): NavCommandEntry[] {
   const entries: NavCommandEntry[] = [];
   const visit = (items: AppShellNavItem[], ids: string[], path: string[]) => {
     for (const item of items) {
       const itemIds = [...ids, item.id];
       if (item.href !== undefined) {
-        entries.push({ key: itemIds.join("/"), item, href: item.href, path });
+        entries.push({
+          key: itemIds.join("/"),
+          kind: "item",
+          id: item.id,
+          label: item.label,
+          icon: item.icon,
+          badge: item.badge,
+          keywords: item.keywords,
+          path,
+          href: item.href,
+        });
+      }
+      for (const action of item.actions ?? []) {
+        entries.push({
+          key: `${itemIds.join("/")}#${action.id}`,
+          kind: "action",
+          id: action.id,
+          label: action.label,
+          icon: action.icon,
+          keywords: action.description ? [action.description] : undefined,
+          path: [...path, item.label],
+          href: action.href,
+          onSelect: action.onSelect,
+        });
       }
       if (item.items) visit(item.items, itemIds, [...path, item.label]);
     }
@@ -675,28 +873,33 @@ function AppShellCommandMenu({
         <CommandEmpty>{labels.commandEmpty}</CommandEmpty>
         {groups.map((group) => (
           <CommandGroup key={`nav-${group.id}`} heading={group.label}>
-            {navCommandEntries(group).map(({ key, item, href, path }) => (
+            {navCommandEntries(group).map((entry) => (
               <CommandItem
-                key={key}
+                key={entry.key}
                 value={
-                  path.length === 0
-                    ? `${group.label} ${item.label}`
-                    : `${group.label} ${[...path, item.label].join(" / ")}`
+                  entry.path.length === 0
+                    ? `${group.label} ${entry.label}`
+                    : `${group.label} ${[...entry.path, entry.label].join(" / ")}`
                 }
-                keywords={item.keywords}
-                onSelect={() => choose(() => navigate(href))}
+                keywords={entry.keywords}
+                onSelect={() =>
+                  choose(() => {
+                    if (entry.href !== undefined) navigate(entry.href);
+                    else entry.onSelect?.();
+                  })
+                }
               >
-                <ItemIcon icon={item.icon} />
+                <ItemIcon icon={entry.icon} />
                 <span className="truncate">
-                  {path.length > 0 ? (
+                  {entry.path.length > 0 ? (
                     <span className="text-muted-foreground">
-                      {`${path.join(" / ")} / `}
+                      {`${entry.path.join(" / ")} / `}
                     </span>
                   ) : null}
-                  {item.label}
+                  {entry.label}
                 </span>
-                {hasContent(item.badge) ? (
-                  <span className="ml-auto">{item.badge}</span>
+                {hasContent(entry.badge) ? (
+                  <span className="ml-auto">{entry.badge}</span>
                 ) : null}
               </CommandItem>
             ))}
@@ -885,6 +1088,7 @@ export type {
   AppShellBreadcrumb,
   AppShellCommand,
   AppShellLabels,
+  AppShellNavAction,
   AppShellNavGroup,
   AppShellNavItem,
   AppShellProps,

@@ -120,7 +120,7 @@ export function Frame({
 | `classNames`          | `{ sidebar?, header?, main? }`                | none              | Merged onto the sidebar container, the `<header>` and the `<main>`.                                                                                                              |
 | `children`            | `ReactNode`                                   | required          | The page, inside `<main>`.                                                                                                                                                       |
 
-`AppShellNavItem` is `{ id, label, href?, icon?, badge?, dataAttributes?, items?, keywords? }`. `icon` is an element (`<PlayIcon />`), rendered at 16px and hidden from assistive technology. `badge` sits at the right of the label in the sidebar (hidden in the icon rail) and in ⌘K. `dataAttributes` (`{ "data-tour": "…" }`) are spread onto the sidebar link, or onto the toggle of a folder that has no `href`. `items` makes the item a folder (see [Folders](#folders)); `keywords` are extra terms for the sidebar filter and ⌘K. The active link gets `data-active="true"` and `aria-current="page"`. On mobile, choosing a link closes the sheet.
+`AppShellNavItem` is `{ id, label, href?, icon?, badge?, dataAttributes?, items?, keywords?, actions? }`. `icon` is an element (`<PlayIcon />`), rendered at 16px and hidden from assistive technology. `badge` sits at the right of the label in the sidebar (hidden in the icon rail) and in ⌘K. `dataAttributes` (`{ "data-tour": "…" }`) are spread onto the sidebar link, or onto the toggle of a folder that has no `href`. `items` makes the item a folder (see [Folders](#folders)); `keywords` are extra terms for the sidebar filter and ⌘K. `actions` puts buttons on the row (see [Item actions](#item-actions)). The active link gets `data-active="true"` and `aria-current="page"`. On mobile, choosing a link closes the sheet.
 
 An item with neither `href` nor `items`, a folder whose items are all left out and that has no `href`, and a group left with no items are not rendered. The app filters by permission before passing `nav`; the shell drops what that leaves empty.
 
@@ -138,6 +138,7 @@ An item with neither `href` nor `items`, a folder whose items are all left out a
 | `filterPlaceholder`  | `"Filter menu…"`               | Sidebar filter placeholder and accessible name (`navFilter`).           |
 | `expandAll`          | `"Expand all"`                 | Expand-all button name and tooltip (`navFilter`).                       |
 | `collapseAll`        | `"Collapse all"`               | Collapse-all button name and tooltip (`navFilter`).                     |
+| `moreActions`        | `"More actions"`               | The button that opens an item's actions when it has several.            |
 
 The primitives' own English defaults never reach the page: the ⌘K dialog's description, its input's name and its list's label, and the mobile sheet's description all reuse the keys above.
 
@@ -182,6 +183,32 @@ const nav: AppShellNavGroup[] = [
 - **Mobile sheet.** Folders work the same in the sheet and keep their state after it closes. Choosing a link closes the sheet; opening a folder does not.
 - **⌘K.** Every link is listed under its group with the folders above it (`Operations / Refunds / Open`), folders with an `href` included. Searching a folder's name finds its links, and `keywords` are matched too.
 
+## Item actions
+
+`actions` on an item (`AppShellNavAction[]`) are things to do with it: `{ id, label, description?, icon?, href?, onSelect?, dataAttributes? }`. An action with an `href` is a link; otherwise choosing it calls `onSelect`.
+
+```tsx
+{
+  id: "orders",
+  href: "/orders",
+  label: t("Orders"),
+  actions: [
+    { id: "orders-new", label: t("New order"), href: "/orders/new", icon: <PlusIcon /> },
+    { id: "orders-import", label: t("Import orders"), onSelect: openImport },
+  ],
+}
+```
+
+- **One action** is a small button at the right of the row: a link when it has an `href`, a button otherwise. Its `label` is its accessible name and tooltip. Without an `icon` it shows a plus.
+- **Several actions** sit behind a "more" button (`labels.moreActions`) that opens a dropdown menu with the item's label as its heading, then each action's icon, label and `description`. The menu is keyboard-operable (Enter or Space opens it, the arrow keys move, Enter chooses).
+- Folders take actions too, on their own row; on a folder with an `href` the actions sit left of the chevron. A badge moves left of the actions.
+- **Icon rail.** The row buttons are hidden there, like every sidebar row action; the actions stay reachable through ⌘K.
+- **Mobile sheet.** The buttons and the dropdown work in the sheet, and choosing an action closes it.
+- **⌘K** lists each action right after its item, as `Orders / New order`. A link action navigates (through `onNavigate` when given); an `onSelect` action runs. `description` is matched by the search.
+- `dataAttributes` are spread onto the action's button, link or menu entry, for e2e selectors.
+
+Keep action ids unique across the whole nav.
+
 ## Sidebar filter
 
 With `navFilter`, a filter box sits at the top of the sidebar (hidden in the icon rail).
@@ -196,7 +223,7 @@ Also exported from the same path:
 - `matchActiveHref(hrefs, pathname)`: the default active-item rule. It returns the `href` (exactly as given) that is the longest whole-segment prefix of `pathname`, or `null`. `/playground` matches `/playground/x` but not `/playground-x`; query strings, hashes and trailing slashes are ignored; `/` matches only `/`.
 - `useAppShellNavigate()`: `(href) => router.push(href)`, the navigation the ⌘K menu uses when no `onNavigate` is given. An `onNavigate` that decides to go ahead calls it (or its own `router.push`).
 - `foldersAbove(nav, pathname, isActive?)`: the ids of the folders above the active page, outermost first. `filterNav(nav, query)`: the nav as the sidebar filter shows it, or `null` below two characters. Both are pure; a Server Component imports them from `@ayasofyazilim-clomerce/ui/custom/app-shell/nav-tree`, which also has `pruneNav`, `walkNav`, `navHrefs`, `navFolderIds`, `isNavFolder` and `foldNavText`.
-- The types `AppShellProps`, `AppShellNavGroup`, `AppShellNavItem`, `AppShellCommand`, `AppShellBreadcrumb` and `AppShellLabels`.
+- The types `AppShellProps`, `AppShellNavGroup`, `AppShellNavItem`, `AppShellNavAction`, `AppShellCommand`, `AppShellBreadcrumb` and `AppShellLabels`.
 
 ## Common mistakes
 
