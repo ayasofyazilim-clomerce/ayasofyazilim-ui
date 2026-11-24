@@ -120,6 +120,9 @@ const TURKISH: Required<AppShellLabels> = {
   navigation: "Ana gezinme",
   close: "Kapat",
   mobileTitle: "Gezinme",
+  filterPlaceholder: "Menüde ara…",
+  expandAll: "Tümünü aç",
+  collapseAll: "Tümünü kapat",
 };
 
 function renderShell(
@@ -543,6 +546,9 @@ describe("AppShell: labels", () => {
       navigation: "Main navigation",
       close: "Close",
       mobileTitle: "Navigation",
+      filterPlaceholder: "Filter menu…",
+      expandAll: "Expand all",
+      collapseAll: "Collapse all",
     });
   });
 

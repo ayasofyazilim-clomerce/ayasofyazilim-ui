@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.3.0 (2026-11-24)
+## Unreleased
+
+### Added
+
+- `AppShell` folders: `AppShellNavItem.items` nests items in collapsible folders at any depth. The folders above the active page open on their own, in the server HTML too, and again on each navigation; `openFolders` and `onOpenFoldersChange` control them instead. ⌘K lists nested links with their folder path, and `AppShellNavItem.keywords` adds search terms. In the icon rail, choosing a folder expands the sidebar with it open.
+- `AppShell` `navFilter`: a filter box over the sidebar (from two characters, matching labels and `keywords` without regard to case or accents, keeping the folders above each match) and an expand/collapse all button. New labels `filterPlaceholder`, `expandAll` and `collapseAll`.
+- `custom/app-shell/nav-tree`: pure helpers over the nav, including `foldersAbove` and `filterNav`, which `custom/app-shell` also exports.
+
+### Changed
+
+- `AppShellNavItem.href` is optional, so a folder can have no page of its own. Code that builds items is unaffected; code that reads `item.href` as a `string` must handle `undefined`. A flat nav renders exactly as before.
 
 ### Added
 
