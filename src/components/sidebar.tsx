@@ -47,10 +47,20 @@ type SidebarContextProps = {
       | ((prev: SidebarState) => Partial<SidebarState>)
   ) => void;
   toggleSidebar: (name: string) => void;
+  getInitialOpen: (name: string) => boolean;
   isMobile: boolean;
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
+
+function isEditableElement(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return (
+    target.isContentEditable ||
+    target.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])") !==
+      null
+  );
+}
 
 function useSidebar(name: string) {
   const context = React.useContext(SidebarContext);
@@ -58,8 +68,10 @@ function useSidebar(name: string) {
     throw new Error("useSidebar must be used within a SidebarProvider.");
   }
 
+  // Before a sidebar registers (always the case during SSR), fall back to the
+  // provider's default so server markup matches the saved state.
   const sidebarState = context.sidebars[name] ?? {
-    open: false,
+    open: context.getInitialOpen(name),
     openMobile: false,
   };
 
@@ -95,22 +107,23 @@ function SidebarProvider({
     {}
   );
   const initialRegistrations = React.useRef<Set<string>>(new Set());
+  const pendingNotify = React.useRef(false);
+
+  const getInitialOpen = React.useCallback(
+    (name: string) => {
+      if (openProp) return openProp.includes(name);
+      if (Array.isArray(defaultOpen)) return defaultOpen.includes(name);
+      return defaultOpen;
+    },
+    [defaultOpen, openProp]
+  );
 
   const registerSidebar = React.useCallback(
     (name: string, initialState?: Partial<SidebarState>) => {
       setSidebars((prev) => {
         if (prev[name]) return prev;
 
-        let open = false;
-        if (openProp) {
-          open = openProp.includes(name);
-        } else {
-          if (typeof defaultOpen === "boolean") {
-            open = defaultOpen;
-          } else if (Array.isArray(defaultOpen)) {
-            open = defaultOpen.includes(name);
-          }
-        }
+        const open = getInitialOpen(name);
         if (!initialRegistrations.current.has(name)) {
           initialRegistrations.current.add(name);
         }
@@ -125,7 +138,7 @@ function SidebarProvider({
         };
       });
     },
-    [defaultOpen, openProp]
+    [getInitialOpen]
   );
 
   const unregisterSidebar = React.useCallback((name: string) => {
@@ -161,38 +174,37 @@ function SidebarProvider({
         | Partial<SidebarState>
         | ((prev: SidebarState) => Partial<SidebarState>)
     ) => {
+      pendingNotify.current = true;
       setSidebars((prev) => {
         const currentState = prev[name] ?? {
-          open: false,
+          open: getInitialOpen(name),
           openMobile: false,
         };
         const newState =
           typeof state === "function" ? state(currentState) : state;
-        const next = {
+        return {
           ...prev,
           [name]: { ...currentState, ...newState },
         };
-
-        const openSidebars = Object.entries(next)
-          .filter(([, sidebarState]) => sidebarState?.open === true)
-          .map(([sidebarName]) => sidebarName);
-
-        openSidebars.forEach((sidebarName) => {
-          const sidebarState = next[sidebarName];
-          if (sidebarState) {
-            document.cookie = `${SIDEBAR_COOKIE_NAME}_${sidebarName}=${sidebarState.open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
-          }
-        });
-
-        if (setOpenProp) {
-          setOpenProp(openSidebars);
-        }
-
-        return next;
       });
     },
-    [setOpenProp]
+    [getInitialOpen]
   );
+
+  // Side effects of a user-driven change run after the state commits, once per
+  // change: persist every sidebar's state and notify the consumer.
+  React.useEffect(() => {
+    if (!pendingNotify.current) return;
+    pendingNotify.current = false;
+    Object.entries(sidebars).forEach(([sidebarName, sidebarState]) => {
+      document.cookie = `${SIDEBAR_COOKIE_NAME}_${sidebarName}=${sidebarState.open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+    });
+    setOpenProp?.(
+      Object.entries(sidebars)
+        .filter(([, sidebarState]) => sidebarState.open === true)
+        .map(([sidebarName]) => sidebarName)
+    );
+  }, [sidebars, setOpenProp]);
 
   const toggleSidebar = React.useCallback(
     (name: string) => {
@@ -211,6 +223,12 @@ function SidebarProvider({
         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
         (event.metaKey || event.ctrlKey)
       ) {
+        if (
+          isEditableElement(event.target) ||
+          isEditableElement(document.activeElement)
+        ) {
+          return;
+        }
         event.preventDefault();
         Object.keys(sidebars).forEach((name) => toggleSidebar(name));
       }
@@ -227,6 +245,7 @@ function SidebarProvider({
       unregisterSidebar,
       setSidebarState,
       toggleSidebar,
+      getInitialOpen,
       isMobile,
     }),
     [
@@ -235,6 +254,7 @@ function SidebarProvider({
       unregisterSidebar,
       setSidebarState,
       toggleSidebar,
+      getInitialOpen,
       isMobile,
     ]
   );
@@ -419,9 +439,11 @@ function SidebarTrigger({
 function SidebarRail({
   className,
   name,
+  label = "Toggle Sidebar",
   ...props
 }: React.ComponentProps<"button"> & {
   name: string;
+  label?: string;
 }) {
   const { toggleSidebar } = useSidebar(name);
 
@@ -429,10 +451,10 @@ function SidebarRail({
     <button
       data-sidebar="rail"
       data-slot="sidebar-rail"
-      aria-label="Toggle Sidebar"
+      aria-label={label}
       tabIndex={-1}
       onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      title={label}
       className={cn(
         "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-0.5 sm:flex",
         "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize!",
