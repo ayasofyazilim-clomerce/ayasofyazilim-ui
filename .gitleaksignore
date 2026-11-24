@@ -1,0 +1,8 @@
+# Findings gitleaks reports that are known to be safe, by fingerprint (<commit>:<file>:<rule>:<line>).
+# Add one only with a reason, after checking the value is not a real secret or has been revoked.
+
+# The masking test's made-up value; it is not a credential.
+ed9832762d08b9f950d402a33bbc66dcbcc77ff9:src/test/code-block-mask.test.tsx:generic-api-key:5
+
+# A historical credential removed from the tree in 2025; revoked 2026-11-24.
+e467dfa428dc391102e4dd474df0c1ab6f6aa4e2:.npmrc:generic-api-key:2

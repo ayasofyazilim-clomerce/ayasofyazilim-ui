@@ -465,6 +465,14 @@
         "types": "./dist/custom/app-shell/match-active-href.d.ts",
         "default": "./dist/custom/app-shell/match-active-href.js"
       },
+      "./custom/app-shell/nav-tree": {
+        "types": "./dist/custom/app-shell/nav-tree.d.ts",
+        "default": "./dist/custom/app-shell/nav-tree.js"
+      },
+      "./custom/app-shell/shortcuts": {
+        "types": "./dist/custom/app-shell/shortcuts.d.ts",
+        "default": "./dist/custom/app-shell/shortcuts.js"
+      },
       "./custom/app-shell/types": {
         "types": "./dist/custom/app-shell/types.d.ts",
         "default": "./dist/custom/app-shell/types.js"
@@ -472,6 +480,10 @@
       "./custom/app-shell/use-app-shell-navigate": {
         "types": "./dist/custom/app-shell/use-app-shell-navigate.d.ts",
         "default": "./dist/custom/app-shell/use-app-shell-navigate.js"
+      },
+      "./custom/app-shell/use-stored-shortcuts": {
+        "types": "./dist/custom/app-shell/use-stored-shortcuts.d.ts",
+        "default": "./dist/custom/app-shell/use-stored-shortcuts.js"
       },
       "./custom/async-select": {
         "types": "./dist/custom/async-select.d.ts",
@@ -1444,8 +1456,11 @@
     "./custom/annotated-document-viewer/types": "./src/custom/annotated-document-viewer/types.ts",
     "./custom/app-shell": "./src/custom/app-shell/index.tsx",
     "./custom/app-shell/match-active-href": "./src/custom/app-shell/match-active-href.ts",
+    "./custom/app-shell/nav-tree": "./src/custom/app-shell/nav-tree.ts",
+    "./custom/app-shell/shortcuts": "./src/custom/app-shell/shortcuts.ts",
     "./custom/app-shell/types": "./src/custom/app-shell/types.ts",
     "./custom/app-shell/use-app-shell-navigate": "./src/custom/app-shell/use-app-shell-navigate.ts",
+    "./custom/app-shell/use-stored-shortcuts": "./src/custom/app-shell/use-stored-shortcuts.ts",
     "./custom/async-select": "./src/custom/async-select.tsx",
     "./custom/awesome-not-found": "./src/custom/awesome-not-found.tsx",
     "./custom/barcode-camera-scanner": "./src/custom/barcode-camera-scanner/index.tsx",

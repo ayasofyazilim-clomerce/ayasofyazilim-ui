@@ -120,6 +120,14 @@ const TURKISH: Required<AppShellLabels> = {
   navigation: "Ana gezinme",
   close: "Kapat",
   mobileTitle: "Gezinme",
+  filterPlaceholder: "Menüde ara…",
+  expandAll: "Tümünü aç",
+  collapseAll: "Tümünü kapat",
+  moreActions: "Diğer işlemler",
+  assignShortcut: "Kısayol ata",
+  removeShortcut: "Kısayolu kaldır",
+  pressShortcut: "Bir tuş bileşimine basın. Esc iptal eder.",
+  shortcutReserved: "Bu bileşim ayrılmış. Başkasını deneyin.",
 };
 
 function renderShell(
@@ -543,6 +551,14 @@ describe("AppShell: labels", () => {
       navigation: "Main navigation",
       close: "Close",
       mobileTitle: "Navigation",
+      filterPlaceholder: "Filter menu…",
+      expandAll: "Expand all",
+      collapseAll: "Collapse all",
+      moreActions: "More actions",
+      assignShortcut: "Assign shortcut",
+      removeShortcut: "Remove shortcut",
+      pressShortcut: "Press a key combination with Ctrl, Alt or ⌘. Esc cancels.",
+      shortcutReserved: "That combination is reserved. Try another.",
     });
   });
 

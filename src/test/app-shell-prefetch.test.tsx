@@ -110,4 +110,47 @@ describe("AppShell navPrefetch", () => {
     fireEvent.touchStart(link("Traces"));
     expect(mockPrefetch).toHaveBeenCalledTimes(3);
   });
+
+  it('"intent" covers folder links, nested links and action links', () => {
+    render(
+      <AppShell
+        nav={[
+          {
+            id: "main",
+            label: "Main",
+            items: [
+              {
+                id: "reports",
+                href: "/reports",
+                label: "Reports",
+                actions: [
+                  {
+                    id: "new-report",
+                    label: "New report",
+                    href: "/reports/new",
+                  },
+                ],
+                items: [
+                  { id: "monthly", href: "/reports/monthly", label: "Monthly" },
+                ],
+              },
+            ],
+          },
+        ]}
+        openFolders={["reports"]}
+        brand={null}
+        userMenu={null}
+        navPrefetch="intent"
+      >
+        x
+      </AppShell>
+    );
+    for (const name of ["Reports", "Monthly", "New report"]) {
+      expect(link(name)).toHaveAttribute("data-prefetch", "false");
+    }
+    fireEvent.mouseEnter(link("Monthly"));
+    expect(mockPrefetch).toHaveBeenLastCalledWith("/reports/monthly");
+    fireEvent.focus(link("New report"));
+    expect(mockPrefetch).toHaveBeenLastCalledWith("/reports/new");
+  });
 });

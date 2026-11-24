@@ -1,0 +1,102 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests", ":semanticCommitTypeAll(chore)", ":semanticCommitScope(deps)"],
+  "description": "A published library: Renovate updates devDependencies, the packageManager field and the workflows' actions and tools. It never touches peerDependencies or engines, and touches dependencies only to fix a known vulnerability, because those ranges are what consumers install; change them by hand in a PR with a CHANGELOG.md entry.",
+  "minimumReleaseAge": "14 days",
+  "osvVulnerabilityAlerts": true,
+  "internalChecksFilter": "strict",
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Peer ranges and engines are changed on purpose, never by a bot (not even for a vulnerability: the consumer picks the version).",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["peerDependencies", "engines"],
+      "enabled": false
+    },
+    {
+      "description": "Runtime dependencies get no routine updates. Vulnerability-fix PRs still come through (they override this rule), because a vulnerable dependency ships to every consumer.",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest", "pinDigest", "lockFileMaintenance", "rollback", "replacement"],
+      "enabled": false
+    },
+    {
+      "description": "devDependencies are pinned to exact versions; consumers never install them.",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "rangeStrategy": "pin"
+    },
+    {
+      "description": "These devDependencies mirror a peer dependency. A major bump would test against a version outside the declared peer range, so it waits until the peer range is changed by hand.",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": [
+        "next",
+        "react",
+        "react-dom",
+        "next-themes",
+        "zod",
+        "tailwindcss",
+        "@tailwindcss/postcss",
+        "@types/react",
+        "@types/react-dom",
+        "canvas",
+        "jsdom"
+      ],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "description": "Node types follow engines.node (>=20.9), not the latest Node.",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@types/node"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "groupName": "react",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"]
+    },
+    {
+      "groupName": "tailwind",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": ["tailwindcss", "@tailwindcss/*"]
+    },
+    {
+      "groupName": "eslint",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": ["eslint", "@eslint/*", "eslint-*", "typescript-eslint", "globals"]
+    },
+    {
+      "groupName": "jest",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": ["jest", "jest-*", "ts-jest", "@types/jest", "@testing-library/*", "identity-obj-proxy"]
+    },
+    {
+      "groupName": "build tooling",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchPackageNames": ["typescript", "tsup"]
+    },
+    {
+      "groupName": "github actions",
+      "matchManagers": ["github-actions"]
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Versions and image digests in workflow env lines, marked with a renovate comment",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>[^\\s]+)\\s+[A-Z_]+: [^:\\s]+:(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})",
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>[^\\s]+)\\s+[A-Z_]+: '?(?<currentValue>[^'\\s]+)'?"
+      ]
+    }
+  ]
+}
