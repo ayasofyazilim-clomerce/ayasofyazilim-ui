@@ -144,6 +144,15 @@ function FolderChevron({ className }: { className?: string }) {
 
 const TURN_CHEVRON = "aria-expanded:[&_[data-app-shell-chevron]]:rotate-90";
 
+/**
+ * A row button inside a folder is marked `menu-sub-action`, not the
+ * primitive's `menu-action`: the top-level row pads its button for any
+ * `menu-action` inside its item, which would also count the nested rows.
+ */
+function subRowAction(depth: number) {
+  return depth > 0 ? { "data-sidebar": "menu-sub-action" } : {};
+}
+
 /** A link row. At the top level its markup is the one 0.3.0 rendered. */
 function NavLinkRow({
   item,
@@ -295,6 +304,7 @@ function NavFolderRow({
         ) : null}
         <CollapsibleTrigger asChild>
           <SidebarMenuAction
+            {...subRowAction(depth)}
             aria-label={item.label}
             className={cn(depth > 0 && "top-1", TURN_CHEVRON)}
           >

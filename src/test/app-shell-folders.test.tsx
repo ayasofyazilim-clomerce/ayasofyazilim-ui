@@ -241,6 +241,36 @@ describe("AppShell folders: tree", () => {
     expect(screen.getByText("New")).toBeInTheDocument();
   });
 
+  it("keeps a nested folder's toggle from padding the top-level row", () => {
+    renderShell({
+      openFolders: ["outer"],
+      nav: [
+        {
+          id: "g",
+          label: "G",
+          items: [
+            {
+              id: "outer",
+              label: "Outer",
+              items: [
+                {
+                  id: "inner",
+                  href: "/inner",
+                  label: "Inner",
+                  items: [{ id: "leaf", href: "/inner/leaf", label: "Leaf" }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    // The top-level row pads its button for any `menu-action` in its item.
+    const outer = folder("Outer").closest("li") as HTMLElement;
+    expect(folder("Inner")).toHaveAttribute("data-sidebar", "menu-sub-action");
+    expect(outer.querySelector('[data-sidebar="menu-action"]')).toBeNull();
+  });
+
   it("highlights a folder's own page and opens the folders above a page under it", () => {
     mockPathname = "/reports";
     renderShell();
