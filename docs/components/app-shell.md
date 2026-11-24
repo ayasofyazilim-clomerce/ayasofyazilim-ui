@@ -115,6 +115,7 @@ export function Frame({
 | `openFolders`         | `string[]`                                    | none              | The ids of the open folders, controlled. Without it the shell keeps its own state (see [Folders](#folders)).                                                                     |
 | `onOpenFoldersChange` | `(ids: string[]) => void`                     | none              | Called with the next open folder ids when the user opens or closes a folder or uses expand/collapse all, controlled or not. Not called for the folders the filter opens.         |
 | `navFilter`           | `boolean`                                     | `false`           | A filter box over the sidebar and, when the nav has folders, an expand/collapse all button. See [Sidebar filter](#sidebar-filter).                                               |
+| `shortcuts`           | `AppShellShortcuts`                           | none              | User-assigned shortcuts, recorded from ⌘K and fired from anywhere. Nothing changes without it. See [Shortcuts](#shortcuts).                                                      |
 | `labels`              | `AppShellLabels`                              | English           | See below. Each key falls back to its own default.                                                                                                                               |
 | `className`           | `string`                                      | none              | Merged onto the outer wrapper.                                                                                                                                                   |
 | `classNames`          | `{ sidebar?, header?, main? }`                | none              | Merged onto the sidebar container, the `<header>` and the `<main>`.                                                                                                              |
@@ -124,21 +125,25 @@ export function Frame({
 
 An item with neither `href` nor `items`, a folder whose items are all left out and that has no `href`, and a group left with no items are not rendered. The app filters by permission before passing `nav`; the shell drops what that leaves empty.
 
-| `labels` key         | Default                        | Used for                                                                |
-| -------------------- | ------------------------------ | ----------------------------------------------------------------------- |
-| `toggleSidebar`      | `"Toggle Sidebar"`             | Header trigger (sr-only) and the sidebar rail (`aria-label`).           |
-| `search`             | `"Search…"`                    | Search button.                                                          |
-| `commandTitle`       | `"Command menu"`               | ⌘K dialog title (its accessible name) and its result list's label.      |
-| `commandPlaceholder` | `"Search pages and commands…"` | ⌘K input placeholder and accessible name, and the dialog's description. |
-| `commandEmpty`       | `"No results."`                | ⌘K empty state.                                                         |
-| `breadcrumb`         | `"Breadcrumb"`                 | Breadcrumb `<nav>` `aria-label`.                                        |
-| `navigation`         | `"Main navigation"`            | Sidebar `<nav>` `aria-label` and the mobile sheet description.          |
-| `close`              | `"Close"`                      | ⌘K close button.                                                        |
-| `mobileTitle`        | `"Navigation"`                 | Mobile sheet title.                                                     |
-| `filterPlaceholder`  | `"Filter menu…"`               | Sidebar filter placeholder and accessible name (`navFilter`).           |
-| `expandAll`          | `"Expand all"`                 | Expand-all button name and tooltip (`navFilter`).                       |
-| `collapseAll`        | `"Collapse all"`               | Collapse-all button name and tooltip (`navFilter`).                     |
-| `moreActions`        | `"More actions"`               | The button that opens an item's actions when it has several.            |
+| `labels` key         | Default                                                       | Used for                                                                |
+| -------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `toggleSidebar`      | `"Toggle Sidebar"`                                            | Header trigger (sr-only) and the sidebar rail (`aria-label`).           |
+| `search`             | `"Search…"`                                                   | Search button.                                                          |
+| `commandTitle`       | `"Command menu"`                                              | ⌘K dialog title (its accessible name) and its result list's label.      |
+| `commandPlaceholder` | `"Search pages and commands…"`                                | ⌘K input placeholder and accessible name, and the dialog's description. |
+| `commandEmpty`       | `"No results."`                                               | ⌘K empty state.                                                         |
+| `breadcrumb`         | `"Breadcrumb"`                                                | Breadcrumb `<nav>` `aria-label`.                                        |
+| `navigation`         | `"Main navigation"`                                           | Sidebar `<nav>` `aria-label` and the mobile sheet description.          |
+| `close`              | `"Close"`                                                     | ⌘K close button.                                                        |
+| `mobileTitle`        | `"Navigation"`                                                | Mobile sheet title.                                                     |
+| `filterPlaceholder`  | `"Filter menu…"`                                              | Sidebar filter placeholder and accessible name (`navFilter`).           |
+| `expandAll`          | `"Expand all"`                                                | Expand-all button name and tooltip (`navFilter`).                       |
+| `collapseAll`        | `"Collapse all"`                                              | Collapse-all button name and tooltip (`navFilter`).                     |
+| `moreActions`        | `"More actions"`                                              | The button that opens an item's actions when it has several.            |
+| `assignShortcut`     | `"Assign shortcut"`                                           | The ⌘K bar button that records a shortcut (`shortcuts`).                |
+| `removeShortcut`     | `"Remove shortcut"`                                           | The ⌘K bar button that removes one (`shortcuts`).                       |
+| `pressShortcut`      | `"Press a key combination with Ctrl, Alt or ⌘. Esc cancels."` | Shown while recording (`shortcuts`).                                    |
+| `shortcutReserved`   | `"That combination is reserved. Try another."`                | Shown when the pressed combo is reserved (`shortcuts`).                 |
 
 The primitives' own English defaults never reach the page: the ⌘K dialog's description, its input's name and its list's label, and the mobile sheet's description all reuse the keys above.
 
@@ -209,6 +214,26 @@ const nav: AppShellNavGroup[] = [
 
 Keep action ids unique across the whole nav.
 
+## Shortcuts
+
+With `shortcuts`, a user assigns their own key combinations to nav links and item actions from the ⌘K menu, and presses them anywhere to go there or run the action. The shell keeps no state of its own: `shortcuts` is `{ value, onChange, reserved? }`, where `value` maps `item:<id>` (a nav item) and `action:<id>` (an item action) to a combo such as `"ctrl+shift+h"`. Item and action ids must be unique across the whole nav for this.
+
+```tsx
+import { AppShell, useStoredShortcuts } from "@ayasofyazilim-clomerce/ui/custom/app-shell";
+
+const shortcuts = useStoredShortcuts(); // localStorage, this browser only
+
+<AppShell nav={nav} shortcuts={shortcuts} labels={{ assignShortcut: t("Assign shortcut") }} …>
+```
+
+- **Assigning.** Under the ⌘K list a bar names the highlighted link or action and offers **Assign shortcut** (and **Remove shortcut** when it has one). Tab moves from the search box to the bar, so the keyboard never needs buttons inside the options. Pressing **Assign shortcut** starts recording (`aria-pressed="true"`, with `pressShortcut` in a status region): the next combo with Ctrl, Alt or ⌘ is assigned and taken from any entry that had it. Escape, or pressing the button again, cancels without closing the menu. Lone modifiers and keys without Ctrl, Alt or ⌘ are ignored.
+- **Reserved combos are refused** with `shortcutReserved` in an alert: ⌘K / Ctrl+K with any other modifier, ⌘B / Ctrl+B (the sidebar), the browser's own (tabs, windows, address bar, find, history, downloads, editing, print, save, zoom, reload, back and forward, dev tools; `RESERVED_SHORTCUTS`), and the app's `reserved` list (written any way, `"Shift+Alt+X"` included).
+- **Showing.** ⌘K shows each assigned combo as keys on its entry, and the entry and its sidebar link or action button carry `aria-keyshortcuts` (`Control+Shift+H`).
+- **Firing.** A combo fires its link (through `onNavigate` when given) or its action from anywhere, text fields included, and closes ⌘K if it is open. It does not fire while recording, for a press the page already handled (`defaultPrevented`), for a reserved combo, or for a key whose item is not in the nav (a permission took it away; the key is kept for when it comes back).
+- **Keys.** Letters and digits come from the physical key (`event.code`), so Alt on a Mac or another keyboard layout does not change the combo; AltGr and text being composed never count.
+
+`useStoredShortcuts(storageKey = "app-shell-shortcuts")` returns a stable `AppShellShortcuts` kept in `localStorage`. The server and the first client render see no shortcuts, so hydration matches, and the stored ones arrive right after; other tabs follow changes. Unreadable or malformed data reads as none; if storage throws (private mode, a full quota), shortcuts live in memory until the page reloads. It never prunes keys. An app that stored shortcuts under another key passes that key to keep them.
+
 ## Sidebar filter
 
 With `navFilter`, a filter box sits at the top of the sidebar (hidden in the icon rail).
@@ -223,7 +248,8 @@ Also exported from the same path:
 - `matchActiveHref(hrefs, pathname)`: the default active-item rule. It returns the `href` (exactly as given) that is the longest whole-segment prefix of `pathname`, or `null`. `/playground` matches `/playground/x` but not `/playground-x`; query strings, hashes and trailing slashes are ignored; `/` matches only `/`.
 - `useAppShellNavigate()`: `(href) => router.push(href)`, the navigation the ⌘K menu uses when no `onNavigate` is given. An `onNavigate` that decides to go ahead calls it (or its own `router.push`).
 - `foldersAbove(nav, pathname, isActive?)`: the ids of the folders above the active page, outermost first. `filterNav(nav, query)`: the nav as the sidebar filter shows it, or `null` below two characters. Both are pure; a Server Component imports them from `@ayasofyazilim-clomerce/ui/custom/app-shell/nav-tree`, which also has `pruneNav`, `walkNav`, `navHrefs`, `navFolderIds`, `isNavFolder` and `foldNavText`.
-- The types `AppShellProps`, `AppShellNavGroup`, `AppShellNavItem`, `AppShellNavAction`, `AppShellCommand`, `AppShellBreadcrumb` and `AppShellLabels`.
+- `useStoredShortcuts(storageKey?)` and `DEFAULT_SHORTCUTS_STORAGE_KEY` (see [Shortcuts](#shortcuts)), and the pure helpers `shortcutFromEvent`, `normalizeShortcut`, `isReservedShortcut`, `formatShortcut` and `RESERVED_SHORTCUTS`. The helpers are also importable from a Server Component through `@ayasofyazilim-clomerce/ui/custom/app-shell/shortcuts`, with `ariaKeyShortcut`, `itemShortcutKey` and `actionShortcutKey`.
+- The types `AppShellProps`, `AppShellShortcuts`, `AppShellNavGroup`, `AppShellNavItem`, `AppShellNavAction`, `AppShellCommand`, `AppShellBreadcrumb` and `AppShellLabels`.
 
 ## Common mistakes
 

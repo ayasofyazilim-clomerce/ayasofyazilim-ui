@@ -1,15 +1,18 @@
 "use client";
 
 import * as React from "react";
+import { useCommandState } from "cmdk";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ChevronRightIcon,
   EllipsisIcon,
+  KeyboardIcon,
   ListCollapseIcon,
   ListTreeIcon,
   PlusIcon,
   SearchIcon,
+  XIcon,
 } from "lucide-react";
 import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
@@ -41,7 +44,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@ayasofyazilim-clomerce/ui/components/dropdown-menu";
-import { Kbd } from "@ayasofyazilim-clomerce/ui/components/kbd";
+import { Kbd, KbdGroup } from "@ayasofyazilim-clomerce/ui/components/kbd";
 import { Separator } from "@ayasofyazilim-clomerce/ui/components/separator";
 import {
   Sidebar,
@@ -74,6 +77,15 @@ import {
   navHrefs,
   pruneNav,
 } from "./nav-tree";
+import {
+  actionShortcutKey,
+  ariaKeyShortcut,
+  formatShortcut,
+  isReservedShortcut,
+  itemShortcutKey,
+  normalizeShortcut,
+  shortcutFromEvent,
+} from "./shortcuts";
 import type {
   AppShellBreadcrumb,
   AppShellCommand,
@@ -82,6 +94,7 @@ import type {
   AppShellNavGroup,
   AppShellNavItem,
   AppShellProps,
+  AppShellShortcuts,
 } from "./types";
 import { useAppShellNavigate } from "./use-app-shell-navigate";
 
@@ -106,6 +119,13 @@ function resolveLabels(
     expandAll: labels?.expandAll ?? "Expand all",
     collapseAll: labels?.collapseAll ?? "Collapse all",
     moreActions: labels?.moreActions ?? "More actions",
+    assignShortcut: labels?.assignShortcut ?? "Assign shortcut",
+    removeShortcut: labels?.removeShortcut ?? "Remove shortcut",
+    pressShortcut:
+      labels?.pressShortcut ??
+      "Press a key combination with Ctrl, Alt or ⌘. Esc cancels.",
+    shortcutReserved:
+      labels?.shortcutReserved ?? "That combination is reserved. Try another.",
   };
 }
 
@@ -133,6 +153,8 @@ type NavTreeState = {
   onFolderOpenChange: (id: string, open: boolean) => void;
   onLinkClick: () => void;
   moreActionsLabel: string;
+  /** The `aria-keyshortcuts` of a `shortcuts` key, when one is assigned. */
+  keyShortcut: (key: string) => string | undefined;
 };
 
 const NavTreeContext = React.createContext<NavTreeState | null>(null);
@@ -219,6 +241,7 @@ function NavItemActions({
             {...action.dataAttributes}
             href={action.href}
             aria-label={action.label}
+            aria-keyshortcuts={tree.keyShortcut(actionShortcutKey(action.id))}
             title={action.label}
             onClick={tree.onLinkClick}
           >
@@ -229,6 +252,7 @@ function NavItemActions({
             {...action.dataAttributes}
             type="button"
             aria-label={action.label}
+            aria-keyshortcuts={tree.keyShortcut(actionShortcutKey(action.id))}
             title={action.label}
             onClick={() => run(action)}
           >
@@ -261,6 +285,9 @@ function NavItemActions({
               <Link
                 {...action.dataAttributes}
                 href={action.href}
+                aria-keyshortcuts={tree.keyShortcut(
+                  actionShortcutKey(action.id)
+                )}
                 onClick={tree.onLinkClick}
               >
                 <ActionIcon action={action} />
@@ -271,6 +298,7 @@ function NavItemActions({
             <DropdownMenuItem
               key={action.id}
               {...action.dataAttributes}
+              aria-keyshortcuts={tree.keyShortcut(actionShortcutKey(action.id))}
               onSelect={() => run(action)}
             >
               <ActionIcon action={action} />
@@ -309,6 +337,7 @@ function NavLinkRow({
             {...item.dataAttributes}
             href={href}
             aria-current={active ? "page" : undefined}
+            aria-keyshortcuts={tree.keyShortcut(itemShortcutKey(item.id))}
             onClick={tree.onLinkClick}
           >
             <ItemIcon icon={item.icon} />
@@ -335,6 +364,7 @@ function NavLinkRow({
           {...item.dataAttributes}
           href={href}
           aria-current={active ? "page" : undefined}
+          aria-keyshortcuts={tree.keyShortcut(itemShortcutKey(item.id))}
           onClick={tree.onLinkClick}
         >
           <ItemIcon icon={item.icon} />
@@ -418,6 +448,7 @@ function NavFolderRow({
         {...item.dataAttributes}
         href={item.href}
         aria-current={active ? "page" : undefined}
+        aria-keyshortcuts={tree.keyShortcut(itemShortcutKey(item.id))}
         onClick={tree.onLinkClick}
       >
         <ItemIcon icon={item.icon} />
@@ -612,12 +643,14 @@ function AppShellNav({
   labels,
   folders,
   navFilter,
+  shortcuts,
 }: {
   groups: AppShellNavGroup[];
   isActive?: (href: string, pathname: string) => boolean;
   labels: Required<AppShellLabels>;
   folders: OpenFolders;
   navFilter: boolean;
+  shortcuts?: AppShellShortcuts;
 }) {
   const pathname = usePathname();
   const idPrefix = React.useId();
@@ -669,6 +702,10 @@ function AppShellNav({
       if (isMobile) setOpenMobile(false);
     },
     moreActionsLabel: labels.moreActions,
+    keyShortcut: (key) => {
+      const shortcut = shortcuts?.value[key];
+      return shortcut ? ariaKeyShortcut(shortcut) : undefined;
+    },
   };
 
   return (
@@ -829,23 +866,169 @@ function navCommandEntries(group: AppShellNavGroup): NavCommandEntry[] {
   return entries;
 }
 
+/** The value cmdk filters and selects a nav entry by. */
+function entryValue(group: AppShellNavGroup, entry: NavCommandEntry): string {
+  return entry.path.length === 0
+    ? `${group.label} ${entry.label}`
+    : `${group.label} ${[...entry.path, entry.label].join(" / ")}`;
+}
+
+/** The `shortcuts.value` key of a nav entry. */
+function entryShortcutKey(entry: NavCommandEntry): string {
+  return entry.kind === "item"
+    ? itemShortcutKey(entry.id)
+    : actionShortcutKey(entry.id);
+}
+
+/** An entry as the shortcut bar names it: "Orders / New order". */
+function entryDisplay(entry: NavCommandEntry): string {
+  return [...entry.path, entry.label].join(" / ");
+}
+
+type NavCommandGroup = { group: AppShellNavGroup; entries: NavCommandEntry[] };
+
+/** A shortcut as keys: Ctrl Shift H. Hidden from assistive tech, which reads `aria-keyshortcuts`. */
+function ShortcutKeys({
+  shortcut,
+  className,
+}: {
+  shortcut: string;
+  className?: string;
+}) {
+  return (
+    <KbdGroup aria-hidden="true" className={cn("shrink-0", className)}>
+      {formatShortcut(shortcut).map((part, index) => (
+        <Kbd key={index}>{part}</Kbd>
+      ))}
+    </KbdGroup>
+  );
+}
+
+/** The entry a shortcut is being recorded for. */
+type Recording = { key: string; display: string };
+
+/**
+ * The bar under the ⌘K list that assigns and removes the highlighted entry's
+ * shortcut. Its buttons are reached with Tab from the search box, so the
+ * keyboard needs no buttons inside the options. While recording it says what
+ * to do, and why a combo was refused.
+ */
+function ShortcutBar({
+  navGroups,
+  shortcuts,
+  labels,
+  recording,
+  rejected,
+  onRecordingChange,
+}: {
+  navGroups: NavCommandGroup[];
+  shortcuts: AppShellShortcuts;
+  labels: Required<AppShellLabels>;
+  recording: Recording | null;
+  rejected: string | null;
+  onRecordingChange: (recording: Recording | null) => void;
+}) {
+  const selected = useCommandState((state) => state.value);
+  const labelId = React.useId();
+  const targets = React.useMemo(() => {
+    const map = new Map<string, Recording>();
+    for (const { group, entries } of navGroups) {
+      for (const entry of entries) {
+        map.set(entryValue(group, entry), {
+          key: entryShortcutKey(entry),
+          display: entryDisplay(entry),
+        });
+      }
+    }
+    return map;
+  }, [navGroups]);
+  const target = recording ?? targets.get(selected);
+  if (!target) return null;
+  const current = shortcuts.value[target.key];
+
+  return (
+    <div
+      data-slot="app-shell-shortcut-bar"
+      className="flex flex-wrap items-center gap-2 border-t px-3 py-2 text-xs"
+      // cmdk handles Enter and the arrows on the whole menu; here they belong
+      // to the bar's buttons. Escape still closes the dialog (Radix listens
+      // on the document).
+      onKeyDown={(event) => event.stopPropagation()}
+    >
+      <span
+        id={labelId}
+        className="text-muted-foreground min-w-0 flex-1 truncate"
+      >
+        {target.display}
+      </span>
+      {recording ? (
+        <span role="status" className="text-foreground">
+          {labels.pressShortcut}
+        </span>
+      ) : current ? (
+        <ShortcutKeys shortcut={current} />
+      ) : null}
+      {recording && rejected ? (
+        <span role="alert" className="text-destructive flex items-center gap-1">
+          {labels.shortcutReserved}
+          <ShortcutKeys shortcut={rejected} />
+        </span>
+      ) : null}
+      {!recording && current ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-describedby={labelId}
+          onClick={() => {
+            const next = { ...shortcuts.value };
+            delete next[target.key];
+            shortcuts.onChange(next);
+          }}
+        >
+          <XIcon aria-hidden="true" />
+          {labels.removeShortcut}
+        </Button>
+      ) : null}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        aria-describedby={labelId}
+        aria-pressed={recording !== null}
+        className="aria-pressed:bg-accent aria-pressed:text-accent-foreground"
+        onClick={() => onRecordingChange(recording ? null : target)}
+      >
+        <KeyboardIcon aria-hidden="true" />
+        {labels.assignShortcut}
+      </Button>
+    </div>
+  );
+}
+
 function AppShellCommandMenu({
   open,
   onOpenChange,
-  groups,
+  navGroups,
   commands,
   labels,
-  onNavigate,
+  run,
+  shortcuts,
+  recording,
+  rejected,
+  onRecordingChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  groups: AppShellNavGroup[];
+  navGroups: NavCommandGroup[];
   commands: readonly AppShellCommand[];
   labels: Required<AppShellLabels>;
-  onNavigate?: (href: string) => void;
+  run: (entry: NavCommandEntry) => void;
+  shortcuts?: AppShellShortcuts;
+  recording: Recording | null;
+  rejected: string | null;
+  onRecordingChange: (recording: Recording | null) => void;
 }) {
-  const push = useAppShellNavigate();
-  const navigate = onNavigate ?? push;
   const commandGroups = React.useMemo(
     () => groupCommands(commands),
     [commands]
@@ -871,38 +1054,41 @@ function AppShellCommandMenu({
       <CommandInput placeholder={labels.commandPlaceholder} />
       <CommandList label={labels.commandTitle}>
         <CommandEmpty>{labels.commandEmpty}</CommandEmpty>
-        {groups.map((group) => (
+        {navGroups.map(({ group, entries }) => (
           <CommandGroup key={`nav-${group.id}`} heading={group.label}>
-            {navCommandEntries(group).map((entry) => (
-              <CommandItem
-                key={entry.key}
-                value={
-                  entry.path.length === 0
-                    ? `${group.label} ${entry.label}`
-                    : `${group.label} ${[...entry.path, entry.label].join(" / ")}`
-                }
-                keywords={entry.keywords}
-                onSelect={() =>
-                  choose(() => {
-                    if (entry.href !== undefined) navigate(entry.href);
-                    else entry.onSelect?.();
-                  })
-                }
-              >
-                <ItemIcon icon={entry.icon} />
-                <span className="truncate">
-                  {entry.path.length > 0 ? (
-                    <span className="text-muted-foreground">
-                      {`${entry.path.join(" / ")} / `}
-                    </span>
+            {entries.map((entry) => {
+              const shortcut = shortcuts?.value[entryShortcutKey(entry)];
+              return (
+                <CommandItem
+                  key={entry.key}
+                  value={entryValue(group, entry)}
+                  keywords={entry.keywords}
+                  aria-keyshortcuts={
+                    shortcut ? ariaKeyShortcut(shortcut) : undefined
+                  }
+                  onSelect={() => choose(() => run(entry))}
+                >
+                  <ItemIcon icon={entry.icon} />
+                  <span className="truncate">
+                    {entry.path.length > 0 ? (
+                      <span className="text-muted-foreground">
+                        {`${entry.path.join(" / ")} / `}
+                      </span>
+                    ) : null}
+                    {entry.label}
+                  </span>
+                  {hasContent(entry.badge) ? (
+                    <span className="ml-auto">{entry.badge}</span>
                   ) : null}
-                  {entry.label}
-                </span>
-                {hasContent(entry.badge) ? (
-                  <span className="ml-auto">{entry.badge}</span>
-                ) : null}
-              </CommandItem>
-            ))}
+                  {shortcut ? (
+                    <ShortcutKeys
+                      shortcut={shortcut}
+                      className={hasContent(entry.badge) ? "ml-2" : "ml-auto"}
+                    />
+                  ) : null}
+                </CommandItem>
+              );
+            })}
           </CommandGroup>
         ))}
         {commandGroups.map((group) => (
@@ -924,8 +1110,115 @@ function AppShellCommandMenu({
           </CommandGroup>
         ))}
       </CommandList>
+      {shortcuts ? (
+        <ShortcutBar
+          navGroups={navGroups}
+          shortcuts={shortcuts}
+          labels={labels}
+          recording={recording}
+          rejected={rejected}
+          onRecordingChange={onRecordingChange}
+        />
+      ) : null}
     </CommandDialog>
   );
+}
+
+/**
+ * Records a shortcut while `recording` is set: every key press is taken
+ * before anything else sees it (the search box, cmdk, the dialog's Escape).
+ * Escape cancels; a reserved combo is refused; any other combo with Ctrl,
+ * Alt or ⌘ is assigned, taken from any entry that had it.
+ */
+function useShortcutRecorder(
+  shortcuts: AppShellShortcuts | undefined,
+  recording: Recording | null,
+  setRecording: (recording: Recording | null) => void,
+  setRejected: (combo: string | null) => void
+) {
+  React.useEffect(() => {
+    if (!shortcuts || !recording) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      // Plain Tab still moves focus.
+      if (
+        event.key === "Tab" &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey
+      ) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (event.key === "Escape") {
+        setRecording(null);
+        setRejected(null);
+        return;
+      }
+      const combo = shortcutFromEvent(event);
+      if (!combo) return;
+      if (isReservedShortcut(combo, shortcuts.reserved)) {
+        setRejected(combo);
+        return;
+      }
+      const next: Record<string, string> = {};
+      for (const [key, value] of Object.entries(shortcuts.value)) {
+        if (key !== recording.key && normalizeShortcut(value) !== combo) {
+          next[key] = value;
+        }
+      }
+      next[recording.key] = combo;
+      shortcuts.onChange(next);
+      setRecording(null);
+      setRejected(null);
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [shortcuts, recording, setRecording, setRejected]);
+}
+
+/**
+ * Fires the entry a pressed shortcut is assigned to, from anywhere, except
+ * while recording. A press a page already handled (`defaultPrevented`), an
+ * auto-repeat of a held combo, a reserved combo and a key for an entry not in
+ * the nav are left alone.
+ */
+function useShortcutFiring(
+  shortcuts: AppShellShortcuts | undefined,
+  recording: Recording | null,
+  navGroups: NavCommandGroup[],
+  fire: (entry: NavCommandEntry) => void
+) {
+  const targets = React.useMemo(() => {
+    const map = new Map<string, NavCommandEntry>();
+    for (const { entries } of navGroups) {
+      for (const entry of entries) {
+        const key = entryShortcutKey(entry);
+        if (!map.has(key)) map.set(key, entry);
+      }
+    }
+    return map;
+  }, [navGroups]);
+
+  React.useEffect(() => {
+    if (!shortcuts || recording) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      // A held combo auto-repeats; it fires once.
+      if (event.defaultPrevented || event.repeat) return;
+      const combo = shortcutFromEvent(event);
+      if (!combo || isReservedShortcut(combo, shortcuts.reserved)) return;
+      for (const [key, value] of Object.entries(shortcuts.value)) {
+        if (normalizeShortcut(value) !== combo) continue;
+        const entry = targets.get(key);
+        if (!entry) continue;
+        event.preventDefault();
+        fire(entry);
+        return;
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [shortcuts, recording, targets, fire]);
 }
 
 const NO_COMMANDS: readonly AppShellCommand[] = [];
@@ -952,6 +1245,7 @@ export function AppShell({
   openFolders,
   onOpenFoldersChange,
   navFilter = false,
+  shortcuts,
   labels,
   className,
   classNames,
@@ -968,6 +1262,37 @@ export function AppShell({
     openFolders,
     onOpenFoldersChange
   );
+  const push = useAppShellNavigate();
+  const navigate = onNavigate ?? push;
+  const navGroups = React.useMemo(
+    () => groups.map((group) => ({ group, entries: navCommandEntries(group) })),
+    [groups]
+  );
+  const run = React.useCallback(
+    (entry: NavCommandEntry) => {
+      if (entry.href !== undefined) navigate(entry.href);
+      else entry.onSelect?.();
+    },
+    [navigate]
+  );
+  const [recording, setRecording] = React.useState<Recording | null>(null);
+  const [rejected, setRejected] = React.useState<string | null>(null);
+  useShortcutRecorder(shortcuts, recording, setRecording, setRejected);
+  const fire = React.useCallback(
+    (entry: NavCommandEntry) => {
+      setCommandOpen(false);
+      run(entry);
+    },
+    [run]
+  );
+  useShortcutFiring(shortcuts, recording, navGroups, fire);
+  const handleCommandOpenChange = React.useCallback((open: boolean) => {
+    setCommandOpen(open);
+    if (!open) {
+      setRecording(null);
+      setRejected(null);
+    }
+  }, []);
 
   // ⌘K / Ctrl+K opens the menu from anywhere, text fields included.
   React.useEffect(() => {
@@ -1017,6 +1342,7 @@ export function AppShell({
             labels={text}
             folders={folders}
             navFilter={navFilter}
+            shortcuts={shortcuts}
           />
         </SidebarContent>
         <SidebarFooter>{userMenu}</SidebarFooter>
@@ -1071,11 +1397,18 @@ export function AppShell({
       </div>
       <AppShellCommandMenu
         open={commandOpen}
-        onOpenChange={setCommandOpen}
-        groups={groups}
+        onOpenChange={handleCommandOpenChange}
+        navGroups={navGroups}
         commands={commands ?? NO_COMMANDS}
         labels={text}
-        onNavigate={onNavigate}
+        run={run}
+        shortcuts={shortcuts}
+        recording={recording}
+        rejected={rejected}
+        onRecordingChange={(next) => {
+          setRecording(next);
+          setRejected(null);
+        }}
       />
     </SidebarProvider>
   );
@@ -1083,7 +1416,18 @@ export function AppShell({
 
 export { matchActiveHref } from "./match-active-href";
 export { filterNav, foldersAbove } from "./nav-tree";
+export {
+  formatShortcut,
+  isReservedShortcut,
+  normalizeShortcut,
+  RESERVED_SHORTCUTS,
+  shortcutFromEvent,
+} from "./shortcuts";
 export { useAppShellNavigate } from "./use-app-shell-navigate";
+export {
+  DEFAULT_SHORTCUTS_STORAGE_KEY,
+  useStoredShortcuts,
+} from "./use-stored-shortcuts";
 export type {
   AppShellBreadcrumb,
   AppShellCommand,
@@ -1092,4 +1436,5 @@ export type {
   AppShellNavGroup,
   AppShellNavItem,
   AppShellProps,
+  AppShellShortcuts,
 } from "./types";
