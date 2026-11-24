@@ -45,6 +45,26 @@ import {
 } from "../utils/tree-rows";
 
 // Maps a ButtonVariant to the DropdownMenuItem's supported variant + extra className.
+/**
+ * Puts the columns listed in `order` first, in that order, followed by the
+ * rest in their original order. Ids that match no column are skipped.
+ */
+function orderColumns<TData>(
+  columns: ColumnDef<TData>[],
+  order: ReadonlyArray<PropertyKey>
+): ColumnDef<TData>[] {
+  const remaining = new Map(columns.map((col) => [col.id, col]));
+  const ordered: ColumnDef<TData>[] = [];
+  for (const id of order) {
+    const col = remaining.get(String(id));
+    if (col) {
+      ordered.push(col);
+      remaining.delete(String(id));
+    }
+  }
+  return [...ordered, ...remaining.values()];
+}
+
 function getDropdownItemProps(variant: ButtonVariant | undefined): {
   variant?: "default" | "destructive";
   extraClassName?: string;
@@ -376,10 +396,14 @@ export function useColumns<TData>({
       };
     });
 
-    const finalColumns: ColumnDef<TData>[] = [];
+    // The select column stays first and the row-action columns stay last,
+    // whatever columnOrder or columnVisibility say; those reorder only the
+    // data columns between them.
+    const leadingColumns: ColumnDef<TData>[] = [];
+    const trailingColumns: ColumnDef<TData>[] = [];
 
     if (config.selection?.enabled) {
-      finalColumns.push({
+      leadingColumns.push({
         id: "select",
         header: ({ table }) => {
           if (treeRows) {
@@ -447,13 +471,11 @@ export function useColumns<TData>({
       });
     }
 
-    finalColumns.push(...mergedWithExpansion);
-
     if (config.rowActions && config.rowActions.length > 0) {
       const displayMode = config.rowActionsDisplay ?? "dropdown";
       const isInline = displayMode === "inline";
       const isResponsive = displayMode === "responsive";
-      finalColumns.push({
+      trailingColumns.push({
         id: "actions",
         header: t?.["column.actions"],
         size: isInline || isResponsive ? 120 : 40,
@@ -616,7 +638,7 @@ export function useColumns<TData>({
     }
 
     if (config.editing?.enabled && config.editing.mode === "row") {
-      finalColumns.push({
+      trailingColumns.push({
         id: "edit-actions",
         header: t?.["column.edit"] || "Edit",
         cell: ({ row }) => {
@@ -677,44 +699,22 @@ export function useColumns<TData>({
       });
     }
 
+    // columnOrder wins; without it, a "show" list orders the columns it names.
+    let order: ReadonlyArray<PropertyKey> | undefined;
     if (config.columnOrder && config.columnOrder.length > 0) {
-      const orderedColumns: ColumnDef<TData>[] = [];
-      const columnMap = new Map(finalColumns.map((col) => [col.id, col]));
-
-      for (const colId of config.columnOrder) {
-        const col = columnMap.get(String(colId));
-        if (col) {
-          orderedColumns.push(col);
-          columnMap.delete(String(colId));
-        }
-      }
-      orderedColumns.push(...Array.from(columnMap.values()));
-
-      return orderedColumns;
-    }
-
-    if (
+      order = config.columnOrder;
+    } else if (
       !config.columnOrder &&
       config.columnVisibility?.mode === "show" &&
       config.columnVisibility.columns.length > 0
     ) {
-      const orderedColumns: ColumnDef<TData>[] = [];
-      const columnMap = new Map(finalColumns.map((col) => [col.id, col]));
-
-      for (const colId of config.columnVisibility.columns) {
-        const col = columnMap.get(String(colId));
-        if (col) {
-          orderedColumns.push(col);
-          columnMap.delete(String(colId));
-        }
-      }
-
-      orderedColumns.push(...Array.from(columnMap.values()));
-
-      return orderedColumns;
+      order = config.columnVisibility.columns;
     }
+    const dataColumns = order
+      ? orderColumns(mergedWithExpansion, order)
+      : mergedWithExpansion;
 
-    return finalColumns;
+    return [...leadingColumns, ...dataColumns, ...trailingColumns];
   }, [
     schema,
     customColumns,
