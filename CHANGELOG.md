@@ -10,6 +10,7 @@
 - `AppShell` `shortcuts` (`AppShellShortcuts`: `value`, `onChange`, `reserved`, keyed `item:<id>` / `action:<id>`): assign, show and remove a shortcut from a bar under the ⌘K list, with ⌘K / Ctrl+K, ⌘B / Ctrl+B and the browser's own combos refused; a combo fires its link or action from anywhere except while recording. New labels `assignShortcut`, `removeShortcut`, `pressShortcut` and `shortcutReserved`. Nothing changes without the prop.
 - `useStoredShortcuts(storageKey?)`: shortcuts in localStorage, hydration-safe, synced across tabs, and in memory when storage throws. New subpaths `custom/app-shell/shortcuts` (pure helpers) and `custom/app-shell/use-stored-shortcuts`.
 - `custom/app-shell/nav-tree`: pure helpers over the nav, including `foldersAbove` and `filterNav`, which `custom/app-shell` also exports.
+- `custom/app-shell`: `navPrefetch` (`"viewport"` by default, or `"intent"`). With `"intent"`, a sidebar link (item, folder or action) no longer prefetches its page just by being in view: the page is prefetched when the person hovers, focuses or touches the link. A dynamic app then stops rendering every page in the sidebar on each load.
 
 ### Changed
 

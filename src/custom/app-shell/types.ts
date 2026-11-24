@@ -131,6 +131,13 @@ export type AppShellProps = {
   onOpenChange?: (open: boolean) => void;
   isActive?: (href: string, pathname: string) => boolean;
   /**
+   * When sidebar links prefetch their page. `"viewport"` (default) is Next's own
+   * behaviour: every link in view is prefetched. `"intent"` prefetches a page only
+   * when the person points at its link (hover, keyboard focus or a touch), so a
+   * dynamic app does not render every page in the sidebar on each load.
+   */
+  navPrefetch?: "viewport" | "intent";
+  /**
    * Called with the `href` of a nav item chosen in the ⌘K menu, instead of
    * `router.push(href)`. Lets the app ask before leaving (an unsaved draft).
    * Sidebar and breadcrumb links are plain links and do not call it.

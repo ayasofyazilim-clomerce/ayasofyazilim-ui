@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useCommandState } from "cmdk";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ChevronRightIcon,
   EllipsisIcon,
@@ -155,6 +155,19 @@ type NavTreeState = {
   moreActionsLabel: string;
   /** The `aria-keyshortcuts` of a `shortcuts` key, when one is assigned. */
   keyShortcut: (key: string) => string | undefined;
+  /**
+   * Props for a sidebar link to `href`: none with `navPrefetch="viewport"`;
+   * with `"intent"`, no in-view prefetch and a prefetch on hover, focus or
+   * touch.
+   */
+  linkPrefetch: (href: string) => IntentPrefetchProps;
+};
+
+type IntentPrefetchProps = {
+  prefetch?: false;
+  onMouseEnter?: () => void;
+  onFocus?: () => void;
+  onTouchStart?: () => void;
 };
 
 const NavTreeContext = React.createContext<NavTreeState | null>(null);
@@ -239,6 +252,7 @@ function NavItemActions({
         {action.href !== undefined ? (
           <Link
             {...action.dataAttributes}
+            {...tree.linkPrefetch(action.href)}
             href={action.href}
             aria-label={action.label}
             aria-keyshortcuts={tree.keyShortcut(actionShortcutKey(action.id))}
@@ -284,6 +298,7 @@ function NavItemActions({
             <DropdownMenuItem key={action.id} asChild>
               <Link
                 {...action.dataAttributes}
+                {...tree.linkPrefetch(action.href)}
                 href={action.href}
                 aria-keyshortcuts={tree.keyShortcut(
                   actionShortcutKey(action.id)
@@ -335,6 +350,7 @@ function NavLinkRow({
         >
           <Link
             {...item.dataAttributes}
+            {...tree.linkPrefetch(href)}
             href={href}
             aria-current={active ? "page" : undefined}
             aria-keyshortcuts={tree.keyShortcut(itemShortcutKey(item.id))}
@@ -362,6 +378,7 @@ function NavLinkRow({
       >
         <Link
           {...item.dataAttributes}
+          {...tree.linkPrefetch(href)}
           href={href}
           aria-current={active ? "page" : undefined}
           aria-keyshortcuts={tree.keyShortcut(itemShortcutKey(item.id))}
@@ -446,6 +463,7 @@ function NavFolderRow({
     const link = (
       <Link
         {...item.dataAttributes}
+        {...tree.linkPrefetch(item.href)}
         href={item.href}
         aria-current={active ? "page" : undefined}
         aria-keyshortcuts={tree.keyShortcut(itemShortcutKey(item.id))}
@@ -644,6 +662,7 @@ function AppShellNav({
   folders,
   navFilter,
   shortcuts,
+  prefetch,
 }: {
   groups: AppShellNavGroup[];
   isActive?: (href: string, pathname: string) => boolean;
@@ -651,7 +670,9 @@ function AppShellNav({
   folders: OpenFolders;
   navFilter: boolean;
   shortcuts?: AppShellShortcuts;
+  prefetch: "viewport" | "intent";
 }) {
+  const router = useRouter();
   const pathname = usePathname();
   const idPrefix = React.useId();
   const { isMobile, setOpenMobile, state, setOpen } = useSidebar(SIDEBAR_NAME);
@@ -706,6 +727,18 @@ function AppShellNav({
       const shortcut = shortcuts?.value[key];
       return shortcut ? ariaKeyShortcut(shortcut) : undefined;
     },
+    // "intent": no prefetch while a link is merely in view; its page is
+    // prefetched when the person points at it (hover, keyboard focus or a
+    // touch).
+    linkPrefetch: (href) =>
+      prefetch === "intent"
+        ? {
+            prefetch: false,
+            onMouseEnter: () => router.prefetch(href),
+            onFocus: () => router.prefetch(href),
+            onTouchStart: () => router.prefetch(href),
+          }
+        : {},
   };
 
   return (
@@ -1246,6 +1279,7 @@ export function AppShell({
   onOpenFoldersChange,
   navFilter = false,
   shortcuts,
+  navPrefetch = "viewport",
   labels,
   className,
   classNames,
@@ -1343,6 +1377,7 @@ export function AppShell({
             folders={folders}
             navFilter={navFilter}
             shortcuts={shortcuts}
+            prefetch={navPrefetch}
           />
         </SidebarContent>
         <SidebarFooter>{userMenu}</SidebarFooter>
