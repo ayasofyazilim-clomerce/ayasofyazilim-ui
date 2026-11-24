@@ -104,26 +104,38 @@ const tabContentVariants = cva("", {
   },
 });
 
-function findActiveTab(tabList: { href: string }[], path: string) {
-  const indexOfActiveTab = path
-    .split("/")
-    .reverse()
-    .findIndex((_, index) => {
-      if (index === 0) {
-        return tabList.find((i) => i.href === path);
-      }
-      const link = path.split("/").slice(0, -index).join("/");
-      return tabList.find((i) => i.href === link);
-    });
-  if (indexOfActiveTab === -1) {
-    return undefined;
+/**
+ * Picks the tab to highlight for the current URL.
+ *
+ * 1. A tab whose `href` is the path plus the query string, when there is one.
+ * 2. A tab whose `href` is exactly the path.
+ * 3. The tab with the longest `href` that is a parent of the path, walking up
+ *    one segment at a time.
+ *
+ * Exact matches always win, so with tabs `/a` and `/a/b` the `/a/b` tab is the
+ * active one on `/a/b`, and `/a` is active on `/a/c`.
+ */
+function findActiveTab(
+  tabList: { href: string }[],
+  path: string,
+  query = ""
+): string | undefined {
+  const hasHref = (href: string) => tabList.some((tab) => tab.href === href);
+
+  if (query && hasHref(`${path}?${query}`)) {
+    return `${path}?${query}`;
   }
-  if (indexOfActiveTab === 0) {
-    return tabList.find((i) => i.href === path)?.href;
+  if (hasHref(path)) {
+    return path;
   }
-  return tabList.find(
-    (i) => i.href === path.split("/").slice(0, -indexOfActiveTab).join("/")
-  )?.href;
+  const segments = path.split("/");
+  for (let end = segments.length - 1; end > 0; end -= 1) {
+    const parent = segments.slice(0, end).join("/");
+    if (parent && hasHref(parent)) {
+      return parent;
+    }
+  }
+  return undefined;
 }
 
 export function TabLayout({
@@ -151,12 +163,8 @@ export function TabLayout({
   const tabContentClassNames = tabContentVariants({ orientation, variant });
   const path = usePathname();
 
-  const searchParams = `?${useSearchParams().toString()}`;
-  const active =
-    findActiveTab(tabList, path + searchParams) ||
-    findActiveTab(tabList, path) ||
-    tabList[0]?.href ||
-    "";
+  const query = useSearchParams().toString();
+  const active = findActiveTab(tabList, path, query) || tabList[0]?.href || "";
 
   return (
     <div
