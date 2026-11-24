@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { SearchIcon } from "lucide-react";
 import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import {
@@ -92,11 +92,25 @@ function AppShellNav({
   groups,
   isActive,
   label,
+  prefetch,
 }: {
   groups: AppShellNavGroup[];
   isActive?: (href: string, pathname: string) => boolean;
   label: string;
+  prefetch: "viewport" | "intent";
 }) {
+  const router = useRouter();
+  // "intent": no prefetch while a link is merely in view; its page is prefetched
+  // when the person points at it (hover, keyboard focus or a touch).
+  const intentProps = (href: string) =>
+    prefetch === "intent"
+      ? {
+          prefetch: false as const,
+          onMouseEnter: () => router.prefetch(href),
+          onFocus: () => router.prefetch(href),
+          onTouchStart: () => router.prefetch(href),
+        }
+      : {};
   const pathname = usePathname();
   const idPrefix = React.useId();
   const { isMobile, setOpenMobile } = useSidebar(SIDEBAR_NAME);
@@ -129,6 +143,7 @@ function AppShellNav({
                     >
                       <Link
                         {...item.dataAttributes}
+                        {...intentProps(item.href)}
                         href={item.href}
                         aria-current={active ? "page" : undefined}
                         onClick={() => {
@@ -307,6 +322,7 @@ export function AppShell({
   defaultOpen,
   onOpenChange,
   isActive,
+  navPrefetch = "viewport",
   onNavigate,
   labels,
   className,
@@ -366,6 +382,7 @@ export function AppShell({
             groups={groups}
             isActive={isActive}
             label={text.navigation}
+            prefetch={navPrefetch}
           />
         </SidebarContent>
         <SidebarFooter>{userMenu}</SidebarFooter>

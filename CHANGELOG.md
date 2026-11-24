@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `custom/app-shell`: `navPrefetch` (`"viewport"` by default, or `"intent"`). With `"intent"`, a sidebar link no longer prefetches its page just by being in view: the page is prefetched when the person hovers, focuses or touches the link. A dynamic app then stops rendering every page in the sidebar on each load.
+
 ## 0.3.0 (2026-11-24)
 
 ### Added
