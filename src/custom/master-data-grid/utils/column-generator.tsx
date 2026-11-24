@@ -271,6 +271,13 @@ export function mergeColumns<TData = unknown>(
       merged.push({
         ...schemaCol,
         ...custom,
+        // TanStack reads size/minSize/maxSize; the config names them
+        // width/minWidth/maxWidth, as in the custom-only branch below. Set
+        // only the ones given: an explicit undefined would replace TanStack's
+        // default minSize and maxSize.
+        ...(custom.width !== undefined && { size: custom.width }),
+        ...(custom.minWidth !== undefined && { minSize: custom.minWidth }),
+        ...(custom.maxWidth !== undefined && { maxSize: custom.maxWidth }),
         header: finalHeader,
         cell: finalCell,
         enableHiding: custom.enableHiding ?? enableColumnVisibility ?? true,

@@ -96,6 +96,12 @@ Export headers: Excel and JSON use the `column.<id>` resource, else a string `he
 - `query` is what to send to the API. It holds the given filters' URL params, un-prefixed and raw, as a default grid's URL would have them: a date range as its `keyFrom` / `keyTo` strings, an `array` or `string-array` filter as `string[]`, anything else as a string. It holds nothing else (no `skipCount`, no other grid's keys), so spread it: `api.list({ ...query, skipCount, maxResultCount })`.
 - `filters` holds the parsed values, keyed by each filter's `key`: a date range as `{ from, to }` (under `key`, not `keyFrom` / `keyTo`), an array as `string[]`, a `number` filter as a number, a `boolean` filter as a boolean, anything else as a string. Use it to read or show values; spreading it into an API call sends the date range as one object.
 
+## Column order and widths
+
+- **`columnOrder` orders the data columns only.** The selection column (`select`) always comes first. The row-action columns (`actions`, then `edit-actions` with row editing) always come last. Data columns that `columnOrder` doesn't list follow the listed ones, in their usual order. You don't need to list `select` or `actions`. If you do, they keep their usual places wherever you put them. A `columnVisibility` list with `mode: "show"` and no `columnOrder` orders the columns the same way.
+- **Pinning still applies.** By default `actions` is pinned right (`pinning: { right: ["actions"] }`), so it renders after `edit-actions`.
+- **`width`, `minWidth` and `maxWidth` in `columns`** set the column's TanStack `size`, `minSize` and `maxSize`. This works both for a column that also comes from the schema and for a custom-only column. A column without them keeps the default size.
+
 ## Two grids on one page
 
 Prefix every grid on a shared page: `urlState: { prefix: "a" }`, `{ prefix: "b" }`. Never mix in a default (unprefixed) grid: its `skipCount` and filter keys are un-prefixed, and its right-side panel's Clear (`router.push(pathname)`) wipes every grid's keys. (Its filter bar's reset is narrower: it drops only that grid's filter keys and `skipCount`.)

@@ -495,6 +495,10 @@ export interface MasterDataGridBaseConfig<TData = unknown> {
     mode: "show" | "hide";
     columns: Array<keyof TData>;
   };
+  /**
+   * Order of the data columns; unlisted ones follow. The `select` column stays
+   * first and the row-action columns stay last whatever this says.
+   */
   columnOrder?: Array<keyof TData>;
   schemaColumns?: SchemaColumns<TData>;
 
