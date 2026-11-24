@@ -1,0 +1,33 @@
+name: Labels
+
+# Keeps the repository's labels equal to .github/labels.yml: creates and updates them, never deletes one that is not in
+# the file (skip-delete), so labels added by tools such as release-please or Renovate stay.
+
+# Runners: GitHub-hosted on purpose. The repository is public, so a fork's pull request must never reach the
+# org's self-hosted runners; do not switch these jobs to vars.RUNNER_LABELS.
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/labels.yml']
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  sync:
+    name: sync labels
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: crazy-max/ghaction-github-labeler@548a7c3603594ec17c819e1239f281a3b801ab4d # v6.0.0
+        with:
+          github-token: ${{ github.token }}
+          yaml-file: .github/labels.yml
+          skip-delete: true

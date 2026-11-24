@@ -1,0 +1,22 @@
+# The repository's labels, kept in sync by .github/workflows/labels.yml. Edit here, not in the GitHub UI.
+# type and priority: set by the issue forms and triage. review: the PR pipeline's verdict (fleet:pr-pipeline).
+- { name: "type: bug", color: "d73a4a", description: "Something does not work as it should" }
+- { name: "type: feature", color: "a2eeef", description: "A new capability or a change in behaviour" }
+- { name: "type: task", color: "c5def5", description: "One outcome someone can pick up" }
+- { name: "type: docs", color: "0075ca", description: "Documentation" }
+- { name: "type: chore", color: "ededed", description: "Maintenance with no user-visible change" }
+- { name: "priority: p0", color: "b60205", description: "Now: production is broken or data is at risk" }
+- { name: "priority: p1", color: "d93f0b", description: "Blocks someone's work" }
+- { name: "priority: p2", color: "fbca04", description: "Needed this quarter" }
+- { name: "priority: p3", color: "c2e0c6", description: "Nice to have" }
+- { name: "area: ci", color: "5319e7", description: "Workflows, checks and runners" }
+- { name: "area: docs", color: "1d76db", description: "READMEs, runbooks, ADRs" }
+- { name: "area: components", color: "bfd4f2", description: "Primitives in src/components and src/aria" }
+- { name: "area: custom", color: "bfd4f2", description: "Composed components in src/custom" }
+- { name: "area: styles", color: "bfd4f2", description: "Theme tokens and globals.css" }
+- { name: "review: requested", color: "fbca04", description: "Waiting for an independent review" }
+- { name: "review: verified", color: "0e8a16", description: "Verified on the current head" }
+- { name: "review: changes", color: "d93f0b", description: "The review asked for changes" }
+- { name: "dependencies", color: "0366d6", description: "Dependency updates (Renovate)" }
+- { name: "breaking", color: "b60205", description: "A breaking change; listed first in the release notes" }
+- { name: "skip-changelog", color: "ededed", description: "Leave out of the release notes" }

@@ -1,0 +1,56 @@
+name: Workflow lint
+
+# zizmor (workflow security) and actionlint (syntax, expressions, shellcheck of run: scripts), each the maintainers'
+# container image pinned by digest and run with no network. DOCKER_CONFIG points at an empty folder so pulls are
+# anonymous.
+
+# Runners: GitHub-hosted on purpose. The repository is public, so a fork's pull request must never reach the
+# org's self-hosted runners; do not switch these jobs to vars.RUNNER_LABELS.
+
+on:
+  pull_request:
+    paths: ['.github/workflows/**']
+  push:
+    branches: [main]
+    paths: ['.github/workflows/**']
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      ZIZMOR_IMAGE: ghcr.io/zizmorcore/zizmor:1.31.1@sha256:42d409dbb851d4c5d35a058cf042b828bea1e3f2884378c526eb0974780e18d9
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: zizmor
+        shell: bash
+        run: |
+          export DOCKER_CONFIG="$RUNNER_TEMP/docker-config"
+          docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$ZIZMOR_IMAGE" \
+            --offline --persona regular --format github --color never .github/workflows
+
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      ACTIONLINT_IMAGE: rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: actionlint
+        shell: bash
+        run: |
+          export DOCKER_CONFIG="$RUNNER_TEMP/docker-config"
+          docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$ACTIONLINT_IMAGE" -color
