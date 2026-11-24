@@ -1,0 +1,4 @@
+# gitleaks: the default rules. The private customer-name rules are a separate config passed from the Actions secret
+# GITLEAKS_PRIVATE_RULES, so the names never enter this repository.
+[extend]
+useDefault = true

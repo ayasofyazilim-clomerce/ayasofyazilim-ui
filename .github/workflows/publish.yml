@@ -31,14 +31,19 @@ jobs:
       contents: read
       packages: write
     steps:
+      # Publishing needs no git credentials, so the token is not left in .git/config.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
+      # No dependency cache in the release job: a cache written by another
+      # workflow run could change what gets published (cache poisoning).
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
           registry-url: https://npm.pkg.github.com
           scope: "@ayasofyazilim-clomerce"
 
@@ -84,8 +89,10 @@ jobs:
             }
           ' "$RUNNER_TEMP/packed-package.json"
 
+      # GitHub Packages has no trusted publishing (OIDC); the job's GITHUB_TOKEN
+      # is the documented way, scoped to packages: write.
       - name: Publish
         if: github.event_name == 'push'
-        run: pnpm publish "$TARBALL" --no-git-checks
+        run: pnpm publish "$TARBALL" --no-git-checks # zizmor: ignore[use-trusted-publishing]
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

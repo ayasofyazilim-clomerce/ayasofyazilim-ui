@@ -1,0 +1,18 @@
+# Categories for GitHub's generated release notes (the "Generate release notes" button and the API), by PR label.
+# CHANGELOG.md is written by hand in the release PR; these categories group the generated notes by PR label.
+changelog:
+  exclude:
+    labels: ["skip-changelog"]
+  categories:
+    - title: Breaking changes
+      labels: ["breaking"]
+    - title: Features
+      labels: ["type: feature"]
+    - title: Fixes
+      labels: ["type: bug"]
+    - title: Documentation
+      labels: ["type: docs"]
+    - title: Dependencies
+      labels: ["dependencies"]
+    - title: Other changes
+      labels: ["*"]

@@ -31,8 +31,20 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-storybook-static
 .turbo/turbo-build.log
 
 # packed tarballs
 *.tgz
+
+# Configuration and secrets
+.env.*
+!.env.example
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Personal agent files and agent worktrees
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/worktrees/

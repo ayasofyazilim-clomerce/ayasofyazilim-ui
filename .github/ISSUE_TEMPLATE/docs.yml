@@ -1,0 +1,23 @@
+name: Docs
+description: Something in the documentation is missing, wrong or unclear.
+labels: ["type: docs"]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: The page and section, or a link to it.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What is wrong or missing
+      description: Quote the sentence or describe the gap, and what you expected to find.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested text
+      description: Optional. How it should read.

@@ -1,0 +1,7 @@
+# <type>(<scope>): <subject, lower-case, imperative, no period>
+#
+# Types: feat fix docs refactor perf test build ci chore revert. Breaking change: "feat!:" and a BREAKING CHANGE: footer.
+# Body: why the change is needed and what it changes; wrap at 120.
+# Footer: Refs #N, or Closes #N once when this commit completes the issue.
+#
+# Use it: git config commit.template .gitmessage
