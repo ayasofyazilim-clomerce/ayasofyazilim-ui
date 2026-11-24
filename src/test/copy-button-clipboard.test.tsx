@@ -1,6 +1,12 @@
+import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CopyButton, CopyableText } from "../custom/copy-button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../components/tooltip";
 
 const original = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
@@ -105,5 +111,113 @@ describe("CopyableText", () => {
   it("shows value when no children", () => {
     render(<CopyableText value="only-value" />);
     expect(screen.getByText("only-value")).toBeTruthy();
+  });
+});
+
+describe("CopyableText renderButton", () => {
+  it("renders the default button when renderButton is absent", () => {
+    const { container } = render(<CopyableText value="id-1" />);
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveAttribute("aria-label", "Copy");
+    expect(buttons[0]).toHaveAttribute("title", "Copy");
+    expect(container.querySelector("span")!.lastElementChild).toBe(buttons[0]);
+  });
+
+  it("keeps one copy button, still copies, and shows the tooltip on focus", async () => {
+    const user = userEvent.setup();
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    setClipboard({ writeText });
+    render(
+      <CopyableText
+        value="id-1"
+        renderButton={(button) => (
+          <Tooltip>
+            <TooltipTrigger asChild>{button}</TooltipTrigger>
+            <TooltipContent>id-1 - Click to copy</TooltipContent>
+          </Tooltip>
+        )}
+      />
+    );
+
+    const button = screen.getByRole("button", { name: "Copy" });
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+    expect(screen.queryByText("id-1 - Click to copy")).toBeNull();
+    act(() => button.focus());
+    expect(
+      (await screen.findAllByText("id-1 - Click to copy")).length
+    ).toBeGreaterThan(0);
+
+    await user.click(button);
+    expect(writeText).toHaveBeenCalledWith("id-1");
+    expect(screen.getByRole("button")).toBe(button);
+  });
+
+  it("hands the button its ref", () => {
+    const ref = jest.fn();
+    render(
+      <CopyableText
+        value="id-1"
+        renderButton={(button) => React.cloneElement(button, { ref } as never)}
+      />
+    );
+    expect(ref).toHaveBeenCalledWith(screen.getByRole("button"));
+  });
+
+  it("renders a different element instead of the default button", () => {
+    render(
+      <CopyableText
+        value="id-1"
+        renderButton={() => <a href="#x">custom</a>}
+      />
+    );
+    expect(screen.getByText("custom")).toBeTruthy();
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+});
+
+describe("CopyButton composed with a parent onClick", () => {
+  const withParent = (onClick: (e: React.MouseEvent) => void) => (
+    <CopyableText
+      value="id-1"
+      renderButton={(button) => React.cloneElement(button, { onClick } as never)}
+    />
+  );
+
+  it("runs the parent handler once and copies once", async () => {
+    const user = userEvent.setup();
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    setClipboard({ writeText });
+    const parent = jest.fn();
+    render(withParent(parent));
+
+    await user.click(screen.getByRole("button"));
+
+    expect(parent).toHaveBeenCalledTimes(1);
+    expect(writeText).toHaveBeenCalledTimes(1);
+    expect(writeText).toHaveBeenCalledWith("id-1");
+  });
+
+  it("does not copy when the parent calls preventDefault", async () => {
+    const user = userEvent.setup();
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    setClipboard({ writeText });
+    const onCopy = jest.fn();
+    const parent = jest.fn((e: React.MouseEvent) => e.preventDefault());
+    render(
+      <CopyableText
+        value="id-1"
+        onCopy={onCopy}
+        renderButton={(button) =>
+          React.cloneElement(button, { onClick: parent } as never)
+        }
+      />
+    );
+
+    await user.click(screen.getByRole("button"));
+
+    expect(parent).toHaveBeenCalledTimes(1);
+    expect(writeText).not.toHaveBeenCalled();
+    expect(onCopy).not.toHaveBeenCalled();
   });
 });

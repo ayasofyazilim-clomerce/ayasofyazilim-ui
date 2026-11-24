@@ -14,10 +14,13 @@ function Harness({ onReady }: { onReady: (confirm: Confirm) => void }) {
   return null;
 }
 
-function setup(labels?: { confirm?: string; cancel?: string }) {
+function setup(
+  labels?: { confirm?: string; cancel?: string },
+  initialFocus?: "cancel" | "confirm"
+) {
   const ref: { confirm?: Confirm } = {};
   const view = render(
-    <ConfirmProvider labels={labels}>
+    <ConfirmProvider labels={labels} initialFocus={initialFocus}>
       <Harness onReady={(c) => (ref.confirm = c)} />
     </ConfirmProvider>
   );
@@ -57,6 +60,15 @@ describe("useConfirm", () => {
     await waitFor(() =>
       expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument()
     );
+  });
+
+  it("focuses the confirm button and lets Enter confirm with initialFocus=\"confirm\"", async () => {
+    const { ask } = setup(undefined, "confirm");
+    const result = ask({ title: "Delete?" });
+    const confirm = await screen.findByRole("button", { name: "Confirm" });
+    await waitFor(() => expect(confirm).toHaveFocus());
+    await userEvent.keyboard("{Enter}");
+    await expect(result).resolves.toBe(true);
   });
 
   it("stays open and pending when the user clicks outside", async () => {

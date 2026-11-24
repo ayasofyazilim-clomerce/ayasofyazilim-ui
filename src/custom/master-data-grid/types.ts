@@ -244,6 +244,13 @@ export interface SelectionConfig<TData = unknown> {
   selectedIds?: string[];
   onSelectionChange?: (selectedRows: TData[]) => void;
   rowSelectable?: (row: TData) => boolean;
+  /**
+   * Opt-in: the accessible name of a row's checkbox, such as "Select Invoice 42", so a screen
+   * reader tells the rows apart. Without it every row's checkbox reads the `column.selectRow`
+   * resource. Keep it stable (memoize it): like `getRowId`, a new function rebuilds the columns,
+   * which remounts every cell.
+   */
+  rowLabel?: (row: TData) => string;
 }
 
 export interface PinningConfig {
@@ -341,7 +348,89 @@ export type ServerFilterConfig =
   | DateServerFilterConfig
   | DateRangeServerFilterConfig;
 
-export interface MasterDataGridConfig<TData = unknown> {
+/**
+ * Opt-in tree rows: a row may carry child rows of the same shape, drawn under
+ * it with a toggle and an indent in one column. Export, the row counts and
+ * filtering stay top-level. See docs/components/master-data-grid.md.
+ */
+export type SubRowsConfig<TData> = {
+  /** A row's children; `undefined` or `[]` for a leaf. */
+  getSubRows: (row: TData) => TData[] | undefined;
+  /** Id of the column that carries the toggle and the indentation. */
+  expanderColumn: string;
+  /** Rows expanded on first render and after Reset: `true` for every row, or
+   *  a record keyed by row id. Default: all collapsed. */
+  defaultExpanded?: boolean | Record<string, boolean>;
+  /** Indentation per depth level, in rem. Default 1.25. */
+  indent?: number;
+  /** Toggle labels. Default "Expand row" / "Collapse row". */
+  labels?: { expand?: string; collapse?: string };
+};
+
+/**
+ * Opt-in row callbacks. Handlers, and the `data-row-click-ignore` mark on the
+ * select and actions cells, attach only when given, so a grid without
+ * `rowEvents` adds no handlers or attributes. (The tri-state select-all
+ * checkbox is a separate, default change.)
+ */
+export type RowEventsConfig<TData> = {
+  /** Pointer enters a row: the row; pointer leaves it: `null`. */
+  onRowHover?: (row: TData | null) => void;
+  /**
+   * A click on a row. Not fired when the click starts inside `a`, `button`,
+   * `input`, `select`, `textarea`, `label`, `[role=checkbox]`,
+   * `[role=menuitem]` or `[data-row-click-ignore]`.
+   */
+  onRowClick?: (row: TData) => void;
+};
+
+/** A grid without tree rows: today's grid. */
+interface FlatRowsConfig {
+  subRows?: undefined;
+}
+
+/**
+ * A grid with tree rows. Grouping and expansion detail rows draw rows of their
+ * own, so neither combines with `subRows`: the types refuse it, and a config
+ * that slips through warns once in development and renders as if `subRows`
+ * were absent.
+ */
+interface TreeRowsConfig<TData> {
+  subRows: SubRowsConfig<TData>;
+  grouping?: GroupingConfig & { enabled?: false };
+  expansion?: RowExpansionConfig<TData> & { renderContent?: undefined };
+}
+
+export type MasterDataGridConfig<TData = unknown> =
+  MasterDataGridBaseConfig<TData> & (FlatRowsConfig | TreeRowsConfig<TData>);
+
+/** Every MasterDataGridConfig option except the tree-row switch. */
+export interface MasterDataGridBaseConfig<TData = unknown> {
+  /** Opt-in row hover and click callbacks. */
+  rowEvents?: RowEventsConfig<TData>;
+  /**
+   * Opt-in: a body row re-renders only when something it tracks changes.
+   * Default false: every row re-renders with the grid, as before.
+   *
+   * Tracked: the row's data (its row object and `original`), selection,
+   * expansion and depth; its resolved `rowClassName` and `cellClassName`; its
+   * editing state; per cell, the column's definition, visibility, pinning,
+   * size, filter value, sort and grouping; the `rowEvents` handlers; and the
+   * `subRows` options. React state or context a cell subscribes to re-renders
+   * that cell on its own.
+   *
+   * NOT tracked, so a cell must not render from it: anything read through
+   * `getContext().table` (other columns' state, other rows, the global
+   * filter), column facets, refs and module variables. Callbacks called while
+   * a row draws (`rowActions[].hidden/disabled/label/render`,
+   * `editing.isRowEditable`, `expansion.renderContent`, `customRenderers`)
+   * are not called again for a row that is skipped.
+   *
+   * Set it once: toggling it at runtime remounts every row, losing cell state
+   * such as edit values and open menus. See "Memoized rows" in
+   * docs/components/master-data-grid.md for the inputs to keep stable.
+   */
+  memoizeRows?: boolean;
   schema: JSONSchema | GenericObjectType;
   columns?: ColumnConfig<TData>[];
 

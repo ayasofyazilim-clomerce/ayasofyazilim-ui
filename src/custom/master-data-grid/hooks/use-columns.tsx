@@ -1,3 +1,4 @@
+"use no memo";
 import { cn } from "@ayasofyazilim-clomerce/ui/lib/utils";
 import type { ButtonVariant } from "@ayasofyazilim-clomerce/ui/components/button";
 import { GenericObjectType } from "@rjsf/utils";
@@ -37,6 +38,11 @@ import {
   generateColumnsFromSchema,
   mergeColumns,
 } from "../utils/column-generator";
+import {
+  activeSubRows,
+  selectablePageTreeRows,
+  withRowsSelected,
+} from "../utils/tree-rows";
 
 // Maps a ButtonVariant to the DropdownMenuItem's supported variant + extra className.
 function getDropdownItemProps(variant: ButtonVariant | undefined): {
@@ -256,6 +262,10 @@ export function useColumns<TData>({
 }: UseColumnsProps<TData>): ColumnDef<TData>[] {
   const { localization, cellClassName, dateOptions, customRenderers } = config;
   const errorDisplayMode = config.editing?.errorDisplayMode;
+  // With tree rows, editing is keyed by row id (row.index repeats per parent)
+  // and a row rowSelectable rejects gets no checkbox at all.
+  const treeRows = activeSubRows(config) !== undefined;
+  const rowLabel = config.selection?.rowLabel;
   return useMemo<ColumnDef<TData>[]>(() => {
     const editingContext = config.editing?.enabled
       ? {
@@ -264,6 +274,7 @@ export function useColumns<TData>({
           },
           onCellUpdate: updateCellValue,
           getRowId: getRowId || ((row: TData, index: number) => String(index)),
+          ...(treeRows && { treeRows }),
         }
       : undefined;
 
@@ -320,6 +331,7 @@ export function useColumns<TData>({
             return editingRowsRef.current;
           },
           getRowId: editingContext.getRowId,
+          ...(treeRows && { treeRows }),
         }
       : undefined;
 
@@ -369,28 +381,67 @@ export function useColumns<TData>({
     if (config.selection?.enabled) {
       finalColumns.push({
         id: "select",
-        header: ({ table }) => (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            // Without this the select-all box stays lit while every row
-            // underneath it is unselectable, so pressing it does nothing.
-            disabled={
-              !table.getRowModel().rows.some((row) => row.getCanSelect())
-            }
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
-            aria-label={t?.["column.selectAll"]}
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            disabled={!row.getCanSelect()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label={t?.["column.selectRow"]}
-          />
-        ),
+        header: ({ table }) => {
+          if (treeRows) {
+            // One row set (the page's selectable rows at every depth) drives
+            // checked, disabled and the toggle; see selectablePageTreeRows.
+            const rows = selectablePageTreeRows(table);
+            const selectedCount = rows.filter((row) =>
+              row.getIsSelected()
+            ).length;
+            return (
+              <Checkbox
+                checked={
+                  rows.length > 0 && selectedCount === rows.length
+                    ? true
+                    : selectedCount > 0
+                      ? "indeterminate"
+                      : false
+                }
+                disabled={rows.length === 0}
+                onCheckedChange={(value) =>
+                  table.setRowSelection((selection) =>
+                    withRowsSelected(
+                      selection,
+                      selectablePageTreeRows(table),
+                      !!value
+                    )
+                  )
+                }
+                aria-label={t?.["column.selectAll"]}
+              />
+            );
+          }
+          return (
+            <Checkbox
+              checked={
+                table.getIsAllPageRowsSelected()
+                  ? true
+                  : table.getIsSomePageRowsSelected()
+                    ? "indeterminate"
+                    : false
+              }
+              // Without this the select-all box stays lit while every row
+              // underneath it is unselectable, so pressing it does nothing.
+              disabled={
+                !table.getRowModel().rows.some((row) => row.getCanSelect())
+              }
+              onCheckedChange={(value) =>
+                table.toggleAllPageRowsSelected(!!value)
+              }
+              aria-label={t?.["column.selectAll"]}
+            />
+          );
+        },
+        cell: ({ row }) =>
+          treeRows && !row.getCanSelect() ? null : (
+            <Checkbox
+              checked={row.getIsSelected()}
+              disabled={!row.getCanSelect()}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              aria-label={rowLabel?.(row.original) ?? t?.["column.selectRow"]}
+            />
+          ),
         enableSorting: false,
         enableHiding: false,
       });
@@ -569,9 +620,11 @@ export function useColumns<TData>({
         id: "edit-actions",
         header: t?.["column.edit"] || "Edit",
         cell: ({ row }) => {
-          const rowId = getRowId
-            ? getRowId(row.original, row.index)
-            : String(row.index);
+          const rowId = treeRows
+            ? row.id
+            : getRowId
+              ? getRowId(row.original, row.index)
+              : String(row.index);
           const isEditing = !!editingRowsRef.current[rowId];
           const isRowEditable =
             !config.editing?.isRowEditable ||
@@ -673,11 +726,13 @@ export function useColumns<TData>({
     config.expansion,
     config.grouping?.groupBy,
     config.selection?.enabled,
+    rowLabel,
     config.rowActions,
     config.rowActionsDisplay,
     config.columnOrder,
     config.columnVisibility,
     config.schemaColumns,
+    treeRows,
     // Passed to generateColumnsFromSchema by value (not via a ref),
     // so they are captured at build time and must invalidate the columns.
     localization,

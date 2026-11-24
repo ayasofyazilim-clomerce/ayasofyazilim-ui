@@ -36,6 +36,12 @@ import { paginationFromUrl } from "../utils/grid-url-params";
 import { getTranslations } from "../utils/translation-utils";
 import { readFilterValues, visibleFilters } from "../utils/server-filter-utils";
 import {
+  activeSubRows,
+  subRowsConflict,
+  treeRowId,
+  treeRowsRender,
+} from "../utils/tree-rows";
+import {
   isBlankPrefixUrlState,
   isPrefixUrlState,
   scopedKey,
@@ -83,6 +89,18 @@ export function MasterDataGrid<TData = Record<string, unknown>>(
       );
     }
   }, [blankPrefix]);
+  // subRows with grouping or expansion detail rows is refused by the types; a
+  // config that gets past them renders as if subRows were absent. Say so once.
+  const conflict = subRowsConflict(props.config);
+  const warnedConflict = useRef(false);
+  useEffect(() => {
+    if (!conflict || process.env.NODE_ENV === "production") return;
+    if (warnedConflict.current) return;
+    warnedConflict.current = true;
+    logWarning(
+      `subRows is ignored because ${conflict} is set: tree rows cannot be combined with it, so this grid renders without tree rows. Remove one of the two.`
+    );
+  }, [conflict]);
   if (isPrefixUrlState(urlState)) {
     return <PrefixedMasterDataGrid {...props} prefix={urlState.prefix} />;
   }
@@ -140,6 +158,10 @@ function MasterDataGridView<TData = Record<string, unknown>>({
   const t = tProp ?? contextResources;
 
   const enableGrouping = config.grouping?.enabled ?? false;
+  // Tree rows (subRows) are opt-in: without them every option below is
+  // exactly what it was, and the TanStack tree options are not passed at all.
+  const subRows = activeSubRows(config);
+  const tree = subRows ? treeRowsRender(subRows) : undefined;
 
   const configWithDefaults: MasterDataGridConfig<TData> = {
     ...config,
@@ -304,6 +326,8 @@ function MasterDataGridView<TData = Record<string, unknown>>({
     ? Object.fromEntries(config.selection.selectedIds.map((id) => [id, true]))
     : undefined;
   const rowSelectionState = controlledRowSelection ?? tableState.rowSelection;
+  const manualPagination =
+    configWithDefaults.manualPagination ?? configWithDefaults.rowCount != null;
 
   const table = useReactTable({
     data,
@@ -350,9 +374,13 @@ function MasterDataGridView<TData = Record<string, unknown>>({
       }
 
       if (configWithDefaults.selection?.onSelectionChange) {
-        const selectedRows = table
-          .getRowModel()
-          .rows.filter((row) => newSelection[row.id])
+        // Tree rows select one by one, and a selected child stays selected
+        // while its parent is collapsed, so report every selected row at any
+        // depth: getSelectedRowModel().flatRows, for the selection being set.
+        const selectedRows = (
+          subRows ? table.getCoreRowModel().flatRows : table.getRowModel().rows
+        )
+          .filter((row) => newSelection[row.id])
           .map((row) => row.original);
         configWithDefaults.selection.onSelectionChange(selectedRows);
       }
@@ -397,10 +425,20 @@ function MasterDataGridView<TData = Record<string, unknown>>({
     getExpandedRowModel: getExpandedRowModel(),
     manualSorting: configWithDefaults.manualSorting,
     manualFiltering: configWithDefaults.manualFiltering,
-    manualPagination:
-      configWithDefaults.manualPagination ??
-      configWithDefaults.rowCount != null,
+    manualPagination,
     rowCount: configWithDefaults.rowCount,
+    ...(subRows && {
+      getSubRows: (row: TData) => subRows.getSubRows(row),
+      // Each row selects on its own; rowSelectable decides which can.
+      enableSubRowSelection: false,
+      // Filters and the search test top-level rows; a match keeps its children.
+      maxLeafRowFilterDepth: 0,
+      // A page holds pageSize top-level rows with their children. Only when
+      // the grid paginates them itself: TanStack expands rows in the pagination
+      // model in this mode, so without one the children would never show.
+      ...(enablePagination &&
+        !manualPagination && { paginateExpandedRows: false }),
+    }),
     enableSorting,
     enableColumnFilters: enableFiltering,
     enableGlobalFilter: enableSearch,
@@ -413,19 +451,25 @@ function MasterDataGridView<TData = Record<string, unknown>>({
       ? (row) => configWithDefaults.selection!.rowSelectable!(row.original)
       : enableRowSelection,
     enableMultiRowSelection: configWithDefaults.selection?.mode !== "single",
-    getRowId: getRowId ?? ((_, index) => String(index)),
-    getRowCanExpand: configWithDefaults.expansion?.enabled
-      ? () => true
-      : undefined,
+    getRowId: getRowId ?? (subRows ? treeRowId : (_, index) => String(index)),
+    // A tree row can expand when it has children (TanStack's default).
+    getRowCanExpand:
+      !subRows && configWithDefaults.expansion?.enabled
+        ? () => true
+        : undefined,
     autoResetExpanded: false,
   });
 
   const selectedRows = useMemo(
-    () => table.getSelectedRowModel().rows.map((row) => row.original),
+    () =>
+      (subRows
+        ? table.getSelectedRowModel().flatRows
+        : table.getSelectedRowModel().rows
+      ).map((row) => row.original),
     // rowSelectionState must be included so this recomputes whenever selection changes.
     // `table` is a stable reference and alone is not sufficient as a dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [table, rowSelectionState]
+    [table, rowSelectionState, Boolean(subRows)]
   );
 
   const handleExport = useCallback(
@@ -569,6 +613,9 @@ function MasterDataGridView<TData = Record<string, unknown>>({
                 expansionRenderContent={
                   configWithDefaults.expansion?.renderContent
                 }
+                tree={tree}
+                rowEvents={configWithDefaults.rowEvents}
+                memoizeRows={configWithDefaults.memoizeRows}
               />
               <GridFooter table={table} />
             </Table>
@@ -607,6 +654,9 @@ function MasterDataGridView<TData = Record<string, unknown>>({
                 hideGroupParentRows={
                   configWithDefaults.grouping?.hideGroupParentRows
                 }
+                tree={tree}
+                rowEvents={configWithDefaults.rowEvents}
+                memoizeRows={configWithDefaults.memoizeRows}
               />
               <GridFooter table={table} />
             </Table>
