@@ -90,6 +90,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "docx-preview": "0.4.1",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "json-edit-react": "^1.29.0",
@@ -113,6 +114,7 @@
     "react-phone-number-input": "^3.4.12",
     "react-resizable-panels": "^3.0.6",
     "react-signature-pad-wrapper": "^4.3.2",
+    "react-zoom-pan-pinch": "4.2.0",
     "recharts": "2.15.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
@@ -435,6 +437,26 @@
         "types": "./dist/custom/animated-counter.d.ts",
         "default": "./dist/custom/animated-counter.js"
       },
+      "./custom/annotated-document-viewer": {
+        "types": "./dist/custom/annotated-document-viewer/index.d.ts",
+        "default": "./dist/custom/annotated-document-viewer/index.js"
+      },
+      "./custom/annotated-document-viewer/document-pager": {
+        "types": "./dist/custom/annotated-document-viewer/document-pager.d.ts",
+        "default": "./dist/custom/annotated-document-viewer/document-pager.js"
+      },
+      "./custom/annotated-document-viewer/geometry": {
+        "types": "./dist/custom/annotated-document-viewer/geometry.d.ts",
+        "default": "./dist/custom/annotated-document-viewer/geometry.js"
+      },
+      "./custom/annotated-document-viewer/thumbnail-strip": {
+        "types": "./dist/custom/annotated-document-viewer/thumbnail-strip.d.ts",
+        "default": "./dist/custom/annotated-document-viewer/thumbnail-strip.js"
+      },
+      "./custom/annotated-document-viewer/types": {
+        "types": "./dist/custom/annotated-document-viewer/types.d.ts",
+        "default": "./dist/custom/annotated-document-viewer/types.js"
+      },
       "./custom/app-shell": {
         "types": "./dist/custom/app-shell/index.d.ts",
         "default": "./dist/custom/app-shell/index.js"
@@ -675,6 +697,10 @@
         "types": "./dist/custom/document-viewer/renderers/index.d.ts",
         "default": "./dist/custom/document-viewer/renderers/index.js"
       },
+      "./custom/document-viewer/renderers/docx": {
+        "types": "./dist/custom/document-viewer/renderers/docx.d.ts",
+        "default": "./dist/custom/document-viewer/renderers/docx.js"
+      },
       "./custom/document-viewer/renderers/image": {
         "types": "./dist/custom/document-viewer/renderers/image.d.ts",
         "default": "./dist/custom/document-viewer/renderers/image.js"
@@ -682,6 +708,10 @@
       "./custom/document-viewer/renderers/pdf": {
         "types": "./dist/custom/document-viewer/renderers/pdf.d.ts",
         "default": "./dist/custom/document-viewer/renderers/pdf.js"
+      },
+      "./custom/docx-preview": {
+        "types": "./dist/custom/docx-preview.d.ts",
+        "default": "./dist/custom/docx-preview.js"
       },
       "./custom/draw-pad": {
         "types": "./dist/custom/draw-pad/index.d.ts",
@@ -1407,6 +1437,11 @@
     "./components/tour": "./src/components/tour.tsx",
     "./custom/action-button": "./src/custom/action-button.tsx",
     "./custom/animated-counter": "./src/custom/animated-counter.tsx",
+    "./custom/annotated-document-viewer": "./src/custom/annotated-document-viewer/index.tsx",
+    "./custom/annotated-document-viewer/document-pager": "./src/custom/annotated-document-viewer/document-pager.tsx",
+    "./custom/annotated-document-viewer/geometry": "./src/custom/annotated-document-viewer/geometry.ts",
+    "./custom/annotated-document-viewer/thumbnail-strip": "./src/custom/annotated-document-viewer/thumbnail-strip.tsx",
+    "./custom/annotated-document-viewer/types": "./src/custom/annotated-document-viewer/types.ts",
     "./custom/app-shell": "./src/custom/app-shell/index.tsx",
     "./custom/app-shell/match-active-href": "./src/custom/app-shell/match-active-href.ts",
     "./custom/app-shell/types": "./src/custom/app-shell/types.ts",
@@ -1467,8 +1502,10 @@
     "./custom/document-viewer/controllers": "./src/custom/document-viewer/controllers.tsx",
     "./custom/document-viewer/pdf-worker": "./src/custom/document-viewer/pdf-worker.tsx",
     "./custom/document-viewer/renderers": "./src/custom/document-viewer/renderers/index.tsx",
+    "./custom/document-viewer/renderers/docx": "./src/custom/document-viewer/renderers/docx.tsx",
     "./custom/document-viewer/renderers/image": "./src/custom/document-viewer/renderers/image.tsx",
     "./custom/document-viewer/renderers/pdf": "./src/custom/document-viewer/renderers/pdf.tsx",
+    "./custom/docx-preview": "./src/custom/docx-preview.tsx",
     "./custom/draw-pad": "./src/custom/draw-pad/index.tsx",
     "./custom/email-input": "./src/custom/email-input/index.tsx",
     "./custom/email-input/email": "./src/custom/email-input/email.tsx",

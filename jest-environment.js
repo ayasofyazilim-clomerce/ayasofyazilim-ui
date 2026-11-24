@@ -9,6 +9,20 @@ Object.defineProperty(mockCanvas, "createCanvas", {
 Object.defineProperty(mockCanvas, "loadImage", {
   value: () => Promise.resolve({}),
 });
+// jsdom treats canvas as installed once `require("canvas")` returns anything, and then builds a
+// `new Canvas.Image()` for every `<img src>`. Without this stub, rendering any image throws
+// "Canvas.Image is not a constructor". It never decodes: natural size stays 0×0, as in jsdom
+// without canvas.
+Object.defineProperty(mockCanvas, "Image", {
+  value: class Image {
+    constructor() {
+      this.naturalWidth = 0;
+      this.naturalHeight = 0;
+      this.onerror = null;
+      this.src = "";
+    }
+  },
+});
 
 module.exports = class CustomJSDOMEnvironment extends JSDOMEnvironment {
   constructor(config, context) {
