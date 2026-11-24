@@ -26,6 +26,29 @@ export type AppShellNavItem = {
   items?: AppShellNavItem[];
   /** Extra terms matched by the sidebar filter and the ⌘K search. */
   keywords?: string[];
+  /**
+   * Things to do with the item, on its row and in ⌘K under it: one action is
+   * a button on the row, several are a dropdown behind a "more" button.
+   */
+  actions?: AppShellNavAction[];
+};
+
+/** Something to do with a nav item: a link (`href`) or a callback (`onSelect`). */
+export type AppShellNavAction = {
+  /** Stable key. Unique across the whole nav once shortcuts use it. */
+  id: string;
+  /** The button's accessible name and tooltip, or the dropdown entry. */
+  label: string;
+  /** A second line under the label in the dropdown, and a ⌘K search term. */
+  description?: string;
+  /** Decorative, sized to 16px. A single action without one shows a plus. */
+  icon?: React.ReactNode;
+  /** Where the action goes. Takes precedence over `onSelect`. */
+  href?: string;
+  /** Runs when the action is chosen and has no `href`. */
+  onSelect?: () => void;
+  /** Spread onto the action's button, link or dropdown entry. */
+  dataAttributes?: Record<`data-${string}`, string>;
 };
 
 /** A labelled section of the sidebar and of the ⌘K menu. */
@@ -66,6 +89,8 @@ export type AppShellLabels = {
   expandAll?: string;
   /** The collapse-all button's accessible name (`navFilter`). */
   collapseAll?: string;
+  /** The accessible name of the button that opens an item's actions. */
+  moreActions?: string;
 };
 
 export type AppShellProps = {

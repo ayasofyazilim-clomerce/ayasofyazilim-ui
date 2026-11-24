@@ -123,6 +123,7 @@ const TURKISH: Required<AppShellLabels> = {
   filterPlaceholder: "Menüde ara…",
   expandAll: "Tümünü aç",
   collapseAll: "Tümünü kapat",
+  moreActions: "Diğer işlemler",
 };
 
 function renderShell(
@@ -549,6 +550,7 @@ describe("AppShell: labels", () => {
       filterPlaceholder: "Filter menu…",
       expandAll: "Expand all",
       collapseAll: "Collapse all",
+      moreActions: "More actions",
     });
   });
 
