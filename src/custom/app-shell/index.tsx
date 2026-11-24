@@ -1179,8 +1179,9 @@ function useShortcutRecorder(
 
 /**
  * Fires the entry a pressed shortcut is assigned to, from anywhere, except
- * while recording. A press a page already handled (`defaultPrevented`), a
- * reserved combo and a key for an entry not in the nav are left alone.
+ * while recording. A press a page already handled (`defaultPrevented`), an
+ * auto-repeat of a held combo, a reserved combo and a key for an entry not in
+ * the nav are left alone.
  */
 function useShortcutFiring(
   shortcuts: AppShellShortcuts | undefined,
@@ -1202,7 +1203,8 @@ function useShortcutFiring(
   React.useEffect(() => {
     if (!shortcuts || recording) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return;
+      // A held combo auto-repeats; it fires once.
+      if (event.defaultPrevented || event.repeat) return;
       const combo = shortcutFromEvent(event);
       if (!combo || isReservedShortcut(combo, shortcuts.reserved)) return;
       for (const [key, value] of Object.entries(shortcuts.value)) {

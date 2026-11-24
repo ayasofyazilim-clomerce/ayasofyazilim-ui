@@ -486,6 +486,25 @@ describe("AppShell shortcuts: firing", () => {
     expect(onImport).not.toHaveBeenCalled();
   });
 
+  it("fires once while a combo is held", () => {
+    render(<Harness initial={shortcuts} />);
+    for (const repeat of [false, true, true]) {
+      act(() => {
+        document.body.dispatchEvent(
+          new KeyboardEvent("keydown", {
+            key: "i",
+            code: "KeyI",
+            altKey: true,
+            repeat,
+            bubbles: true,
+            cancelable: true,
+          })
+        );
+      });
+    }
+    expect(onImport).toHaveBeenCalledTimes(1);
+  });
+
   it("never fires a reserved combo, even when stored", async () => {
     render(<Harness initial={{ "item:orders": "ctrl+t" }} />);
     await userEvent.keyboard("{Control>}t{/Control}");
