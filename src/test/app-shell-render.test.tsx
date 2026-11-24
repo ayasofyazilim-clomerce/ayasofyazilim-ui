@@ -124,6 +124,10 @@ const TURKISH: Required<AppShellLabels> = {
   expandAll: "Tümünü aç",
   collapseAll: "Tümünü kapat",
   moreActions: "Diğer işlemler",
+  assignShortcut: "Kısayol ata",
+  removeShortcut: "Kısayolu kaldır",
+  pressShortcut: "Bir tuş bileşimine basın. Esc iptal eder.",
+  shortcutReserved: "Bu bileşim ayrılmış. Başkasını deneyin.",
 };
 
 function renderShell(
@@ -551,6 +555,10 @@ describe("AppShell: labels", () => {
       expandAll: "Expand all",
       collapseAll: "Collapse all",
       moreActions: "More actions",
+      assignShortcut: "Assign shortcut",
+      removeShortcut: "Remove shortcut",
+      pressShortcut: "Press a key combination with Ctrl, Alt or ⌘. Esc cancels.",
+      shortcutReserved: "That combination is reserved. Try another.",
     });
   });
 

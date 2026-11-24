@@ -72,6 +72,22 @@ export type AppShellCommand = {
 
 export type AppShellBreadcrumb = { label: string; href?: string };
 
+/**
+ * Shortcuts the user assigns from the ⌘K menu, keyed `item:<id>` for a nav
+ * item and `action:<id>` for an item action, valued like "ctrl+shift+h" (see
+ * `custom/app-shell/shortcuts`). `useStoredShortcuts` keeps them in
+ * localStorage.
+ */
+export type AppShellShortcuts = {
+  value: Record<string, string>;
+  onChange: (next: Record<string, string>) => void;
+  /**
+   * More combos that cannot be assigned, written like "ctrl+shift+p". ⌘K /
+   * Ctrl+K, ⌘B / Ctrl+B and the browser's own are always reserved.
+   */
+  reserved?: string[];
+};
+
 /** Every built-in text of the shell. Each key falls back to its English default. */
 export type AppShellLabels = {
   toggleSidebar?: string;
@@ -91,6 +107,14 @@ export type AppShellLabels = {
   collapseAll?: string;
   /** The accessible name of the button that opens an item's actions. */
   moreActions?: string;
+  /** The ⌘K button that records a shortcut for the highlighted entry (`shortcuts`). */
+  assignShortcut?: string;
+  /** The ⌘K button that removes the highlighted entry's shortcut (`shortcuts`). */
+  removeShortcut?: string;
+  /** Shown while a shortcut is being recorded (`shortcuts`). */
+  pressShortcut?: string;
+  /** Shown when the pressed combo is reserved (`shortcuts`). */
+  shortcutReserved?: string;
 };
 
 export type AppShellProps = {
@@ -125,6 +149,11 @@ export type AppShellProps = {
    * all button. Off by default.
    */
   navFilter?: boolean;
+  /**
+   * User-assigned shortcuts: assigned, shown and removed from the ⌘K menu,
+   * and fired from anywhere. Off unless passed.
+   */
+  shortcuts?: AppShellShortcuts;
   labels?: AppShellLabels;
   className?: string;
   classNames?: { sidebar?: string; header?: string; main?: string };
