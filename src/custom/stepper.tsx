@@ -133,8 +133,8 @@ export const StepperHeader = ({
     }`,
     containerClassName
   );
-  const activeItemClass = cn("bg-primary text-white", activeItemClassName);
-  const inactiveItemClass = cn("bg-zinc-200 text-black", inactiveItemClassName);
+  const activeItemClass = cn("bg-primary text-primary-foreground", activeItemClassName);
+  const inactiveItemClass = cn("bg-muted text-muted-foreground", inactiveItemClassName);
 
   return (
     <div className={containerClass}>
@@ -153,7 +153,7 @@ export const StepperHeader = ({
           active ? activeItemClass : inactiveItemClass
         }`;
         const titleContainerClass = `text-sm text-center ${
-          active ? "text-black" : "text-muted-foreground"
+          active ? "text-foreground" : "text-muted-foreground"
         }`;
         return (
           <div key={item.index} className="flex flex-col items-center gap-2">
