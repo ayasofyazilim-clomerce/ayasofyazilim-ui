@@ -27,6 +27,11 @@
     "LICENSE"
   ],
   "packageManager": "pnpm@10.30.2",
+  "pnpm": {
+    "overrides": {
+      "pdfjs-dist>canvas": "3.1.2"
+    }
+  },
   "engines": {
     "node": ">=20.9"
   },
