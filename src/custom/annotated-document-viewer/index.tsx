@@ -59,15 +59,30 @@ const SCALE_EPSILON = 0.005;
  * divided by `--annotation-zoom` for the same reason.
  */
 const BOX_CLASS =
-  "fill-current stroke-current opacity-90 transition-[opacity,fill-opacity] duration-200 [fill-opacity:0.11] [stroke-width:var(--annotation-stroke)] [vector-effect:non-scaling-stroke]";
+  "fill-current stroke-current opacity-90 [fill-opacity:0.11] [stroke-width:var(--annotation-stroke)] [vector-effect:non-scaling-stroke]";
 const BOX_STATE_CLASS = {
   active:
-    "opacity-100 [fill-opacity:0.26] [stroke-width:calc(var(--annotation-stroke)*1.75)] [filter:drop-shadow(0_0_calc(5px/var(--annotation-zoom))_currentColor)]",
+    "opacity-100 [fill-opacity:0.26] [stroke-width:calc(var(--annotation-stroke)*1.75)]",
   related:
     "opacity-100 [fill-opacity:0.07] [stroke-width:calc(var(--annotation-stroke)*1.25)] [stroke-dasharray:calc(5px/var(--annotation-zoom))_calc(3px/var(--annotation-zoom))]",
 } as const;
 
 type BoxState = keyof typeof BOX_STATE_CLASS;
+
+/**
+ * Two touches of emphasis cost a browser work in proportion to the number of boxes, so each is
+ * limited to the pages where it stays cheap. A table of hundreds of cells lights every one of them
+ * when its field is chosen; with a glow on each (a `drop-shadow` is a filter pass per box) and a fade
+ * running on each, one hover took about nine seconds to draw. Past a limit the box keeps its heavier
+ * outline and fill, which carry the emphasis without the cost, and a small page looks as before.
+ */
+const GLOW_CLASS =
+  "[filter:drop-shadow(0_0_calc(5px/var(--annotation-zoom))_currentColor)]";
+const FADE_CLASS = "transition-[opacity,fill-opacity] duration-200";
+/** The most boxes lit at once that still get the glow. */
+const GLOW_LIMIT = 24;
+/** The most boxes on a page that still fade between states. */
+const FADE_LIMIT = 150;
 
 type ZoomFlags = {
   /** Above {@link MAGNIFIED_ABOVE}: panning is on. */
@@ -254,6 +269,11 @@ export function AnnotatedDocumentViewer({
     drawn.push({ box, rect, state });
   }
 
+  // See GLOW_LIMIT and FADE_LIMIT: the emphasis that scales with the box count is bounded.
+  const glow =
+    drawn.filter(({ state }) => state === "active").length <= GLOW_LIMIT;
+  const fade = drawn.length <= FADE_LIMIT;
+
   const interactive = onBoxHover !== undefined || onBoxClick !== undefined;
   const handlePointerDown = (event: ReactPointerEvent<SVGRectElement>) => {
     pointerDownAt.current = { x: event.clientX, y: event.clientY };
@@ -382,7 +402,9 @@ export function AnnotatedDocumentViewer({
                           aria-hidden="true"
                           className={cn(
                             BOX_CLASS,
+                            fade && FADE_CLASS,
                             state && BOX_STATE_CLASS[state],
+                            state === "active" && glow && GLOW_CLASS,
                             onBoxClick && "cursor-pointer",
                             classNames?.box
                           )}
