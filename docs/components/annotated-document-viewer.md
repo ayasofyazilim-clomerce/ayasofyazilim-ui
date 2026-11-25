@@ -54,7 +54,7 @@ export function Evidence({ pageUrls }: { pageUrls: (string | null)[] }) {
 | `pageIndex` | `number` | required | 0-based, controlled. |
 | `onPageChange` | `(index) => void` | required | Called by the overlaid pager. |
 | `boxes` | `AnnotationBox[]` | `[]` | Only the boxes with `page === pageIndex` are drawn. Ids must be unique. |
-| `activeIds` | `readonly string[]` | none | Each entry matches a box `id` **or** a box `group`. Matching boxes are drawn "active" (opaque, thicker, glow). |
+| `activeIds` | `readonly string[]` | none | Each entry matches a box `id` **or** a box `group`. Matching boxes are drawn "active" (opaque, thicker, glow). The glow is a filter pass per box, so it is drawn only while 24 or fewer boxes are active; more than that keep the thicker outline and fill without it. |
 | `relatedIds` | `readonly string[]` | none | Same matching; drawn "related" (dashed). Active wins over related. |
 | `onBoxHover` | `(box \| null) => void` | none | The box under the pointer, then `null` when it leaves. |
 | `onBoxClick` | `(box) => void` | none | A click on a box. A click that ends a drag-pan (pointer moved 4 px or more since `pointerdown`) is ignored. |
@@ -137,6 +137,7 @@ Each element carries a `data-slot` (`annotated-document-viewer`, `annotated-docu
 ## Common mistakes
 
 - **Passing a PDF URL as `src`.** Rasterize each page and pass the image.
+- **Many boxes.** Naming a whole table in `activeIds` can light hundreds of boxes at once. Two touches of emphasis are bounded so that stays cheap: the glow goes (see `activeIds`), and the fade between states goes on a page of more than 150 boxes. A page below both limits is drawn as before.
 - **Duplicate box ids**, or a group name equal to some box id: `activeIds` matches both.
 - **`frame: "natural"` with `rotation` 90/270.** `"natural"` is the displayed image's size; a rect measured in the unrotated frame needs that frame as an explicit `{ width, height }`.
 - **Expecting the viewer to follow the active box to its page.** `pageIndex` is controlled: when emphasis moves to a box on another page, call your own `setPageIndex(box.page)`.
