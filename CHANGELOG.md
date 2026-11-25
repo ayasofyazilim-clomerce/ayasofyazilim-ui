@@ -8,6 +8,7 @@
 
 ### Fixed
 
+- The repository's own install resolves one `canvas` (3.1.2) for `pdfjs-dist` through a scoped pnpm override. `pdfjs-dist` listed `canvas` 2.11.2 as an optional dependency, which pulled in `@mapbox/node-pre-gyp` and `tar` 6.2.1 (CVE-2026-59873, fixed in `tar` 7.5.19). The lockfile no longer contains either. The published package and its dependency ranges are unchanged; overrides apply to this repository's install only, so this affects the repo's own security scan and nothing a consumer installs.
 - `AnnotatedDocumentViewer`: a page with hundreds of boxes is much cheaper to repaint on each hover. Boxes are faded with `stroke-opacity` instead of `opacity`: an element's `opacity` on a shape with both a fill and a stroke is drawn as an offscreen group, one per box. On a page of 668 boxes a hover went from about 97 ms to the 33 ms frame floor. The look is the same to within a percent.
 - `AnnotatedDocumentViewer`: choosing a field with hundreds of boxes (a table named in `activeIds`) no longer freezes the page. A glow on every lit box and a fade on every box made one hover take seconds to draw. The glow is now drawn only while 24 or fewer boxes are active, and the fade only on a page of 150 boxes or fewer; past that, boxes keep the heavier outline and fill. A smaller page looks exactly as before.
 
