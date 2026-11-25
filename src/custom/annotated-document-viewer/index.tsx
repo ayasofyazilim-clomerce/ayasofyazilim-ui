@@ -53,18 +53,24 @@ const SCALE_EPSILON = 0.005;
  * Box styling. The hue comes from the box's inline `color` (stroke, fill and glow use
  * `currentColor`); these classes only set weight and emphasis.
  *
+ * The outline is faded with `stroke-opacity`, never `opacity`. An element's `opacity` on a shape that
+ * has both a fill and a stroke makes the browser draw it as an offscreen group, and a page of a few
+ * hundred boxes drew one per box on every hover: about 60 ms a hover with 700 boxes, against the
+ * frame floor of 33 ms with separate stroke and fill opacities. The look is the same to within a
+ * percent.
+ *
  * `vector-effect: non-scaling-stroke` cancels the unit viewBox's scale, and `--annotation-stroke`
  * ({@link markStrokeWidth} of the live zoom, republished on every transform) cancels the viewport's
  * CSS scale, so an outline keeps a constant on-screen width at any zoom. The glow and the dash are
  * divided by `--annotation-zoom` for the same reason.
  */
 const BOX_CLASS =
-  "fill-current stroke-current opacity-90 [fill-opacity:0.11] [stroke-width:var(--annotation-stroke)] [vector-effect:non-scaling-stroke]";
+  "fill-current stroke-current [stroke-opacity:0.9] [fill-opacity:0.11] [stroke-width:var(--annotation-stroke)] [vector-effect:non-scaling-stroke]";
 const BOX_STATE_CLASS = {
   active:
-    "opacity-100 [fill-opacity:0.26] [stroke-width:calc(var(--annotation-stroke)*1.75)]",
+    "[stroke-opacity:1] [fill-opacity:0.26] [stroke-width:calc(var(--annotation-stroke)*1.75)]",
   related:
-    "opacity-100 [fill-opacity:0.07] [stroke-width:calc(var(--annotation-stroke)*1.25)] [stroke-dasharray:calc(5px/var(--annotation-zoom))_calc(3px/var(--annotation-zoom))]",
+    "[stroke-opacity:1] [fill-opacity:0.07] [stroke-width:calc(var(--annotation-stroke)*1.25)] [stroke-dasharray:calc(5px/var(--annotation-zoom))_calc(3px/var(--annotation-zoom))]",
 } as const;
 
 type BoxState = keyof typeof BOX_STATE_CLASS;
@@ -78,7 +84,7 @@ type BoxState = keyof typeof BOX_STATE_CLASS;
  */
 const GLOW_CLASS =
   "[filter:drop-shadow(0_0_calc(5px/var(--annotation-zoom))_currentColor)]";
-const FADE_CLASS = "transition-[opacity,fill-opacity] duration-200";
+const FADE_CLASS = "transition-[stroke-opacity,fill-opacity] duration-200";
 /** The most boxes lit at once that still get the glow. */
 const GLOW_LIMIT = 24;
 /** The most boxes on a page that still fade between states. */

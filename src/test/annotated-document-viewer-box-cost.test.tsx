@@ -37,9 +37,21 @@ function renderBoxes(boxes: AnnotationBox[], activeIds: string[] = []) {
 
 const glows = (rect: SVGRectElement) => rect.getAttribute("class")!.includes("drop-shadow");
 const fades = (rect: SVGRectElement) =>
-  rect.getAttribute("class")!.includes("transition-[opacity,fill-opacity]");
+  rect.getAttribute("class")!.includes("transition-[stroke-opacity,fill-opacity]");
+
+/** A box's whole-element `opacity` class: what makes the browser draw it as an offscreen group. */
+const groupOpacity = (rect: SVGRectElement) => /(^|\s)opacity-\d+(\s|$)/.test(rect.getAttribute("class")!);
 
 describe("AnnotatedDocumentViewer: emphasis cost on a page of many boxes", () => {
+  it("never fades a box with `opacity`: a stroke and a fill under it are drawn as an offscreen group each", () => {
+    // At rest, lit and related, on a small page and on a large one.
+    for (const count of [6, 400]) {
+      for (const rect of renderBoxes(table(count), ["line_items#1"])) expect(groupOpacity(rect)).toBe(false);
+    }
+    const [rect] = renderBoxes(table(3));
+    expect(rect!.getAttribute("class")).toContain("[stroke-opacity:0.9]");
+  });
+
   it("keeps the glow and the fade on a small page", () => {
     const rects = renderBoxes(table(6), ["line_items"]);
     expect(rects).toHaveLength(6);
