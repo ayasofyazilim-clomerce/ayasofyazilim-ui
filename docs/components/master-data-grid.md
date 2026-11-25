@@ -87,6 +87,7 @@ New:
 | column `footer` | `ColumnConfig.footer: ({ column }) => ReactNode`, rendered in a table footer row. |
 | `subRows` | Opt-in tree rows: child rows drawn under their parent, indented, with a toggle. See "Tree rows (`subRows`)" below. |
 | `memoizeRows` | Opt-in: a body row re-renders only when something it draws changes. See "Memoized rows (`memoizeRows`)" below. |
+| `windowedRows` | Opt-in: only the body rows on screen are in the DOM, in the normal markup, for a table scrolled by an ancestor. `{ estimateSize?, overscan?, scrollElement?, keepMountedIds? }`; the presence of the object turns it on. See "Windowed rows (`windowedRows`)" below. |
 | `selection.rowLabel(row)` | Opt-in: each row checkbox's accessible name, such as `` (row) => `Select ${row.name}` ``, so a screen reader can tell the rows apart. Without it, every row's checkbox reads the `column.selectRow` resource. Keep it stable (memoize it on its inputs): like `getRowId`, a new function rebuilds the columns, which remounts every cell and drops keyboard focus. |
 
 Export headers: Excel and JSON use the `column.<id>` resource, else a string `header`, else the schema property's `title`, else the column id, so a schema column's header matches the screen. CSV keeps its legacy headers (a string `header`, else the column id).
@@ -249,6 +250,63 @@ For the memo to help, keep these stable across the renders where they do not cha
 `selection.rowSelectable`, `selection.selectedIds`, `rowClassName` (as a function), `subRows` and the `config` object itself may be new every render: the row compares what they resolve to.
 
 A new `data` array re-renders every row, even when one row changed: TanStack builds new row objects for it.
+
+## Windowed rows (`windowedRows`)
+
+For a large row set (thousands of rows) where every change repaints the whole table, such as a hover highlight. With
+`windowedRows` set, only the body rows in the scroller's view, plus `overscan` rows each side, are in the DOM; hidden
+spacer rows keep the table at its full height. The table, header and rows keep the normal markup, so cells look exactly
+as without it. The grid sets no height of its own: it is scrolled by an ancestor.
+
+```tsx
+<div className="h-dvh overflow-y-auto">
+  <Filters />
+  <MasterDataGrid
+    data={results}
+    config={{
+      ...config,
+      enablePagination: false,
+      getRowId: (row) => row.id,
+      memoizeRows: true,
+      windowedRows: { keepMountedIds: pinnedId ? [pinnedId] : undefined },
+    }}
+  />
+</div>
+```
+
+| Option | Purpose |
+| --- | --- |
+| `estimateSize` | A row's height in px until it is measured. Default 36, a normal-mode row. |
+| `overscan` | Rows drawn beyond the visible ones, each side. Default 12. |
+| `scrollElement` | `() => HTMLElement \| null`: the element that scrolls the table. See the scroller rules below. |
+| `keepMountedIds` | Row ids, as `getRowId` yields them, drawn wherever the window is (a pinned row, say). |
+
+**The scroller.** Without `scrollElement` (or when it returns `null`), the grid walks up from its table body to the
+nearest element whose computed `overflow-y` is `auto`, `scroll` or `overlay` and whose content is taller than it, and
+uses the page when there is none. An `overflow: auto` element that grows with its content never scrolls, so it is passed
+over: the grid's own table wrapper is one. The choice is made again when the table, the scroller or the content above
+the grid changes size. Content above the grid inside the scroller (filters, banners) is allowed: the offset of the
+table body is measured and kept current. Pass `scrollElement` when the scroller is known, such as a ref on your
+scrolling `div`.
+
+**Rows.** Heights are measured, so rows of different heights are fine; a row's expansion row counts as part of it.
+Tree rows, `rowEvents`, `memoizeRows`, `rowClassName`, `cellClassName`, expansion rows, selection and select-all work
+as without it; expanding or collapsing rows keeps the scroll position. The table carries `aria-rowcount` (the rows in
+the model plus the header row) and each drawn row its `aria-rowindex` (the header row is 1); spacer rows are
+`aria-hidden`.
+
+**Keyboard.** The row that holds focus stays drawn when it is scrolled out of view, so focus is never dropped. Rows that
+are not drawn cannot be reached with Tab, though: turn the mode on only for large row sets, where drawing every row is
+the problem.
+
+**Limits.**
+
+- With pagination on (the default, 10 rows a page) the window holds one page and `aria-rowcount` counts it. Turn
+  pagination off, or raise `pageSize`, for a large set.
+- `enableVirtualization` wins when both are set, and `grouping.enabled` draws the normal body.
+- The server renders the spacer only; rows draw once the client has found the scroller.
+- The header sticks to the nearest scroll container, the table wrapper. When an ancestor scrolls, it does not stick,
+  as without `windowedRows`.
 
 ## Common mistakes
 

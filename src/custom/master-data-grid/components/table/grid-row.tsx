@@ -41,7 +41,26 @@ export interface GridRowProps<TData> {
    * memo compared is what is drawn.
    */
   renderState?: RowRenderState;
+  /**
+   * Set only by the windowed body (`windowedRows`). The row then carries
+   * `data-index` (read when the window measures it), `aria-rowindex` and the
+   * measuring `ref`, and its expansion row carries `data-windowed-expansion`.
+   */
+  windowed?: WindowedRowProps;
 }
+
+/** Where a windowed body draws a row (see GridRowProps.windowed). */
+export interface WindowedRowProps {
+  /** The row's position in the flattened visible rows. */
+  index: number;
+  /** Its `aria-rowindex`: the header rows plus `index` plus one. */
+  ariaRowIndex: number;
+  /** Measures the row (with its expansion row) for the window. */
+  ref: (node: HTMLTableRowElement | null) => void;
+}
+
+/** Marks the expansion row of a windowed row, so it is measured with it. */
+export const WINDOWED_EXPANSION_ATTR = "data-windowed-expansion";
 
 /** A click that starts inside one of these belongs to that control. */
 const ROW_CLICK_IGNORE =
@@ -87,12 +106,18 @@ export function GridRow<TData>({
   tree,
   rowEvents,
   renderState,
+  windowed,
 }: GridRowProps<TData>) {
   const isVirtual = mode === "virtual";
   return (
     <>
       <TableRow
         data-state={row.getIsSelected() && "selected"}
+        {...(windowed && {
+          ref: windowed.ref,
+          "data-index": windowed.index,
+          "aria-rowindex": windowed.ariaRowIndex,
+        })}
         {...rowEventProps(row.original, rowEvents)}
         className={cn(
           renderState
@@ -193,7 +218,7 @@ export function GridRow<TData>({
         })}
       </TableRow>
       {row.getIsExpanded() && expansionEnabled && expansionRenderContent && (
-        <TableRow>
+        <TableRow {...(windowed && { [WINDOWED_EXPANSION_ATTR]: "" })}>
           <TableCell
             className={isVirtual ? undefined : "has-[.pp-0]:p-0"}
             colSpan={row.getVisibleCells().length}
@@ -210,7 +235,9 @@ export function GridRow<TData>({
  * Whether a memoized row would draw the same thing again. The raw class
  * props, `editingRows` and `getRowId` are not compared: what they resolve to
  * for this row is in `renderState`. `rowEvents` is compared by its two
- * handlers, the only parts of it a row reads.
+ * handlers, the only parts of it a row reads. A windowed row is compared by
+ * its position (its index and `aria-rowindex`); its measuring ref is not
+ * compared, as it only feeds the window.
  */
 function sameRowRender<TData>(
   prev: GridRowProps<TData>,
@@ -220,6 +247,8 @@ function sameRowRender<TData>(
     prev.renderState !== undefined &&
     next.renderState !== undefined &&
     prev.mode === next.mode &&
+    prev.windowed?.index === next.windowed?.index &&
+    prev.windowed?.ariaRowIndex === next.windowed?.ariaRowIndex &&
     prev.editingEnabled === next.editingEnabled &&
     prev.expansionEnabled === next.expansionEnabled &&
     prev.expansionRenderContent === next.expansionRenderContent &&

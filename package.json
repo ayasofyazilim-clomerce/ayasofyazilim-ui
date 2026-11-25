@@ -929,6 +929,10 @@
         "types": "./dist/custom/master-data-grid/components/table/virtual-body.d.ts",
         "default": "./dist/custom/master-data-grid/components/table/virtual-body.js"
       },
+      "./custom/master-data-grid/components/table/windowed-body": {
+        "types": "./dist/custom/master-data-grid/components/table/windowed-body.d.ts",
+        "default": "./dist/custom/master-data-grid/components/table/windowed-body.js"
+      },
       "./custom/master-data-grid/components/toolbar": {
         "types": "./dist/custom/master-data-grid/components/toolbar/index.d.ts",
         "default": "./dist/custom/master-data-grid/components/toolbar/index.js"
@@ -1572,6 +1576,7 @@
     "./custom/master-data-grid/components/table/table-body-renderer": "./src/custom/master-data-grid/components/table/table-body-renderer.tsx",
     "./custom/master-data-grid/components/table/tree-cell": "./src/custom/master-data-grid/components/table/tree-cell.tsx",
     "./custom/master-data-grid/components/table/virtual-body": "./src/custom/master-data-grid/components/table/virtual-body.tsx",
+    "./custom/master-data-grid/components/table/windowed-body": "./src/custom/master-data-grid/components/table/windowed-body.tsx",
     "./custom/master-data-grid/components/toolbar": "./src/custom/master-data-grid/components/toolbar/index.ts",
     "./custom/master-data-grid/components/toolbar/toolbar": "./src/custom/master-data-grid/components/toolbar/toolbar.tsx",
     "./custom/master-data-grid/context/local-server-filters": "./src/custom/master-data-grid/context/local-server-filters.tsx",

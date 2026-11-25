@@ -236,6 +236,24 @@ export interface VirtualizationConfig {
   overscan?: number;
 }
 
+/**
+ * Opt-in windowed rows: only the body rows on screen (plus `overscan`) are in
+ * the DOM, inside the normal table markup. See "Windowed rows" in
+ * docs/components/master-data-grid.md.
+ */
+export interface WindowedRowsConfig {
+  /** A row's height in px until it is measured. Default 36. */
+  estimateSize?: number;
+  /** Rows drawn beyond the visible ones, each side. Default 12. */
+  overscan?: number;
+  /** The element that scrolls the table. Default: the nearest ancestor whose computed
+   *  `overflow-y` is auto, scroll or overlay and whose content is taller than it,
+   *  else the document. Returning `null` falls back to that default. */
+  scrollElement?: () => HTMLElement | null;
+  /** Ids (as `getRowId` yields them) of rows that must stay drawn wherever the window is, for example a pinned row. */
+  keepMountedIds?: readonly string[];
+}
+
 export interface SelectionConfig<TData = unknown> {
   enabled?: boolean;
   mode?: "single" | "multiple";
@@ -456,6 +474,12 @@ export interface MasterDataGridBaseConfig<TData = unknown> {
 
   selection?: SelectionConfig<TData>;
   virtualization?: VirtualizationConfig;
+  /**
+   * Opt-in: draw only the body rows on screen, in the normal markup, scrolled
+   * by an ancestor (the presence of the object turns it on). Ignored when
+   * `enableVirtualization` is on (that mode wins) or `grouping.enabled` is set.
+   */
+  windowedRows?: WindowedRowsConfig;
   grouping?: GroupingConfig;
   pinning?: PinningConfig;
   editing?: CellEditConfig<TData>;

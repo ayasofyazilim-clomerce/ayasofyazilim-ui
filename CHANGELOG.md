@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- MasterDataGrid `windowedRows` (`WindowedRowsConfig`: `estimateSize`, `overscan`, `scrollElement`, `keepMountedIds`): opt-in, draws only the body rows on screen inside the normal table markup, for a large table scrolled by an ancestor. Rows are measured, the focused row and `keepMountedIds` stay drawn, and the table carries `aria-rowcount` and `aria-rowindex`. Without it, normal and virtual grids render exactly as before. New subpath `custom/master-data-grid/components/table/windowed-body`.
+
 ### Fixed
 
 - `AnnotatedDocumentViewer`: choosing a field with hundreds of boxes (a table named in `activeIds`) no longer freezes the page. A glow on every lit box and a fade on every box made one hover take seconds to draw. The glow is now drawn only while 24 or fewer boxes are active, and the fade only on a page of 150 boxes or fewer; past that, boxes keep the heavier outline and fill. A smaller page looks exactly as before.

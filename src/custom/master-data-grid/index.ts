@@ -21,6 +21,7 @@ export type {
   FilterOperator,
   SelectionConfig,
   VirtualizationConfig,
+  WindowedRowsConfig,
   GroupingConfig,
   PinningConfig,
   ExportConfig,

@@ -12,6 +12,8 @@ export interface GridHeaderProps<TData> {
   table: TanStackTable<TData>;
   mode: "normal" | "virtual";
   headerClassName?: string;
+  /** Windowed rows only: each header row carries its `aria-rowindex` (from 1). */
+  rowIndexes?: boolean;
 }
 
 /** The <thead> shared by normal and virtual mode. */
@@ -19,13 +21,17 @@ export function GridHeader<TData>({
   table,
   mode,
   headerClassName,
+  rowIndexes,
 }: GridHeaderProps<TData>) {
   return (
     <TableHeader
       className={cn("sticky top-0 z-10 bg-background", headerClassName)}
     >
-      {table.getHeaderGroups().map((headerGroup) => (
-        <TableRow key={headerGroup.id}>
+      {table.getHeaderGroups().map((headerGroup, groupIndex) => (
+        <TableRow
+          key={headerGroup.id}
+          aria-rowindex={rowIndexes ? groupIndex + 1 : undefined}
+        >
           {headerGroup.headers.map((header) => (
             <TableHead
               key={header.id}
