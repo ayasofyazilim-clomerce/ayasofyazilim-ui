@@ -49,7 +49,13 @@ import {
 import { ServerFilterBar } from "./filters/server-filter-bar";
 import { ServerFilterContent } from "./filters/server-filter";
 import { Pagination } from "./pagination";
-import { GridFooter, GridHeader, TableBodyRenderer, VirtualBody } from "./table";
+import {
+  GridFooter,
+  GridHeader,
+  TableBodyRenderer,
+  VirtualBody,
+  WindowedBody,
+} from "./table";
 import { Toolbar } from "./toolbar";
 
 const COMPONENT_NAME = "MasterDataGrid";
@@ -551,6 +557,13 @@ function MasterDataGridView<TData = Record<string, unknown>>({
   }
 
   const rows = table.getRowModel().rows;
+  // Windowed rows draw only the rows on screen in the normal markup. The
+  // virtual mode wins, and grouping keeps the normal body (its group rows).
+  const windowedRows =
+    enableVirtualization || enableGrouping
+      ? undefined
+      : configWithDefaults.windowedRows;
+  const headerRowCount = windowedRows ? table.getHeaderGroups().length : 0;
 
   return (
     <LocalServerFiltersContext.Provider value={localServerFilters}>
@@ -626,38 +639,65 @@ function MasterDataGridView<TData = Record<string, unknown>>({
                 configWithDefaults.tableClassName
               )}
               wrapperClassName="overflow-auto size-full"
+              aria-rowcount={
+                windowedRows ? headerRowCount + rows.length : undefined
+              }
             >
               <GridHeader
                 table={table}
                 mode="normal"
                 headerClassName={configWithDefaults.headerClassName}
+                rowIndexes={windowedRows ? true : undefined}
               />
-              <TableBodyRenderer
-                table={table}
-                rows={rows}
-                rowClassName={configWithDefaults.rowClassName}
-                cellClassName={configWithDefaults.cellClassName}
-                editingRows={tableState.editingRows}
-                getRowId={getRowId}
-                editingEnabled={configWithDefaults.editing?.enabled}
-                emptyMessage={getTranslations("table.noResults", t)}
-                expansionEnabled={configWithDefaults.expansion?.enabled}
-                expansionRenderContent={
-                  configWithDefaults.expansion?.renderContent
-                }
-                bodyClassName={configWithDefaults.bodyClassName}
-                hideNullGroups={configWithDefaults.grouping?.hideNullGroups}
-                groupRowLookup={groupRowLookup}
-                groupFallbackRenderer={
-                  configWithDefaults.grouping?.groupFallbackRenderer
-                }
-                hideGroupParentRows={
-                  configWithDefaults.grouping?.hideGroupParentRows
-                }
-                tree={tree}
-                rowEvents={configWithDefaults.rowEvents}
-                memoizeRows={configWithDefaults.memoizeRows}
-              />
+              {windowedRows ? (
+                <WindowedBody
+                  table={table}
+                  rows={rows}
+                  windowedRows={windowedRows}
+                  headerRowCount={headerRowCount}
+                  rowClassName={configWithDefaults.rowClassName}
+                  cellClassName={configWithDefaults.cellClassName}
+                  editingRows={tableState.editingRows}
+                  getRowId={getRowId}
+                  editingEnabled={configWithDefaults.editing?.enabled}
+                  emptyMessage={getTranslations("table.noResults", t)}
+                  expansionEnabled={configWithDefaults.expansion?.enabled}
+                  expansionRenderContent={
+                    configWithDefaults.expansion?.renderContent
+                  }
+                  bodyClassName={configWithDefaults.bodyClassName}
+                  tree={tree}
+                  rowEvents={configWithDefaults.rowEvents}
+                  memoizeRows={configWithDefaults.memoizeRows}
+                />
+              ) : (
+                <TableBodyRenderer
+                  table={table}
+                  rows={rows}
+                  rowClassName={configWithDefaults.rowClassName}
+                  cellClassName={configWithDefaults.cellClassName}
+                  editingRows={tableState.editingRows}
+                  getRowId={getRowId}
+                  editingEnabled={configWithDefaults.editing?.enabled}
+                  emptyMessage={getTranslations("table.noResults", t)}
+                  expansionEnabled={configWithDefaults.expansion?.enabled}
+                  expansionRenderContent={
+                    configWithDefaults.expansion?.renderContent
+                  }
+                  bodyClassName={configWithDefaults.bodyClassName}
+                  hideNullGroups={configWithDefaults.grouping?.hideNullGroups}
+                  groupRowLookup={groupRowLookup}
+                  groupFallbackRenderer={
+                    configWithDefaults.grouping?.groupFallbackRenderer
+                  }
+                  hideGroupParentRows={
+                    configWithDefaults.grouping?.hideGroupParentRows
+                  }
+                  tree={tree}
+                  rowEvents={configWithDefaults.rowEvents}
+                  memoizeRows={configWithDefaults.memoizeRows}
+                />
+              )}
               <GridFooter table={table} />
             </Table>
           )}
